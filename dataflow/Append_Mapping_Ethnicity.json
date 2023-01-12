@@ -1,0 +1,110 @@
+{
+	"name": "Append_Mapping_Ethnicity",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_Ethnicity",
+						"type": "DatasetReference"
+					},
+					"name": "Ethnicity"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentEthnicityMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendEthnicityMapping"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Race} as string,",
+				"          {Client Hispanic or Latino Origin} as string,",
+				"          {Elloree Race} as string,",
+				"          {Elloree Hispanic or Latino Origin} as string,",
+				"          {Suggested Elloree Race} as string,",
+				"          {Suggested Elloree Hispanic or Latino Origin} as string,",
+				"          {Suggested Source} as string,",
+				"          {2017 Headcount} as string,",
+				"          {2018 Headcount} as string,",
+				"          {2018 Hire} as string,",
+				"          {2018 Promo} as string,",
+				"          {2018 Term} as string,",
+				"          {2019 Headcount} as string,",
+				"          {2019 Hire} as string,",
+				"          {2019 Promo} as string,",
+				"          {2019 Term} as string,",
+				"          {2020 Headcount} as string,",
+				"          {2020 Hire} as string,",
+				"          {2020 Promo} as string,",
+				"          {2020 Term} as string,",
+				"          {2021 Headcount} as string,",
+				"          {2021 Hire} as string,",
+				"          {2021 Promo} as string,",
+				"          {2021 Term} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Ethnicity",
+				"Ethnicity alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Engagement Date})),",
+				"     deleteIf(isNull({Elloree Race})),",
+				"     deleteIf(isNull({Elloree Hispanic or Latino Origin}))) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          ClientRace = {Client Race},",
+				"          ClientHispanicLatinoOrigin = {Client Hispanic or Latino Origin},",
+				"          ElloreeRace = {Elloree Race},",
+				"          ElloreeHispanicLatinoOrigin = {Elloree Hispanic or Latino Origin},",
+				"          ClientId = {Client ID},",
+				"          ClientEngagementDt = {Client Engagement Date}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientRace as string,",
+				"          ClientHispanicLatinoOrigin as string,",
+				"          ElloreeRace as string,",
+				"          ElloreeHispanicLatinoOrigin as string,",
+				"          ElloreeEthnicGroup as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientRace','ClientHispanicLatinoOrigin'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> AppendEthnicityMapping"
+			]
+		}
+	}
+}

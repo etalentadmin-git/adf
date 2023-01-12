@@ -1,0 +1,91 @@
+{
+	"name": "Delete_All_Rec_FactTbl_Talent",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Delete Records/Fact Tables/All Records"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentTalentFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "TalentFactTbl"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentTalentFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "DeleteRecords"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          WorkerId as string,",
+				"          EventYear as integer,",
+				"          EventDt as date,",
+				"          Event as string,",
+				"          EventType as string,",
+				"          PerfRating as string,",
+				"          PerfRatingDt as date,",
+				"          TalentIdentifier1 as string,",
+				"          TalentIdentifier2 as string,",
+				"          TalentIdentifier3 as string,",
+				"          TalentIdentifier4 as string,",
+				"          TalentIdentifier5 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> TalentFactTbl",
+				"TalentFactTbl alterRow(deleteIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          WorkerId as string,",
+				"          EventYear as integer,",
+				"          EventDt as date,",
+				"          Event as string,",
+				"          EventType as string,",
+				"          PerfRating as string,",
+				"          PerfRatingDt as date,",
+				"          TalentIdentifier1 as string,",
+				"          TalentIdentifier2 as string,",
+				"          TalentIdentifier3 as string,",
+				"          TalentIdentifier4 as string,",
+				"          TalentIdentifier5 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:true,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     keys:['ClientId','ClientEngagementDt'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+			]
+		}
+	}
+}

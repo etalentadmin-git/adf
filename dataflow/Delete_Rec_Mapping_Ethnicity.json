@@ -1,0 +1,77 @@
+{
+	"name": "Delete_Rec_Mapping_Ethnicity",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Delete Records/Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentEthnicityMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "EthnicityMapTbl"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentEthnicityMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "DeleteRecords"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientRace as string,",
+				"          ClientHispanicLatinoOrigin as string,",
+				"          ElloreeRace as string,",
+				"          ElloreeHispanicLatinoOrigin as string,",
+				"          ElloreeEthnicGroup as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[EthnicityMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> EthnicityMapTbl",
+				"EthnicityMapTbl alterRow(deleteIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientRace as string,",
+				"          ClientHispanicLatinoOrigin as string,",
+				"          ElloreeRace as string,",
+				"          ElloreeHispanicLatinoOrigin as string,",
+				"          ElloreeEthnicGroup as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:true,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     keys:['ClientId','ClientEngagementDt'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+			]
+		}
+	}
+}

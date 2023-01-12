@@ -1,0 +1,153 @@
+{
+	"name": "DF_Review_Nulls_TalentAssessment",
+	"properties": {
+		"folder": {
+			"name": "Client/Create Audit Reports"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_TalentData_File",
+						"type": "DatasetReference"
+					},
+					"name": "CoreTalent"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_AuditFolder",
+						"type": "DatasetReference"
+					},
+					"name": "OutputNullReview"
+				}
+			],
+			"transformations": [
+				{
+					"name": "IdentifyNulls",
+					"description": "Calculate whether a null value exists and assign 1 for count."
+				},
+				{
+					"name": "AggregateNullsByColumn",
+					"description": "Count nulls for each column and group by event."
+				},
+				{
+					"name": "unpivotColumnNames",
+					"description": "Unpivot as part of formatting to establish Column Name as the primary dimension column."
+				},
+				{
+					"name": "pivotEvents",
+					"description": "Pivot row to show counts by column names grouped by events."
+				},
+				{
+					"name": "derivedColumn1",
+					"description": "Pivot to show null counts by column name and grouped by events."
+				},
+				{
+					"name": "ChangeColumnNames",
+					"description": "Rename columns to remove 'Null' name tagging."
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as string,",
+				"          {Event Year} as string,",
+				"          {Event Date} as string,",
+				"          Event as string,",
+				"          {Event Type} as string,",
+				"          {Worker ID} as string,",
+				"          {Performance Rating} as string,",
+				"          {Performance Rating Date} as string,",
+				"          {Talent Identifier (1)} as string,",
+				"          {Talent Identifier (2)} as string,",
+				"          {Talent Identifier (3)} as string,",
+				"          {Talent Identifier (4)} as string,",
+				"          {Talent Identifier (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> CoreTalent",
+				"CoreTalent derive({Event Year - Null} = iif(isNull({Event Year}),1,iif({Event Year}=='N/A',1,0)),",
+				"          {Event Date  - Null} = iif(isNull({Event Date}),1,iif({Event Date}=='N/A',1,0)),",
+				"          {Event - Null} = iif(isNull(Event),1,iif(Event=='N/A',1,0)),",
+				"          {Worker ID - Null} = iif(isNull({Worker ID}),1,iif({Worker ID}=='N/A',1,0)),",
+				"          {Performance Rating - Null} = iif(isNull({Performance Rating}),1,iif({Performance Rating}=='N/A',1,0)),",
+				"          {Performance Rating Date - Null} = iif(isNull({Performance Rating Date}), 1,0),",
+				"          {Talent Identifier (1) - Null} = iif(isNull({Talent Identifier (1)}),1,iif({Talent Identifier (1)}=='N/A',1,0)),",
+				"          {Talent Identifier (2) - Null} = iif(isNull({Talent Identifier (2)}),1,iif({Talent Identifier (2)}=='N/A',1,0)),",
+				"          {Talent Identifier (3) - Null} = iif(isNull({Talent Identifier (3)}),1,iif({Talent Identifier (3)}=='N/A',1,0)),",
+				"          {Talent Identifier (4) - Null} = iif(isNull({Talent Identifier (4)}),1,iif({Talent Identifier (4)}=='N/A',1,0)),",
+				"          {Talent Identifier (5) - Null} = iif(isNull({Talent Identifier (5)}),1,iif({Talent Identifier (5)}=='N/A',1,0)),",
+				"          EmpCount = 1) ~> IdentifyNulls",
+				"IdentifyNulls aggregate(groupBy({Event Review} = Event,",
+				"          {Client ID},",
+				"          {Client Engagement Date}),",
+				"     {Event Year - Null} = sum({Event Year - Null}),",
+				"          {Event Date  - Null} = sum({Event Date  - Null}),",
+				"          {Event - Null} = sum({Event - Null}),",
+				"          {Worker ID - Null} = sum({Worker ID - Null}),",
+				"          {Performance Rating - Null} = sum({Performance Rating - Null}),",
+				"          {Performance Rating Date - Null} = sum({Performance Rating Date - Null}),",
+				"          {Talent Identifier (1) - Null} = sum({Talent Identifier (1) - Null}),",
+				"          {Talent Identifier (2) - Null} = sum({Talent Identifier (2) - Null}),",
+				"          {Talent Identifier (3) - Null} = sum({Talent Identifier (3) - Null}),",
+				"          {Talent Identifier (4) - Null} = sum({Talent Identifier (4) - Null}),",
+				"          {Talent Identifier (5) - Null} = sum({Talent Identifier (5) - Null}),",
+				"          Total = sum(EmpCount)) ~> AggregateNullsByColumn",
+				"ChangeColumnNames unpivot(output(",
+				"          {Table Columns} as string,",
+				"          Total as long",
+				"     ),",
+				"     ungroupBy({Event Review},",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Total Records}),",
+				"     lateral: true,",
+				"     ignoreNullPivots: false) ~> unpivotColumnNames",
+				"derivedColumn1 pivot(groupBy({Event Review},",
+				"          {Table Columns},",
+				"          {Client ID},",
+				"          {Client Engagement Date}),",
+				"     pivotBy({Event Review}),",
+				"     { Null Total} = sum(Total),",
+				"          { Null % of Total} = sum({%}),",
+				"     columnNaming: '$V$N',",
+				"     lateral: false,",
+				"     partitionBy('hash', 1)) ~> pivotEvents",
+				"unpivotColumnNames derive({%} = round(Total/{Total Records}*100,0)) ~> derivedColumn1",
+				"AggregateNullsByColumn select(mapColumn(",
+				"          {Event Review},",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event Year} = {Event Year - Null},",
+				"          {Event Date} = {Event Date  - Null},",
+				"          Event = {Event - Null},",
+				"          {Worker ID} = {Worker ID - Null},",
+				"          {Performance Rating} = {Performance Rating - Null},",
+				"          {Performance Rating Date} = {Performance Rating Date - Null},",
+				"          {Talent Identifier (1)} = {Talent Identifier (1) - Null},",
+				"          {Talent Identifier (2)} = {Talent Identifier (2) - Null},",
+				"          {Talent Identifier (3)} = {Talent Identifier (3) - Null},",
+				"          {Talent Identifier (4) } = {Talent Identifier (4) - Null},",
+				"          {Talent Identifier (5)} = {Talent Identifier (5) - Null},",
+				"          {Total Records} = Total",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ChangeColumnNames",
+				"pivotEvents sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['Template - Null Review Talent Assessment.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> OutputNullReview"
+			]
+		}
+	}
+}

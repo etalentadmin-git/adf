@@ -1,0 +1,95 @@
+{
+	"name": "Append_Mapping_PerformanceRating",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_PerformanceRating",
+						"type": "DatasetReference"
+					},
+					"name": "Performance"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentPerfRatingMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendPerformanceMapping"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Performance Rating} as string,",
+				"          {Elloree Performance Rating} as string,",
+				"          {Elloree Performance Rating Sort} as string,",
+				"          {Suggested Elloree Performance Rating} as string,",
+				"          {Suggested Elloree Performane Rating Sort Id} as string,",
+				"          {Suggested Source} as string,",
+				"          {2017 Talent Assessment} as string,",
+				"          {2018 Talent Assessment} as string,",
+				"          {2019 Talent Assessment} as string,",
+				"          {2020 Talent Assessment} as string,",
+				"          {2021 Talent Assessment} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Performance",
+				"Performance alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Engagement Date})),",
+				"     deleteIf(isNull({Client Performance Rating})),",
+				"     deleteIf(isNull({Elloree Performance Rating})),",
+				"     deleteIf(isNull({Elloree Performance Rating Sort}))) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          ClientPerfRating = {Client Performance Rating},",
+				"          ElloreePerfRating = {Elloree Performance Rating},",
+				"          ElloreePerfRatingSortId = {Elloree Performance Rating Sort},",
+				"          ClientId = {Client ID},",
+				"          ClientEngagementDt = {Client Engagement Date}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientPerfRating as string,",
+				"          ElloreePerfRating as string,",
+				"          ElloreePerfRatingSortId as integer,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientPerfRating'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> AppendPerformanceMapping"
+			]
+		}
+	}
+}

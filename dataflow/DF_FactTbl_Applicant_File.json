@@ -1,0 +1,166 @@
+{
+	"name": "DF_FactTbl_Applicant_File",
+	"properties": {
+		"folder": {
+			"name": "Client/Create Fact Table Files"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Template_JobApplicants",
+						"type": "DatasetReference"
+					},
+					"name": "Applicants"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_FactTblFldr",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FilterOutClientHeaderRowAndColumn"
+				},
+				{
+					"name": "SelectFinal"
+				},
+				{
+					"name": "AddDerived"
+				},
+				{
+					"name": "ConvertNullsForKeyFields"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "RemoveNullRecords"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+				"          {Event Year} as short,",
+				"          {Event Quarter} as integer,",
+				"          {Event Date} as date,",
+				"          {Requisition ID} as string,",
+				"          {Applicant ID} as string,",
+				"          Source as string,",
+				"          {Applicant Type} as string,",
+				"          {Internal Worker ID} as string,",
+				"          Race as string,",
+				"          {Hispanic or Latino Origin} as string,",
+				"          Gender as string,",
+				"          {Veteran Ind} as string,",
+				"          LGTBQ as string,",
+				"          {Disability Ind} as string,",
+				"          {Applicant Final Disposition} as string,",
+				"          {Applicant Step Before Final Disposition} as string,",
+				"          {Applicant Rejected Reason} as string,",
+				"          {Applicant Other (1)} as string,",
+				"          {Applicant Other (2)} as string,",
+				"          {Applicant Other (3)} as string,",
+				"          {Applicant Other (4)} as string,",
+				"          {Applicant Other (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Applicants",
+				"Applicants filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+				"derivedColumn1 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event Date},",
+				"          EventMonth,",
+				"          {Event Quarter},",
+				"          {Event Year},",
+				"          Event,",
+				"          {Requisition ID},",
+				"          {Applicant ID},",
+				"          Source,",
+				"          {Applicant Type},",
+				"          {Internal Worker ID},",
+				"          Race,",
+				"          {Hispanic or Latino Origin},",
+				"          Gender,",
+				"          {Veteran Ind},",
+				"          LGTBQ,",
+				"          {Disability Ind},",
+				"          {Applicant Final Disposition},",
+				"          {Applicant Step Before Final Disposition},",
+				"          {Applicant Rejected Reason},",
+				"          {Applicant Other (1)},",
+				"          {Applicant Other (2)},",
+				"          {Applicant Other (3)},",
+				"          {Applicant Other (4)},",
+				"          {Applicant Other (5)}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectFinal",
+				"RemoveNullRecords derive({Client ID} = $Flow_Client_Id,",
+				"          {Client Engagement Date} = $Flow_Client_Dt,",
+				"          Event = 'Job Applicant') ~> AddDerived",
+				"AddDerived derive(Event = iif(isNull(Event),'Job Applicant',Event),",
+				"          Source = iif(isNull(Source),'N/A',Source),",
+				"          {Applicant Type} = iif(isNull({Applicant Type}),'N/A',{Applicant Type}),",
+				"          Race = iif(isNull(Race),'N/A',Race),",
+				"          {Hispanic or Latino Origin} = iif(isNull({Hispanic or Latino Origin}),'N/A',{Hispanic or Latino Origin}),",
+				"          Gender = iif(isNull(Gender),'N/A',Gender),",
+				"          {Veteran Ind} = iif(isNull({Veteran Ind}),'N/A',{Veteran Ind}),",
+				"          LGTBQ = iif(isNull(LGTBQ),'N/A',LGTBQ),",
+				"          {Disability Ind} = iif(isNull({Disability Ind}),'N/A',{Disability Ind}),",
+				"          {Applicant Step Before Final Disposition} = iif(isNull({Applicant Step Before Final Disposition}),'N/A',{Applicant Step Before Final Disposition}),",
+				"          {Applicant Rejected Reason} = iif(isNull({Applicant Rejected Reason}),'N/A',{Applicant Rejected Reason})) ~> ConvertNullsForKeyFields",
+				"ConvertNullsForKeyFields derive(EventMonth = month({Event Date})) ~> derivedColumn1",
+				"FilterOutClientHeaderRowAndColumn filter(!(isNull({Applicant ID}))) ~> RemoveNullRecords",
+				"SelectFinal sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string,",
+				"          Column_3 as string,",
+				"          Column_4 as string,",
+				"          Column_5 as string,",
+				"          Column_6 as string,",
+				"          Column_7 as string,",
+				"          Column_8 as string,",
+				"          Column_9 as string,",
+				"          Column_10 as string,",
+				"          Column_11 as string,",
+				"          Column_12 as string,",
+				"          Column_13 as string,",
+				"          Column_14 as string,",
+				"          Column_15 as string,",
+				"          Column_16 as string,",
+				"          Column_17 as string,",
+				"          Column_18 as string,",
+				"          Column_19 as string,",
+				"          Column_20 as string,",
+				"          Column_21 as string,",
+				"          Column_22 as string,",
+				"          Column_23 as string,",
+				"          Column_24 as string,",
+				"          Column_25 as string,",
+				"          Column_26 as string,",
+				"          Column_27 as string,",
+				"          Column_28 as string",
+				"     ),",
+				"     partitionFileNames:['ApplicantTbl.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}

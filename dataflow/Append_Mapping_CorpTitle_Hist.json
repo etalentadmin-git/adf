@@ -1,0 +1,81 @@
+{
+	"name": "Append_Mapping_CorpTitle_Hist",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentCorpTitleMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "CorpTitle"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentCorpTitleMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendCorpTitleMappingToDB"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Hist_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientCorpTitle as string,",
+				"          ClientElloreeCorpTitle as string,",
+				"          ElloreeCorpTitle as string,",
+				"          ElloreeCorpTitleSortId as integer,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[CorpTitleMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+				"     format: 'query') ~> CorpTitle",
+				"CorpTitle alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 derive(LoadDt = currentDate(),",
+				"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientCorpTitle as string,",
+				"          ClientElloreeCorpTitle as string,",
+				"          ElloreeCorpTitle as string,",
+				"          ElloreeCorpTitleSortId as integer,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientCorpTitle'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> AppendCorpTitleMappingToDB"
+			]
+		}
+	}
+}

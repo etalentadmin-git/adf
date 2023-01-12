@@ -1,0 +1,142 @@
+{
+	"name": "DF_FactTbl_OtherCore_File",
+	"properties": {
+		"folder": {
+			"name": "Client/Create Fact Table Files"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Template_OtherCore",
+						"type": "DatasetReference"
+					},
+					"name": "Other"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_FactTblFldr",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FilterOutClientHeaderRowAndColumn"
+				},
+				{
+					"name": "SelectFinal"
+				},
+				{
+					"name": "AddDerivedColumns"
+				},
+				{
+					"name": "ConvertNullsForKeyFields"
+				},
+				{
+					"name": "RemoveNullRows"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+				"          {Event Year} as short,",
+				"          {Event Quarter} as integer,",
+				"          {Event Date} as date,",
+				"          {Worker ID} as string,",
+				"          {Event (Type)} as string,",
+				"          {Event (Desc)} as string,",
+				"          {Other (Char Value 1)} as string,",
+				"          {Other (Char Value 2)} as string,",
+				"          {Other (Num Value 1)} as string,",
+				"          {Other (Num Value 2)} as string,",
+				"          {Other (Date Value 1)} as string,",
+				"          {Other (Date Value 2)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Other",
+				"Other filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+				"ConvertNullsForKeyFields select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Worker ID},",
+				"          {Event Date},",
+				"          EventMonth,",
+				"          {Event Quarter},",
+				"          {Event Year},",
+				"          {Event ID},",
+				"          Event,",
+				"          {Event (Type)},",
+				"          {Event (Desc)},",
+				"          {Other (Char Value 1)},",
+				"          {Other (Char Value 2)},",
+				"          {Other (Num Value 1)},",
+				"          {Other (Num Value 2)},",
+				"          {Other (Date Value 1)},",
+				"          {Other (Date Value 2)}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectFinal",
+				"RemoveNullRows derive({Client ID} = $Flow_Client_Id,",
+				"          {Client Engagement Date} = $Flow_Client_Dt,",
+				"          Event = 'Other',",
+				"          {Event ID} = 'OTH',",
+				"          EventMonth = month({Event Date})) ~> AddDerivedColumns",
+				"AddDerivedColumns derive({Event (Type)} = iif(isNull({Event (Type)}),'N/A',{Event (Type)}),",
+				"          {Event (Desc)} = iif(isNull({Event (Desc)}),'N/A',{Event (Desc)}),",
+				"          {Other (Char Value 1)} = iif(isNull({Other (Char Value 1)}),'N/A',{Other (Char Value 1)}),",
+				"          {Other (Char Value 2)} = iif(isNull({Other (Char Value 2)}),'N/A',{Other (Char Value 2)}),",
+				"          {Other (Num Value 1)} = iif(isNull({Other (Num Value 1)}),'N/A',{Other (Num Value 1)}),",
+				"          {Other (Num Value 2)} = iif(isNull({Other (Num Value 2)}),'N/A',{Other (Num Value 2)}),",
+				"          {Other (Date Value 1)} = iif(isNull({Other (Date Value 1)}),'N/A',{Other (Date Value 1)}),",
+				"          {Other (Date Value 2)} = iif(isNull({Other (Date Value 2)}),'N/A',{Other (Date Value 2)})) ~> ConvertNullsForKeyFields",
+				"FilterOutClientHeaderRowAndColumn filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullRows",
+				"SelectFinal sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string,",
+				"          Column_3 as string,",
+				"          Column_4 as string,",
+				"          Column_5 as string,",
+				"          Column_6 as string,",
+				"          Column_7 as string,",
+				"          Column_8 as string,",
+				"          Column_9 as string,",
+				"          Column_10 as string,",
+				"          Column_11 as string,",
+				"          Column_12 as string,",
+				"          Column_13 as string,",
+				"          Column_14 as string,",
+				"          Column_15 as string,",
+				"          Column_16 as string,",
+				"          Column_17 as string,",
+				"          Column_18 as string,",
+				"          Column_19 as string,",
+				"          Column_20 as string,",
+				"          Column_21 as string,",
+				"          Column_22 as string,",
+				"          Column_23 as string,",
+				"          Column_24 as string,",
+				"          Column_25 as string,",
+				"          Column_26 as string,",
+				"          Column_27 as string,",
+				"          Column_28 as string",
+				"     ),",
+				"     partitionFileNames:['OthrCoreFlexTbl.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}

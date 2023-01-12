@@ -1,0 +1,89 @@
+{
+	"name": "Append_Mapping_BusHierarchy_Hist",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentBusHierarchyMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "BusHierarchy"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentBusHierarchyMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendBusHierarchyMapping"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Hist_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientBusGrpLvl1 as string,",
+				"          ClientBusGrpLvl2 as string,",
+				"          ClientBusGrpLvl3 as string,",
+				"          ClientBusGrpLvl4 as string,",
+				"          ElloreeBusGrpLvl1 as string,",
+				"          ElloreeBusGrpLvl2 as string,",
+				"          ElloreeBusGrpLvl3 as string,",
+				"          ElloreeBusGrpLvl4 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[BusinessMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+				"     format: 'query') ~> BusHierarchy",
+				"BusHierarchy alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 derive(LoadDt = currentDate(),",
+				"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientBusGrpLvl1 as string,",
+				"          ClientBusGrpLvl2 as string,",
+				"          ClientBusGrpLvl3 as string,",
+				"          ClientBusGrpLvl4 as string,",
+				"          ElloreeBusGrpLvl1 as string,",
+				"          ElloreeBusGrpLvl2 as string,",
+				"          ElloreeBusGrpLvl3 as string,",
+				"          ElloreeBusGrpLvl4 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientBusGrpLvl1','ClientBusGrpLvl2','ClientBusGrpLvl3','ClientBusGrpLvl4'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> AppendBusHierarchyMapping"
+			]
+		}
+	}
+}

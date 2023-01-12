@@ -1,0 +1,105 @@
+{
+	"name": "Append_Mapping_ApplicantFlow",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_Applicant",
+						"type": "DatasetReference"
+					},
+					"name": "ApplicantFlowMapping"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentApplFlowMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendApplicantFlowMapping"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Applicant Final Disposition} as string,",
+				"          {Client Applicant Step Before Final Disposition} as string,",
+				"          {Client Applicant Rejected Reason} as string,",
+				"          {Elloree Applicant Final Disposition} as string,",
+				"          {Elloree Applicant Category} as string,",
+				"          {Elloree Submitted to Mgr Fl} as string,",
+				"          {Suggested Elloree Applicant Final Disposition} as string,",
+				"          {Suggested Elloree Applicant Category} as string,",
+				"          {Suggested Elloree Submitted to Mgr Fl} as string,",
+				"          {Suggested Source} as string,",
+				"          {2021 Job Applicant} as string,",
+				"          {2022 Job Applicant} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ApplicantFlowMapping",
+				"ApplicantFlowMapping alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Engagement Date})),",
+				"     deleteIf(isNull({Client Applicant Final Disposition})),",
+				"     deleteIf(isNull({Client Applicant Step Before Final Disposition})),",
+				"     deleteIf(isNull({Client Applicant Rejected Reason})),",
+				"     deleteIf(isNull({Elloree Applicant Final Disposition})),",
+				"     deleteIf(isNull({Elloree Applicant Category})),",
+				"     deleteIf(isNull({Elloree Submitted to Mgr Fl}))) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          ClientId = {Client ID},",
+				"          ClientEngagementDt = {Client Engagement Date},",
+				"          ClientApplFinalDisp = {Client Applicant Final Disposition},",
+				"          ClientApplStepBeforeFinalDisp = {Client Applicant Step Before Final Disposition},",
+				"          ClientApplRejectedReason = {Client Applicant Rejected Reason},",
+				"          ElloreeApplFinalDisp = {Elloree Applicant Final Disposition},",
+				"          ElloreeApplCategory = {Elloree Applicant Category},",
+				"          ElloreeSubmittedtoMgrFl = {Elloree Submitted to Mgr Fl}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientApplFinalDisp as string,",
+				"          ClientApplStepBeforeFinalDisp as string,",
+				"          ClientApplRejectedReason as string,",
+				"          ElloreeApplFinalDisp as string,",
+				"          ElloreeApplCategory as string,",
+				"          ElloreeSubmittedtoMgrFl as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientApplFinalDisp','ClientApplStepBeforeFinalDisp','ClientApplRejectedReason'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> AppendApplicantFlowMapping"
+			]
+		}
+	}
+}

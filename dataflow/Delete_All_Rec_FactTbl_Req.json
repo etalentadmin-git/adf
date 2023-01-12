@@ -1,0 +1,128 @@
+{
+	"name": "Delete_All_Rec_FactTbl_Req",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Delete Records/Fact Tables/All Records"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentReqFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "Requisition"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentReqFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "DeleteRecords"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          ReqId as string,",
+				"          ReqType as string,",
+				"          PostingDt as date,",
+				"          ReqStatus as string,",
+				"          NumberofOpenings as integer,",
+				"          JobTitle as string,",
+				"          JobFunction as string,",
+				"          CorpTitle as string,",
+				"          WorkOfficeLoc as string,",
+				"          WorkOfficeCity as string,",
+				"          WorkOfficeState as string,",
+				"          WorkOfficeCountry as string,",
+				"          WorkStrategicLocInd as string,",
+				"          BusinessGrpLvl1 as string,",
+				"          BusinessGrpLvl2 as string,",
+				"          BusinessGrpLvl3 as string,",
+				"          BusinessGrpLvl4 as string,",
+				"          HiringMgrWorkerId as string,",
+				"          PrimaryRecruiterWorkerId as string,",
+				"          ReqOther1 as string,",
+				"          ReqOther2 as string,",
+				"          ReqOther3 as string,",
+				"          ReqOther4 as string,",
+				"          ReqOther5 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[TAReqTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> Requisition",
+				"Requisition alterRow(deleteIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientEngagementType as string,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          ReqId as string,",
+				"          ReqType as string,",
+				"          PostingDt as date,",
+				"          ReqStatus as string,",
+				"          NumberofOpenings as integer,",
+				"          JobTitle as string,",
+				"          JobFunction as string,",
+				"          CorpTitle as string,",
+				"          WorkOfficeLoc as string,",
+				"          WorkOfficeCity as string,",
+				"          WorkOfficeState as string,",
+				"          WorkOfficeCountry as string,",
+				"          WorkStrategicLocInd as string,",
+				"          BusinessGrpLvl1 as string,",
+				"          BusinessGrpLvl2 as string,",
+				"          BusinessGrpLvl3 as string,",
+				"          BusinessGrpLvl4 as string,",
+				"          HiringMgrWorkerId as string,",
+				"          PrimaryRecruiterWorkerId as string,",
+				"          ReqOther1 as string,",
+				"          ReqOther2 as string,",
+				"          ReqOther3 as string,",
+				"          ReqOther4 as string,",
+				"          ReqOther5 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:true,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     keys:['ClientId','ClientEngagementDt'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+			]
+		}
+	}
+}

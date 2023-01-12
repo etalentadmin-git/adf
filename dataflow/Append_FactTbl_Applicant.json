@@ -1,0 +1,160 @@
+{
+	"name": "Append_FactTbl_Applicant",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Fact Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_Applicant_File",
+						"type": "DatasetReference"
+					},
+					"name": "Applicant"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentApplicantFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "RemoveNullRows"
+				},
+				{
+					"name": "derivedColumn2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Event Date} as date 'yyyy-MM-dd',",
+				"          EventMonth as integer,",
+				"          {Event Quarter} as integer,",
+				"          {Event Year} as short,",
+				"          Event as string,",
+				"          {Requisition ID} as string,",
+				"          {Applicant ID} as string,",
+				"          Source as string,",
+				"          {Applicant Type} as string,",
+				"          {Internal Worker ID} as string,",
+				"          Race as string,",
+				"          {Hispanic or Latino Origin} as string,",
+				"          Gender as string,",
+				"          {Veteran Ind} as string,",
+				"          LGTBQ as string,",
+				"          {Disability Ind} as string,",
+				"          {Applicant Final Disposition} as string,",
+				"          {Applicant Step Before Final Disposition} as string,",
+				"          {Applicant Rejected Reason} as string,",
+				"          {Applicant Other (1)} as string,",
+				"          {Applicant Other (2)} as string,",
+				"          {Applicant Other (3)} as string,",
+				"          {Applicant Other (4)} as string,",
+				"          {Applicant Other (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Applicant",
+				"RemoveNullRows alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Engagement Date})),",
+				"     deleteIf(isNull({Event Date})),",
+				"     deleteIf(isNull(Event)),",
+				"     deleteIf(isNull({Requisition ID})),",
+				"     deleteIf(isNull({Applicant ID}))) ~> alterRow1",
+				"derivedColumn2 select(mapColumn(",
+				"          ClientId = {Client ID},",
+				"          ClientEngagementDt = {Client Engagement Date},",
+				"          EventDt = {Event Date},",
+				"          EventMonth,",
+				"          EventQuarter = {Event Quarter},",
+				"          EventYear = {Event Year},",
+				"          EventId,",
+				"          Event,",
+				"          ReqId = {Requisition ID},",
+				"          ApplicantId = {Applicant ID},",
+				"          Source,",
+				"          ApplType = {Applicant Type},",
+				"          InternalWorkerId = {Internal Worker ID},",
+				"          Race,",
+				"          HispanicLatinoOrigin = {Hispanic or Latino Origin},",
+				"          Gender,",
+				"          Veteran = {Veteran Ind},",
+				"          LGTBQ,",
+				"          DisabilityInd = {Disability Ind},",
+				"          ApplFinalDisp = {Applicant Final Disposition},",
+				"          ApplStepBeforeFinalDisp = {Applicant Step Before Final Disposition},",
+				"          ApplRejectedReason = {Applicant Rejected Reason},",
+				"          ApplOther1 = {Applicant Other (1)},",
+				"          ApplOther2 = {Applicant Other (2)},",
+				"          ApplOther3 = {Applicant Other (3)},",
+				"          ApplOther4 = {Applicant Other (4)},",
+				"          ApplOther5 = {Applicant Other (5)},",
+				"          LoadDt",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"Applicant filter(!(isNull({Event Date}))||!(isNull({Applicant ID}))) ~> RemoveNullRows",
+				"alterRow1 derive(EventId = 'APP',",
+				"          LoadDt = currentDate()) ~> derivedColumn2",
+				"AlterColumnNamesforMap sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientEngagementType as string,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          ReqId as string,",
+				"          ApplicantId as string,",
+				"          Source as string,",
+				"          ApplType as string,",
+				"          InternalWorkerId as string,",
+				"          Race as string,",
+				"          HispanicLatinoOrigin as string,",
+				"          Gender as string,",
+				"          Veteran as string,",
+				"          LGTBQ as string,",
+				"          DisabilityInd as string,",
+				"          ApplFinalDisp as string,",
+				"          ApplStepBeforeFinalDisp as string,",
+				"          ApplRejectedReason as string,",
+				"          ApplOther1 as string,",
+				"          ApplOther2 as string,",
+				"          ApplOther3 as string,",
+				"          ApplOther4 as string,",
+				"          ApplOther5 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ApplicantId','ReqId','EventDt','EventId'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}

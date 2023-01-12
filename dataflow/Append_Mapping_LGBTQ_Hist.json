@@ -1,0 +1,84 @@
+{
+	"name": "Append_Mapping_LGBTQ_Hist",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentLGBTQMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "LGTBQ"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentLGBTQMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Hist_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientLGTBQ as string,",
+				"          ElloreeLGTBQ as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[LGTBQMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+				"     format: 'query') ~> LGTBQ",
+				"LGTBQ alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 derive(LoadDt = currentDate(),",
+				"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientLGTBQ as string,",
+				"          ElloreeLGTBQ as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientLGTBQ'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ClientId,",
+				"          ClientEngagementDt,",
+				"          ClientLGTBQ,",
+				"          ElloreeLGTBQ,",
+				"          LoadDt",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

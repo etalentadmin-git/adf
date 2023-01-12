@@ -1,0 +1,79 @@
+{
+	"name": "Delete_Rec_Mapping_ApplFlow",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Delete Records/Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentApplFlowMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "ApplicantFlowMap"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentApplFlowMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "DeleteRecords"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientApplFinalDisp as string,",
+				"          ClientApplStepBeforeFinalDisp as string,",
+				"          ClientApplRejectedReason as string,",
+				"          ElloreeApplFinalDisp as string,",
+				"          ElloreeApplCategory as string,",
+				"          ElloreeSubmittedtoMgrFl as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[TAApplMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> ApplicantFlowMap",
+				"ApplicantFlowMap alterRow(deleteIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientApplFinalDisp as string,",
+				"          ClientApplStepBeforeFinalDisp as string,",
+				"          ClientApplRejectedReason as string,",
+				"          ElloreeApplFinalDisp as string,",
+				"          ElloreeApplCategory as string,",
+				"          ElloreeSubmittedtoMgrFl as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:true,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     keys:['ClientId','ClientEngagementDt'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+			]
+		}
+	}
+}

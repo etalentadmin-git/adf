@@ -1,0 +1,135 @@
+{
+	"name": "Delete_All_Rec_FactTbl_PerfRatingHist",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Delete Records/Fact Tables/All Records"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentPerfRatingHistFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "PerfRatingHistFactTbl"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentPerfRatingHistFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "DeleteRecords"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          EventYear as integer,",
+				"          WorkerId as string,",
+				"          LastPerfYear as integer,",
+				"          LastPerfRatingDt as date,",
+				"          LastClientPerfRating as string,",
+				"          LastElloreePerfRating as string,",
+				"          LastElloreePerfRatingSortId as integer,",
+				"          LastTopTalentInd as string,",
+				"          CurrPerfYear as integer,",
+				"          CurrPerfRatingDt as date,",
+				"          CurrTalentTag as string,",
+				"          CurrClientPerfRating as string,",
+				"          CurrElloreePerfRating as string,",
+				"          CurrElloreePerfRatingSortId as integer,",
+				"          CurrTopTalentInd as string,",
+				"          P1PerfYear as integer,",
+				"          P1PerfRatingDt as date,",
+				"          P1ClientPerfRating as string,",
+				"          P1ElloreePerfRating as string,",
+				"          P1ElloreePerfRatingSortId as integer,",
+				"          P1TopTalentInd as string,",
+				"          P2PerfYear as integer,",
+				"          P2PerfRatingDt as date,",
+				"          P2ClientPerfRating as string,",
+				"          P2ElloreePerfRating as string,",
+				"          P2ElloreePerfRatingSortId as integer,",
+				"          P2TopTalentInd as string,",
+				"          P3PerfYear as integer,",
+				"          P3PerfRatingDt as date,",
+				"          P3ClientPerfRating as string,",
+				"          P3ElloreePerfRating as string,",
+				"          P3ElloreePerfRatingSortId as integer,",
+				"          P3TopTalentInd as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[PerfRatingHistTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> PerfRatingHistFactTbl",
+				"PerfRatingHistFactTbl alterRow(deleteIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          EventYear as integer,",
+				"          WorkerId as string,",
+				"          LastPerfYear as integer,",
+				"          LastPerfRatingDt as date,",
+				"          LastClientPerfRating as string,",
+				"          LastElloreePerfRating as string,",
+				"          LastElloreePerfRatingSortId as integer,",
+				"          LastTopTalentInd as string,",
+				"          CurrPerfYear as integer,",
+				"          CurrPerfRatingDt as date,",
+				"          CurrTalentTag as string,",
+				"          CurrClientPerfRating as string,",
+				"          CurrElloreePerfRating as string,",
+				"          CurrElloreePerfRatingSortId as integer,",
+				"          CurrTopTalentInd as string,",
+				"          P1PerfYear as integer,",
+				"          P1PerfRatingDt as date,",
+				"          P1ClientPerfRating as string,",
+				"          P1ElloreePerfRating as string,",
+				"          P1ElloreePerfRatingSortId as integer,",
+				"          P1TopTalentInd as string,",
+				"          P2PerfYear as integer,",
+				"          P2PerfRatingDt as date,",
+				"          P2ClientPerfRating as string,",
+				"          P2ElloreePerfRating as string,",
+				"          P2ElloreePerfRatingSortId as integer,",
+				"          P2TopTalentInd as string,",
+				"          P3PerfYear as integer,",
+				"          P3PerfRatingDt as date,",
+				"          P3ClientPerfRating as string,",
+				"          P3ElloreePerfRating as string,",
+				"          P3ElloreePerfRatingSortId as integer,",
+				"          P3TopTalentInd as string,",
+				"          LastTalentTagYear as integer,",
+				"          LastTalentTag as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:true,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     keys:['ClientId','ClientEngagementDt'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+			]
+		}
+	}
+}

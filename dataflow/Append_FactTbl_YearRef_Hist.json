@@ -1,0 +1,85 @@
+{
+	"name": "Append_FactTbl_YearRef_Hist",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentYearRefTbl",
+						"type": "DatasetReference"
+					},
+					"name": "YearRef"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentYearRefTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendYearRef"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Hist_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          CurEventYear as integer,",
+				"          P1EventYear as integer,",
+				"          P2EventYear as integer,",
+				"          P3EventYear as integer,",
+				"          P4EventYear as integer,",
+				"          P5EventYear as integer,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[YearRefTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+				"     format: 'query') ~> YearRef",
+				"YearRef alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 derive(LoadDt = currentDate(),",
+				"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          CurEventYear as integer,",
+				"          P1EventYear as integer,",
+				"          P2EventYear as integer,",
+				"          P3EventYear as integer,",
+				"          P4EventYear as integer,",
+				"          P5EventYear as integer,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> AppendYearRef"
+			]
+		}
+	}
+}

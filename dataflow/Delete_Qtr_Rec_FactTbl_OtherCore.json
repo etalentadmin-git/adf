@@ -1,0 +1,100 @@
+{
+	"name": "Delete_Qtr_Rec_FactTbl_OtherCore",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Delete Records/Fact Tables/Quarter Records"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "OtherCoreFactTbl"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "DeleteRecords"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Year as string,",
+				"     Flow_Quarter as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          WorkerId as string,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          EventDesc as string,",
+				"          EventType as string,",
+				"          OtherCharVal11 as string,",
+				"          OtherCharVal2 as string,",
+				"          OtherNumVal1 as double,",
+				"          OtherNumVal2 as double,",
+				"          OtherDtVal1 as date,",
+				"          OtherDtVal2 as date,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventYear = '{$Flow_Year}' and EventQuarter = '{$Flow_Quarter}'\"),",
+				"     format: 'query') ~> OtherCoreFactTbl",
+				"OtherCoreFactTbl alterRow(deleteIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientEngagementType as string,",
+				"          WorkerId as string,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          EventDesc as string,",
+				"          EventType as string,",
+				"          OtherCharVal11 as string,",
+				"          OtherCharVal2 as string,",
+				"          OtherNumVal1 as double,",
+				"          OtherNumVal2 as double,",
+				"          OtherDtVal1 as date,",
+				"          OtherDtVal2 as date,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:true,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     keys:['ClientId','ClientEngagementDt'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+			]
+		}
+	}
+}

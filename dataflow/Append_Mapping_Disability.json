@@ -1,0 +1,102 @@
+{
+	"name": "Append_Mapping_Disability",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_Disability",
+						"type": "DatasetReference"
+					},
+					"name": "Disability"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentDisabilityMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Disability Ind} as string,",
+				"          {Elloree Disability Ind} as string,",
+				"          {Suggested Elloree Disability Ind} as string,",
+				"          {Suggested Source} as string,",
+				"          {2017 Headcount} as string,",
+				"          {2018 Headcount} as string,",
+				"          {2018 Hire} as string,",
+				"          {2018 Promo} as string,",
+				"          {2018 Term} as string,",
+				"          {2019 Headcount} as string,",
+				"          {2019 Hire} as string,",
+				"          {2019 Promo} as string,",
+				"          {2019 Term} as string,",
+				"          {2020 Headcount} as string,",
+				"          {2020 Hire} as string,",
+				"          {2020 Promo} as string,",
+				"          {2020 Term} as string,",
+				"          {2021 Headcount} as string,",
+				"          {2021 Hire} as string,",
+				"          {2021 Promo} as string,",
+				"          {2021 Term} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Disability",
+				"Disability alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Engagement Date})),",
+				"     deleteIf(isNull({Client Disability Ind})),",
+				"     deleteIf(isNull({Elloree Disability Ind}))) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          ClientDisabilityInd = {Client Disability Ind},",
+				"          ElloreeDisabilityInd = {Elloree Disability Ind},",
+				"          ClientId = {Client ID},",
+				"          ClientEngagementDt = {Client Engagement Date}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientDisabilityInd as string,",
+				"          ElloreeDisabilityInd as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientDisabilityInd'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}

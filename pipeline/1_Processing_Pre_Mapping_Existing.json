@@ -1,0 +1,325 @@
+{
+	"name": "1_Processing_Pre_Mapping_Existing",
+	"properties": {
+		"description": "Copy templates from processing to designated year/qrt folders.  Run fact tables for Core, Talent, Req, OtherCore, Applicant and ",
+		"activities": [
+			{
+				"name": "Move_Templates_Into_ClientFldr",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Move_Templates_Into_ClientFldr",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Output_FactTbl_File_Applicant",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Output_FactTbl_File_OtherCore",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_FactTbl_File_Applicant",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Output_FactTbl_File_Core",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Move_Templates_Into_ClientFldr",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_FactTbl_File_Core",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Output_FactTbl_File_OtherCore",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Output_FactTbl_YearRef",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_FactTbl_File_OtherCore",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Output_FactTbl_File_Req",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Output_FactTbl_File_Talent",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_FactTbl_File_Req",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Output_FactTbl_File_Talent",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Output_FactTbl_File_Core",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_FactTbl_File_Talent",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Output_All_Mapping_Files",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Output_FactTbl_File_Applicant",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_All_Mapping_Files",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Client_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Client_Quarter": {
+							"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Output_FactTbl_YearRef",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Output_FactTbl_File_Req",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_FactTbl_YearRef",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"P_Client_Id": {
+				"type": "string"
+			},
+			"P_Client_Dt": {
+				"type": "string"
+			},
+			"P_Folder_Year": {
+				"type": "string"
+			},
+			"P_Folder_Quarter": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Client/Client Setup Routines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-12T15:58:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

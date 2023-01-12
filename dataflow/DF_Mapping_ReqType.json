@@ -1,0 +1,412 @@
+{
+	"name": "DF_Mapping_ReqType",
+	"properties": {
+		"description": "This workflow outputs 1 file for review of ethnicity values across events and time periods.",
+		"folder": {
+			"name": "Client/Create Mapping Table Files"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_JobReq_File",
+						"type": "DatasetReference"
+					},
+					"name": "AllReqData"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentReqTypeMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "ReqTypeMappingTbl"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentReqFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "DatabaseReqRecords"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_MappingWorkingFldr",
+						"type": "DatasetReference"
+					},
+					"name": "OutputWorkingReqTypeMapping"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_MappingPrepFldr",
+						"type": "DatasetReference"
+					},
+					"name": "OutputPrepReqTypeMapping"
+				}
+			],
+			"transformations": [
+				{
+					"name": "CreatePivotReqTypeAndEventTime"
+				},
+				{
+					"name": "SortOnEvent"
+				},
+				{
+					"name": "SortOnReqType"
+				},
+				{
+					"name": "AddDerivedEventYearColumn"
+				},
+				{
+					"name": "SelectUniqueRows"
+				},
+				{
+					"name": "SelectExistingReqTypeMapping"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select3"
+				},
+				{
+					"name": "selectReqDBRecs"
+				},
+				{
+					"name": "select4"
+				},
+				{
+					"name": "union1"
+				},
+				{
+					"name": "selectReqDBRecsInit"
+				},
+				{
+					"name": "GetCountOfClientForUniqueValues"
+				},
+				{
+					"name": "JoinClientIDCountInForMaxFilter"
+				},
+				{
+					"name": "CleanupSelectFields"
+				},
+				{
+					"name": "SelectMappingWithMostClients"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "JoinBackFinalSelectMapping"
+				},
+				{
+					"name": "TakeLastClientValForRemainingDups"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Engagement Type} as string,",
+				"          {Event Date} as string,",
+				"          EventMonth as string,",
+				"          {Event Quarter} as string,",
+				"          {Event Year} as short,",
+				"          EventId as string,",
+				"          Event as string,",
+				"          {Requisition ID} as string,",
+				"          {Requisition Type} as string,",
+				"          {Posting Date} as string,",
+				"          {Requisition Status} as string,",
+				"          {Number of Openings} as string,",
+				"          {Job Title} as string,",
+				"          {Job Function} as string,",
+				"          {Corporate Title} as string,",
+				"          {Work Office Location} as string,",
+				"          {Work Office City} as string,",
+				"          {Work Office State} as string,",
+				"          {Work Office Country} as string,",
+				"          {Strategic Work Location Ind} as string,",
+				"          {Business Group Level 1} as string,",
+				"          {Business Group Level 2} as string,",
+				"          {Business Group Level 3} as string,",
+				"          {Business Group Level 4} as string,",
+				"          {Hiring Manager Worker ID} as string,",
+				"          {Primary Recruiter Worker ID} as string,",
+				"          {Requisition Other (1)} as string,",
+				"          {Requisition Other (2)} as string,",
+				"          {Requisition Other (3)} as string,",
+				"          {Requisition Other (4)} as string,",
+				"          {Requisition Other (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> AllReqData",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientReqType as string,",
+				"          ElloreeReqType as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> ReqTypeMappingTbl",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          ReqId as string,",
+				"          ReqType as string,",
+				"          PostingDt as date,",
+				"          ReqStatus as string,",
+				"          NumberofOpenings as integer,",
+				"          JobTitle as string,",
+				"          JobFunction as string,",
+				"          CorpTitle as string,",
+				"          WorkOfficeLoc as string,",
+				"          WorkOfficeCity as string,",
+				"          WorkOfficeState as string,",
+				"          WorkOfficeCountry as string,",
+				"          WorkStrategicLocInd as string,",
+				"          BusinessGrpLvl1 as string,",
+				"          BusinessGrpLvl2 as string,",
+				"          BusinessGrpLvl3 as string,",
+				"          BusinessGrpLvl4 as string,",
+				"          HiringMgrWorkerId as string,",
+				"          PrimaryRecruiterWorkerId as string,",
+				"          ReqOther1 as string,",
+				"          ReqOther2 as string,",
+				"          ReqOther3 as string,",
+				"          ReqOther4 as string,",
+				"          ReqOther5 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[TAReqTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> DatabaseReqRecords",
+				"derivedColumn1 pivot(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Client Requisition Type},",
+				"          {Elloree Requisition Type},",
+				"          {Suggested Elloree Requisition Type},",
+				"          {Suggested Source}),",
+				"     pivotBy({Event and Year}),",
+				"     {} = count({Requisition ID}),",
+				"     columnNaming: '$N$V',",
+				"     lateral: false,",
+				"     partitionBy('hash', 1)) ~> CreatePivotReqTypeAndEventTime",
+				"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
+				"CreatePivotReqTypeAndEventTime sort(asc({Client Requisition Type}, true)) ~> SortOnReqType",
+				"union1 derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
+				"          {Elloree Requisition Type} = '') ~> AddDerivedEventYearColumn",
+				"ReqTypeMappingTbl aggregate(groupBy({Unique ClientId} = ClientId,",
+				"          {Unique ClientReqType} = ClientReqType,",
+				"          {Unique ElloreeReqType} = ElloreeReqType),",
+				"     ClientEngagementDt = last(ClientEngagementDt)) ~> SelectUniqueRows",
+				"TakeLastClientValForRemainingDups select(mapColumn(",
+				"          {Unique ClientId},",
+				"          {Unique ClientReqType},",
+				"          {Unique ElloreeReqType}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectExistingReqTypeMapping",
+				"SortOnEvent, SelectExistingReqTypeMapping join({Client ID} == {Unique ClientId}",
+				"     && {Requisition Type} == {Unique ClientReqType},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 select(mapColumn(",
+				"          {Client Requisition Type} = {Requisition Type},",
+				"          {Elloree Requisition Type},",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event and Year},",
+				"          {Suggested Source} = {Unique ClientId},",
+				"          {Suggested Elloree Requisition Type} = {Unique ElloreeReqType},",
+				"          {Requisition ID}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2, SelectExistingReqTypeMapping join({Client ID} != {Unique ClientId}",
+				"     && {Client Requisition Type} == {Unique ClientReqType},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'both')~> join2",
+				"select3 derive({Suggested Source} = iif(isNull({Suggested Source}),{Unique ClientId},{Suggested Source}),",
+				"          {Suggested Elloree Requisition Type} = iif(isNull({Suggested Source}),{Unique ClientReqType},{Suggested Elloree Requisition Type})) ~> derivedColumn1",
+				"join2 select(mapColumn(",
+				"          {Client Requisition Type},",
+				"          {Elloree Requisition Type},",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event and Year},",
+				"          {Suggested Source},",
+				"          {Suggested Elloree Requisition Type},",
+				"          {Requisition ID},",
+				"          {Unique ClientId},",
+				"          {Unique ClientReqType},",
+				"          {Unique ElloreeReqType}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"selectReqDBRecsInit select(mapColumn(",
+				"          {Client ID} = ClientId,",
+				"          {Client Engagement Date} = ClientEngagementDt,",
+				"          {Event Year} = EventYear,",
+				"          Event,",
+				"          {Requisition ID} = ReqId,",
+				"          {Requisition Type} = ReqType",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectReqDBRecs",
+				"AllReqData select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event Year},",
+				"          Event,",
+				"          {Requisition ID},",
+				"          {Requisition Type}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select4",
+				"select4, selectReqDBRecs union(byName: true)~> union1",
+				"DatabaseReqRecords aggregate(groupBy(ClientId,",
+				"          ClientEngagementDt,",
+				"          EventYear,",
+				"          Event,",
+				"          ReqId,",
+				"          ReqType),",
+				"     TotRecCount = count(ReqId)) ~> selectReqDBRecsInit",
+				"SelectUniqueRows aggregate(groupBy({Count Unique ClientReqType} = {Unique ClientReqType},",
+				"          {Count Unique ElloreeReqType} = {Unique ElloreeReqType}),",
+				"     ClientIDCount = count({Unique ClientId})) ~> GetCountOfClientForUniqueValues",
+				"SelectUniqueRows, GetCountOfClientForUniqueValues join({Unique ClientReqType} == {Count Unique ClientReqType}",
+				"     && {Unique ElloreeReqType} == {Count Unique ElloreeReqType},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinClientIDCountInForMaxFilter",
+				"JoinClientIDCountInForMaxFilter select(mapColumn(",
+				"          {Unique ClientId},",
+				"          {Unique ClientReqType},",
+				"          {Unique ElloreeReqType},",
+				"          ClientIDCount",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> CleanupSelectFields",
+				"CleanupSelectFields aggregate(groupBy({Unique ClientId},",
+				"          {Unique ClientReqType},",
+				"          {Unique ElloreeReqType}),",
+				"     ClientIDCount = max(ClientIDCount)) ~> SelectMappingWithMostClients",
+				"SelectMappingWithMostClients aggregate(groupBy({Agg Unique ClientReqType} = {Unique ClientReqType}),",
+				"     {Agg Unique ElloreeReqType} = first({Unique ElloreeReqType})) ~> aggregate1",
+				"SelectMappingWithMostClients, aggregate1 join({Unique ClientReqType} == {Agg Unique ClientReqType}",
+				"     && {Unique ElloreeReqType} == {Agg Unique ElloreeReqType},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinBackFinalSelectMapping",
+				"JoinBackFinalSelectMapping aggregate(groupBy({Unique ClientReqType},",
+				"          {Unique ElloreeReqType}),",
+				"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
+				"SortOnReqType sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string,",
+				"          Column_3 as string,",
+				"          Column_4 as string,",
+				"          Column_5 as string,",
+				"          Column_6 as string,",
+				"          Column_7 as string,",
+				"          Column_8 as string,",
+				"          Column_9 as string,",
+				"          Column_10 as string,",
+				"          Column_11 as string,",
+				"          Column_12 as string,",
+				"          Column_13 as string,",
+				"          Column_14 as string,",
+				"          Column_15 as string,",
+				"          Column_16 as string,",
+				"          Column_17 as string,",
+				"          Column_18 as string,",
+				"          Column_19 as string,",
+				"          Column_20 as string,",
+				"          Column_21 as string,",
+				"          Column_22 as string,",
+				"          Column_23 as string,",
+				"          Column_24 as string,",
+				"          Column_25 as string,",
+				"          Column_26 as string,",
+				"          Column_27 as string,",
+				"          Column_28 as string",
+				"     ),",
+				"     partitionFileNames:['reqtype_mapping.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> OutputWorkingReqTypeMapping",
+				"SortOnReqType sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string,",
+				"          Column_3 as string,",
+				"          Column_4 as string,",
+				"          Column_5 as string,",
+				"          Column_6 as string,",
+				"          Column_7 as string,",
+				"          Column_8 as string,",
+				"          Column_9 as string,",
+				"          Column_10 as string,",
+				"          Column_11 as string,",
+				"          Column_12 as string,",
+				"          Column_13 as string,",
+				"          Column_14 as string,",
+				"          Column_15 as string,",
+				"          Column_16 as string,",
+				"          Column_17 as string,",
+				"          Column_18 as string,",
+				"          Column_19 as string,",
+				"          Column_20 as string,",
+				"          Column_21 as string,",
+				"          Column_22 as string,",
+				"          Column_23 as string,",
+				"          Column_24 as string,",
+				"          Column_25 as string,",
+				"          Column_26 as string,",
+				"          Column_27 as string,",
+				"          Column_28 as string",
+				"     ),",
+				"     partitionFileNames:['prep_reqtype_mapping.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> OutputPrepReqTypeMapping"
+			]
+		}
+	}
+}

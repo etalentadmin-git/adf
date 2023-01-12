@@ -1,0 +1,79 @@
+{
+	"name": "Append_Mapping_PerformanceRating_Hist",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentPerfRatingMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "Performance"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentPerfRatingMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendPerformanceMapping"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Hist_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientPerfRating as string,",
+				"          ElloreePerfRating as string,",
+				"          ElloreePerfRatingSortId as integer,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[PerfRatingMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+				"     format: 'query') ~> Performance",
+				"Performance alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 derive(LoadDt = currentDate(),",
+				"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientPerfRating as string,",
+				"          ElloreePerfRating as string,",
+				"          ElloreePerfRatingSortId as integer,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientPerfRating'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> AppendPerformanceMapping"
+			]
+		}
+	}
+}

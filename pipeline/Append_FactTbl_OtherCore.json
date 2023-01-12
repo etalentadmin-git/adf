@@ -1,0 +1,210 @@
+{
+	"name": "Append_FactTbl_OtherCore",
+	"properties": {
+		"activities": [
+			{
+				"name": "Append_FactTbl_Other",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "DeleteQtrHistory",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Append_FactTbl_OtherCore",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"Other": {
+								"Source_Client_Fldr": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"Source_Client_Date": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"Source_Client_Year": {
+									"value": "@pipeline().parameters.P_Folder_Year",
+									"type": "Expression"
+								},
+								"Source_Client_Quarter": {
+									"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+									"type": "Expression"
+								}
+							},
+							"OtherNullRecordOutput": {
+								"Source_Client_Fldr": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"Source_Client_Date": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"Source_Client_Year": {
+									"value": "@pipeline().parameters.P_Folder_Year",
+									"type": "Expression"
+								},
+								"Source_Client_Quarter": {
+									"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "DeleteAllHistory",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@contains(pipeline().parameters.P_Delete_History_No_All_Qtr, 'All')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Delete_All_Rec_FactTbl_OtherCore",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "Delete_All_Rec_FactTbl_OtherCore",
+									"type": "DataFlowReference",
+									"parameters": {
+										"Flow_Client_Id": {
+											"value": "'@{pipeline().parameters.P_Client_Id}'",
+											"type": "Expression"
+										},
+										"Flow_Client_Dt": {
+											"value": "'@{pipeline().parameters.P_Client_Dt}'",
+											"type": "Expression"
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "DeleteQtrHistory",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "DeleteAllHistory",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@contains(pipeline().parameters.P_Delete_History_No_All_Qtr, 'Qtr')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Delete_Qtr_Rec_FactTbl_OtherCore",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "Delete_Qtr_Rec_FactTbl_OtherCore",
+									"type": "DataFlowReference",
+									"parameters": {
+										"Flow_Client_Id": {
+											"value": "'@{pipeline().parameters.P_Client_Id}'",
+											"type": "Expression"
+										},
+										"Flow_Client_Dt": {
+											"value": "'@{pipeline().parameters.P_Client_Dt}'",
+											"type": "Expression"
+										},
+										"Flow_Year": {
+											"value": "'@{pipeline().parameters.P_Folder_Year}'",
+											"type": "Expression"
+										},
+										"Flow_Quarter": {
+											"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
+											"type": "Expression"
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"P_Client_Id": {
+				"type": "string"
+			},
+			"P_Client_Dt": {
+				"type": "string"
+			},
+			"P_Folder_Year": {
+				"type": "string"
+			},
+			"P_Folder_Quarter": {
+				"type": "string"
+			},
+			"P_Delete_History_No_All_Qtr": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Client/Database/Load Fact Tables"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-12T17:55:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,75 @@
+{
+	"name": "Delete_All_Client_Records",
+	"properties": {
+		"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+		"activities": [
+			{
+				"name": "Delete_Rec_FactTbl_All",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Delete_Rec_FactTbl_All",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Delete_Rec_Mapping_All",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Delete_Rec_FactTbl_All",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Delete_Rec_Mapping_All",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"P_Client_Id": {
+				"type": "string"
+			},
+			"P_Client_Dt": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Client/Database/Delete Records"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-12T14:43:29Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

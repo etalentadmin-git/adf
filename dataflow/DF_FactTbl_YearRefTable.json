@@ -1,0 +1,159 @@
+{
+	"name": "DF_FactTbl_YearRefTable",
+	"properties": {
+		"folder": {
+			"name": "Client/Create Fact Table Files"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_AllCoreData_File",
+						"type": "DatasetReference"
+					},
+					"name": "Core"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_FactTblFldr",
+						"type": "DatasetReference"
+					},
+					"name": "OutputYearRefTable"
+				}
+			],
+			"transformations": [
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "RemoveNullRows"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as string,",
+				"          {Client Engagement Type} as string,",
+				"          {Worker ID} as string,",
+				"          {Event Date} as string,",
+				"          EventMonth as string,",
+				"          {Event Quarter} as string,",
+				"          {Event Year} as short,",
+				"          {Event Code} as string,",
+				"          {Event Type} as string,",
+				"          Event as string,",
+				"          {Event Reason} as string,",
+				"          {Worker Status} as string,",
+				"          {Worker Type} as string,",
+				"          {Job Title} as string,",
+				"          {Job Family/Function} as string,",
+				"          {Years in Job} as string,",
+				"          {Previous Job Title} as string,",
+				"          {Previous Job Family/Function} as string,",
+				"          {Original Hire Date} as string,",
+				"          {Current Hire Date} as string,",
+				"          {Years of Service} as string,",
+				"          {Years of Service Band} as string,",
+				"          {Years of Service Sort ID} as string,",
+				"          {Last Promo Date} as string,",
+				"          {Rehire Indicator} as string,",
+				"          {Corporate Title} as string,",
+				"          {Previous Corporate Title} as string,",
+				"          {Manager Indicator} as string,",
+				"          {Direct Manager Worker ID} as string,",
+				"          {Work Office Location} as string,",
+				"          {Work City} as string,",
+				"          {Work State} as string,",
+				"          {Work Country} as string,",
+				"          {Strategic Work Location Ind} as string,",
+				"          {Legacy Organization} as string,",
+				"          {Business Group Level 1} as string,",
+				"          {Business Group Level 2} as string,",
+				"          {Business Group Level 3} as string,",
+				"          {Business Group Level 4} as string,",
+				"          Race as string,",
+				"          {Hispanic or Latino Origin} as string,",
+				"          Gender as string,",
+				"          {Veteran Ind} as string,",
+				"          LGTBQ as string,",
+				"          {Disability Ind} as string,",
+				"          {Birth Year} as string,",
+				"          {Generation Desc} as string,",
+				"          {Generation Sort ID} as string,",
+				"          EmpCount as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Core",
+				"Core aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date}),",
+				"     {Event Year} = max({Event Year})) ~> aggregate1",
+				"aggregate1 derive(CurrEventYear = toShort({Event Year}),",
+				"          P1EventYear = toShort({Event Year} - 1),",
+				"          P2EventYear = toShort({Event Year} - 2),",
+				"          P3EventYear = toShort({Event Year} - 3),",
+				"          P4EventYear = toShort({Event Year} - 4),",
+				"          P5EventYear = toShort({Event Year} - 5),",
+				"          {Client Engagement Date} = toDate({Client Engagement Date},'MM/dd/yyyy')) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          CurrEventYear,",
+				"          P1EventYear,",
+				"          P2EventYear,",
+				"          P3EventYear,",
+				"          P4EventYear,",
+				"          P5EventYear",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 filter(!(isNull({Client ID}))) ~> RemoveNullRows",
+				"RemoveNullRows sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string,",
+				"          Column_3 as string,",
+				"          Column_4 as string,",
+				"          Column_5 as string,",
+				"          Column_6 as string,",
+				"          Column_7 as string,",
+				"          Column_8 as string,",
+				"          Column_9 as string,",
+				"          Column_10 as string,",
+				"          Column_11 as string,",
+				"          Column_12 as string,",
+				"          Column_13 as string,",
+				"          Column_14 as string,",
+				"          Column_15 as string,",
+				"          Column_16 as string,",
+				"          Column_17 as string,",
+				"          Column_18 as string,",
+				"          Column_19 as string,",
+				"          Column_20 as string,",
+				"          Column_21 as string,",
+				"          Column_22 as string,",
+				"          Column_23 as string,",
+				"          Column_24 as string,",
+				"          Column_25 as string,",
+				"          Column_26 as string,",
+				"          Column_27 as string,",
+				"          Column_28 as string",
+				"     ),",
+				"     partitionFileNames:['YearRefTbl.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> OutputYearRefTable"
+			]
+		}
+	}
+}

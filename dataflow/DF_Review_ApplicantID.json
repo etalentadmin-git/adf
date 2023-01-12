@@ -1,0 +1,99 @@
+{
+	"name": "DF_Review_ApplicantID",
+	"properties": {
+		"folder": {
+			"name": "Client/Create Audit Reports"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Template_JobApplicants",
+						"type": "DatasetReference"
+					},
+					"name": "ApplicantTemplate"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_AuditFolder",
+						"type": "DatasetReference"
+					},
+					"name": "OutputAudit"
+				}
+			],
+			"transformations": [
+				{
+					"name": "GroupUniqueCandidateIDandWorkerIDs"
+				},
+				{
+					"name": "CountCandidateIds"
+				},
+				{
+					"name": "FilterForMultipleCandidateIDs"
+				},
+				{
+					"name": "JoinForWorkerId"
+				},
+				{
+					"name": "SelectFinalOutput"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+				"          {Event Year} as short,",
+				"          {Event Quarter} as integer,",
+				"          {Event Date} as date 'yyyy-MM-dd',",
+				"          {Requisition ID} as string,",
+				"          {Applicant ID} as string,",
+				"          Source as string,",
+				"          {Applicant Type} as string,",
+				"          {Internal Worker ID} as string,",
+				"          Race as string,",
+				"          {Hispanic or Latino Origin} as string,",
+				"          Gender as string,",
+				"          {Veteran Ind} as string,",
+				"          LGTBQ as string,",
+				"          {Disability Ind} as string,",
+				"          {Applicant Final Disposition} as string,",
+				"          {Applicant Step Before Final Disposition} as string,",
+				"          {Applicant Rejected Reason} as string,",
+				"          {Applicant Other (1)} as string,",
+				"          {Applicant Other (2)} as string,",
+				"          {Applicant Other (3)} as string,",
+				"          {Applicant Other (4)} as string,",
+				"          {Applicant Other (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ApplicantTemplate",
+				"ApplicantTemplate aggregate(groupBy({Applicant ID},",
+				"          {Internal Worker ID}),",
+				"     RecordCount = countDistinct(concat({Applicant ID},{Internal Worker ID}))) ~> GroupUniqueCandidateIDandWorkerIDs",
+				"GroupUniqueCandidateIDandWorkerIDs aggregate(groupBy({Applicant ID}),",
+				"     InternalWorkerIDCount = sum(RecordCount)) ~> CountCandidateIds",
+				"CountCandidateIds filter(InternalWorkerIDCount>1) ~> FilterForMultipleCandidateIDs",
+				"FilterForMultipleCandidateIDs, GroupUniqueCandidateIDandWorkerIDs join(CountCandidateIds@{Applicant ID} == GroupUniqueCandidateIDandWorkerIDs@{Applicant ID},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinForWorkerId",
+				"JoinForWorkerId select(mapColumn(",
+				"          {Applicant ID} = CountCandidateIds@{Applicant ID},",
+				"          {Internal Worker ID}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectFinalOutput",
+				"SelectFinalOutput sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['Dimension Review - Candidate Id with Multiple Worker Ids.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> OutputAudit"
+			]
+		}
+	}
+}

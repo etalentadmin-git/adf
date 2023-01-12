@@ -1,0 +1,394 @@
+{
+	"name": "DF_Mapping_Performance",
+	"properties": {
+		"description": "This workflow outputs 1 file for review of performance values across events and time periods.",
+		"folder": {
+			"name": "Client/Create Mapping Table Files"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentPerfRatingMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "PerfromanceRatingMapTbl"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_TalentData_File",
+						"type": "DatasetReference"
+					},
+					"name": "Talent"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentTalentFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "DatabaseTalentRecords"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_MappingWorkingFldr",
+						"type": "DatasetReference"
+					},
+					"name": "OutputWorkingPerformanceMapping"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_MappingPrepFldr",
+						"type": "DatasetReference"
+					},
+					"name": "OutputPrepPerformanceMapping"
+				}
+			],
+			"transformations": [
+				{
+					"name": "CreatePivotPerformanceAndEventTime"
+				},
+				{
+					"name": "SortOnEvent"
+				},
+				{
+					"name": "SortOnGender"
+				},
+				{
+					"name": "AddDerivedEventYearColumn"
+				},
+				{
+					"name": "SelectUniqueRows"
+				},
+				{
+					"name": "SelectWithoutEngagementDt"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "Select2"
+				},
+				{
+					"name": "selectTalentDBRecs"
+				},
+				{
+					"name": "selectTalentColumns"
+				},
+				{
+					"name": "union1"
+				},
+				{
+					"name": "selectWokerDBRecsInit"
+				},
+				{
+					"name": "GetCountOfClientForUniqueValues"
+				},
+				{
+					"name": "JoinClientIDCountInForMaxFilter"
+				},
+				{
+					"name": "CleanupSelectFields"
+				},
+				{
+					"name": "SelectMappingWithMostClients"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "JoinBackFinalSelectMapping"
+				},
+				{
+					"name": "TakeLastClientValForRemainingDups"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientPerfRating as string,",
+				"          ElloreePerfRating as string,",
+				"          ElloreePerfRatingSortId as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> PerfromanceRatingMapTbl",
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'yyyy-MM-dd',",
+				"          {Event Year} as short,",
+				"          {Event Date} as string,",
+				"          Event as string,",
+				"          {Event Type} as string,",
+				"          {Worker ID} as string,",
+				"          {Performance Rating} as string,",
+				"          {Performance Rating Date} as string,",
+				"          {Talent Identifier (1)} as string,",
+				"          {Talent Identifier (2)} as string,",
+				"          {Talent Identifier (3)} as string,",
+				"          {Talent Identifier (4)} as string,",
+				"          {Talent Identifier (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Talent",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          WorkerId as string,",
+				"          EventYear as integer,",
+				"          EventDt as date,",
+				"          Event as string,",
+				"          EventType as string,",
+				"          PerfRating as string,",
+				"          PerfRatingDt as date,",
+				"          TalentIdentifier1 as string,",
+				"          TalentIdentifier2 as string,",
+				"          TalentIdentifier3 as string,",
+				"          TalentIdentifier4 as string,",
+				"          TalentIdentifier5 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> DatabaseTalentRecords",
+				"derivedColumn1 pivot(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Client Performance Rating},",
+				"          {Elloree Performance Rating},",
+				"          {Elloree Performance Rating Sort},",
+				"          {Suggested Elloree Performance Rating},",
+				"          {Suggested Elloree Performance Rating Sort Id},",
+				"          {Suggested Source}),",
+				"     pivotBy({Event and Year}),",
+				"     {} = count({Worker ID}),",
+				"     columnNaming: '$N$V',",
+				"     lateral: false,",
+				"     partitionBy('hash', 1)) ~> CreatePivotPerformanceAndEventTime",
+				"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
+				"CreatePivotPerformanceAndEventTime sort(asc({Client Performance Rating}, true)) ~> SortOnGender",
+				"union1 derive({Event and Year} = concat(toString({Event Year}),concat(' ','PER')),",
+				"          {Elloree Performance Rating} = '',",
+				"          {Elloree Performance Rating Sort} = '') ~> AddDerivedEventYearColumn",
+				"PerfromanceRatingMapTbl aggregate(groupBy({Unique ClientId} = ClientId,",
+				"          {Unique ClientPerfRating} = ClientPerfRating,",
+				"          {Unique ElloreePerfRating} = ElloreePerfRating,",
+				"          {Unique ElloreePerfRatingSortId} = ElloreePerfRatingSortId),",
+				"     CountClientId = count(ClientId)) ~> SelectUniqueRows",
+				"TakeLastClientValForRemainingDups select(mapColumn(",
+				"          {Unique ClientId},",
+				"          {Unique ClientPerfRating},",
+				"          {Unique ElloreePerfRating},",
+				"          {Unique ElloreePerfRatingSortId}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectWithoutEngagementDt",
+				"SortOnEvent, SelectWithoutEngagementDt join({Client ID} == {Unique ClientId}",
+				"     && {Performance Rating} == {Unique ClientPerfRating},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'both')~> join1",
+				"join1 select(mapColumn(",
+				"          {Client Performance Rating} = {Performance Rating},",
+				"          {Elloree Performance Rating},",
+				"          {Elloree Performance Rating Sort},",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event and Year},",
+				"          {Suggested Source} = {Unique ClientId},",
+				"          {Suggested Elloree Performance Rating} = {Unique ElloreePerfRating},",
+				"          {Suggested Elloree Performance Rating Sort Id} = {Unique ElloreePerfRatingSortId},",
+				"          {Worker ID} = {Record Id}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1, SelectWithoutEngagementDt join({Client Performance Rating} == {Unique ClientPerfRating}",
+				"     && {Client ID} != {Unique ClientId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'both')~> join2",
+				"Select2 derive({Suggested Source} = iif(isNull({Suggested Source}),{Unique ClientId},{Suggested Source}),",
+				"          {Suggested Elloree Performance Rating} = iif(isNull({Suggested Source}),{Unique ElloreePerfRating},{Suggested Elloree Performance Rating}),",
+				"          {Suggested Elloree Performance Rating Sort Id} = iif(isNull({Suggested Source}),{Unique ElloreePerfRatingSortId},{Suggested Elloree Performance Rating Sort Id})) ~> derivedColumn1",
+				"join2 select(mapColumn(",
+				"          {Client Performance Rating},",
+				"          {Elloree Performance Rating},",
+				"          {Elloree Performance Rating Sort},",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event and Year},",
+				"          {Suggested Source},",
+				"          {Suggested Elloree Performance Rating},",
+				"          {Suggested Elloree Performance Rating Sort Id},",
+				"          {Worker ID},",
+				"          {Unique ClientId},",
+				"          {Unique ClientPerfRating},",
+				"          {Unique ElloreePerfRating},",
+				"          {Unique ElloreePerfRatingSortId}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> Select2",
+				"selectWokerDBRecsInit select(mapColumn(",
+				"          {Client ID} = ClientId,",
+				"          {Client Engagement Date} = ClientEngagementDt,",
+				"          {Record Id} = WorkerId,",
+				"          Event,",
+				"          {Event Year} = EventYear,",
+				"          {Performance Rating} = PerfRating",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTalentDBRecs",
+				"Talent select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event Year},",
+				"          Event,",
+				"          {Record Id} = {Worker ID},",
+				"          {Performance Rating}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectTalentColumns",
+				"selectTalentColumns, selectTalentDBRecs union(byName: true)~> union1",
+				"DatabaseTalentRecords aggregate(groupBy(ClientId,",
+				"          ClientEngagementDt,",
+				"          WorkerId,",
+				"          Event,",
+				"          EventYear,",
+				"          PerfRating),",
+				"     TotalRecCount = count(WorkerId)) ~> selectWokerDBRecsInit",
+				"SelectUniqueRows aggregate(groupBy({Count Unique ClientPerfRating} = {Unique ClientPerfRating},",
+				"          {Count Unique ElloreePerfRating} = {Unique ElloreePerfRating},",
+				"          {Count Unique ElloreePerfRatingSortId} = {Unique ElloreePerfRatingSortId}),",
+				"     ClientIDCount = count({Unique ClientId})) ~> GetCountOfClientForUniqueValues",
+				"SelectUniqueRows, GetCountOfClientForUniqueValues join({Unique ClientPerfRating} == {Count Unique ClientPerfRating}",
+				"     && {Unique ElloreePerfRating} == {Count Unique ElloreePerfRating}",
+				"     && {Unique ElloreePerfRatingSortId} == {Count Unique ElloreePerfRatingSortId},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinClientIDCountInForMaxFilter",
+				"JoinClientIDCountInForMaxFilter select(mapColumn(",
+				"          {Unique ClientId},",
+				"          {Unique ClientPerfRating},",
+				"          {Unique ElloreePerfRating},",
+				"          {Unique ElloreePerfRatingSortId},",
+				"          ClientIDCount",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> CleanupSelectFields",
+				"CleanupSelectFields aggregate(groupBy({Unique ClientId},",
+				"          {Unique ClientPerfRating},",
+				"          {Unique ElloreePerfRating},",
+				"          {Unique ElloreePerfRatingSortId}),",
+				"     ClientIDCount = max(ClientIDCount)) ~> SelectMappingWithMostClients",
+				"SelectMappingWithMostClients aggregate(groupBy({Agg Unique ClientPerfRating} = {Unique ClientPerfRating}),",
+				"     {Agg Unique ElloreePerfRating} = first({Unique ElloreePerfRating}),",
+				"          {Agg Unique ElloreePerfRatingSortId} = first({Unique ElloreePerfRatingSortId})) ~> aggregate1",
+				"SelectMappingWithMostClients, aggregate1 join({Unique ClientPerfRating} == {Agg Unique ClientPerfRating}",
+				"     && {Unique ElloreePerfRating} == {Agg Unique ElloreePerfRating}",
+				"     && {Unique ElloreePerfRatingSortId} == {Agg Unique ElloreePerfRatingSortId},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinBackFinalSelectMapping",
+				"JoinBackFinalSelectMapping aggregate(groupBy({Unique ClientPerfRating},",
+				"          {Unique ElloreePerfRating},",
+				"          {Unique ElloreePerfRatingSortId}),",
+				"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
+				"SortOnGender sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string,",
+				"          Column_3 as string,",
+				"          Column_4 as string,",
+				"          Column_5 as string,",
+				"          Column_6 as string,",
+				"          Column_7 as string,",
+				"          Column_8 as string,",
+				"          Column_9 as string,",
+				"          Column_10 as string,",
+				"          Column_11 as string,",
+				"          Column_12 as string,",
+				"          Column_13 as string,",
+				"          Column_14 as string,",
+				"          Column_15 as string,",
+				"          Column_16 as string,",
+				"          Column_17 as string,",
+				"          Column_18 as string,",
+				"          Column_19 as string,",
+				"          Column_20 as string,",
+				"          Column_21 as string,",
+				"          Column_22 as string,",
+				"          Column_23 as string,",
+				"          Column_24 as string,",
+				"          Column_25 as string,",
+				"          Column_26 as string,",
+				"          Column_27 as string,",
+				"          Column_28 as string",
+				"     ),",
+				"     partitionFileNames:['perf_rating_mapping.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> OutputWorkingPerformanceMapping",
+				"SortOnGender sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string,",
+				"          Column_3 as string,",
+				"          Column_4 as string,",
+				"          Column_5 as string,",
+				"          Column_6 as string,",
+				"          Column_7 as string,",
+				"          Column_8 as string,",
+				"          Column_9 as string,",
+				"          Column_10 as string,",
+				"          Column_11 as string,",
+				"          Column_12 as string,",
+				"          Column_13 as string,",
+				"          Column_14 as string,",
+				"          Column_15 as string,",
+				"          Column_16 as string,",
+				"          Column_17 as string,",
+				"          Column_18 as string,",
+				"          Column_19 as string,",
+				"          Column_20 as string,",
+				"          Column_21 as string,",
+				"          Column_22 as string,",
+				"          Column_23 as string,",
+				"          Column_24 as string,",
+				"          Column_25 as string,",
+				"          Column_26 as string,",
+				"          Column_27 as string,",
+				"          Column_28 as string",
+				"     ),",
+				"     partitionFileNames:['prep_perf_rating_mapping.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> OutputPrepPerformanceMapping"
+			]
+		}
+	}
+}

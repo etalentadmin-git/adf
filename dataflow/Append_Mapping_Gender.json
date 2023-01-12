@@ -1,0 +1,102 @@
+{
+	"name": "Append_Mapping_Gender",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_Gender",
+						"type": "DatasetReference"
+					},
+					"name": "Gender"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentGenderMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Gender} as string,",
+				"          {Elloree Gender} as string,",
+				"          {Suggested Elloree Gender} as string,",
+				"          {Suggested Source} as string,",
+				"          {2017 Headcount} as string,",
+				"          {2018 Headcount} as string,",
+				"          {2018 Hire} as string,",
+				"          {2018 Promo} as string,",
+				"          {2018 Term} as string,",
+				"          {2019 Headcount} as string,",
+				"          {2019 Hire} as string,",
+				"          {2019 Promo} as string,",
+				"          {2019 Term} as string,",
+				"          {2020 Headcount} as string,",
+				"          {2020 Hire} as string,",
+				"          {2020 Promo} as string,",
+				"          {2020 Term} as string,",
+				"          {2021 Headcount} as string,",
+				"          {2021 Hire} as string,",
+				"          {2021 Promo} as string,",
+				"          {2021 Term} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Gender",
+				"Gender alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Engagement Date})),",
+				"     deleteIf(isNull({Client Gender})),",
+				"     deleteIf(isNull({Elloree Gender}))) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          ClientGender = {Client Gender},",
+				"          ElloreeGender = {Elloree Gender},",
+				"          ClientId = {Client ID},",
+				"          ClientEngagementDt = {Client Engagement Date}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientGender as string,",
+				"          ElloreeGender as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientGender'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}

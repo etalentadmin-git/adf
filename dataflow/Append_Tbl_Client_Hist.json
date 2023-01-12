@@ -1,0 +1,80 @@
+{
+	"name": "Append_Tbl_Client_Hist",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentClientTbl",
+						"type": "DatasetReference"
+					},
+					"name": "SourceCore"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentClientTbl",
+						"type": "DatasetReference"
+					},
+					"name": "LoadClientInfo"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AssignDerivedColumns"
+				},
+				{
+					"name": "alterRow2"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Hist_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientEngagementType as string,",
+				"          ClientSector as string,",
+				"          ClientDesc as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[ClientTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+				"     format: 'query') ~> SourceCore",
+				"SourceCore derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
+				"          LoadDt = currentDate()) ~> AssignDerivedColumns",
+				"AssignDerivedColumns alterRow(upsertIf(true())) ~> alterRow2",
+				"alterRow2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientEngagementType as string,",
+				"          ClientSector as string,",
+				"          ClientDesc as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientEngagementType'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     partitionBy('hash', 1)) ~> LoadClientInfo"
+			]
+		}
+	}
+}

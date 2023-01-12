@@ -1,0 +1,104 @@
+{
+	"name": "Append_FactTbl_OtherCore_Hist",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "Other"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendOtherFactTbl"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Hist_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          WorkerId as string,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          EventDesc as string,",
+				"          EventType as string,",
+				"          OtherCharVal11 as string,",
+				"          OtherCharVal2 as string,",
+				"          OtherNumVal1 as double,",
+				"          OtherNumVal2 as double,",
+				"          OtherDtVal1 as date,",
+				"          OtherDtVal2 as date,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+				"     format: 'query') ~> Other",
+				"Other alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
+				"          LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientEngagementType as string,",
+				"          WorkerId as string,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          EventDesc as string,",
+				"          EventType as string,",
+				"          OtherCharVal11 as string,",
+				"          OtherCharVal2 as string,",
+				"          OtherNumVal1 as double,",
+				"          OtherNumVal2 as double,",
+				"          OtherDtVal1 as date,",
+				"          OtherDtVal2 as date,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','EventYear','EventType','WorkerId'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> AppendOtherFactTbl"
+			]
+		}
+	}
+}

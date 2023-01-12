@@ -1,0 +1,102 @@
+{
+	"name": "BLS_TwoOrMore_Male",
+	"properties": {
+		"folder": {
+			"name": "External Data/BLS"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Json_BLS_TwoOrMore_Male",
+						"type": "DatasetReference"
+					},
+					"name": "BLSJsonSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_BLS_Output",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "flatten3"
+				},
+				{
+					"name": "flatten4"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          status as string,",
+				"          responseTime as integer,",
+				"          message as string[],",
+				"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> BLSJsonSource",
+				"BLSJsonSource foldDown(unroll(Results.series),",
+				"     mapColumn(",
+				"          status,",
+				"          responseTime,",
+				"          message,",
+				"          seriesID = Results.series.seriesID,",
+				"          data = Results.series.data",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten3",
+				"flatten3 foldDown(unroll(data),",
+				"     mapColumn(",
+				"          seriesID,",
+				"          year = data.year,",
+				"          period = data.period,",
+				"          latest = data.latest,",
+				"          value = data.value",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten4",
+				"flatten4 derive(Race = 'Two or more races',",
+				"          Source = 'BLS',",
+				"          EthnicOrigin = 'All',",
+				"          Gender = 'Male',",
+				"          SeriesDesc = '(unadj) Civilian Labor Force - Two or more races, men',",
+				"          Quarter = 4,",
+				"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          Source,",
+				"          SourceId = seriesID,",
+				"          Desc = SeriesDesc,",
+				"          Year = year,",
+				"          Quarter,",
+				"          Latest = latest,",
+				"          EthnicOrigin,",
+				"          Race,",
+				"          Gender,",
+				"          Headcount",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['BLS_TwoOrMore_Male.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}

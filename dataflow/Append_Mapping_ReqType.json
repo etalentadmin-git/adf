@@ -1,0 +1,87 @@
+{
+	"name": "Append_Mapping_ReqType",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_ReqType",
+						"type": "DatasetReference"
+					},
+					"name": "RequisitionType"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentReqTypeMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendReqStatusMapping"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Requisition Type} as string,",
+				"          {Elloree Requisition Type} as string,",
+				"          {Suggested Elloree Requisition Type} as string,",
+				"          {Suggested Source} as string,",
+				"          {2021 Job Requisition} as string,",
+				"          {2022 Job Requisition} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> RequisitionType",
+				"RequisitionType alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Engagement Date})),",
+				"     deleteIf(isNull({Client Requisition Type})),",
+				"     deleteIf(isNull({Elloree Requisition Type}))) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          ClientId = {Client ID},",
+				"          ClientEngagementDt = {Client Engagement Date},",
+				"          ClientReqType = {Client Requisition Type},",
+				"          ElloreeReqType = {Elloree Requisition Type}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientReqType as string,",
+				"          ElloreeReqType as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientReqType'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> AppendReqStatusMapping"
+			]
+		}
+	}
+}

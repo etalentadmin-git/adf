@@ -1,0 +1,127 @@
+{
+	"name": "Append_Mapping_CorpTitle",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_CorpTitle",
+						"type": "DatasetReference"
+					},
+					"name": "CorpTitle"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentCorpTitleMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendCorpTitleMappingToDB"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Corporate Title} as string,",
+				"          {Elloree Corporate Title} as string,",
+				"          {Client Elloree Corporate Title} as string,",
+				"          {Elloree Corporate Title Sort} as string,",
+				"          {Suggested Elloree Corporate Title} as string,",
+				"          {Suggested Client Elloree Corporate Title} as string,",
+				"          {Suggested Elloree Corporate Title Sort} as string,",
+				"          {Suggested Source} as string,",
+				"          {2017 Headcount Curr Title} as string,",
+				"          {2017 Headcount Prev Title} as string,",
+				"          {2018 Headcount Curr Title} as string,",
+				"          {2018 Headcount Prev Title} as string,",
+				"          {2018 Hire Curr Title} as string,",
+				"          {2018 Hire Prev Title} as string,",
+				"          {2018 Promo Curr Title} as string,",
+				"          {2018 Promo Prev Title} as string,",
+				"          {2018 Term Curr Title} as string,",
+				"          {2018 Term Prev Title} as string,",
+				"          {2019 Headcount Curr Title} as string,",
+				"          {2019 Headcount Prev Title} as string,",
+				"          {2019 Hire Curr Title} as string,",
+				"          {2019 Hire Prev Title} as string,",
+				"          {2019 Promo Curr Title} as string,",
+				"          {2019 Promo Prev Title} as string,",
+				"          {2019 Term Curr Title} as string,",
+				"          {2019 Term Prev Title} as string,",
+				"          {2020 Headcount Curr Title} as string,",
+				"          {2020 Headcount Prev Title} as string,",
+				"          {2020 Hire Curr Title} as string,",
+				"          {2020 Hire Prev Title} as string,",
+				"          {2020 Promo Curr Title} as string,",
+				"          {2020 Promo Prev Title} as string,",
+				"          {2020 Term Curr Title} as string,",
+				"          {2020 Term Prev Title} as string,",
+				"          {2021 Headcount Curr Title} as string,",
+				"          {2021 Headcount Prev Title} as string,",
+				"          {2021 Hire Curr Title} as string,",
+				"          {2021 Hire Prev Title} as string,",
+				"          {2021 Promo Curr Title} as string,",
+				"          {2021 Promo Prev Title} as string,",
+				"          {2021 Term Curr Title} as string,",
+				"          {2021 Term Prev Title} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> CorpTitle",
+				"CorpTitle alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Engagement Date})),",
+				"     deleteIf(isNull({Elloree Corporate Title})),",
+				"     deleteIf(isNull({Elloree Corporate Title Sort}))) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          ClientCorpTitle = {Client Corporate Title},",
+				"          ClientElloreeCorpTitle = {Client Elloree Corporate Title},",
+				"          ElloreeCorpTitle = {Elloree Corporate Title},",
+				"          ElloreeCorpTitleSortId = {Elloree Corporate Title Sort},",
+				"          ClientId = {Client ID},",
+				"          ClientEngagementDt = {Client Engagement Date}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientCorpTitle as string,",
+				"          ClientElloreeCorpTitle as string,",
+				"          ElloreeCorpTitle as string,",
+				"          ElloreeCorpTitleSortId as integer,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientCorpTitle'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> AppendCorpTitleMappingToDB"
+			]
+		}
+	}
+}

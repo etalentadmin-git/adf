@@ -1,0 +1,248 @@
+{
+	"name": "DF_Review_BusHierarchy",
+	"properties": {
+		"description": "This workflow outputs 2 files for hierarchy review.  The 1st file shows record counts by Business Org Level 1 and the second file shows counts by level 1 and level 2.  Output has placeholder columns for mapping.",
+		"folder": {
+			"name": "Client/Create Audit Reports"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_AllCoreData_File",
+						"type": "DatasetReference"
+					},
+					"name": "AllCoreData"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_BusHierarchy",
+						"type": "DatasetReference"
+					},
+					"name": "BusinessMapping"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_AuditFolder",
+						"type": "DatasetReference"
+					},
+					"name": "BSOutputAllHierarchy"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_AuditFolder",
+						"type": "DatasetReference"
+					},
+					"name": "BSOutputLOBlvl1Hierarchy"
+				}
+			],
+			"transformations": [
+				{
+					"name": "pivot1"
+				},
+				{
+					"name": "pivot2"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "sort3"
+				},
+				{
+					"name": "sort4"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "sort5"
+				},
+				{
+					"name": "sort6"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Engagement Type} as string,",
+				"          {Worker ID} as string,",
+				"          {Event Date} as date 'yyyy-MM-dd',",
+				"          EventMonth as integer,",
+				"          {Event Quarter} as integer,",
+				"          {Event Year} as short,",
+				"          {Event Code} as string,",
+				"          {Event Type} as string,",
+				"          Event as string,",
+				"          {Event Reason} as string,",
+				"          {Worker Status} as string,",
+				"          {Worker Type} as string,",
+				"          {Job Title} as string,",
+				"          {Job Family/Function} as string,",
+				"          {Years in Job} as double,",
+				"          {Previous Job Title} as string,",
+				"          {Previous Job Family/Function} as string,",
+				"          {Original Hire Date} as date 'yyyy-MM-dd',",
+				"          {Current Hire Date} as date 'yyyy-MM-dd',",
+				"          {Years of Service} as double,",
+				"          {Years of Service Band} as string,",
+				"          {Years of Service Sort ID} as integer,",
+				"          {Last Promo Date} as date 'yyyy-MM-dd',",
+				"          {Rehire Indicator} as string,",
+				"          {Corporate Title} as string,",
+				"          {Previous Corporate Title} as string,",
+				"          {Manager Indicator} as string,",
+				"          {Direct Manager Worker ID} as string,",
+				"          {Work Office Location} as string,",
+				"          {Work City} as string,",
+				"          {Work State} as string,",
+				"          {Work Country} as string,",
+				"          {Strategic Work Location Ind} as string,",
+				"          {Legacy Organization} as string,",
+				"          {Business Group Level 1} as string,",
+				"          {Business Group Level 2} as string,",
+				"          {Business Group Level 3} as string,",
+				"          {Business Group Level 4} as string,",
+				"          Race as string,",
+				"          {Hispanic or Latino Origin} as string,",
+				"          Gender as string,",
+				"          {Veteran Ind} as string,",
+				"          LGTBQ as string,",
+				"          {Disability Ind} as string,",
+				"          {Birth Year} as short,",
+				"          {Generation Desc} as string,",
+				"          {Generation Sort ID} as integer,",
+				"          EmpCount as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> AllCoreData",
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Business Group Level 1} as string,",
+				"          {Client Business Group Level 2} as string,",
+				"          {Client Business Group Level 3} as string,",
+				"          {Client Business Group Level 4} as string,",
+				"          {Elloree Business Group Level 1} as string,",
+				"          {Elloree Business Group Level 2} as string,",
+				"          {Elloree Business Group Level 3} as string,",
+				"          {Elloree Business Group Level 4} as string,",
+				"          {Suggested Elloree Business Group Level 1} as string,",
+				"          {Suggested Elloree Business Group Level 2} as string,",
+				"          {Suggested Elloree Business Group Level 3} as string,",
+				"          {Suggested Elloree Business Group Level 4} as string,",
+				"          {Suggested Source} as string,",
+				"          {2017 Headcount} as string,",
+				"          {2018 Headcount} as string,",
+				"          {2018 Hire} as string,",
+				"          {2018 Promo} as string,",
+				"          {2018 Term} as string,",
+				"          {2019 Headcount} as string,",
+				"          {2019 Hire} as string,",
+				"          {2019 Promo} as string,",
+				"          {2019 Term} as string,",
+				"          {2020 Headcount} as string,",
+				"          {2020 Hire} as string,",
+				"          {2020 Promo} as string,",
+				"          {2020 Term} as string,",
+				"          {2021 Headcount} as string,",
+				"          {2021 Hire} as string,",
+				"          {2021 Promo} as string,",
+				"          {2021 Term} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> BusinessMapping",
+				"sort4 pivot(groupBy({Business Group Level 1},",
+				"          {Elloree Business Group Level 1},",
+				"          {Business Group Level 2},",
+				"          {Elloree Business Group Level 2}),",
+				"     pivotBy({Event Quarter and Year}),",
+				"     {} = count({Worker ID}),",
+				"     columnNaming: '$N$V',",
+				"     lateral: true,",
+				"     partitionBy('hash', 1)) ~> pivot1",
+				"sort3 pivot(groupBy({Business Group Level 1},",
+				"          {Elloree Business Group Level 1}),",
+				"     pivotBy({Event Quarter and Year}),",
+				"     {} = count({Worker ID}),",
+				"     columnNaming: '$N$V',",
+				"     lateral: true,",
+				"     partitionBy('hash', 1)) ~> pivot2",
+				"select1 derive({Event Quarter and Year} = concat(concat(toString(Event),concat(' Q',toString({Event Quarter}))),concat(' ',toString({Event Year}))),",
+				"     partitionBy('hash', 1)) ~> derivedColumn1",
+				"derivedColumn1 sort(asc({Event Quarter and Year}, true),",
+				"     partitionBy('hash', 1)) ~> sort3",
+				"derivedColumn1 sort(asc({Event Quarter and Year}, true)) ~> sort4",
+				"AllCoreData, BusinessMapping join({Business Group Level 1} == {Client Business Group Level 1}",
+				"     && {Business Group Level 2} == {Client Business Group Level 2},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 select(mapColumn(",
+				"          {Event Year},",
+				"          {Event Quarter},",
+				"          {Event Date},",
+				"          Event,",
+				"          {Event Type},",
+				"          {Worker ID},",
+				"          {Worker Type},",
+				"          {Job Title},",
+				"          {Job Family/Function},",
+				"          {Corporate Title},",
+				"          {Manager Indicator},",
+				"          {Direct Manager Worker ID},",
+				"          {Legacy Organization},",
+				"          {Work Office Location},",
+				"          {Work City},",
+				"          {Work State},",
+				"          {Original Hire Date},",
+				"          {Current Hire Date},",
+				"          {Rehire Indicator},",
+				"          {Business Group Level 1},",
+				"          {Business Group Level 2},",
+				"          Race,",
+				"          {Hispanic or Latino Origin},",
+				"          Gender,",
+				"          {Birth Year},",
+				"          {Previous Job Title},",
+				"          {Previous Job Family/Function},",
+				"          {Previous Corporate Title},",
+				"          {Years of Service},",
+				"          {Years in Job},",
+				"          {Worker Status},",
+				"          {Event Reason},",
+				"          EmpCount,",
+				"          {Elloree Business Group Level 1},",
+				"          {Elloree Business Group Level 2}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"pivot1 sort(asc({Elloree Business Group Level 1}, true),",
+				"     asc({Elloree Business Group Level 2}, true)) ~> sort5",
+				"pivot2 sort(asc({Elloree Business Group Level 1}, true)) ~> sort6",
+				"sort5 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['Dimension Review - Hierarchy All Levels.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> BSOutputAllHierarchy",
+				"sort6 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['Dimension Review - Hierarchy Lvl 1.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> BSOutputLOBlvl1Hierarchy"
+			]
+		}
+	}
+}
