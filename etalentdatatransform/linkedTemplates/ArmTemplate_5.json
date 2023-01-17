@@ -1,0 +1,2449 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "etalentdatatransform"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Admin')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "Template Admin",
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Applicant_Append')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"AppendFileName": {
+						"type": "string",
+						"defaultValue": "Elloree Data Submission Template - TA.xlsx"
+					},
+					"WorkSheetName": {
+						"type": "string",
+						"defaultValue": "DATA_JobApplicants"
+					},
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": {
+						"value": "@dataset().WorkSheetName",
+						"type": "Expression"
+					},
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().AppendFileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Requisition ID",
+						"type": "String"
+					},
+					{
+						"name": "Applicant ID",
+						"type": "String"
+					},
+					{
+						"name": "Source",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Type",
+						"type": "String"
+					},
+					{
+						"name": "Internal Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Race",
+						"type": "String"
+					},
+					{
+						"name": "Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Veteran Ind",
+						"type": "String"
+					},
+					{
+						"name": "LGTBQ",
+						"type": "String"
+					},
+					{
+						"name": "Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Final Disposition",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Step Before Final Disposition",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Rejected Reason",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (1)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (2)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (3)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (4)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (5)",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Fldr')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Headcount')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "DATA_Headcount",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Elloree Data Submission Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Worker Status",
+						"type": "String"
+					},
+					{
+						"name": "Worker Type",
+						"type": "String"
+					},
+					{
+						"name": "Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Job Family/Function",
+						"type": "String"
+					},
+					{
+						"name": "Years in Job",
+						"type": "String"
+					},
+					{
+						"name": "Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Manager Indicator",
+						"type": "String"
+					},
+					{
+						"name": "Direct Manager Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Legacy Organization",
+						"type": "String"
+					},
+					{
+						"name": "Work Office Location",
+						"type": "String"
+					},
+					{
+						"name": "Work City",
+						"type": "String"
+					},
+					{
+						"name": "Work State",
+						"type": "String"
+					},
+					{
+						"name": "Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Strategic Work Location Ind",
+						"type": "String"
+					},
+					{
+						"name": "Original Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Current Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Years of Service",
+						"type": "String"
+					},
+					{
+						"name": "Last Promo Date",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Race",
+						"type": "String"
+					},
+					{
+						"name": "Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Veteran Ind",
+						"type": "String"
+					},
+					{
+						"name": "LGTBQ",
+						"type": "String"
+					},
+					{
+						"name": "Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Birth Year",
+						"type": "String"
+					},
+					{
+						"name": "Generation Desc",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Hires')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to template to pull hires tab.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "DATA_Hire",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Elloree Data Submission Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Worker Type",
+						"type": "String"
+					},
+					{
+						"name": "Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Job Family/Function",
+						"type": "String"
+					},
+					{
+						"name": "Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Manager Indicator",
+						"type": "String"
+					},
+					{
+						"name": "Direct Manager Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Legacy Organization",
+						"type": "String"
+					},
+					{
+						"name": "Work Office Location",
+						"type": "String"
+					},
+					{
+						"name": "Work City",
+						"type": "String"
+					},
+					{
+						"name": "Work State",
+						"type": "String"
+					},
+					{
+						"name": "Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Strategic Work Location Ind",
+						"type": "String"
+					},
+					{
+						"name": "Original Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Current Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Rehire Indicator",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Race",
+						"type": "String"
+					},
+					{
+						"name": "Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Veteran Ind",
+						"type": "String"
+					},
+					{
+						"name": "LGTBQ",
+						"type": "String"
+					},
+					{
+						"name": "Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Birth Year",
+						"type": "String"
+					},
+					{
+						"name": "Generation Desc",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_JobApplicants')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "DATA_JobApplicants",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Elloree Data Submission Template - TA.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Requisition ID",
+						"type": "String"
+					},
+					{
+						"name": "Applicant ID",
+						"type": "String"
+					},
+					{
+						"name": "Source",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Type",
+						"type": "String"
+					},
+					{
+						"name": "Internal Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Race",
+						"type": "String"
+					},
+					{
+						"name": "Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Veteran Ind",
+						"type": "String"
+					},
+					{
+						"name": "LGTBQ",
+						"type": "String"
+					},
+					{
+						"name": "Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Final Disposition",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Step Before Final Disposition",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Rejected Reason",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (1)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (2)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (3)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (4)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (5)",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_JobReq_Append')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"AppendFileName": {
+						"type": "string",
+						"defaultValue": "Elloree Data Submission Template - TA.xlsx"
+					},
+					"WorkSheetName": {
+						"type": "string",
+						"defaultValue": "DATA_JobRequisition"
+					},
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": {
+						"value": "@dataset().WorkSheetName",
+						"type": "Expression"
+					},
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().AppendFileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Requisition ID",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Posting Date",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Status",
+						"type": "String"
+					},
+					{
+						"name": "Number of Openings",
+						"type": "String"
+					},
+					{
+						"name": "Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Job Function",
+						"type": "String"
+					},
+					{
+						"name": "Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Work Office Location",
+						"type": "String"
+					},
+					{
+						"name": "Work Office City",
+						"type": "String"
+					},
+					{
+						"name": "Work Office State",
+						"type": "String"
+					},
+					{
+						"name": "Work Office Country",
+						"type": "String"
+					},
+					{
+						"name": "Strategic Work Location Ind",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Hiring Manager Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Primary Recruiter Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Other (1)",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Other (2)",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Other (3)",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Other (4)",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Other (5)",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_OtherCore')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "DATA_WorkerOther",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Elloree Data Submission Template (Other).xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Event (Type)",
+						"type": "String"
+					},
+					{
+						"name": "Event (Desc)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Char Value 1)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Char Value 2)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Num Value 1)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Num Value 2)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Date Value 1)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Date Value 2)",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_OtherCore_Append')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"AppendFileName": {
+						"type": "string",
+						"defaultValue": "Elloree Data Submission Template (Other).xlsx"
+					},
+					"WorkSheetName": {
+						"type": "string",
+						"defaultValue": "DATA_WorkerOther (2)"
+					},
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": {
+						"value": "@dataset().WorkSheetName",
+						"type": "Expression"
+					},
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().AppendFileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Event (Type)",
+						"type": "String"
+					},
+					{
+						"name": "Event (Desc)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Char Value 1)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Char Value 2)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Num Value 1)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Num Value 2)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Date Value 1)",
+						"type": "String"
+					},
+					{
+						"name": "Other (Date Value 2)",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Promotions')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "DATA_Promotion",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Elloree Data Submission Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Worker Type",
+						"type": "String"
+					},
+					{
+						"name": "Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Job Family/Function",
+						"type": "String"
+					},
+					{
+						"name": "Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Previous Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Previous Job Family/Function",
+						"type": "String"
+					},
+					{
+						"name": "Previous Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Manager Indicator",
+						"type": "String"
+					},
+					{
+						"name": "Direct Manager Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Work Office Location",
+						"type": "String"
+					},
+					{
+						"name": "Work City",
+						"type": "String"
+					},
+					{
+						"name": "Work State",
+						"type": "String"
+					},
+					{
+						"name": "Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Strategic Work Location Ind",
+						"type": "String"
+					},
+					{
+						"name": "Original Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Current Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Years of Service",
+						"type": "String"
+					},
+					{
+						"name": "Years in Job",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Race",
+						"type": "String"
+					},
+					{
+						"name": "Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Veteran Ind",
+						"type": "String"
+					},
+					{
+						"name": "LGTBQ",
+						"type": "String"
+					},
+					{
+						"name": "Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Birth Year",
+						"type": "String"
+					},
+					{
+						"name": "Generation Desc",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Req_Test')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "DATA_JobRequisition",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Elloree Data Submission Template - TA.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Requisition ID",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Posting Date",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Status",
+						"type": "String"
+					},
+					{
+						"name": "Number of Openings",
+						"type": "String"
+					},
+					{
+						"name": "Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Job Function",
+						"type": "String"
+					},
+					{
+						"name": "Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Work Office Location",
+						"type": "String"
+					},
+					{
+						"name": "Work Office City",
+						"type": "String"
+					},
+					{
+						"name": "Work Office State",
+						"type": "String"
+					},
+					{
+						"name": "Work Office Country",
+						"type": "String"
+					},
+					{
+						"name": "Strategic Work Location Ind",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Hiring Manager Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Primary Recruiter Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Other (1)",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Other (2)",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Other (3)",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Other (4)",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Other (5)",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_TalentAssessment')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "DATA_TalentAssessment",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Elloree Data Submission Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Performance Rating",
+						"type": "String"
+					},
+					{
+						"name": "Performance Rating Date",
+						"type": "String"
+					},
+					{
+						"name": "Top Performer",
+						"type": "String"
+					},
+					{
+						"name": "Talent Identifier (1)",
+						"type": "String"
+					},
+					{
+						"name": "Talent Identifier (2)",
+						"type": "String"
+					},
+					{
+						"name": "Talent Identifier (3)",
+						"type": "String"
+					},
+					{
+						"name": "Talent Identifier (4)",
+						"type": "String"
+					},
+					{
+						"name": "Talent Identifier (5)",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Terminations')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "DATA_Term",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Elloree Data Submission Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Event Reason",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Worker Type",
+						"type": "String"
+					},
+					{
+						"name": "Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Job Family/Function",
+						"type": "String"
+					},
+					{
+						"name": "Years in Job",
+						"type": "String"
+					},
+					{
+						"name": "Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Manager Indicator",
+						"type": "String"
+					},
+					{
+						"name": "Direct Manager Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Work Office Location",
+						"type": "String"
+					},
+					{
+						"name": "Work City",
+						"type": "String"
+					},
+					{
+						"name": "Work State",
+						"type": "String"
+					},
+					{
+						"name": "Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Strategic Work Location Ind",
+						"type": "String"
+					},
+					{
+						"name": "Original Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Current Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Years of Service",
+						"type": "String"
+					},
+					{
+						"name": "Last Promo Date",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Race",
+						"type": "String"
+					},
+					{
+						"name": "Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Veteran Ind",
+						"type": "String"
+					},
+					{
+						"name": "LGTBQ",
+						"type": "String"
+					},
+					{
+						"name": "Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Birth Year",
+						"type": "String"
+					},
+					{
+						"name": "Generation Desc",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Test')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "sheet.txt",
+						"folderPath": "Dogwood/7-31-2022/FactTbl/2022",
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/etalentApplFlowMapTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Database"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "ClientApplFinalDisp",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientApplStepBeforeFinalDisp",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientApplRejectedReason",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeApplFinalDisp",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeApplCategory",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeSubmittedtoMgrFl",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "TAApplMapTbl"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/etalentApplStatusFactTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "connection to Silver Medalist Fact table",
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Database"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "ApplId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ReqId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EventDt",
+						"type": "date"
+					},
+					{
+						"name": "EventMonth",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EventQuarter",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EventYear",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Applicants",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WhiteAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "BlackAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LatinxAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "AsianAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TwoorMoreAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "OtherAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "DNSIDAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "PoCAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FemaleAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MaleAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "OtherGenderAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "DNSIDGenderAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "DiverseAppl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "ApplRejected",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "ApplWithdrew",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Candidates",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CandRejectedHR",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CandStM",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CandRejectedHM",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CandInterviewed",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CandHired",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CandWithdrew",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "TAApplStatusFactTbl"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/etalentApplicantFactTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "connection to Applicant Fact table",
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Database"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "ClientEngagementType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EventDt",
+						"type": "date"
+					},
+					{
+						"name": "EventMonth",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EventQuarter",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EventYear",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Event",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EventId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ReqId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplicantId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "InternalWorkerId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Race",
+						"type": "nvarchar"
+					},
+					{
+						"name": "HispanicLatinoOrigin",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Gender",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Veteran",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LGTBQ",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DisabilityInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplFinalDisp",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplStepBeforeFinalDisp",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplRejectedReason",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplOther1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplOther2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplOther3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplOther4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplOther5",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "TAApplTbl"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/etalentBLSTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "LastRefreshDt",
+						"type": "date"
+					},
+					{
+						"name": "Source",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SourceId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SourceDesc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Quarter",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Latest",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EthnicOrigin",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Race",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Gender",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Headcount",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "BLSTbl"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/etalentBusHierarchyMapTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "connection to Business Hierarchy mapping table",
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Database"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "ClientBusGrpLvl1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientBusGrpLvl2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientBusGrpLvl3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientBusGrpLvl4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeBusGrpLvl1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeBusGrpLvl2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeBusGrpLvl3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeBusGrpLvl4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "BusinessMapTbl"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/etalentClientTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "connection to Core Fact table",
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Database"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "ClientEngagementType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientSector",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientDesc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "ClientTbl"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

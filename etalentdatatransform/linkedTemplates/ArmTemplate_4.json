@@ -1,0 +1,2679 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "etalentdatatransform"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_SilverMedalist_File')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Fact Table"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "SilverMedalistFactTbl.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Applicant ID",
+						"type": "String"
+					},
+					{
+						"name": "Internal Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Requisition ID",
+						"type": "String"
+					},
+					{
+						"name": "Silver Medalist Ind",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_Speedbumps_File')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Fact Table"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "SpeedbumpsFactTbl.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Core Event Id",
+						"type": "String"
+					},
+					{
+						"name": "Core Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Core Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump Worker Status",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump Population Ind",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 1 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 1 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 1 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 2 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 2 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 2 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 3 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 3 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 3 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 4 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 4 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 4 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 5 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 5 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 5 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 6 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 6 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 6 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 7 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 7 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 7 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 8 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 8 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 8 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 9 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 9 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 9 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 10 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 10 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 10 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 11 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 11 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 11 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 12 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 12 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 12 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 13 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 13 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 13 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 14 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 14 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 14 Flag",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 15 Name",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 15 Desc",
+						"type": "String"
+					},
+					{
+						"name": "Speedbump 15 Flag",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_TalentData_File')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Fact Table"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "TalentFactTbl.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Event",
+						"type": "String"
+					},
+					{
+						"name": "Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Performance Rating",
+						"type": "String"
+					},
+					{
+						"name": "Performance Rating Date",
+						"type": "String"
+					},
+					{
+						"name": "Talent Identifier (1)",
+						"type": "String"
+					},
+					{
+						"name": "Talent Identifier (2)",
+						"type": "String"
+					},
+					{
+						"name": "Talent Identifier (3)",
+						"type": "String"
+					},
+					{
+						"name": "Talent Identifier (4)",
+						"type": "String"
+					},
+					{
+						"name": "Talent Identifier (5)",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_YearRef_File')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Fact Table"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "YearRefTbl.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "CurrEventYear",
+						"type": "String"
+					},
+					{
+						"name": "P1EventYear",
+						"type": "String"
+					},
+					{
+						"name": "P2EventYear",
+						"type": "String"
+					},
+					{
+						"name": "P3EventYear",
+						"type": "String"
+					},
+					{
+						"name": "P4EventYear",
+						"type": "String"
+					},
+					{
+						"name": "P5EventYear",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_MappingPrepFldr')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Prep')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_MappingWorkingFldr')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Applicant')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "applflow_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Applicant Final Disposition",
+						"type": "String"
+					},
+					{
+						"name": "Client Applicant Step Before Final Disposition",
+						"type": "String"
+					},
+					{
+						"name": "Client Applicant Rejected Reason",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Applicant Final Disposition",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Applicant Category",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Submitted to Mgr Fl",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Applicant Final Disposition",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Applicant Category",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Submitted to Mgr Fl",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2021 Job Applicant",
+						"type": "String"
+					},
+					{
+						"name": "2022 Job Applicant",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_BusHierarchy')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "business_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Client Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Client Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Client Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_CorpTitle')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "corp_title_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Client Elloree Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Corporate Title Sort",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Client Elloree Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Corporate Title Sort",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo Prev Title",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term Curr Title",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term Prev Title",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Disability')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "disability_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Ethnicity')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "ethnicity_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Race",
+						"type": "String"
+					},
+					{
+						"name": "Client Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Race",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Race",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Event')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "event_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Event",
+						"type": "String"
+					},
+					{
+						"name": "Client Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Client Event Reason",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Event",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Event Reason",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Termination Reason",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Event",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Event Reason",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Termination Reason",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					},
+					{
+						"name": "2022 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2022 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2022 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2022 Term",
+						"type": "String"
+					},
+					{
+						"name": "2023 Promo",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Gender')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "gender_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Gender",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Gender",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Gender",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_LGTBQ')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "lgtbq_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client LGTBQ",
+						"type": "String"
+					},
+					{
+						"name": "Elloree LGTBQ",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree LGTBQ",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Location')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "location_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Work Office Location",
+						"type": "String"
+					},
+					{
+						"name": "Client Work City",
+						"type": "String"
+					},
+					{
+						"name": "Client Work State",
+						"type": "String"
+					},
+					{
+						"name": "Client Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Client Strategic Work Location Ind",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Work Ofiice",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Work City",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Work State",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Work Region",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Strategic Location",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Location Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Work City",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Work State",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Work Region",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Strategic Location",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Location Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_PerformanceRating')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "perf_rating_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Performance Rating",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Performance Rating",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Performance Rating Sort",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Performance Rating",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Performane Rating Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Talent Assessment",
+						"type": "String"
+					},
+					{
+						"name": "2018 Talent Assessment",
+						"type": "String"
+					},
+					{
+						"name": "2019 Talent Assessment",
+						"type": "String"
+					},
+					{
+						"name": "2020 Talent Assessment",
+						"type": "String"
+					},
+					{
+						"name": "2021 Talent Assessment",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_ReqStatus')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "reqstatus_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Requisition Status",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Requisition Status",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Requisition Status",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2021 Requisition",
+						"type": "String"
+					},
+					{
+						"name": "2022 Requisition",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_ReqType')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "reqtype_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2021 Job Requisition",
+						"type": "String"
+					},
+					{
+						"name": "2022 Job Requisition",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Veteran')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "veteran_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Veteran",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Veteran",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Veteran",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_TalentAssessmentColumnMapping')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "TalentAssessment",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "column_mapping.xlsx",
+						"folderPath": "Template Admin",
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Column Name",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		}
+	]
+}
