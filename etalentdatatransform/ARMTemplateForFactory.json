@@ -1348,7 +1348,7 @@
 						"type": "ExecutePipeline",
 						"dependsOn": [
 							{
-								"activity": "Delete_Rec_FactTbl_Speedbumps",
+								"activity": "Delete_Qtr_Rec_FactTbl_Speedbumps",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1375,44 +1375,6 @@
 									"type": "Expression"
 								},
 								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_Speedbumps",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Output_FactTbl_File_Speedbumps_Quarter",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Qtr_Rec_FactTbl_Speedbumps",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_SB_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_SB_Quarter": {
 									"value": "@pipeline().parameters.P_Folder_Quarter",
 									"type": "Expression"
 								}
@@ -1465,6 +1427,60 @@
 								}
 							}
 						}
+					},
+					{
+						"name": "Delete_Qtr_Rec_FactTbl_Speedbumps",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Output_FactTbl_File_Speedbumps_Quarter",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_Qtr_Rec_FactTbl_Speedbumps",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_SB_Year": {
+										"value": "'@{pipeline().parameters.P_Folder_Year}'",
+										"type": "Expression"
+									},
+									"Flow_SB_Quarter": {
+										"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"SpeedbumpsFactTbl": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
 					}
 				],
 				"policy": {
@@ -1499,8 +1515,8 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/Append_FactTbl_Speedbumps')]",
-				"[concat(variables('factoryId'), '/pipelines/Delete_Qtr_Rec_FactTbl_Speedbumps')]",
-				"[concat(variables('factoryId'), '/pipelines/Output_FactTbl_File_Speedbumps_Quarter')]"
+				"[concat(variables('factoryId'), '/pipelines/Output_FactTbl_File_Speedbumps_Quarter')]",
+				"[concat(variables('factoryId'), '/dataflows/Delete_Qtr_Rec_FactTbl_Speedbumps')]"
 			]
 		},
 		{
@@ -76821,7 +76837,11 @@
 						"          ClientEngagementDt as date,",
 						"          EventQuarter as integer,",
 						"          EventYear as integer,",
+						"          CoreEventId as string,",
+						"          CoreEventQuarter as integer,",
+						"          CoreEventDate as date,",
 						"          WorkerId as string,",
+						"          SpeedbumnpWorkerStatus as string,",
 						"          SpeedbumpPopulationInd as string,",
 						"          Speedbump1Name as string,",
 						"          Speedbump1Desc as string,",
@@ -76873,9 +76893,10 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[SpeedbumpsFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventYear = '{$Flow_SB_Year}' and EventQuarter = '{$Flow_SB_Quarter}'\"),",
+						"     query: (\"select * from [dbo].[SpeedbumpsFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 						"     format: 'query') ~> SpeedbumpsFactTbl",
-						"SpeedbumpsFactTbl alterRow(deleteIf(true())) ~> alterRow1",
+						"SpeedbumpsFactTbl alterRow(deleteIf(EventQuarter==toInteger($Flow_SB_Quarter)),",
+						"     deleteIf(EventYear==toInteger($Flow_SB_Year))) ~> alterRow1",
 						"alterRow1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
