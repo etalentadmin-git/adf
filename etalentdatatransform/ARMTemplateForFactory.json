@@ -1275,7 +1275,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_Speedbumps",
+								"referenceName": "Delete_Qtr_Rec_FactTbl_Speedbumps",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
@@ -1333,7 +1333,7 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/Output_FactTbl_File_Speedbumps_Baseline')]",
 				"[concat(variables('factoryId'), '/pipelines/Append_FactTbl_Speedbumps')]",
-				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_FactTbl_Speedbumps')]"
+				"[concat(variables('factoryId'), '/pipelines/Delete_Qtr_Rec_FactTbl_Speedbumps')]"
 			]
 		},
 		{
@@ -1395,7 +1395,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_Speedbumps",
+								"referenceName": "Delete_Qtr_Rec_FactTbl_Speedbumps",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
@@ -1499,7 +1499,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/Append_FactTbl_Speedbumps')]",
-				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_FactTbl_Speedbumps')]",
+				"[concat(variables('factoryId'), '/pipelines/Delete_Qtr_Rec_FactTbl_Speedbumps')]",
 				"[concat(variables('factoryId'), '/pipelines/Output_FactTbl_File_Speedbumps_Quarter')]"
 			]
 		},
@@ -12440,6 +12440,158 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Delete_All_Rec_FactTbl_Speedbumps')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_Speedbumps",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_All_Rec_FactTbl_Speedbumps",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"SpeedbumpsFactTbl": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables/All Records"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T16:53:03Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Delete_All_Rec_FactTbl_Speedbumps')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Qtr_Rec_FactTbl_Speedbumps')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_Speedbumps",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_Qtr_Rec_FactTbl_Speedbumps",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_SB_Year": {
+										"value": "'@{pipeline().parameters.P_SB_Year}'",
+										"type": "Expression"
+									},
+									"Flow_SB_Quarter": {
+										"value": "'@{pipeline().parameters.P_SB_Quarter}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"SpeedbumpsFactTbl": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_SB_Year": {
+						"type": "string"
+					},
+					"P_SB_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables/Quarter Records"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T16:53:03Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Delete_Qtr_Rec_FactTbl_Speedbumps')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_All')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -12453,7 +12605,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_Speedbumps",
+								"referenceName": "Delete_All_Rec_FactTbl_Speedbumps",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
@@ -12819,7 +12971,7 @@
 				"lastPublishTime": "2023-01-12T14:43:29Z"
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_FactTbl_Speedbumps')]",
+				"[concat(variables('factoryId'), '/pipelines/Delete_All_Rec_FactTbl_Speedbumps')]",
 				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_FactTbl_Applicant')]",
 				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_FactTbl_ApplicantStatus')]",
 				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_FactTbl_Client')]",
@@ -13452,89 +13604,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/Delete_All_Rec_FactTbl_SilverMedalist')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_Speedbumps')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
-				"activities": [
-					{
-						"name": "Delete_Rec_FactTbl_Speedbumps",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Delete_Qtr_Rec_FactTbl_Speedbumps",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_SB_Year": {
-										"value": "'@{pipeline().parameters.P_SB_Year}'",
-										"type": "Expression"
-									},
-									"Flow_SB_Quarter": {
-										"value": "'@{pipeline().parameters.P_SB_Quarter}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"SpeedbumpsFactTbl": {},
-									"DeleteRecords": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_SB_Year": {
-						"type": "string"
-					},
-					"P_SB_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Delete Records/Fact Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T16:53:03Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/Delete_Qtr_Rec_FactTbl_Speedbumps')]"
 			]
 		},
 		{
