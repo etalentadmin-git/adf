@@ -55,6 +55,27 @@
 				},
 				{
 					"name": "aggregate1"
+				},
+				{
+					"name": "aggregate2"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "SelectApplicantIdWithMatchingInternalWorkerId"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select1"
 				}
 			],
 			"scriptLines": [
@@ -214,7 +235,53 @@
 				"          {Applicant Other (4)},",
 				"          {Applicant Other (5)}),",
 				"     RowCount = count({Applicant ID})) ~> aggregate1",
-				"aggregate1 sink(allowSchemaDrift: true,",
+				"aggregate1 aggregate(groupBy({Applicant ID},",
+				"          {Internal Worker ID}),",
+				"     RowCount = count({Requisition ID})) ~> aggregate2",
+				"aggregate2 derive(WorkerIDValue = iif(length(trim({Internal Worker ID}))>0, 'Y','N')) ~> derivedColumn1",
+				"derivedColumn1 filter(WorkerIDValue=='Y') ~> filter1",
+				"filter1 select(mapColumn(",
+				"          {Applicant ID},",
+				"          {Internal Worker ID for Match} = {Internal Worker ID}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectApplicantIdWithMatchingInternalWorkerId",
+				"aggregate1, SelectApplicantIdWithMatchingInternalWorkerId join(aggregate1@{Applicant ID} == SelectApplicantIdWithMatchingInternalWorkerId@{Applicant ID},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'both')~> join1",
+				"join1 derive({Internal Worker ID} = iif(length(trim({Internal Worker ID}))==0,iif(length(trim({Internal Worker ID for Match}))>0,{Internal Worker ID for Match},{Internal Worker ID}),{Internal Worker ID})) ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event Year},",
+				"          {Event Date},",
+				"          Event,",
+				"          {Requisition ID},",
+				"          {Applicant ID} = aggregate1@{Applicant ID},",
+				"          Source,",
+				"          {Applicant Type},",
+				"          {Internal Worker ID},",
+				"          Race,",
+				"          {Hispanic or Latino Origin},",
+				"          Gender,",
+				"          {Veteran Ind},",
+				"          LGTBQ,",
+				"          {Disability Ind},",
+				"          {Applicant Final Disposition},",
+				"          {Applicant Step Before Final Disposition},",
+				"          {Applicant Rejected Reason},",
+				"          {Applicant Other (1)},",
+				"          {Applicant Other (2)},",
+				"          {Applicant Other (3)},",
+				"          {Applicant Other (4)},",
+				"          {Applicant Other (5)},",
+				"          RowCount",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          Column_1 as string,",
