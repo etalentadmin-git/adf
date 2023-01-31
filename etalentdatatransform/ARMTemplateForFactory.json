@@ -64598,6 +64598,18 @@
 						},
 						{
 							"name": "TakeLastClientValForRemainingDups"
+						},
+						{
+							"name": "NotEqualtoClientID"
+						},
+						{
+							"name": "EqualtoClientId"
+						},
+						{
+							"name": "GroupUniqueValues"
+						},
+						{
+							"name": "selectUniqueClientIDValues"
 						}
 					],
 					"scriptLines": [
@@ -64856,7 +64868,7 @@
 						"          {Elloree Work Ofiice} = '',",
 						"          {Elloree Location Sort} = '',",
 						"          {Elloree Strategic Location} = '') ~> AddDerivedEventYearColumn",
-						"LocationMappingTbl aggregate(groupBy({Unique ClientId} = ClientId,",
+						"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 						"          {Unique ClientWorkOffice} = ClientWorkOffice,",
 						"          {Unique ClientWorkCity} = ClientWorkCity,",
 						"          {Unique ClientWorkState} = ClientWorkState,",
@@ -64887,7 +64899,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectWithoutEngagementDt",
-						"SortOnEvent, SelectWithoutEngagementDt join({Client ID} == {Unique ClientId}",
+						"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
 						"     && {Work Office Location} == {Unique ClientWorkOffice}",
 						"     && {Work City} == {Unique ClientWorkCity}",
 						"     && {Work State} == {Unique ClientWorkState}",
@@ -64918,7 +64930,7 @@
 						"          {Suggested Elloree Work Office} = {Unique ElloreeWorkOffice},",
 						"          {Suggested Elloree Work State} = {Unique ElloreeWorkState},",
 						"          {Suggested Elloree Work Country} = {Unique ElloreeWorkCountry},",
-						"          {Suggested Elloree Region} = {Unique ElloreeRegion},",
+						"          {Suggested Elloree Region} = {Unique ElloreeWorkRegion},",
 						"          {Suggested Elloree Strategic Location} = {Unique ElloreeStrategicLoc},",
 						"          {Suggested Elloree Location Sort Id} = {Unique ElloreeLocSortId},",
 						"          {Record Id}",
@@ -65167,6 +65179,39 @@
 						"          {Unique ElloreeStrategicLoc},",
 						"          {Unique ElloreeLocSortId}),",
 						"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
+						"LocationMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
+						"LocationMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
+						"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
+						"          {Unique ClientWorkOffice} = ClientWorkOffice,",
+						"          {Unique ClientWorkCity} = ClientWorkCity,",
+						"          {Unique ClientWorkState} = ClientWorkState,",
+						"          {Unique ClientWorkCountry} = ClientWorkCountry,",
+						"          {Unique ClientStrategicLoc} = ClientStrategicLoc,",
+						"          {Unique ElloreeWorkOffice} = ElloreeWorkOffice,",
+						"          {Unique ElloreeWorkCity} = ElloreeWorkCity,",
+						"          {Unique ElloreeWorkState} = ElloreeWorkState,",
+						"          {Unique ElloreeWorkCountry} = ElloreeWorkCountry,",
+						"          {Unique ElloreeWorkRegion} = ElloreeWorkRegion,",
+						"          {Unique ElloreeStrategicLoc} = ElloreeStrategicLoc,",
+						"          {Unique ElloreeLocSortId} = ElloreeLocSortId),",
+						"     RowCount = count(ClientId)) ~> GroupUniqueValues",
+						"GroupUniqueValues select(mapColumn(",
+						"          {Unique ClientId},",
+						"          {Unique ClientWorkOffice},",
+						"          {Unique ClientWorkCity},",
+						"          {Unique ClientWorkState},",
+						"          {Unique ClientWorkCountry},",
+						"          {Unique ClientStrategicLoc},",
+						"          {Unique ElloreeWorkOffice},",
+						"          {Unique ElloreeWorkCity},",
+						"          {Unique ElloreeWorkState},",
+						"          {Unique ElloreeWorkCountry},",
+						"          {Unique ElloreeWorkRegion},",
+						"          {Unique ElloreeStrategicLoc},",
+						"          {Unique ElloreeLocSortId}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
 						"SortOnLocation sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
