@@ -183,6 +183,12 @@
 				},
 				{
 					"name": "select11"
+				},
+				{
+					"name": "SelectLastEngagementDt"
+				},
+				{
+					"name": "exists1"
 				}
 			],
 			"scriptLines": [
@@ -413,7 +419,8 @@
 				"          {Unique ClientCorpTitle} = ClientCorpTitle,",
 				"          {Unique ClientElloreeCorpTitle} = ClientElloreeCorpTitle,",
 				"          {Unique ElloreeCorpTitle} = ElloreeCorpTitle,",
-				"          {Unique ElloreeCorpTitleSortId} = ElloreeCorpTitleSortId),",
+				"          {Unique ElloreeCorpTitleSortId} = ElloreeCorpTitleSortId,",
+				"          ClientEngagementDt),",
 				"     CountClientId = count(ClientId)) ~> SelectUniqueOtherClientValues",
 				"TakeLastClientValForRemainingDups select(mapColumn(",
 				"          {Unique ClientId},",
@@ -660,9 +667,10 @@
 				"          {Unique ClientCorpTitle} = ClientCorpTitle,",
 				"          {Unique ClientElloreeCorpTitle} = ClientElloreeCorpTitle,",
 				"          {Unique ElloreeCorpTitle} = ElloreeCorpTitle,",
-				"          {Unique ElloreeCorpTitleSortId} = ElloreeCorpTitleSortId),",
+				"          {Unique ElloreeCorpTitleSortId} = ElloreeCorpTitleSortId,",
+				"          ClientEngagementDt),",
 				"     RowCount = count(ClientId)) ~> GroupUniqueValues",
-				"GroupUniqueValues select(mapColumn(",
+				"exists1 select(mapColumn(",
 				"          {Unique ClientId},",
 				"          {Unique ClientCorpTitle},",
 				"          {Unique ClientElloreeCorpTitle},",
@@ -688,6 +696,10 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select11",
+				"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
+				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> exists1",
 				"SortOnCorpTitle sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
