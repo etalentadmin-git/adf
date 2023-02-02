@@ -13,216 +13,6 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Female')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Female",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'All',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(Unadj) Civilian Labor Force Level - Women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Female.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Latinx_Female')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Latinx_Female",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Latinx',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Hispanic or Latino',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(Unadj) Civilian Labor Force Level - Hispanic or Latino Women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Latinx_Female.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/BLS_Latinx_Male')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -4064,6 +3854,534 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink2"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_FactTbl_JobReq_File')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Create Fact Table Files"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Req_Test",
+								"type": "DatasetReference"
+							},
+							"name": "Requisitions"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTblFldr",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "FilterOutClientHeaderRowAndColumn"
+						},
+						{
+							"name": "SelectFinal"
+						},
+						{
+							"name": "AddParameters"
+						},
+						{
+							"name": "ConvertNullsForKeyFields"
+						},
+						{
+							"name": "RemoveNullReqIDRows"
+						},
+						{
+							"name": "tagEvent"
+						},
+						{
+							"name": "AddEventMonth"
+						},
+						{
+							"name": "RemoveDupRowsandAddRowCount"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {Event Year} as short,",
+						"          {Event Quarter} as integer,",
+						"          {Event Date} as date,",
+						"          {Requisition ID} as string,",
+						"          {Requisition Type} as string,",
+						"          {Posting Date} as date,",
+						"          {Requisition Status} as string,",
+						"          {Number of Openings} as integer,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Corporate Title} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          {Hiring Manager Worker ID} as string,",
+						"          {Primary Recruiter Worker ID} as string,",
+						"          {Requisition Other (1)} as string,",
+						"          {Requisition Other (2)} as string,",
+						"          {Requisition Other (3)} as string,",
+						"          {Requisition Other (4)} as string,",
+						"          {Requisition Other (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Requisitions",
+						"Requisitions filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+						"ConvertNullsForKeyFields select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Event Date},",
+						"          EventMonth,",
+						"          {Event Quarter},",
+						"          {Event Year},",
+						"          EventId,",
+						"          Event,",
+						"          {Requisition ID},",
+						"          {Requisition Type},",
+						"          {Posting Date},",
+						"          {Requisition Status},",
+						"          {Number of Openings},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Corporate Title},",
+						"          {Work Office Location},",
+						"          {Work Office City},",
+						"          {Work Office State},",
+						"          {Work Office Country},",
+						"          {Strategic Work Location Ind},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          {Hiring Manager Worker ID},",
+						"          {Primary Recruiter Worker ID},",
+						"          {Requisition Other (1)},",
+						"          {Requisition Other (2)},",
+						"          {Requisition Other (3)},",
+						"          {Requisition Other (4)},",
+						"          {Requisition Other (5)}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectFinal",
+						"tagEvent derive({Client ID} = $Flow_Client_Id,",
+						"          {Client Engagement Date} = $Flow_Client_Dt) ~> AddParameters",
+						"AddEventMonth derive(Event = iif(isNull(Event),'N/A',Event),",
+						"          {Requisition Type} = iif(isNull({Requisition Type}),'N/A',{Requisition Type}),",
+						"          {Requisition Status} = iif(isNull({Requisition Status}),'N/A',{Requisition Status}),",
+						"          {Corporate Title} = iif(isNull({Corporate Title}),'N/A',{Corporate Title}),",
+						"          {Work Office Location} = iif(isNull({Work Office Location}),'N/A',{Work Office Location}),",
+						"          {Work Office City} = iif(isNull({Work Office City}),'N/A',{Work Office City}),",
+						"          {Work Office State} = iif(isNull({Work Office State}),'N/A',{Work Office State}),",
+						"          {Work Office Country} = iif(isNull({Work Office Country}),'N/A',{Work Office Country}),",
+						"          {Strategic Work Location Ind} = iif(isNull({Strategic Work Location Ind}),'N/A',{Strategic Work Location Ind}),",
+						"          {Business Group Level 1} = iif(isNull({Business Group Level 1}),'N/A',{Business Group Level 1}),",
+						"          {Business Group Level 2} = iif(isNull({Business Group Level 2}),'N/A',{Business Group Level 2}),",
+						"          {Business Group Level 3} = iif(isNull({Business Group Level 3}),'N/A',{Business Group Level 3}),",
+						"          {Business Group Level 4} = iif(isNull({Business Group Level 4}),'N/A',{Business Group Level 4})) ~> ConvertNullsForKeyFields",
+						"FilterOutClientHeaderRowAndColumn filter(not(isNull({Event Date})) && not(isNull({Requisition ID}))) ~> RemoveNullReqIDRows",
+						"RemoveNullReqIDRows derive(Event = 'Requisition',",
+						"          EventId = 'REQ') ~> tagEvent",
+						"AddParameters derive(EventMonth = month({Event Date})) ~> AddEventMonth",
+						"SelectFinal aggregate(groupBy({Client ID},",
+						"          {Client Engagement Date},",
+						"          {Event Date},",
+						"          EventMonth,",
+						"          {Event Quarter},",
+						"          {Event Year},",
+						"          EventId,",
+						"          Event,",
+						"          {Requisition ID},",
+						"          {Requisition Type},",
+						"          {Posting Date},",
+						"          {Requisition Status},",
+						"          {Number of Openings},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Corporate Title},",
+						"          {Work Office Location},",
+						"          {Work Office City},",
+						"          {Work Office State},",
+						"          {Work Office Country},",
+						"          {Strategic Work Location Ind},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          {Hiring Manager Worker ID},",
+						"          {Primary Recruiter Worker ID},",
+						"          {Requisition Other (1)},",
+						"          {Requisition Other (2)},",
+						"          {Requisition Other (3)},",
+						"          {Requisition Other (4)},",
+						"          {Requisition Other (5)}),",
+						"     RowCount = count({Requisition ID})) ~> RemoveDupRowsandAddRowCount",
+						"RemoveDupRowsandAddRowCount sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
+						"     ),",
+						"     partitionFileNames:['ReqTbl.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_FactTbl_JobReq_File_Append')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Create Fact Table Files"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_JobReq_File",
+								"type": "DatasetReference"
+							},
+							"name": "JobRegFactTableFile"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Template_JobReq_Append",
+								"type": "DatasetReference"
+							},
+							"name": "JobReqAppendFile"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTblFldr",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "FilterOutClientHeaderRowAndColumn"
+						},
+						{
+							"name": "SelectFinal"
+						},
+						{
+							"name": "AddParameters"
+						},
+						{
+							"name": "ConvertNullsForKeyFields"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "SelectOutput"
+						},
+						{
+							"name": "RemoveDuplicates"
+						},
+						{
+							"name": "AddEventMonth"
+						},
+						{
+							"name": "RemoveNullReqID"
+						},
+						{
+							"name": "tagEvent"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Client Engagement Type} as string,",
+						"          {Event Date} as date,",
+						"          EventMonth as integer,",
+						"          {Event Quarter} as integer,",
+						"          {Event Year} as short,",
+						"          EventId as string,",
+						"          Event as string,",
+						"          {Requisition ID} as string,",
+						"          {Requisition Type} as string,",
+						"          {Posting Date} as date,",
+						"          {Requisition Status} as string,",
+						"          {Number of Openings} as integer,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Corporate Title} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          {Hiring Manager Worker ID} as string,",
+						"          {Primary Recruiter Worker ID} as string,",
+						"          {Requisition Other (1)} as string,",
+						"          {Requisition Other (2)} as string,",
+						"          {Requisition Other (3)} as string,",
+						"          {Requisition Other (4)} as string,",
+						"          {Requisition Other (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> JobRegFactTableFile",
+						"source(output(",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {Event Year} as short,",
+						"          {Event Quarter} as integer,",
+						"          {Event Date} as date,",
+						"          {Requisition ID} as string,",
+						"          {Requisition Type} as string,",
+						"          {Posting Date} as date,",
+						"          {Requisition Status} as string,",
+						"          {Number of Openings} as integer,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Corporate Title} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          {Hiring Manager Worker ID} as string,",
+						"          {Primary Recruiter Worker ID} as string,",
+						"          {Requisition Other (1)} as string,",
+						"          {Requisition Other (2)} as string,",
+						"          {Requisition Other (3)} as string,",
+						"          {Requisition Other (4)} as string,",
+						"          {Requisition Other (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> JobReqAppendFile",
+						"JobReqAppendFile filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+						"AddEventMonth select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Event Date},",
+						"          EventMonth,",
+						"          {Event Year},",
+						"          EventId,",
+						"          Event,",
+						"          {Requisition ID},",
+						"          {Requisition Type},",
+						"          {Posting Date},",
+						"          {Requisition Status},",
+						"          {Number of Openings},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Corporate Title},",
+						"          {Work Office Location},",
+						"          {Work Office City},",
+						"          {Work Office State},",
+						"          {Work Office Country},",
+						"          {Strategic Work Location Ind},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          {Hiring Manager Worker ID},",
+						"          {Primary Recruiter Worker ID},",
+						"          {Requisition Other (1)},",
+						"          {Requisition Other (2)},",
+						"          {Requisition Other (3)},",
+						"          {Requisition Other (4)},",
+						"          {Requisition Other (5)}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectFinal",
+						"tagEvent derive({Client ID} = $Flow_Client_Id,",
+						"          {Client Engagement Date} = $Flow_Client_Dt) ~> AddParameters",
+						"AddParameters derive(Event = iif(isNull(Event),'N/A',Event),",
+						"          {Requisition Type} = iif(isNull({Requisition Type}),'N/A',{Requisition Type}),",
+						"          {Requisition Status} = iif(isNull({Requisition Status}),'N/A',{Requisition Status}),",
+						"          {Corporate Title} = iif(isNull({Corporate Title}),'N/A',{Corporate Title}),",
+						"          {Work Office Location} = iif(isNull({Work Office Location}),'N/A',{Work Office Location}),",
+						"          {Work Office City} = iif(isNull({Work Office City}),'N/A',{Work Office City}),",
+						"          {Work Office Country} = iif(isNull({Work Office Country}),'N/A',{Work Office Country}),",
+						"          {Strategic Work Location Ind} = iif(isNull({Strategic Work Location Ind}),'N/A',{Strategic Work Location Ind}),",
+						"          {Business Group Level 1} = iif(isNull({Business Group Level 1}),'N/A',{Business Group Level 1}),",
+						"          {Business Group Level 2} = iif(isNull({Business Group Level 2}),'N/A',{Business Group Level 2}),",
+						"          {Business Group Level 3} = iif(isNull({Business Group Level 3}),'N/A',{Business Group Level 3}),",
+						"          {Business Group Level 4} = iif(isNull({Business Group Level 4}),'N/A',{Business Group Level 4})) ~> ConvertNullsForKeyFields",
+						"SelectFinal, JobRegFactTableFile union(byName: true)~> union1",
+						"RemoveDuplicates aggregate(groupBy({Client ID},",
+						"          {Client Engagement Date},",
+						"          {Event Date},",
+						"          EventMonth,",
+						"          {Event Year},",
+						"          EventId,",
+						"          Event,",
+						"          {Requisition ID},",
+						"          {Requisition Type},",
+						"          {Posting Date},",
+						"          {Requisition Status},",
+						"          {Number of Openings},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Corporate Title},",
+						"          {Work Office Location},",
+						"          {Work Office City},",
+						"          {Work Office State},",
+						"          {Work Office Country},",
+						"          {Strategic Work Location Ind},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          {Hiring Manager Worker ID},",
+						"          {Primary Recruiter Worker ID},",
+						"          {Requisition Other (1)},",
+						"          {Requisition Other (2)},",
+						"          {Requisition Other (3)},",
+						"          {Requisition Other (4)},",
+						"          {Requisition Other (5)}),",
+						"     RowCount = count({Requisition ID})) ~> SelectOutput",
+						"union1 select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Event Date},",
+						"          EventMonth,",
+						"          {Event Year},",
+						"          EventId,",
+						"          Event,",
+						"          {Requisition ID},",
+						"          {Requisition Type},",
+						"          {Posting Date},",
+						"          {Requisition Status},",
+						"          {Number of Openings},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Corporate Title},",
+						"          {Work Office Location},",
+						"          {Work Office City},",
+						"          {Work Office State},",
+						"          {Work Office Country},",
+						"          {Strategic Work Location Ind},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          {Hiring Manager Worker ID},",
+						"          {Primary Recruiter Worker ID},",
+						"          {Requisition Other (1)},",
+						"          {Requisition Other (2)},",
+						"          {Requisition Other (3)},",
+						"          {Requisition Other (4)},",
+						"          {Requisition Other (5)}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> RemoveDuplicates",
+						"ConvertNullsForKeyFields derive(EventMonth = month({Event Date})) ~> AddEventMonth",
+						"FilterOutClientHeaderRowAndColumn filter(not(isNull({Event Date})) && not(isNull({Requisition ID}))) ~> RemoveNullReqID",
+						"RemoveNullReqID derive(Event = 'Requisition',",
+						"          EventId = 'REQ') ~> tagEvent",
+						"SelectOutput sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
+						"     ),",
+						"     partitionFileNames:['ReqTbl.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
 					]
 				}
 			},

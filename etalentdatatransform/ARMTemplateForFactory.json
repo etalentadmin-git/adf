@@ -26,10 +26,6 @@
 		"RestService1_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "scott.prince@elloreetalent.com"
-		},
-		"UpdatedCoreData_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalent_bamboo/providers/Microsoft.Storage/storageAccounts/etalent1storage"
 		}
 	},
 	"variables": {
@@ -41247,47 +41243,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/UpdatedCoreData')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/audit/blobs/",
-					"blobPathEndsWith": "All Core Data.csv",
-					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('UpdatedCoreData_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/trigger1 test')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Minute",
-						"interval": 15,
-						"startTime": "2022-05-20T21:56:00Z",
-						"timeZone": "UTC"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_ApplStatus')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -59651,6 +59606,18 @@
 						},
 						{
 							"name": "TakeLastClientValForRemainingDups"
+						},
+						{
+							"name": "NotEqualtoClientID"
+						},
+						{
+							"name": "EqualtoClientId"
+						},
+						{
+							"name": "GroupUniqueValues"
+						},
+						{
+							"name": "selectUniqueClientIDValues"
 						}
 					],
 					"scriptLines": [
@@ -59759,7 +59726,7 @@
 						"CreatePivotApplFlowAndEventTime sort(asc({Client Applicant Final Disposition}, true),",
 						"     asc({Client Applicant Step Before Final Disposition}, true),",
 						"     asc({Client Applicant Rejected Reason}, true)) ~> SortOnApplFlow",
-						"ApplFlowMappingTbl aggregate(groupBy({Unique ClientId} = ClientId,",
+						"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 						"          {Unique ClientApplFinalDisp} = ClientApplFinalDisp,",
 						"          {Unique ClientApplStepBeforeFinalDisp} = ClientApplStepBeforeFinalDisp,",
 						"          {Unique ClientApplRejectedReason} = ClientApplRejectedReason,",
@@ -59778,7 +59745,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectExistingApplFlowMapping",
-						"SortOnEvent, SelectExistingApplFlowMapping join({Client ID} == {Unique ClientId}",
+						"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
 						"     && {Applicant Final Disposition} == {Unique ClientApplFinalDisp}",
 						"     && {Applicant Step Before Final Disposition} == {Unique ClientApplStepBeforeFinalDisp}",
 						"     && {Applicant Rejected Reason} == {Unique ClientApplRejectedReason},",
@@ -59949,6 +59916,27 @@
 						"          {Unique ElloreeApplCategory},",
 						"          {Unique ElloreeSubmittedtoMgrFl}),",
 						"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
+						"ApplFlowMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
+						"ApplFlowMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
+						"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
+						"          {Unique ClientApplFinalDisp} = ClientApplFinalDisp,",
+						"          {Unique ClientApplStepBeforeFinalDisp} = ClientApplStepBeforeFinalDisp,",
+						"          {Unique ClientApplRejectedReason} = ClientApplRejectedReason,",
+						"          {Unique ElloreeApplFinalDisp} = ElloreeApplFinalDisp,",
+						"          {Unique ElloreeApplCategory} = ElloreeApplCategory,",
+						"          {Unique ElloreeSubmittedtoMgrFl} = ElloreeSubmittedtoMgrFl),",
+						"     RowCount = count(ClientId)) ~> GroupUniqueValues",
+						"GroupUniqueValues select(mapColumn(",
+						"          {Unique ClientId},",
+						"          {Unique ClientApplFinalDisp},",
+						"          {Unique ClientApplStepBeforeFinalDisp},",
+						"          {Unique ClientApplRejectedReason},",
+						"          {Unique ElloreeApplFinalDisp},",
+						"          {Unique ElloreeApplCategory},",
+						"          {Unique ElloreeSubmittedtoMgrFl}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
 						"SortOnApplFlow sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -60970,6 +60958,27 @@
 						},
 						{
 							"name": "TakeLastClientValForRemainingDups"
+						},
+						{
+							"name": "NotEqualtoClientID"
+						},
+						{
+							"name": "EqualtoClientId"
+						},
+						{
+							"name": "GroupUniqueValues"
+						},
+						{
+							"name": "selectUniqueClientIDValues"
+						},
+						{
+							"name": "select11"
+						},
+						{
+							"name": "SelectLastEngagementDt"
+						},
+						{
+							"name": "exists1"
 						}
 					],
 					"scriptLines": [
@@ -61196,11 +61205,12 @@
 						"     partitionBy('hash', 1)) ~> CreatePivotCorpTitleEventTime",
 						"derivedColumn5 sort(asc({Event Year}, true)) ~> SortOnEvent",
 						"CreatePivotCorpTitleEventTime sort(asc({Client Corporate Title}, true)) ~> SortOnCorpTitle",
-						"CorpTitleMappingTableClient aggregate(groupBy({Unique ClientId} = ClientId,",
+						"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 						"          {Unique ClientCorpTitle} = ClientCorpTitle,",
 						"          {Unique ClientElloreeCorpTitle} = ClientElloreeCorpTitle,",
 						"          {Unique ElloreeCorpTitle} = ElloreeCorpTitle,",
-						"          {Unique ElloreeCorpTitleSortId} = ElloreeCorpTitleSortId),",
+						"          {Unique ElloreeCorpTitleSortId} = ElloreeCorpTitleSortId,",
+						"          ClientEngagementDt),",
 						"     CountClientId = count(ClientId)) ~> SelectUniqueOtherClientValues",
 						"TakeLastClientValForRemainingDups select(mapColumn(",
 						"          {Unique ClientId},",
@@ -61211,8 +61221,8 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectExistingCorpTitleMapping",
-						"SortOnEvent, SelectExistingCorpTitleMapping join({Client ID} == {Unique ClientId}",
-						"     && {Corporate Title} == {Unique ClientCorporateTitle},",
+						"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
+						"     && {Corporate Title} == {Unique ClientCorpTitle},",
 						"     joinType:'left',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
@@ -61226,9 +61236,9 @@
 						"          {Client Engagement Date},",
 						"          {Event and Year},",
 						"          {Suggested Source} = {Unique ClientId},",
-						"          {Suggested Client Elloree Corporate Title} = {Unique ClientElloreeCorporateTitle},",
-						"          {Suggested Elloree Corporate Title} = {Unique ElloreeCorporateTitle},",
-						"          {Suggested Elloree Corporate Title Sort} = {Unique ElloreeCorporateTitleSort},",
+						"          {Suggested Client Elloree Corporate Title} = {Unique ClientElloreeCorpTitle},",
+						"          {Suggested Elloree Corporate Title} = {Unique ElloreeCorpTitle},",
+						"          {Suggested Elloree Corporate Title Sort} = {Unique ElloreeCorpTitleSortId},",
 						"          {Worker ID} = RecordID",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
@@ -61265,31 +61275,30 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select6",
-						"SortOnEvent, SelectExistingCorpTitleMapping join({Client ID} == {Unique ClientId}",
-						"     && {Previous Corporate Title} == {Unique ClientCorporateTitle},",
+						"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
+						"     && {Previous Corporate Title} == {Unique ClientCorpTitle},",
 						"     joinType:'left',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> JoinPrevCorpTitle",
 						"JoinPrevCorpTitle select(mapColumn(",
-						"          {Client Corporate Title} = {Previous Corporate Title},",
-						"          {Client Elloree Corporate Title},",
-						"          {Elloree Corporate Title},",
-						"          {Elloree Corporate Title Sort},",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
+						"          {Client Corporate Title} = {Previous Corporate Title},",
+						"          {Elloree Corporate Title},",
+						"          {Elloree Corporate Title Sort},",
+						"          {Client Elloree Corporate Title},",
 						"          {Event and Year},",
-						"          {Unique ClientId},",
-						"          {Unique ClientCorporateTitle},",
-						"          {Unique ClientElloreeCorporateTitle},",
-						"          {Unique ElloreeCorporateTitle},",
-						"          {Unique ElloreeCorporateTitleSort},",
+						"          {Suggested Source} = {Unique ClientId},",
+						"          {Suggested ElloreeCorpTitle} = {Unique ElloreeCorpTitle},",
+						"          {Suggested ElloreeCorpTitleSortId} = {Unique ElloreeCorpTitleSortId},",
+						"          {Suggested ClientElloreeCorpTitle} = {Unique ClientElloreeCorpTitle},",
 						"          {Worker ID} = RecordID",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select7",
-						"select7, SelectExistingCorpTitleMapping join({Client Corporate Title} == SelectExistingCorpTitleMapping@{Unique ClientCorporateTitle}",
-						"     && {Client ID} != SelectExistingCorpTitleMapping@{Unique ClientId},",
+						"select7, SelectExistingCorpTitleMapping join({Client Corporate Title} == {Unique ClientCorporateTitle}",
+						"     && {Client ID} != {Unique ClientId},",
 						"     joinType:'left',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
@@ -61302,16 +61311,16 @@
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Event and Year},",
-						"          {Suggested Source} = select7@{Unique ClientId},",
-						"          {Suggested Client Elloree Corporate Title} = select7@{Unique ClientElloreeCorporateTitle},",
-						"          {Suggested Elloree Corporate Title} = select7@{Unique ElloreeCorporateTitle},",
-						"          {Suggested Elloree Corporate Title Sort} = select7@{Unique ElloreeCorporateTitleSort},",
+						"          {Suggested Source},",
+						"          {Suggested Client Elloree Corporate Title} = {Suggested ClientElloreeCorpTitle},",
+						"          {Suggested Elloree Corporate Title} = {Suggested ElloreeCorpTitle},",
+						"          {Suggested Elloree Corporate Title Sort} = {Suggested ElloreeCorpTitleSortId},",
 						"          {Worker ID},",
-						"          {Unique ClientId} = SelectExistingCorpTitleMapping@{Unique ClientId},",
-						"          {Unique ClientCorporateTitle} = SelectExistingCorpTitleMapping@{Unique ClientCorporateTitle},",
-						"          {Unique ClientElloreeCorporateTitle} = SelectExistingCorpTitleMapping@{Unique ClientElloreeCorporateTitle},",
-						"          {Unique ElloreeCorporateTitle} = SelectExistingCorpTitleMapping@{Unique ElloreeCorporateTitle},",
-						"          {Unique ElloreeCorporateTitleSort} = SelectExistingCorpTitleMapping@{Unique ElloreeCorporateTitleSort}",
+						"          {Unique ClientId},",
+						"          {Unique ClientCorporateTitle},",
+						"          {Unique ClientElloreeCorporateTitle},",
+						"          {Unique ElloreeCorporateTitle},",
+						"          {Unique ElloreeCorporateTitleSort}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select8",
@@ -61320,7 +61329,7 @@
 						"          {Suggested Elloree Corporate Title} = iif(isNull({Suggested Source}),{Unique ElloreeCorporateTitle},{Suggested Elloree Corporate Title}),",
 						"          {Suggested Elloree Corporate Title Sort} = iif(isNull({Suggested Source}),{Unique ElloreeCorporateTitleSort},{Suggested Elloree Corporate Title Sort}),",
 						"          {Corporate Title (Current or Previous)} = 'Prev Title') ~> derivedColumn3",
-						"derivedColumn3, derivedColumn2 exists(select8@{Client Corporate Title} == select6@{Client Corporate Title},",
+						"select11, derivedColumn2 exists(select11@{Client Corporate Title} == select6@{Client Corporate Title},",
 						"     negate:true,",
 						"     broadcast: 'both')~> PullCorpTitleValuesNotInCurrTitleField",
 						"derivedColumn2, PullCorpTitleValuesNotInCurrTitleField union(byName: true)~> UnionCurrAndPrevCorpTitleRows",
@@ -61411,6 +61420,7 @@
 						"     broadcast: 'auto')~> JoinClientIDCountInForMaxFilter",
 						"JoinClientIDCountInForMaxFilter select(mapColumn(",
 						"          {Unique ClientId},",
+						"          ClientEngagementDt,",
 						"          {Unique ClientCorpTitle},",
 						"          {Unique ClientElloreeCorpTitle},",
 						"          {Unique ElloreeCorpTitle},",
@@ -61424,7 +61434,8 @@
 						"          {Unique ClientElloreeCorpTitle},",
 						"          {Unique ElloreeCorpTitle},",
 						"          {Unique ElloreeCorpTitleSortId}),",
-						"     ClientIDCount = max(ClientIDCount)) ~> SelectMappingWithMostClients",
+						"     ClientIDCount = max(ClientIDCount),",
+						"          ClientEngagementDt = max(ClientEngagementDt)) ~> SelectMappingWithMostClients",
 						"SelectMappingWithMostClients aggregate(groupBy({Agg Unique ClientCorpTitle} = {Unique ClientCorpTitle}),",
 						"     {Agg Unique ClientElloreeCorpTitle} = first({Unique ClientElloreeCorpTitle}),",
 						"          {Agg Unique ElloreeCorpTitle} = first({Unique ElloreeCorpTitle}),",
@@ -61442,6 +61453,45 @@
 						"          {Unique ElloreeCorpTitle},",
 						"          {Unique ElloreeCorpTitleSortId}),",
 						"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
+						"CorpTitleMappingTableClient filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
+						"CorpTitleMappingTableClient filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
+						"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
+						"          {Unique ClientCorpTitle} = ClientCorpTitle,",
+						"          {Unique ClientElloreeCorpTitle} = ClientElloreeCorpTitle,",
+						"          {Unique ElloreeCorpTitle} = ElloreeCorpTitle,",
+						"          {Unique ElloreeCorpTitleSortId} = ElloreeCorpTitleSortId,",
+						"          ClientEngagementDt),",
+						"     RowCount = count(ClientId)) ~> GroupUniqueValues",
+						"exists1 select(mapColumn(",
+						"          {Unique ClientId},",
+						"          {Unique ClientCorpTitle},",
+						"          {Unique ClientElloreeCorpTitle},",
+						"          {Unique ElloreeCorpTitle},",
+						"          {Unique ElloreeCorpTitleSortId}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
+						"derivedColumn3 select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Client Corporate Title},",
+						"          {Elloree Corporate Title},",
+						"          {Elloree Corporate Title Sort},",
+						"          {Client Elloree Corporate Title},",
+						"          {Event and Year},",
+						"          {Suggested Source},",
+						"          {Suggested Client Elloree Corporate Title},",
+						"          {Suggested Elloree Corporate Title},",
+						"          {Suggested Elloree Corporate Title Sort},",
+						"          {Worker ID},",
+						"          {Corporate Title (Current or Previous)}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select11",
+						"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
+						"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> exists1",
 						"SortOnCorpTitle sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
