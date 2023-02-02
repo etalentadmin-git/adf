@@ -26,6 +26,10 @@
 		"RestService1_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "scott.prince@elloreetalent.com"
+		},
+		"UpdatedCoreData_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalent_bamboo/providers/Microsoft.Storage/storageAccounts/etalent1storage"
 		}
 	},
 	"variables": {
@@ -41243,6 +41247,47 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/UpdatedCoreData')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/audit/blobs/",
+					"blobPathEndsWith": "All Core Data.csv",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('UpdatedCoreData_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trigger1 test')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 15,
+						"startTime": "2022-05-20T21:56:00Z",
+						"timeZone": "UTC"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_ApplStatus')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -61524,7 +61569,7 @@
 						"          Column_27 as string,",
 						"          Column_28 as string",
 						"     ),",
-						"     partitionFileNames:['prep_corp_title_mapping.csv'],",
+						"     partitionFileNames:['prep_corp_title_mappingTEST.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> OutputMappingToPrepFldr",
@@ -61560,7 +61605,7 @@
 						"          Column_27 as string,",
 						"          Column_28 as string",
 						"     ),",
-						"     partitionFileNames:['corp_title_mapping.csv'],",
+						"     partitionFileNames:['corp_title_mappingTEST.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> OutputMappingToWorkingFldr"

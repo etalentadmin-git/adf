@@ -26,6 +26,10 @@
 		"RestService1_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "scott.prince@elloreetalent.com"
+		},
+		"UpdatedCoreData_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalent_bamboo/providers/Microsoft.Storage/storageAccounts/etalent1storage"
 		}
 	},
 	"variables": {
@@ -79,6 +83,47 @@
 				"type": "AzureSqlDatabase",
 				"typeProperties": {
 					"connectionString": "[parameters('etalentdb_connection_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/UpdatedCoreData')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/audit/blobs/",
+					"blobPathEndsWith": "All Core Data.csv",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('UpdatedCoreData_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trigger1 test')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 15,
+						"startTime": "2022-05-20T21:56:00Z",
+						"timeZone": "UTC"
+					}
 				}
 			},
 			"dependsOn": []
@@ -1123,152 +1168,6 @@
 					"location": {
 						"type": "AzureBlobStorageLocation",
 						"fileName": "BLS_NatHawPacIsl_Female.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_NatHawPacIsl_Male_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_NatHawPacIsl_Male.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_NatHawPacIsl_Total_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_NatHawPacIsl_Total.csv",
 						"folderPath": "External Data/BLS",
 						"container": "processing"
 					},
