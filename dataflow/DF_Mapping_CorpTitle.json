@@ -188,7 +188,7 @@
 					"name": "SelectLastEngagementDt"
 				},
 				{
-					"name": "exists1"
+					"name": "SelectBasedOnMostRecentClientEngagment"
 				}
 			],
 			"scriptLines": [
@@ -672,7 +672,7 @@
 				"          {Unique ElloreeCorpTitleSortId} = ElloreeCorpTitleSortId,",
 				"          ClientEngagementDt),",
 				"     RowCount = count(ClientId)) ~> GroupUniqueValues",
-				"exists1 select(mapColumn(",
+				"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
 				"          {Unique ClientId},",
 				"          {Unique ClientCorpTitle},",
 				"          {Unique ClientElloreeCorpTitle},",
@@ -701,7 +701,7 @@
 				"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
 				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
 				"     negate:false,",
-				"     broadcast: 'auto')~> exists1",
+				"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
 				"SortOnCorpTitle sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",

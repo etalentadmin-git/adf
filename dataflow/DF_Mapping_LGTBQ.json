@@ -138,6 +138,24 @@
 				},
 				{
 					"name": "TakeLastClientValForRemainingDups"
+				},
+				{
+					"name": "NotEqualtoClientID"
+				},
+				{
+					"name": "EqualtoClientId"
+				},
+				{
+					"name": "GroupUniqueValues"
+				},
+				{
+					"name": "SelectBasedOnMostRecentClientEngagment"
+				},
+				{
+					"name": "SelectLastEngagementDt"
+				},
+				{
+					"name": "selectUniqueClientIDValues"
 				}
 			],
 			"scriptLines": [
@@ -349,7 +367,7 @@
 				"CreatePivotGenderAndEventTime sort(asc({Client LGTBQ}, true)) ~> SortOnLGTBQ",
 				"union1 derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
 				"          {Elloree LGTBQ} = '') ~> AddDerivedEventYearColumn",
-				"LGTBQMappingTbl aggregate(groupBy({Unique ClientId} = ClientId,",
+				"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 				"          {Unique ClientLGTBQ} = ClientLGTBQ,",
 				"          {Unique ElloreeLGTBQ} = ElloreeLGTBQ),",
 				"     CountClientId = count(ClientId)) ~> SelectUniqueOtherClientValues",
@@ -360,7 +378,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectWithoutEngagementDt",
-				"SortOnEvent, SelectWithoutEngagementDt join({Client ID} == {Unique ClientId}",
+				"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
 				"     && LGTBQ == {Unique ClientLGTBQ},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
@@ -495,6 +513,24 @@
 				"JoinBackFinalSelectMapping aggregate(groupBy({Unique ClientLGTBQ},",
 				"          {Unique ElloreeLGTBQ}),",
 				"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
+				"LGTBQMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
+				"LGTBQMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
+				"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
+				"          ClientEngagementDt,",
+				"          {Unique ClientLGTBQ} = ClientLGTBQ,",
+				"          {Unique ElloreeLGTBQ} = ElloreeLGTBQ),",
+				"     RowCount = count(ClientId)) ~> GroupUniqueValues",
+				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
+				"     negate:false,",
+				"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
+				"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
+				"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
+				"          {Unique ClientId},",
+				"          {Unique ClientLGTBQ},",
+				"          {Unique ElloreeLGTBQ}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
 				"SortOnLGTBQ sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",

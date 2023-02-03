@@ -153,6 +153,12 @@
 				},
 				{
 					"name": "selectUniqueClientIDValues"
+				},
+				{
+					"name": "SelectLastEngagementDt"
+				},
+				{
+					"name": "SelectBasedOnMostRecentClientEngagment"
 				}
 			],
 			"scriptLines": [
@@ -725,6 +731,7 @@
 				"LocationMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
 				"LocationMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
 				"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
+				"          ClientEngagementDt,",
 				"          {Unique ClientWorkOffice} = ClientWorkOffice,",
 				"          {Unique ClientWorkCity} = ClientWorkCity,",
 				"          {Unique ClientWorkState} = ClientWorkState,",
@@ -738,7 +745,7 @@
 				"          {Unique ElloreeStrategicLoc} = ElloreeStrategicLoc,",
 				"          {Unique ElloreeLocSortId} = ElloreeLocSortId),",
 				"     RowCount = count(ClientId)) ~> GroupUniqueValues",
-				"GroupUniqueValues select(mapColumn(",
+				"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
 				"          {Unique ClientId},",
 				"          {Unique ClientWorkOffice},",
 				"          {Unique ClientWorkCity},",
@@ -755,6 +762,10 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
+				"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
+				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
+				"     negate:false,",
+				"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
 				"SortOnLocation sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",

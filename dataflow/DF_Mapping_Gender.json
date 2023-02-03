@@ -138,6 +138,24 @@
 				},
 				{
 					"name": "TakeLastClientValForRemainingDups"
+				},
+				{
+					"name": "NotEqualtoClientID"
+				},
+				{
+					"name": "EqualtoClientId"
+				},
+				{
+					"name": "GroupUniqueValues"
+				},
+				{
+					"name": "SelectBasedOnMostRecentClientEngagment"
+				},
+				{
+					"name": "SelectLastEngagementDt"
+				},
+				{
+					"name": "selectUniqueClientIDValues"
 				}
 			],
 			"scriptLines": [
@@ -359,7 +377,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectWithoutEngagementDt",
-				"SortOnEvent, SelectWithoutEngagementDt join({Client ID} == {Unique ClientId}",
+				"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
 				"     && Gender == {Unique ClientGender},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
@@ -462,7 +480,7 @@
 				"          WorkerId,",
 				"          Gender),",
 				"     MaxWorkerId = max(WorkerId)) ~> aggregate3",
-				"GenderMappingTbl aggregate(groupBy({Unique ClientId} = ClientId,",
+				"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 				"          {Unique ClientGender} = ClientGender,",
 				"          {Unique ElloreeGender} = ElloreeGender),",
 				"     CountClientId = count(ClientId)) ~> SelectUniqueOtherClientValues",
@@ -494,6 +512,24 @@
 				"JoinBackFinalSelectMapping aggregate(groupBy({Unique ClientGender},",
 				"          {Unique ElloreeGender}),",
 				"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
+				"GenderMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
+				"GenderMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
+				"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
+				"          ClientEngagementDt,",
+				"          {Unique ClientGender} = ClientGender,",
+				"          {Unique ElloreeGender} = ElloreeGender),",
+				"     RowCount = count(ClientId)) ~> GroupUniqueValues",
+				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> SelectBasedOnMostRecentClientEngagment",
+				"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
+				"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
+				"          {Unique ClientId},",
+				"          {Unique ClientGender},",
+				"          {Unique ElloreeGender}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
 				"SortOnGender sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",

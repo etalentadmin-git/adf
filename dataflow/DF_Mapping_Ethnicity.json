@@ -138,6 +138,24 @@
 				},
 				{
 					"name": "JoinBackFinalSelectMapping"
+				},
+				{
+					"name": "NotEqualtoClientID"
+				},
+				{
+					"name": "EqualtoClientId"
+				},
+				{
+					"name": "GroupUniqueValues"
+				},
+				{
+					"name": "SelectBasedOnMostRecentClientEngagment"
+				},
+				{
+					"name": "SelectLastEngagementDt"
+				},
+				{
+					"name": "selectUniqueClientIDValues"
 				}
 			],
 			"scriptLines": [
@@ -357,7 +375,7 @@
 				"          {Elloree Race} = '',",
 				"          {Elloree Hispanic or Latino Origin} = '',",
 				"          {Elloree Ethnic Group} = '') ~> AddDerivedEventYearColumn",
-				"EthnicityMappingTbl aggregate(groupBy({Unique ClientId} = ClientId,",
+				"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 				"          {Unique ClientRace} = ClientRace,",
 				"          {Unique ClientHispanicLatinoOrigin} = ClientHispanicLatinoOrigin,",
 				"          {Unique ElloreeRace} = ElloreeRace,",
@@ -372,7 +390,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectWithoutEngagementDt",
-				"SortOnEvent, SelectWithoutEngagementDt join({Client ID} == {Unique ClientId}",
+				"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
 				"     && Race == {Unique ClientRace}",
 				"     && {Hispanic or Latino Origin} == {Unique ClientHispanicLatinoOrigin},",
 				"     joinType:'left',",
@@ -537,6 +555,28 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinBackFinalSelectMapping",
+				"EthnicityMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
+				"EthnicityMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
+				"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
+				"          ClientEngagementDt,",
+				"          {Unique ClientRace} = ClientRace,",
+				"          {Unique ClientHispanicLatinoOrigin} = ClientHispanicLatinoOrigin,",
+				"          {Unique ElloreeRace} = ElloreeRace,",
+				"          {Unique ElloreeHispanicLatinoOrigin} = ElloreeHispanicLatinoOrigin),",
+				"     RowCount = count(ClientId)) ~> GroupUniqueValues",
+				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
+				"     negate:false,",
+				"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
+				"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
+				"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
+				"          {Unique ClientId},",
+				"          {Unique ClientRace},",
+				"          {Unique ClientHispanicLatinoOrigin},",
+				"          {Unique ElloreeRace},",
+				"          {Unique ElloreeHispanicLatinoOrigin}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
 				"SortOnEthnicity sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
