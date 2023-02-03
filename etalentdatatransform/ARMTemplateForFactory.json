@@ -65735,6 +65735,24 @@
 						},
 						{
 							"name": "TakeLastClientValForRemainingDups"
+						},
+						{
+							"name": "NotEqualtoClientID"
+						},
+						{
+							"name": "EqualtoClientId"
+						},
+						{
+							"name": "GroupUniqueValues"
+						},
+						{
+							"name": "SelectBasedOnMostRecentClientEngagment"
+						},
+						{
+							"name": "SelectLastEngagementDt"
+						},
+						{
+							"name": "selectUniqueClientIDValues"
 						}
 					],
 					"scriptLines": [
@@ -65812,7 +65830,7 @@
 						"union1 derive({Event and Year} = concat(toString({Event Year}),concat(' ','PER')),",
 						"          {Elloree Performance Rating} = '',",
 						"          {Elloree Performance Rating Sort} = '') ~> AddDerivedEventYearColumn",
-						"PerfromanceRatingMapTbl aggregate(groupBy({Unique ClientId} = ClientId,",
+						"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 						"          {Unique ClientPerfRating} = ClientPerfRating,",
 						"          {Unique ElloreePerfRating} = ElloreePerfRating,",
 						"          {Unique ElloreePerfRatingSortId} = ElloreePerfRatingSortId),",
@@ -65825,7 +65843,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectWithoutEngagementDt",
-						"SortOnEvent, SelectWithoutEngagementDt join({Client ID} == {Unique ClientId}",
+						"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
 						"     && {Performance Rating} == {Unique ClientPerfRating},",
 						"     joinType:'left',",
 						"     matchType:'exact',",
@@ -65939,6 +65957,26 @@
 						"          {Unique ElloreePerfRating},",
 						"          {Unique ElloreePerfRatingSortId}),",
 						"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
+						"PerfromanceRatingMapTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
+						"PerfromanceRatingMapTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
+						"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
+						"          ClientEngagementDt,",
+						"          {Unique ClientPerfRating} = ClientPerfRating,",
+						"          {Unique ElloreePerfRating} = ElloreePerfRating,",
+						"          {Unique ElloreePerfRatingSortId} = ElloreePerfRatingSortId),",
+						"     RowCount = count(ClientId)) ~> GroupUniqueValues",
+						"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
+						"     negate:false,",
+						"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
+						"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
+						"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
+						"          {Unique ClientId},",
+						"          {Unique ClientPerfRating},",
+						"          {Unique ElloreePerfRating},",
+						"          {Unique ElloreePerfRatingSortId}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
 						"SortOnGender sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
