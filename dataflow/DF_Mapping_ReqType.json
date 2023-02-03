@@ -112,6 +112,24 @@
 				},
 				{
 					"name": "TakeLastClientValForRemainingDups"
+				},
+				{
+					"name": "NotEqualtoClientID"
+				},
+				{
+					"name": "EqualtoClientId"
+				},
+				{
+					"name": "GroupUniqueValues"
+				},
+				{
+					"name": "SelectBasedOnMostRecentClientEngagment"
+				},
+				{
+					"name": "SelectLastEngagementDt"
+				},
+				{
+					"name": "selectUniqueClientIDValues"
 				}
 			],
 			"scriptLines": [
@@ -222,7 +240,7 @@
 				"CreatePivotReqTypeAndEventTime sort(asc({Client Requisition Type}, true)) ~> SortOnReqType",
 				"union1 derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
 				"          {Elloree Requisition Type} = '') ~> AddDerivedEventYearColumn",
-				"ReqTypeMappingTbl aggregate(groupBy({Unique ClientId} = ClientId,",
+				"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 				"          {Unique ClientReqType} = ClientReqType,",
 				"          {Unique ElloreeReqType} = ElloreeReqType),",
 				"     ClientEngagementDt = last(ClientEngagementDt)) ~> SelectUniqueRows",
@@ -233,7 +251,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectExistingReqTypeMapping",
-				"SortOnEvent, SelectExistingReqTypeMapping join({Client ID} == {Unique ClientId}",
+				"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
 				"     && {Requisition Type} == {Unique ClientReqType},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
@@ -334,6 +352,24 @@
 				"JoinBackFinalSelectMapping aggregate(groupBy({Unique ClientReqType},",
 				"          {Unique ElloreeReqType}),",
 				"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
+				"ReqTypeMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
+				"ReqTypeMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
+				"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
+				"          ClientEngagementDt,",
+				"          {Unique ClientReqType} = ClientReqType,",
+				"          {Unique ElloreeReqType} = ElloreeReqType),",
+				"     RowCount = count(ClientId)) ~> GroupUniqueValues",
+				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
+				"     negate:false,",
+				"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
+				"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
+				"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
+				"          {Unique ClientId},",
+				"          {Unique ClientReqType},",
+				"          {Unique ElloreeReqType}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
 				"SortOnReqType sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
