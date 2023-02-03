@@ -153,6 +153,12 @@
 				},
 				{
 					"name": "selectUniqueClientIDValues"
+				},
+				{
+					"name": "SelectLastEngagementDt"
+				},
+				{
+					"name": "SelectBasedOnMostRecentClientEngagment"
 				}
 			],
 			"scriptLines": [
@@ -660,11 +666,12 @@
 				"          {Unique ElloreeBusGrpLvl1} = ElloreeBusGrpLvl1,",
 				"          {Unique ElloreeBusGrpLvl2} = ElloreeBusGrpLvl2,",
 				"          {Unique ElloreeBusGrpLvl3} = ElloreeBusGrpLvl3,",
-				"          {Unique ElloreeBusGrpLvl4} = ElloreeBusGrpLvl4),",
+				"          {Unique ElloreeBusGrpLvl4} = ElloreeBusGrpLvl4,",
+				"          ClientEngagementDt),",
 				"     RowCount = count(ClientId)) ~> GroupUniqueValues",
 				"HierarchyMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
 				"HierarchyMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
-				"GroupUniqueValues select(mapColumn(",
+				"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
 				"          {Unique ClientId},",
 				"          {Unique ClientBusGrpLvl1},",
 				"          {Unique ClientBusGrpLvl2},",
@@ -677,6 +684,10 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
+				"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
+				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
+				"     negate:false,",
+				"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
 				"sort5 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
