@@ -127,6 +127,12 @@
 				},
 				{
 					"name": "selectUniqueClientIDValues"
+				},
+				{
+					"name": "SelectLastEngagementDt"
+				},
+				{
+					"name": "SelectBasedOnMostRecentClientEngagment"
 				}
 			],
 			"scriptLines": [
@@ -428,6 +434,7 @@
 				"ApplFlowMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
 				"ApplFlowMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
 				"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
+				"          ClientEngagementDt,",
 				"          {Unique ClientApplFinalDisp} = ClientApplFinalDisp,",
 				"          {Unique ClientApplStepBeforeFinalDisp} = ClientApplStepBeforeFinalDisp,",
 				"          {Unique ClientApplRejectedReason} = ClientApplRejectedReason,",
@@ -435,7 +442,7 @@
 				"          {Unique ElloreeApplCategory} = ElloreeApplCategory,",
 				"          {Unique ElloreeSubmittedtoMgrFl} = ElloreeSubmittedtoMgrFl),",
 				"     RowCount = count(ClientId)) ~> GroupUniqueValues",
-				"GroupUniqueValues select(mapColumn(",
+				"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
 				"          {Unique ClientId},",
 				"          {Unique ClientApplFinalDisp},",
 				"          {Unique ClientApplStepBeforeFinalDisp},",
@@ -446,6 +453,10 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
+				"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
+				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> SelectBasedOnMostRecentClientEngagment",
 				"SortOnApplFlow sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
