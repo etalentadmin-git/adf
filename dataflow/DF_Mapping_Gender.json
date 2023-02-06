@@ -156,6 +156,12 @@
 				},
 				{
 					"name": "selectUniqueClientIDValues"
+				},
+				{
+					"name": "aggregate6"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
@@ -364,7 +370,7 @@
 				"     partitionBy('hash', 1)) ~> CreatePivotGenderAndEventTime",
 				"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
 				"CreatePivotGenderAndEventTime sort(asc({Client Gender}, true)) ~> SortOnGender",
-				"union1 derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
+				"filter1 derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
 				"          {Elloree Gender} = '') ~> AddDerivedEventYearColumn",
 				"CleanupSelectFields aggregate(groupBy({Unique ClientId},",
 				"          {Unique ClientGender},",
@@ -530,6 +536,14 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
+				"union1 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Record Id},",
+				"          {Event Year},",
+				"          Event,",
+				"          Gender),",
+				"     RowCount = count({Client ID})) ~> aggregate6",
+				"aggregate6 filter({Record Id}=='100001') ~> filter1",
 				"SortOnGender sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
