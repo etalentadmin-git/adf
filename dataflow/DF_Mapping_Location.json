@@ -159,6 +159,9 @@
 				},
 				{
 					"name": "SelectBasedOnMostRecentClientEngagment"
+				},
+				{
+					"name": "RemoveDupRows"
 				}
 			],
 			"scriptLines": [
@@ -409,7 +412,7 @@
 				"     asc({Client Work State}, true),",
 				"     asc({Client Work Country}, true),",
 				"     asc({Client Strategic Work Location Ind}, true)) ~> SortOnLocation",
-				"union1 derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
+				"RemoveDupRows derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
 				"          {Elloree Region} = '',",
 				"          {Elloree Work Country} = '',",
 				"          {Elloree Work State} = '',",
@@ -766,6 +769,17 @@
 				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
 				"     negate:false,",
 				"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
+				"union1 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Record Id},",
+				"          {Event Year},",
+				"          Event,",
+				"          {Work Office Location},",
+				"          {Work City},",
+				"          {Work State},",
+				"          {Work Country},",
+				"          {Strategic Work Location Ind}),",
+				"     RowCount = count({Client ID})) ~> RemoveDupRows",
 				"SortOnLocation sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
