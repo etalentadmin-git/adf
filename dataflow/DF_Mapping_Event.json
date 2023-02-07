@@ -130,6 +130,9 @@
 				},
 				{
 					"name": "selectUniqueClientIDValues"
+				},
+				{
+					"name": "RemoveDupRow"
 				}
 			],
 			"scriptLines": [
@@ -283,7 +286,7 @@
 				"     columnNaming: '$N$V',",
 				"     lateral: false,",
 				"     partitionBy('hash', 1)) ~> CreatePivotEventAndEventTime",
-				"union1 sort(asc({Event Year}, true)) ~> SortOnEventAndYear",
+				"RemoveDupRow sort(asc({Event Year}, true)) ~> SortOnEventAndYear",
 				"CreatePivotEventAndEventTime sort(asc({Client Event}, true),",
 				"     asc({Client Event Type}, true),",
 				"     asc({Client Event Reason}, true)) ~> SortOnEvent",
@@ -509,6 +512,14 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
+				"union1 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Record Id},",
+				"          {Event Year},",
+				"          {Event Type},",
+				"          Event,",
+				"          {Event Reason}),",
+				"     RowCount = count({Client ID})) ~> RemoveDupRow",
 				"SortOnEvent sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
