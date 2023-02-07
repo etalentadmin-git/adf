@@ -7713,6 +7713,9 @@
 						},
 						{
 							"name": "selectUniqueClientIDValues"
+						},
+						{
+							"name": "RemoveDupRows"
 						}
 					],
 					"scriptLines": [
@@ -7921,7 +7924,7 @@
 						"     partitionBy('hash', 1)) ~> CreatePivotDisabilityAndEventTime",
 						"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
 						"CreatePivotDisabilityAndEventTime sort(asc({Client Disability Ind}, true)) ~> SortOnDisability",
-						"union1 derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
+						"RemoveDupRows derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
 						"          {Elloree Disability Ind} = '') ~> AddDerivedEventYearColumn",
 						"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 						"          {Unique ClientDisabilityInd} = ClientDisabilityInd,",
@@ -8087,6 +8090,13 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
+						"union1 aggregate(groupBy({Client ID},",
+						"          {Client Engagement Date},",
+						"          {Record Id},",
+						"          {Event Year},",
+						"          Event,",
+						"          {Disability Ind}),",
+						"     RowCount = count({Client ID})) ~> RemoveDupRows",
 						"SortOnDisability sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -8324,6 +8334,9 @@
 						},
 						{
 							"name": "selectUniqueClientIDValues"
+						},
+						{
+							"name": "RemoveDupRows"
 						}
 					],
 					"scriptLines": [
@@ -8539,7 +8552,7 @@
 						"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
 						"CreatePivotEthnicityAndEventTime sort(asc({Client Race}, true),",
 						"     asc({Client Hispanic or Latino Origin}, true)) ~> SortOnEthnicity",
-						"union1 derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
+						"RemoveDupRows derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
 						"          {Elloree Race} = '',",
 						"          {Elloree Hispanic or Latino Origin} = '',",
 						"          {Elloree Ethnic Group} = '') ~> AddDerivedEventYearColumn",
@@ -8745,6 +8758,14 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
+						"union1 aggregate(groupBy({Client ID},",
+						"          {Client Engagement Date},",
+						"          {Record Id},",
+						"          {Event Year},",
+						"          Event,",
+						"          Race,",
+						"          {Hispanic or Latino Origin}),",
+						"     RowCount = count({Client ID})) ~> RemoveDupRows",
 						"SortOnEthnicity sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -8956,6 +8977,9 @@
 						},
 						{
 							"name": "selectUniqueClientIDValues"
+						},
+						{
+							"name": "RemoveDupRow"
 						}
 					],
 					"scriptLines": [
@@ -9109,7 +9133,7 @@
 						"     columnNaming: '$N$V',",
 						"     lateral: false,",
 						"     partitionBy('hash', 1)) ~> CreatePivotEventAndEventTime",
-						"union1 sort(asc({Event Year}, true)) ~> SortOnEventAndYear",
+						"RemoveDupRow sort(asc({Event Year}, true)) ~> SortOnEventAndYear",
 						"CreatePivotEventAndEventTime sort(asc({Client Event}, true),",
 						"     asc({Client Event Type}, true),",
 						"     asc({Client Event Reason}, true)) ~> SortOnEvent",
@@ -9335,6 +9359,14 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
+						"union1 aggregate(groupBy({Client ID},",
+						"          {Client Engagement Date},",
+						"          {Record Id},",
+						"          {Event Year},",
+						"          {Event Type},",
+						"          Event,",
+						"          {Event Reason}),",
+						"     RowCount = count({Client ID})) ~> RemoveDupRow",
 						"SortOnEvent sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -10193,6 +10225,9 @@
 						},
 						{
 							"name": "selectUniqueClientIDValues"
+						},
+						{
+							"name": "RemoveDupRows"
 						}
 					],
 					"scriptLines": [
@@ -10402,7 +10437,7 @@
 						"     partitionBy('hash', 1)) ~> CreatePivotGenderAndEventTime",
 						"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
 						"CreatePivotGenderAndEventTime sort(asc({Client LGTBQ}, true)) ~> SortOnLGTBQ",
-						"union1 derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
+						"RemoveDupRows derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
 						"          {Elloree LGTBQ} = '') ~> AddDerivedEventYearColumn",
 						"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 						"          {Unique ClientLGTBQ} = ClientLGTBQ,",
@@ -10568,6 +10603,13 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
+						"union1 aggregate(groupBy({Client ID},",
+						"          {Client Engagement Date},",
+						"          {Record Id},",
+						"          {Event Year},",
+						"          Event,",
+						"          LGTBQ),",
+						"     RowCount = count({Client ID})) ~> RemoveDupRows",
 						"SortOnLGTBQ sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
