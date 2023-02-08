@@ -1,0 +1,125 @@
+{
+	"name": "Copy_FactTbl_Applicant",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Fact Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentApplicantFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "Applicant"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentApplicantFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "derivedColumn2"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Prior_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientEngagementType as string,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          ReqId as string,",
+				"          ApplicantId as string,",
+				"          Source as string,",
+				"          ApplType as string,",
+				"          InternalWorkerId as string,",
+				"          Race as string,",
+				"          HispanicLatinoOrigin as string,",
+				"          Gender as string,",
+				"          Veteran as string,",
+				"          LGTBQ as string,",
+				"          DisabilityInd as string,",
+				"          ApplFinalDisp as string,",
+				"          ApplStepBeforeFinalDisp as string,",
+				"          ApplRejectedReason as string,",
+				"          ApplOther1 as string,",
+				"          ApplOther2 as string,",
+				"          ApplOther3 as string,",
+				"          ApplOther4 as string,",
+				"          ApplOther5 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[TAApplTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Prior_Client_Dt}'\"),",
+				"     format: 'query') ~> Applicant",
+				"Applicant alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 derive(LoadDt = currentDate(),",
+				"          ClientEngagementDt = toDate($Flow_Client_Dt,'mm/dd/yyyy')) ~> derivedColumn2",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientEngagementType as string,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          ReqId as string,",
+				"          ApplicantId as string,",
+				"          Source as string,",
+				"          ApplType as string,",
+				"          InternalWorkerId as string,",
+				"          Race as string,",
+				"          HispanicLatinoOrigin as string,",
+				"          Gender as string,",
+				"          Veteran as string,",
+				"          LGTBQ as string,",
+				"          DisabilityInd as string,",
+				"          ApplFinalDisp as string,",
+				"          ApplStepBeforeFinalDisp as string,",
+				"          ApplRejectedReason as string,",
+				"          ApplOther1 as string,",
+				"          ApplOther2 as string,",
+				"          ApplOther3 as string,",
+				"          ApplOther4 as string,",
+				"          ApplOther5 as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ApplicantId','ReqId','EventDt','EventId'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}
