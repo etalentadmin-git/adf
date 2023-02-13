@@ -4782,6 +4782,9 @@
 						},
 						{
 							"name": "RemoveDuplicates"
+						},
+						{
+							"name": "RemoveNullWorkerIDRows"
 						}
 					],
 					"scriptLines": [
@@ -4809,7 +4812,7 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Talent",
 						"Talent filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
-						"RemoveDuplicates select(mapColumn(",
+						"RemoveNullWorkerIDRows select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Event Year},",
@@ -4844,6 +4847,7 @@
 						"          {Talent Identifier (5)},",
 						"          {Client ID}),",
 						"     {Client Engagement Date} = max({Client Engagement Date})) ~> RemoveDuplicates",
+						"RemoveDuplicates filter(not(isNull({Worker ID}))) ~> RemoveNullWorkerIDRows",
 						"SelectFinal sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
