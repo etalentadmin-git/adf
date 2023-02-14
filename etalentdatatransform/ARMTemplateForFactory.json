@@ -55125,7 +55125,7 @@
 							"name": "CreateTalentTagScore"
 						},
 						{
-							"name": "derivedColumn1"
+							"name": "CreateCurTalentTag"
 						},
 						{
 							"name": "select1"
@@ -55141,9 +55141,6 @@
 						},
 						{
 							"name": "JoinEventYrMinus2"
-						},
-						{
-							"name": "FilterHCTForWorkerRecords"
 						},
 						{
 							"name": "SumEmpCountFor3Yr"
@@ -55168,6 +55165,12 @@
 						},
 						{
 							"name": "SelectColumns"
+						},
+						{
+							"name": "RemoveDups"
+						},
+						{
+							"name": "FilterHCTOnly"
 						}
 					],
 					"scriptLines": [
@@ -55217,7 +55220,7 @@
 						"     ignoreNoFilesFound: false) ~> PerformanceHistory",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Client Engagement Type} as string,",
 						"          {Worker ID} as string,",
 						"          {Event Date} as date,",
@@ -55425,7 +55428,7 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventID = 'HCT'\"),",
 						"     format: 'query') ~> CoreDBHist",
 						"join2 derive({Group 1-3 Scoring} = iif({Curr Elloree Performance Rating}=='Outstanding',1,0)\r",
 						"+iif({P1 Elloree Performance Rating}=='Outstanding',1,0)\r",
@@ -55440,8 +55443,8 @@
 						"iif({Group 3 Flag}=='Y','Group 3',\r",
 						"iif({Group 4-6 Scoring}==3,'Group 4',\r",
 						"iif({Group 4-6 Scoring}==2,'Group 5',\r",
-						"iif({Group 6 Flag}=='Y','Group 6', 'N/A')))))),'N/A')) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
+						"iif({Group 6 Flag}=='Y','Group 6', 'N/A')))))),'N/A')) ~> CreateCurTalentTag",
+						"CreateCurTalentTag select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Worker ID},",
@@ -55482,7 +55485,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select1",
-						"FilterHCTForWorkerRecords select(mapColumn(",
+						"RemoveDups select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Worker ID},",
@@ -55499,7 +55502,6 @@
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'both')~> JoinEventYrMinus2",
-						"union1 filter({Event Code}=='HCT') ~> FilterHCTForWorkerRecords",
 						"JoinEventYrMinus2 aggregate(groupBy({Worker ID 3Yr Count} = {Worker ID}),",
 						"     {3 Yr TotalEmpCount} = sum(EmpCount)) ~> SumEmpCountFor3Yr",
 						"PerformanceHistory, SumEmpCountFor3Yr join({Worker ID} == {Worker ID 3Yr Count},",
@@ -55531,7 +55533,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectHistoricalCoreDB",
-						"Core select(mapColumn(",
+						"FilterHCTOnly select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Worker ID},",
@@ -55541,6 +55543,14 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectColumns",
+						"union1 aggregate(groupBy({Client ID},",
+						"          {Client Engagement Date},",
+						"          {Worker ID},",
+						"          {Event Year},",
+						"          {Event Code},",
+						"          EmpCount),",
+						"     RowCount = count({Worker ID})) ~> RemoveDups",
+						"Core filter({Event Code}=='HCT') ~> FilterHCTOnly",
 						"RemoveNullWorkerIDRows sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
