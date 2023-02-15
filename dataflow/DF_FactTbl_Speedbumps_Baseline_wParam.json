@@ -1,5 +1,5 @@
 {
-	"name": "DF_FactTbl_Speedbumps_Baseline_wRiskLoss",
+	"name": "DF_FactTbl_Speedbumps_Baseline_wParam",
 	"properties": {
 		"folder": {
 			"name": "Client/Create Fact Table Files/Custom Fact Table Files"
@@ -100,7 +100,7 @@
 					"name": "SelectEmpTalentTag"
 				},
 				{
-					"name": "join1"
+					"name": "JoinLevel"
 				},
 				{
 					"name": "join2"
@@ -248,6 +248,12 @@
 				},
 				{
 					"name": "select11"
+				},
+				{
+					"name": "SelectTalentColumns"
+				},
+				{
+					"name": "JoinTalentIdentifiers"
 				}
 			],
 			"scriptLines": [
@@ -624,7 +630,8 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> Talent",
+				"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> Talent",
 				"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
 				"     joinType:'inner',",
@@ -653,7 +660,12 @@
 				"          {P1 Promo} = {P2 Promo},",
 				"          {P3 Promo},",
 				"          {Silver Medalist Ind},",
-				"          {Applicant Five or More}",
+				"          {Applicant Five or More},",
+				"          TalentIdentifier1,",
+				"          TalentIdentifier2,",
+				"          TalentIdentifier3,",
+				"          TalentIdentifier4,",
+				"          TalentIdentifier5",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectCoreForMgrPopulation",
@@ -675,7 +687,7 @@
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1",
+				"     broadcast: 'auto')~> JoinLevel",
 				"SelectCoreForMgrPopulation, selectMgrData join({Direct Manager Worker ID} == {Mgr Worker ID},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
@@ -733,7 +745,7 @@
 				"select9 derive({P2 Promo} = 'Y') ~> P2Promo",
 				"select10 derive({P1 Promo} = 'Y') ~> P1Promo",
 				"select11 derive({Curr Promo} = 'Y') ~> CurrPromo",
-				"join1, CurrPromo join(WorkerId == {Curr YR Worker ID},",
+				"JoinTalentIdentifiers, CurrPromo join(WorkerId == {Curr YR Worker ID},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -752,25 +764,25 @@
 				"          {Speedbump Worker Status} = 'Active',",
 				"          {Speedbump 1 Name} = 'Mgr Level',",
 				"          {Speedbump 1 Desc} = 'Assigned to a manager at their same level (non Exec)',",
-				"          {Speedbump 1 Flag} = iif(isNull({Mgr Worker ID}),'N',iif({Elloree Corporate Title}=='Executive','N',iif({Mgr Elloree Corporate Title Sort}>={Elloree Corporate Title Sort},'Y','N'))),",
+				"          {Speedbump 1 Flag} = iif($SB1_MgrLvl=='Y',iif(isNull({Mgr Worker ID}),'N',iif({Elloree Corporate Title}=='Executive','N',iif({Mgr Elloree Corporate Title Sort}>={Elloree Corporate Title Sort},'Y','N'))),'N'),",
 				"          {Speedbump 2 Name} = 'Mgr Top Talent',",
 				"          {Speedbump 2 Desc} = 'Assigned to a manager who is not considered top talent (does not have a talent tag)',",
-				"          {Speedbump 2 Flag} = iif(isNull({Mgr Worker ID}),'N',iif({Mgr Curr Talent Tag}=='N/A','Y','N')),",
+				"          {Speedbump 2 Flag} = iif($SB2_MgrTalent=='Y',iif(isNull({Mgr Worker ID}),'N',iif({Mgr Curr Talent Tag}=='N/A','Y','N')),'N'),",
 				"          {Speedbump 3 Name} = 'Mgr Experience',",
 				"          {Speedbump 3 Desc} = 'Employee is assigned to a manager who has the same or less experience in the firm ',",
-				"          {Speedbump 3 Flag} = iif(isNull({Mgr Worker ID}),'N',iif({Years of Service}>={Mgr Years of Service},'Y','N')),",
+				"          {Speedbump 3 Flag} = iif($SB3_MgrExp=='Y',iif(isNull({Mgr Worker ID}),'N',iif({Years of Service}>={Mgr Years of Service},'Y','N')),'N'),",
 				"          {Speedbump 4 Name} = 'Promotion History',",
 				"          {Speedbump 4 Desc} = 'Have not been promoted (normally this is in the last 3 years to coincide with the promo data we are provided)',",
-				"          {Speedbump 4 Flag} = iif({Elloree Corporate Title Sort}==1, 'N',iif({Curr Promo}=='Y','N',iif({P1 Promo}=='Y','N',iif({P2 Promo}=='Y','N',iif(isNull(CoreLastPromoDt),'Y',iif(year(CoreLastPromoDt)>=toInteger($SB_BL_Year)-2,'N','Y')))))),",
+				"          {Speedbump 4 Flag} = iif($SB4_Promotion=='Y',iif({Elloree Corporate Title Sort}==1, 'N',iif({Curr Promo}=='Y','N',iif({P1 Promo}=='Y','N',iif({P2 Promo}=='Y','N',iif(isNull(CoreLastPromoDt),'Y',iif(year(CoreLastPromoDt)>=toInteger($SB_BL_Year)-2,'N','Y')))))),'N'),",
 				"          {Speedbump 5 Name} = 'Applied Roles',",
 				"          {Speedbump 5 Desc} = 'Employee applied for 5 or more roles in the current year',",
-				"          {Speedbump 5 Flag} = iif({Applicant Five or More}=='Y','Y','N'),",
+				"          {Speedbump 5 Flag} = iif($SB5_Applied5=='Y',iif({Applicant Five or More}=='Y','Y','N'),'N'),",
 				"          {Speedbump 6 Name} = 'Silver Medalist',",
 				"          {Speedbump 6 Desc} = 'Employee is a \"Silver Medalist\" for at least 1 role in the current year ',",
-				"          {Speedbump 6 Flag} = iif({Silver Medalist Ind}=='Y','Y','N'),",
+				"          {Speedbump 6 Flag} = iif($SB6_SilvMedal=='Y',iif({Silver Medalist Ind}=='Y','Y','N'),'N'),",
 				"          {Speedbump 7 Name} = '3+ Managers',",
 				"          {Speedbump 7 Desc} = 'Employee has had 3 or more managers in the past 3 years',",
-				"          {Speedbump 7 Flag} = iif(ManagerCount>=3,'Y','N'),",
+				"          {Speedbump 7 Flag} = iif($SB7_Mgr3Plus=='Y',iif(ManagerCount>=3,'Y','N'),'N'),",
 				"          {Speedbump 8 Name} = 'Speedbump 8',",
 				"          {Speedbump 8 Desc} = 'N/A',",
 				"          {Speedbump 8 Flag} = 'N/A',",
@@ -979,6 +991,22 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select11",
+				"Talent select(mapColumn(",
+				"          {Talent WorkerId} = WorkerId,",
+				"          {Talent EventYear} = EventYear,",
+				"          TalentIdentifier1,",
+				"          TalentIdentifier2,",
+				"          TalentIdentifier3,",
+				"          TalentIdentifier4,",
+				"          TalentIdentifier5",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectTalentColumns",
+				"JoinLevel, SelectTalentColumns join(WorkerId == {Talent WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinTalentIdentifiers",
 				"FilterOnlySpeedbumpPop sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
