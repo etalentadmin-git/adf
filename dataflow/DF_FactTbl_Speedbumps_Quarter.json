@@ -322,6 +322,9 @@
 				},
 				{
 					"name": "SelectInactTermPriorSpeedbumpRecord"
+				},
+				{
+					"name": "RemoveTerms"
 				}
 			],
 			"scriptLines": [
@@ -1249,7 +1252,7 @@
 				"SpeedbumpsDBBaseline, ExistsInBaseline exists(WorkerId == {Worker ID},",
 				"     negate:true,",
 				"     broadcast: 'both')~> exists1",
-				"exists1 aggregate(groupBy(ClientId,",
+				"RemoveTerms aggregate(groupBy(ClientId,",
 				"          ClientEngagementDt,",
 				"          WorkerId,",
 				"          CoreEventId,",
@@ -1568,6 +1571,9 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectInactTermPriorSpeedbumpRecord",
+				"exists1, SelectTerminatedWorkerId exists(WorkerId == {Worker ID},",
+				"     negate:true,",
+				"     broadcast: 'auto')~> RemoveTerms",
 				"SelectFinalQtrOutput sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
