@@ -33,6 +33,9 @@
 				},
 				{
 					"name": "addLoadDt"
+				},
+				{
+					"name": "RestrictFieldColumnLength"
 				}
 			],
 			"scriptLines": [
@@ -116,7 +119,8 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
 				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> addLoadDt",
-				"addLoadDt sink(allowSchemaDrift: true,",
+				"addLoadDt derive(JobTitle = left(JobTitle,100)) ~> RestrictFieldColumnLength",
+				"RestrictFieldColumnLength sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          ClientId as string,",
