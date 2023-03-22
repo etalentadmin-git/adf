@@ -13,131 +13,31 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Location_Hist')]",
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+					"name": "Client/Database/Load Fact Tables"
 				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "etalentLocationMapTbl",
+								"referenceName": "Source_FactTbl_TalentData_File",
 								"type": "DatasetReference"
 							},
-							"name": "Location"
+							"name": "Talent"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "etalentLocationMapTbl",
+								"referenceName": "etalentTalentFactTbl",
 								"type": "DatasetReference"
 							},
-							"name": "AppendLocationMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_Hist_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientWorkOffice as string,",
-						"          ClientWorkCity as string,",
-						"          ClientWorkState as string,",
-						"          ClientWorkCountry as string,",
-						"          ClientStrategicLoc as string,",
-						"          ElloreeWorkOffice as string,",
-						"          ElloreeWorkCity as string,",
-						"          ElloreeWorkState as string,",
-						"          ElloreeWorkCountry as string,",
-						"          ElloreeWorkRegion as string,",
-						"          ElloreeStrategicLoc as string,",
-						"          ElloreeLocSortId as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[LocationMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> Location",
-						"Location alterRow(upsertIf(true())) ~> alterRow1",
-						"alterRow1 derive(LoadDt = currentDate(),",
-						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientWorkOffice as string,",
-						"          ClientWorkCity as string,",
-						"          ClientWorkState as string,",
-						"          ClientWorkCountry as string,",
-						"          ClientStrategicLoc as string,",
-						"          ElloreeWorkOffice as string,",
-						"          ElloreeWorkCity as string,",
-						"          ElloreeWorkState as string,",
-						"          ElloreeWorkCountry as string,",
-						"          ElloreeWorkRegion as string,",
-						"          ElloreeStrategicLoc as string,",
-						"          ElloreeLocSortId as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientWorkOffice','ClientWorkCountry','ClientWorkState','ClientWorkCity','ClientStrategicLoc'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendLocationMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_PerformanceRating')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_PerformanceRating",
-								"type": "DatasetReference"
-							},
-							"name": "Performance"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentPerfRatingMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendPerformanceMapping"
+							"name": "AppendTalentMapping"
 						}
 					],
 					"transformations": [
@@ -155,259 +55,105 @@
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Performance Rating} as string,",
-						"          {Elloree Performance Rating} as string,",
-						"          {Elloree Performance Rating Sort} as string,",
-						"          {Suggested Elloree Performance Rating} as string,",
-						"          {Suggested Elloree Performane Rating Sort Id} as string,",
-						"          {Suggested Source} as string,",
-						"          {2017 Talent Assessment} as string,",
-						"          {2018 Talent Assessment} as string,",
-						"          {2019 Talent Assessment} as string,",
-						"          {2020 Talent Assessment} as string,",
-						"          {2021 Talent Assessment} as string",
+						"          {Event Year} as short,",
+						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          Event as string,",
+						"          {Event Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Performance Rating} as string,",
+						"          {Performance Rating Date} as date 'yyyy-MM-dd',",
+						"          {Talent Identifier (1)} as string,",
+						"          {Talent Identifier (2)} as string,",
+						"          {Talent Identifier (3)} as string,",
+						"          {Talent Identifier (4)} as string,",
+						"          {Talent Identifier (5)} as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Performance",
-						"Performance alterRow(upsertIf(true()),",
+						"     ignoreNoFilesFound: false) ~> Talent",
+						"Talent alterRow(upsertIf(true()),",
 						"     deleteIf(isNull({Client ID})),",
 						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Client Performance Rating})),",
-						"     deleteIf(isNull({Elloree Performance Rating})),",
-						"     deleteIf(isNull({Elloree Performance Rating Sort}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientPerfRating = {Client Performance Rating},",
-						"          ElloreePerfRating = {Elloree Performance Rating},",
-						"          ElloreePerfRatingSortId = {Elloree Performance Rating Sort},",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientPerfRating as string,",
-						"          ElloreePerfRating as string,",
-						"          ElloreePerfRatingSortId as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientPerfRating'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendPerformanceMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_PerformanceRating_Hist')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentPerfRatingMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "Performance"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentPerfRatingMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendPerformanceMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_Hist_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientPerfRating as string,",
-						"          ElloreePerfRating as string,",
-						"          ElloreePerfRatingSortId as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[PerfRatingMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> Performance",
-						"Performance alterRow(upsertIf(true())) ~> alterRow1",
-						"alterRow1 derive(LoadDt = currentDate(),",
-						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientPerfRating as string,",
-						"          ElloreePerfRating as string,",
-						"          ElloreePerfRatingSortId as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientPerfRating'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendPerformanceMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ReqStatus')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_ReqStatus",
-								"type": "DatasetReference"
-							},
-							"name": "RequisitionStatus"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentReqStatusMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendReqStatusMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Requisition Status} as string,",
-						"          {Elloree Requisition Status} as string,",
-						"          {Suggested Elloree Requisition Status} as string,",
-						"          {Suggested Source} as string,",
-						"          {2021 Requisition} as string,",
-						"          {2022 Requisition} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> RequisitionStatus",
-						"RequisitionStatus alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Client Requisition Status})),",
-						"     deleteIf(isNull({Elloree Requisition Status}))) ~> alterRow1",
+						"     deleteIf(isNull({Performance Rating}))) ~> alterRow1",
 						"alterRow1 select(mapColumn(",
 						"          ClientId = {Client ID},",
 						"          ClientEngagementDt = {Client Engagement Date},",
-						"          ClientReqStatus = {Client Requisition Status},",
-						"          ElloreeReqStatus = {Elloree Requisition Status}",
+						"          EventYear = {Event Year},",
+						"          EventDt = {Event Date},",
+						"          Event,",
+						"          EventType = {Event Type},",
+						"          WorkerId = {Worker ID},",
+						"          PerfRating = {Performance Rating},",
+						"          PerfRatingDt = {Performance Rating Date},",
+						"          TalentIdentifier1 = {Talent Identifier (1)},",
+						"          TalentIdentifier2 = {Talent Identifier (2)},",
+						"          TalentIdentifier3 = {Talent Identifier (3)},",
+						"          TalentIdentifier4 = {Talent Identifier (4)},",
+						"          TalentIdentifier5 = {Talent Identifier (5)}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"AlterColumnNamesforMap derive(Event = 'PER',",
+						"          LoadDt = currentDate()) ~> derivedColumn1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientReqStatus as string,",
-						"          ElloreeReqStatus as string,",
+						"          WorkerId as string,",
+						"          EventYear as integer,",
+						"          EventDt as date,",
+						"          Event as string,",
+						"          EventType as string,",
+						"          PerfRating as string,",
+						"          PerfRatingDt as date,",
+						"          TalentIdentifier1 as string,",
+						"          TalentIdentifier2 as string,",
+						"          TalentIdentifier3 as string,",
+						"          TalentIdentifier4 as string,",
+						"          TalentIdentifier5 as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientReqStatus'],",
+						"     keys:['ClientId','ClientEngagementDt','EventDt','PerfRating'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendReqStatusMapping"
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
 					]
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ReqStatus_Hist')]",
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent_Hist')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
 				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "etalentReqStatusMapTbl",
+								"referenceName": "etalentTalentFactTbl",
 								"type": "DatasetReference"
 							},
-							"name": "RequisitionStatus"
+							"name": "Talent"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "etalentReqStatusMapTbl",
+								"referenceName": "etalentTalentFactTbl",
 								"type": "DatasetReference"
 							},
-							"name": "AppendReqStatusMapping"
+							"name": "AppendTalentMapping"
 						}
 					],
 					"transformations": [
@@ -427,16 +173,217 @@
 						"source(output(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientReqStatus as string,",
-						"          ElloreeReqStatus as string,",
+						"          WorkerId as string,",
+						"          EventYear as integer,",
+						"          EventDt as date,",
+						"          Event as string,",
+						"          EventType as string,",
+						"          PerfRating as string,",
+						"          PerfRatingDt as date,",
+						"          TalentIdentifier1 as string,",
+						"          TalentIdentifier2 as string,",
+						"          TalentIdentifier3 as string,",
+						"          TalentIdentifier4 as string,",
+						"          TalentIdentifier5 as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[TAReqStatusMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> RequisitionStatus",
-						"RequisitionStatus alterRow(upsertIf(true())) ~> alterRow1",
+						"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Talent",
+						"Talent alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
+						"          LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventYear as integer,",
+						"          EventDt as date,",
+						"          Event as string,",
+						"          EventType as string,",
+						"          PerfRating as string,",
+						"          PerfRatingDt as date,",
+						"          TalentIdentifier1 as string,",
+						"          TalentIdentifier2 as string,",
+						"          TalentIdentifier3 as string,",
+						"          TalentIdentifier4 as string,",
+						"          TalentIdentifier5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventDt','PerfRating'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_YearRef_File",
+								"type": "DatasetReference"
+							},
+							"name": "YearRef"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentYearRefTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendYearRef"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'yyyy-MM-dd',",
+						"          CurrEventYear as short,",
+						"          P1EventYear as short,",
+						"          P2EventYear as short,",
+						"          P3EventYear as short,",
+						"          P4EventYear as short,",
+						"          P5EventYear as short",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> YearRef",
+						"YearRef alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date}))) ~> alterRow1",
+						"derivedColumn1 select(mapColumn(",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date},",
+						"          CurEventYear = CurrEventYear,",
+						"          P1EventYear,",
+						"          P2EventYear,",
+						"          P3EventYear,",
+						"          P4EventYear,",
+						"          P5EventYear,",
+						"          LoadDt",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"alterRow1 derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"AlterColumnNamesforMap sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          CurEventYear as integer,",
+						"          P1EventYear as integer,",
+						"          P2EventYear as integer,",
+						"          P3EventYear as integer,",
+						"          P4EventYear as integer,",
+						"          P5EventYear as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendYearRef"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentYearRefTbl",
+								"type": "DatasetReference"
+							},
+							"name": "YearRef"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentYearRefTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendYearRef"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          CurEventYear as integer,",
+						"          P1EventYear as integer,",
+						"          P2EventYear as integer,",
+						"          P3EventYear as integer,",
+						"          P4EventYear as integer,",
+						"          P5EventYear as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[YearRefTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> YearRef",
+						"YearRef alterRow(upsertIf(true())) ~> alterRow1",
 						"alterRow1 derive(LoadDt = currentDate(),",
 						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
@@ -444,26 +391,30 @@
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientReqStatus as string,",
-						"          ElloreeReqStatus as string,",
+						"          CurEventYear as integer,",
+						"          P1EventYear as integer,",
+						"          P2EventYear as integer,",
+						"          P3EventYear as integer,",
+						"          P4EventYear as integer,",
+						"          P5EventYear as integer,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientReqStatus'],",
+						"     keys:['ClientId','ClientEngagementDt'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendReqStatusMapping"
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendYearRef"
 					]
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ReqType')]",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ApplicantFlow')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -475,19 +426,19 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "Source_Mapping_ReqType",
+								"referenceName": "Source_Mapping_Applicant",
 								"type": "DatasetReference"
 							},
-							"name": "RequisitionType"
+							"name": "ApplicantFlowMapping"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "etalentReqTypeMapTbl",
+								"referenceName": "etalentApplFlowMapTbl",
 								"type": "DatasetReference"
 							},
-							"name": "AppendReqStatusMapping"
+							"name": "AppendApplicantFlowMapping"
 						}
 					],
 					"transformations": [
@@ -505,26 +456,40 @@
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Requisition Type} as string,",
-						"          {Elloree Requisition Type} as string,",
-						"          {Suggested Elloree Requisition Type} as string,",
+						"          {Client Applicant Final Disposition} as string,",
+						"          {Client Applicant Step Before Final Disposition} as string,",
+						"          {Client Applicant Rejected Reason} as string,",
+						"          {Elloree Applicant Final Disposition} as string,",
+						"          {Elloree Applicant Category} as string,",
+						"          {Elloree Submitted to Mgr Fl} as string,",
+						"          {Suggested Elloree Applicant Final Disposition} as string,",
+						"          {Suggested Elloree Applicant Category} as string,",
+						"          {Suggested Elloree Submitted to Mgr Fl} as string,",
 						"          {Suggested Source} as string,",
-						"          {2021 Job Requisition} as string,",
-						"          {2022 Job Requisition} as string",
+						"          {2021 Job Applicant} as string,",
+						"          {2022 Job Applicant} as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> RequisitionType",
-						"RequisitionType alterRow(upsertIf(true()),",
+						"     ignoreNoFilesFound: false) ~> ApplicantFlowMapping",
+						"ApplicantFlowMapping alterRow(upsertIf(true()),",
 						"     deleteIf(isNull({Client ID})),",
 						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Client Requisition Type})),",
-						"     deleteIf(isNull({Elloree Requisition Type}))) ~> alterRow1",
+						"     deleteIf(isNull({Client Applicant Final Disposition})),",
+						"     deleteIf(isNull({Client Applicant Step Before Final Disposition})),",
+						"     deleteIf(isNull({Client Applicant Rejected Reason})),",
+						"     deleteIf(isNull({Elloree Applicant Final Disposition})),",
+						"     deleteIf(isNull({Elloree Applicant Category})),",
+						"     deleteIf(isNull({Elloree Submitted to Mgr Fl}))) ~> alterRow1",
 						"alterRow1 select(mapColumn(",
 						"          ClientId = {Client ID},",
 						"          ClientEngagementDt = {Client Engagement Date},",
-						"          ClientReqType = {Client Requisition Type},",
-						"          ElloreeReqType = {Elloree Requisition Type}",
+						"          ClientApplFinalDisp = {Client Applicant Final Disposition},",
+						"          ClientApplStepBeforeFinalDisp = {Client Applicant Step Before Final Disposition},",
+						"          ClientApplRejectedReason = {Client Applicant Rejected Reason},",
+						"          ElloreeApplFinalDisp = {Elloree Applicant Final Disposition},",
+						"          ElloreeApplCategory = {Elloree Applicant Category},",
+						"          ElloreeSubmittedtoMgrFl = {Elloree Submitted to Mgr Fl}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
@@ -534,26 +499,30 @@
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientReqType as string,",
-						"          ElloreeReqType as string,",
+						"          ClientApplFinalDisp as string,",
+						"          ClientApplStepBeforeFinalDisp as string,",
+						"          ClientApplRejectedReason as string,",
+						"          ElloreeApplFinalDisp as string,",
+						"          ElloreeApplCategory as string,",
+						"          ElloreeSubmittedtoMgrFl as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientReqType'],",
+						"     keys:['ClientId','ClientEngagementDt','ClientApplFinalDisp','ClientApplStepBeforeFinalDisp','ClientApplRejectedReason'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendReqStatusMapping"
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendApplicantFlowMapping"
 					]
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ReqType_Hist')]",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ApplicantFlow_Hist')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -565,19 +534,19 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "etalentReqTypeMapTbl",
+								"referenceName": "etalentApplFlowMapTbl",
 								"type": "DatasetReference"
 							},
-							"name": "RequisitionType"
+							"name": "ApplicantFlowMapping"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "etalentReqTypeMapTbl",
+								"referenceName": "etalentApplFlowMapTbl",
 								"type": "DatasetReference"
 							},
-							"name": "AppendReqStatusMapping"
+							"name": "AppendApplicantFlowMapping"
 						}
 					],
 					"transformations": [
@@ -597,16 +566,20 @@
 						"source(output(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientReqType as string,",
-						"          ElloreeReqType as string,",
+						"          ClientApplFinalDisp as string,",
+						"          ClientApplStepBeforeFinalDisp as string,",
+						"          ClientApplRejectedReason as string,",
+						"          ElloreeApplFinalDisp as string,",
+						"          ElloreeApplCategory as string,",
+						"          ElloreeSubmittedtoMgrFl as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[TAReqTypeMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> RequisitionType",
-						"RequisitionType alterRow(upsertIf(true())) ~> alterRow1",
+						"     query: (\"select * from [dbo].[TAApplMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> ApplicantFlowMapping",
+						"ApplicantFlowMapping alterRow(upsertIf(true())) ~> alterRow1",
 						"alterRow1 derive(LoadDt = currentDate(),",
 						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
@@ -614,26 +587,30 @@
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientReqType as string,",
-						"          ElloreeReqType as string,",
+						"          ClientApplFinalDisp as string,",
+						"          ClientApplStepBeforeFinalDisp as string,",
+						"          ClientApplRejectedReason as string,",
+						"          ElloreeApplFinalDisp as string,",
+						"          ElloreeApplCategory as string,",
+						"          ElloreeSubmittedtoMgrFl as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientReqType'],",
+						"     keys:['ClientId','ClientEngagementDt','ClientApplFinalDisp','ClientApplStepBeforeFinalDisp','ClientApplRejectedReason'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendReqStatusMapping"
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendApplicantFlowMapping"
 					]
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Veteran')]",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_BusHierarchy')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -645,19 +622,19 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "Source_Mapping_Veteran",
+								"referenceName": "Source_Mapping_BusHierarchy",
 								"type": "DatasetReference"
 							},
-							"name": "Veteran"
+							"name": "BusHierarchy"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "etalentVeteranMapTbl",
+								"referenceName": "etalentBusHierarchyMapTbl",
 								"type": "DatasetReference"
 							},
-							"name": "sink1"
+							"name": "AppendBusHierarchyMapping"
 						}
 					],
 					"transformations": [
@@ -675,9 +652,18 @@
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Veteran} as string,",
-						"          {Elloree Veteran} as string,",
-						"          {Suggested Elloree Veteran} as string,",
+						"          {Client Business Group Level 1} as string,",
+						"          {Client Business Group Level 2} as string,",
+						"          {Client Business Group Level 3} as string,",
+						"          {Client Business Group Level 4} as string,",
+						"          {Elloree Business Group Level 1} as string,",
+						"          {Elloree Business Group Level 2} as string,",
+						"          {Elloree Business Group Level 3} as string,",
+						"          {Elloree Business Group Level 4} as string,",
+						"          {Suggested Elloree Business Group Level 1} as string,",
+						"          {Suggested Elloree Business Group Level 2} as string,",
+						"          {Suggested Elloree Business Group Level 3} as string,",
+						"          {Suggested Elloree Business Group Level 4} as string,",
 						"          {Suggested Source} as string,",
 						"          {2017 Headcount} as string,",
 						"          {2018 Headcount} as string,",
@@ -699,17 +685,25 @@
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Veteran",
-						"Veteran alterRow(upsertIf(true()),",
+						"     ignoreNoFilesFound: false) ~> BusHierarchy",
+						"BusHierarchy alterRow(upsertIf(true()),",
 						"     deleteIf(isNull({Client ID})),",
 						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Client Veteran})),",
-						"     deleteIf(isNull({Elloree Veteran}))) ~> alterRow1",
+						"     deleteIf(isNull({Elloree Business Group Level 1})),",
+						"     deleteIf(isNull({Elloree Business Group Level 2})),",
+						"     deleteIf(isNull({Elloree Business Group Level 3})),",
+						"     deleteIf(isNull({Elloree Business Group Level 4}))) ~> alterRow1",
 						"alterRow1 select(mapColumn(",
-						"          ClientVeteran = {Client Veteran},",
-						"          ElloreeVeteran = {Elloree Veteran},",
 						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date}",
+						"          ClientEngagementDt = {Client Engagement Date},",
+						"          ClientBusGrpLvl1 = {Client Business Group Level 1},",
+						"          ElloreeBusGrpLvl1 = {Elloree Business Group Level 1},",
+						"          ClientBusGrpLvl2 = {Client Business Group Level 2},",
+						"          ElloreeBusGrpLvl2 = {Elloree Business Group Level 2},",
+						"          ClientBusGrpLvl3 = {Client Business Group Level 3},",
+						"          ElloreeBusGrpLvl3 = {Elloree Business Group Level 3},",
+						"          ClientBusGrpLvl4 = {Client Business Group Level 4},",
+						"          ElloreeBusGrpLvl4 = {Elloree Business Group Level 4}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
@@ -719,26 +713,32 @@
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientVeteran as string,",
-						"          ElloreeVeteran as string,",
+						"          ClientBusGrpLvl1 as string,",
+						"          ClientBusGrpLvl2 as string,",
+						"          ClientBusGrpLvl3 as string,",
+						"          ClientBusGrpLvl4 as string,",
+						"          ElloreeBusGrpLvl1 as string,",
+						"          ElloreeBusGrpLvl2 as string,",
+						"          ElloreeBusGrpLvl3 as string,",
+						"          ElloreeBusGrpLvl4 as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientVeteran'],",
+						"     keys:['ClientId','ClientEngagementDt','ClientBusGrpLvl1','ClientBusGrpLvl2','ClientBusGrpLvl3','ClientBusGrpLvl4'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendBusHierarchyMapping"
 					]
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Veteran_Hist')]",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_BusHierarchy_Hist')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -750,16 +750,427 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "etalentVeteranMapTbl",
+								"referenceName": "etalentBusHierarchyMapTbl",
 								"type": "DatasetReference"
 							},
-							"name": "Veteran"
+							"name": "BusHierarchy"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "etalentVeteranMapTbl",
+								"referenceName": "etalentBusHierarchyMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendBusHierarchyMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientBusGrpLvl1 as string,",
+						"          ClientBusGrpLvl2 as string,",
+						"          ClientBusGrpLvl3 as string,",
+						"          ClientBusGrpLvl4 as string,",
+						"          ElloreeBusGrpLvl1 as string,",
+						"          ElloreeBusGrpLvl2 as string,",
+						"          ElloreeBusGrpLvl3 as string,",
+						"          ElloreeBusGrpLvl4 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[BusinessMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> BusHierarchy",
+						"BusHierarchy alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientBusGrpLvl1 as string,",
+						"          ClientBusGrpLvl2 as string,",
+						"          ClientBusGrpLvl3 as string,",
+						"          ClientBusGrpLvl4 as string,",
+						"          ElloreeBusGrpLvl1 as string,",
+						"          ElloreeBusGrpLvl2 as string,",
+						"          ElloreeBusGrpLvl3 as string,",
+						"          ElloreeBusGrpLvl4 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientBusGrpLvl1','ClientBusGrpLvl2','ClientBusGrpLvl3','ClientBusGrpLvl4'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendBusHierarchyMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_CorpTitle')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_CorpTitle",
+								"type": "DatasetReference"
+							},
+							"name": "CorpTitle"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentCorpTitleMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendCorpTitleMappingToDB"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Corporate Title} as string,",
+						"          {Elloree Corporate Title} as string,",
+						"          {Client Elloree Corporate Title} as string,",
+						"          {Elloree Corporate Title Sort} as string,",
+						"          {Suggested Elloree Corporate Title} as string,",
+						"          {Suggested Client Elloree Corporate Title} as string,",
+						"          {Suggested Elloree Corporate Title Sort} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount Curr Title} as string,",
+						"          {2017 Headcount Prev Title} as string,",
+						"          {2018 Headcount Curr Title} as string,",
+						"          {2018 Headcount Prev Title} as string,",
+						"          {2018 Hire Curr Title} as string,",
+						"          {2018 Hire Prev Title} as string,",
+						"          {2018 Promo Curr Title} as string,",
+						"          {2018 Promo Prev Title} as string,",
+						"          {2018 Term Curr Title} as string,",
+						"          {2018 Term Prev Title} as string,",
+						"          {2019 Headcount Curr Title} as string,",
+						"          {2019 Headcount Prev Title} as string,",
+						"          {2019 Hire Curr Title} as string,",
+						"          {2019 Hire Prev Title} as string,",
+						"          {2019 Promo Curr Title} as string,",
+						"          {2019 Promo Prev Title} as string,",
+						"          {2019 Term Curr Title} as string,",
+						"          {2019 Term Prev Title} as string,",
+						"          {2020 Headcount Curr Title} as string,",
+						"          {2020 Headcount Prev Title} as string,",
+						"          {2020 Hire Curr Title} as string,",
+						"          {2020 Hire Prev Title} as string,",
+						"          {2020 Promo Curr Title} as string,",
+						"          {2020 Promo Prev Title} as string,",
+						"          {2020 Term Curr Title} as string,",
+						"          {2020 Term Prev Title} as string,",
+						"          {2021 Headcount Curr Title} as string,",
+						"          {2021 Headcount Prev Title} as string,",
+						"          {2021 Hire Curr Title} as string,",
+						"          {2021 Hire Prev Title} as string,",
+						"          {2021 Promo Curr Title} as string,",
+						"          {2021 Promo Prev Title} as string,",
+						"          {2021 Term Curr Title} as string,",
+						"          {2021 Term Prev Title} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> CorpTitle",
+						"CorpTitle alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Elloree Corporate Title})),",
+						"     deleteIf(isNull({Elloree Corporate Title Sort}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientCorpTitle = {Client Corporate Title},",
+						"          ClientElloreeCorpTitle = {Client Elloree Corporate Title},",
+						"          ElloreeCorpTitle = {Elloree Corporate Title},",
+						"          ElloreeCorpTitleSortId = {Elloree Corporate Title Sort},",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientCorpTitle as string,",
+						"          ClientElloreeCorpTitle as string,",
+						"          ElloreeCorpTitle as string,",
+						"          ElloreeCorpTitleSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientCorpTitle'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendCorpTitleMappingToDB"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_CorpTitle_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentCorpTitleMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "CorpTitle"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentCorpTitleMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendCorpTitleMappingToDB"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientCorpTitle as string,",
+						"          ClientElloreeCorpTitle as string,",
+						"          ElloreeCorpTitle as string,",
+						"          ElloreeCorpTitleSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[CorpTitleMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> CorpTitle",
+						"CorpTitle alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientCorpTitle as string,",
+						"          ClientElloreeCorpTitle as string,",
+						"          ElloreeCorpTitle as string,",
+						"          ElloreeCorpTitleSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientCorpTitle'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendCorpTitleMappingToDB"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Disability')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_Disability",
+								"type": "DatasetReference"
+							},
+							"name": "Disability"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentDisabilityMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Disability Ind} as string,",
+						"          {Elloree Disability Ind} as string,",
+						"          {Suggested Elloree Disability Ind} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount} as string,",
+						"          {2018 Headcount} as string,",
+						"          {2018 Hire} as string,",
+						"          {2018 Promo} as string,",
+						"          {2018 Term} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2019 Hire} as string,",
+						"          {2019 Promo} as string,",
+						"          {2019 Term} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promo} as string,",
+						"          {2020 Term} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promo} as string,",
+						"          {2021 Term} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Disability",
+						"Disability alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Client Disability Ind})),",
+						"     deleteIf(isNull({Elloree Disability Ind}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientDisabilityInd = {Client Disability Ind},",
+						"          ElloreeDisabilityInd = {Elloree Disability Ind},",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientDisabilityInd as string,",
+						"          ElloreeDisabilityInd as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientDisabilityInd'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Disability_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentDisabilityMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Disability"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentDisabilityMapTbl",
 								"type": "DatasetReference"
 							},
 							"name": "sink1"
@@ -782,16 +1193,16 @@
 						"source(output(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientVeteran as string,",
-						"          ElloreeVeteran as string,",
+						"          ClientDisabilityInd as string,",
+						"          ElloreeDisabilityInd as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[VeteranMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> Veteran",
-						"Veteran alterRow(upsertIf(true())) ~> alterRow1",
+						"     query: (\"select * from [dbo].[DisabilityMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Disability",
+						"Disability alterRow(upsertIf(true())) ~> alterRow1",
 						"alterRow1 derive(LoadDt = currentDate(),",
 						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
@@ -799,15 +1210,15 @@
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientVeteran as string,",
-						"          ElloreeVeteran as string,",
+						"          ClientDisabilityInd as string,",
+						"          ElloreeDisabilityInd as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientVeteran'],",
+						"     keys:['ClientId','ClientEngagementDt','ClientDisabilityInd'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
@@ -818,196 +1229,152 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Tbl_Client')]",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Ethnicity')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"folder": {
-					"name": "Client/Database/Load Fact Tables"
+					"name": "Client/Database/Load Mapping Tables"
 				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"referenceName": "Source_Mapping_Ethnicity",
 								"type": "DatasetReference"
 							},
-							"name": "SourceCore"
+							"name": "Ethnicity"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "etalentClientTbl",
+								"referenceName": "etalentEthnicityMapTbl",
 								"type": "DatasetReference"
 							},
-							"name": "LoadClientInfo"
+							"name": "AppendEthnicityMapping"
 						}
 					],
 					"transformations": [
 						{
-							"name": "RemoveNull"
+							"name": "alterRow1"
 						},
 						{
-							"name": "GroupClientInfo"
+							"name": "AlterColumnNamesforMap"
 						},
 						{
-							"name": "AssignDerivedColumns"
-						},
-						{
-							"name": "SelectFinalOutput"
-						},
-						{
-							"name": "alterRow2"
+							"name": "derivedColumn1"
 						}
 					],
 					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_EngagementType as string,",
-						"     Flow_Client_Desc as string,",
-						"     Flow_Client_Sector as string",
-						"}",
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Engagement Type} as string,",
-						"          {Worker ID} as string,",
-						"          {Event Date} as string,",
-						"          EventMonth as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Year} as string,",
-						"          {Event Code} as string,",
-						"          {Event Type} as string,",
-						"          Event as string,",
-						"          {Event Reason} as string,",
-						"          {Worker Status} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Family/Function} as string,",
-						"          {Years in Job} as string,",
-						"          {Previous Job Title} as string,",
-						"          {Previous Job Family/Function} as string,",
-						"          {Original Hire Date} as string,",
-						"          {Current Hire Date} as string,",
-						"          {Years of Service} as string,",
-						"          {Years of Service Band} as string,",
-						"          {Years of Service Sort ID} as string,",
-						"          {Last Promo Date} as string,",
-						"          {Rehire Indicator} as string,",
-						"          {Corporate Title} as string,",
-						"          {Previous Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Legacy Organization} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as string,",
-						"          {Generation Desc} as string,",
-						"          {Generation Sort ID} as string,",
-						"          EmpCount as string",
+						"          {Client Race} as string,",
+						"          {Client Hispanic or Latino Origin} as string,",
+						"          {Elloree Race} as string,",
+						"          {Elloree Hispanic or Latino Origin} as string,",
+						"          {Suggested Elloree Race} as string,",
+						"          {Suggested Elloree Hispanic or Latino Origin} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount} as string,",
+						"          {2018 Headcount} as string,",
+						"          {2018 Hire} as string,",
+						"          {2018 Promo} as string,",
+						"          {2018 Term} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2019 Hire} as string,",
+						"          {2019 Promo} as string,",
+						"          {2019 Term} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promo} as string,",
+						"          {2020 Term} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promo} as string,",
+						"          {2021 Term} as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> SourceCore",
-						"SourceCore filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNull",
-						"RemoveNull aggregate(groupBy({Client Engagement Date}),",
-						"     ClientId = max({Client ID})) ~> GroupClientInfo",
-						"GroupClientInfo derive(ClientDesc = $Flow_Client_Desc,",
-						"          ClientEngagementType = $Flow_Client_EngagementType,",
-						"          ClientSector = $Flow_Client_Sector,",
-						"          LoadDt = currentDate()) ~> AssignDerivedColumns",
-						"alterRow2 select(mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          ClientEngagementType,",
-						"          ClientSector,",
-						"          ClientDesc,",
-						"          LoadDt",
+						"     ignoreNoFilesFound: false) ~> Ethnicity",
+						"Ethnicity alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Elloree Race})),",
+						"     deleteIf(isNull({Elloree Hispanic or Latino Origin}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientRace = {Client Race},",
+						"          ClientHispanicLatinoOrigin = {Client Hispanic or Latino Origin},",
+						"          ElloreeRace = {Elloree Race},",
+						"          ElloreeHispanicLatinoOrigin = {Elloree Hispanic or Latino Origin},",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectFinalOutput",
-						"AssignDerivedColumns alterRow(upsertIf(true())) ~> alterRow2",
-						"SelectFinalOutput sink(allowSchemaDrift: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
-						"          ClientSector as string,",
-						"          ClientDesc as string,",
+						"          ClientRace as string,",
+						"          ClientHispanicLatinoOrigin as string,",
+						"          ElloreeRace as string,",
+						"          ElloreeHispanicLatinoOrigin as string,",
+						"          ElloreeEthnicGroup as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientEngagementType'],",
+						"     keys:['ClientId','ClientEngagementDt','ClientRace','ClientHispanicLatinoOrigin'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt,",
-						"          ClientEngagementType,",
-						"          ClientSector,",
-						"          ClientDesc,",
-						"          LoadDt",
-						"     ),",
-						"     partitionBy('hash', 1)) ~> LoadClientInfo"
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendEthnicityMapping"
 					]
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Tbl_Client_Hist')]",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Ethnicity_Hist')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"folder": {
-					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
 				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "etalentClientTbl",
+								"referenceName": "etalentEthnicityMapTbl",
 								"type": "DatasetReference"
 							},
-							"name": "SourceCore"
+							"name": "Ethnicity"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "etalentClientTbl",
+								"referenceName": "etalentEthnicityMapTbl",
 								"type": "DatasetReference"
 							},
-							"name": "LoadClientInfo"
+							"name": "AppendEthnicityMapping"
 						}
 					],
 					"transformations": [
 						{
-							"name": "AssignDerivedColumns"
+							"name": "alterRow1"
 						},
 						{
-							"name": "alterRow2"
+							"name": "derivedColumn1"
 						}
 					],
 					"scriptLines": [
@@ -1019,67 +1386,579 @@
 						"source(output(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
-						"          ClientSector as string,",
-						"          ClientDesc as string,",
+						"          ClientRace as string,",
+						"          ClientHispanicLatinoOrigin as string,",
+						"          ElloreeRace as string,",
+						"          ElloreeHispanicLatinoOrigin as string,",
+						"          ElloreeEthnicGroup as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[ClientTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> SourceCore",
-						"SourceCore derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
-						"          LoadDt = currentDate()) ~> AssignDerivedColumns",
-						"AssignDerivedColumns alterRow(upsertIf(true())) ~> alterRow2",
-						"alterRow2 sink(allowSchemaDrift: true,",
+						"     query: (\"select * from [dbo].[EthnicityMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Ethnicity",
+						"Ethnicity alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
-						"          ClientSector as string,",
-						"          ClientDesc as string,",
+						"          ClientRace as string,",
+						"          ClientHispanicLatinoOrigin as string,",
+						"          ElloreeRace as string,",
+						"          ElloreeHispanicLatinoOrigin as string,",
+						"          ElloreeEthnicGroup as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientEngagementType'],",
+						"     keys:['ClientId','ClientEngagementDt','ClientRace','ClientHispanicLatinoOrigin'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendEthnicityMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Event')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_Event",
+								"type": "DatasetReference"
+							},
+							"name": "Event"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentEventMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendEventMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Event} as string,",
+						"          {Client Event Type} as string,",
+						"          {Client Event Reason} as string,",
+						"          {Elloree Event} as string,",
+						"          {Elloree Event Type} as string,",
+						"          {Elloree Event Reason} as string,",
+						"          {Elloree Termination Reason} as string,",
+						"          {Suggested Elloree Event} as string,",
+						"          {Suggested Elloree Event Type} as string,",
+						"          {Suggested Elloree Event Reason} as string,",
+						"          {Suggested Elloree Termination Reason} as string,",
+						"          {Suggested Source} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promo} as string,",
+						"          {2020 Term} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promo} as string,",
+						"          {2021 Term} as string,",
+						"          {2022 Headcount} as string,",
+						"          {2022 Hire} as string,",
+						"          {2022 Promo} as string,",
+						"          {2022 Term} as string,",
+						"          {2023 Promo} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Event",
+						"Event alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Elloree Event})),",
+						"     deleteIf(isNull({Elloree Event Type})),",
+						"     deleteIf(isNull({Elloree Event Reason})),",
+						"     deleteIf(isNull({Elloree Termination Reason}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date},",
+						"          ClientEvent = {Client Event},",
+						"          ElloreeEvent = {Elloree Event},",
+						"          ClientEventType = {Client Event Type},",
+						"          ElloreeEventType = {Elloree Event Type},",
+						"          ClientEventReason = {Client Event Reason},",
+						"          ElloreeEventReason = {Elloree Event Reason},",
+						"          ElloreeTermReason = {Elloree Termination Reason}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientEvent as string,",
+						"          ClientEventType as string,",
+						"          ClientEventReason as string,",
+						"          ElloreeEvent as string,",
+						"          ElloreeEventType as string,",
+						"          ElloreeEventReason as string,",
+						"          ElloreeTermReason as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientEvent','ClientEventType','ClientEventReason'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendEventMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Event_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentEventMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Event"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentEventMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendEventMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientEvent as string,",
+						"          ClientEventType as string,",
+						"          ClientEventReason as string,",
+						"          ElloreeEvent as string,",
+						"          ElloreeEventType as string,",
+						"          ElloreeEventReason as string,",
+						"          ElloreeTermReason as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[EventMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Event",
+						"Event alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientEvent as string,",
+						"          ClientEventType as string,",
+						"          ClientEventReason as string,",
+						"          ElloreeEvent as string,",
+						"          ElloreeEventType as string,",
+						"          ElloreeEventReason as string,",
+						"          ElloreeTermReason as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientEvent','ClientEventType','ClientEventReason'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendEventMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Gender')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_Gender",
+								"type": "DatasetReference"
+							},
+							"name": "Gender"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentGenderMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Gender} as string,",
+						"          {Elloree Gender} as string,",
+						"          {Suggested Elloree Gender} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount} as string,",
+						"          {2018 Headcount} as string,",
+						"          {2018 Hire} as string,",
+						"          {2018 Promo} as string,",
+						"          {2018 Term} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2019 Hire} as string,",
+						"          {2019 Promo} as string,",
+						"          {2019 Term} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promo} as string,",
+						"          {2020 Term} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promo} as string,",
+						"          {2021 Term} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Gender",
+						"Gender alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Client Gender})),",
+						"     deleteIf(isNull({Elloree Gender}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientGender = {Client Gender},",
+						"          ElloreeGender = {Elloree Gender},",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientGender as string,",
+						"          ElloreeGender as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientGender'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Gender_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentGenderMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Gender"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentGenderMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientGender as string,",
+						"          ElloreeGender as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[GenderMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Gender",
+						"Gender alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientGender as string,",
+						"          ElloreeGender as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientGender'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_LGBTQ')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_LGTBQ",
+								"type": "DatasetReference"
+							},
+							"name": "LGTBQ"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentLGBTQMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client LGTBQ} as string,",
+						"          {Elloree LGTBQ} as string,",
+						"          {Suggested Elloree LGTBQ} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount} as string,",
+						"          {2018 Headcount} as string,",
+						"          {2018 Hire} as string,",
+						"          {2018 Promo} as string,",
+						"          {2018 Term} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2019 Hire} as string,",
+						"          {2019 Promo} as string,",
+						"          {2019 Term} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promo} as string,",
+						"          {2020 Term} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promo} as string,",
+						"          {2021 Term} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> LGTBQ",
+						"LGTBQ alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Client LGTBQ})),",
+						"     deleteIf(isNull({Elloree LGTBQ}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientLGTBQ = {Client LGTBQ},",
+						"          ElloreeLGTBQ = {Elloree LGTBQ},",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientLGTBQ as string,",
+						"          ElloreeLGTBQ as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientLGTBQ'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError',",
-						"     partitionBy('hash', 1)) ~> LoadClientInfo"
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          ClientLGTBQ,",
+						"          ElloreeLGTBQ,",
+						"          LoadDt",
+						"     )) ~> sink1"
 					]
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_AmerIndAlaskNat_Female')]",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_LGBTQ_Hist')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"folder": {
-					"name": "External Data/BLS"
+					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
 				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "Json_BLS_AmerIndAlaskNat_Female",
+								"referenceName": "etalentLGBTQMapTbl",
 								"type": "DatasetReference"
 							},
-							"name": "BLSJsonSource"
+							"name": "LGTBQ"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "Source_BLS_Output",
+								"referenceName": "etalentLGBTQMapTbl",
 								"type": "DatasetReference"
 							},
 							"name": "sink1"
@@ -1087,916 +1966,58 @@
 					],
 					"transformations": [
 						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
+							"name": "alterRow1"
 						},
 						{
 							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
 						}
 					],
 					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
 						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientLGTBQ as string,",
+						"          ElloreeLGTBQ as string,",
+						"          LoadDt as date",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'American Indian or Alaska Native',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian labor force, Women, American Indian or Alaska Native only',",
-						"          Quarter = 4,",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[LGTBQMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> LGTBQ",
+						"LGTBQ alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_AmerIndAlaskNat_Female.csv'],",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientLGTBQ as string,",
+						"          ElloreeLGTBQ as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientLGTBQ'],",
+						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_AmerIndAlaskNat_Male')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_AmerIndAlaskNat_Male",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
+						"     errorHandlingOption: 'stopOnFirstError',",
 						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'American Indian or Alaska Native',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(unadj) Civilian labor force, Men, American Indian or Alaska Native only',",
-						"          Quarter = 4,",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_AmerIndAlaskNat_Male.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_AmerIndAlaskNat_Total')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_AmerIndAlaskNat_Total",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'American Indian or Alaska Native',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - American Indian or Alaska Native',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_AmerIndAlaskNat_Total.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Asian_Female')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Asian_Female",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Asian',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Asian, women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Asian_Female.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Asian_Male')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Asian_Male",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Asian',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Asian, men',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Asian_Male.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Asian_Total')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Asian_Total",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Asian',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(Unadj) Civilian Labor Force Level - Asian',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Asian_Total.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Black_Female')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Black_Female",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Black',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(Unadj) Civilian Labor Force Level - Black or African American Women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Black_Female.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Black_Male')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Black_Male",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Black',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(Unadj) Civilian Labor Force Level - Black or African American Men',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Black_Male.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Black_Total')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Black_Total",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Black',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(Unadj) Civilian Labor Force Level - Black or African American',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Black_Total.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          ClientLGTBQ,",
+						"          ElloreeLGTBQ,",
+						"          LoadDt",
+						"     )) ~> sink1"
 					]
 				}
 			},
