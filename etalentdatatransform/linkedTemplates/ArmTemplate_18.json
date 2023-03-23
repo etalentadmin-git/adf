@@ -13,13 +13,1691 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Req_Hist')]",
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_LGTBQ')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentLGBTQMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "LGBTQMapTbl"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentLGBTQMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientLGTBQ as string,",
+						"          ElloreeLGTBQ as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[LGTBQMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> LGBTQMapTbl",
+						"LGBTQMapTbl alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientLGTBQ as string,",
+						"          ElloreeLGTBQ as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_Location')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentLocationMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "LocationMapTbl"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentLocationMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientWorkOffice as string,",
+						"          ClientWorkCity as string,",
+						"          ClientWorkState as string,",
+						"          ClientWorkCountry as string,",
+						"          ClientStrategicLoc as string,",
+						"          ElloreeWorkOffice as string,",
+						"          ElloreeWorkCity as string,",
+						"          ElloreeWorkState as string,",
+						"          ElloreeWorkCountry as string,",
+						"          ElloreeWorkRegion as string,",
+						"          ElloreeStrategicLoc as string,",
+						"          ElloreeLocSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[LocationMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> LocationMapTbl",
+						"LocationMapTbl alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientWorkOffice as string,",
+						"          ClientWorkCity as string,",
+						"          ClientWorkState as string,",
+						"          ClientWorkCountry as string,",
+						"          ClientStrategicLoc as string,",
+						"          ElloreeWorkOffice as string,",
+						"          ElloreeWorkCity as string,",
+						"          ElloreeWorkState as string,",
+						"          ElloreeWorkCountry as string,",
+						"          ElloreeWorkRegion as string,",
+						"          ElloreeStrategicLoc as string,",
+						"          ElloreeLocSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_PerfRating')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentPerfRatingMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "PerfRatingMapTbl"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentPerfRatingMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientPerfRating as string,",
+						"          ElloreePerfRating as string,",
+						"          ElloreePerfRatingSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[PerfRatingMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> PerfRatingMapTbl",
+						"PerfRatingMapTbl alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientPerfRating as string,",
+						"          ElloreePerfRating as string,",
+						"          ElloreePerfRatingSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_ReqStatusMap')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentReqStatusMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "ReqStatusMapTbl"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentReqStatusMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientReqStatus as string,",
+						"          ElloreeReqStatus as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TAReqStatusMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> ReqStatusMapTbl",
+						"ReqStatusMapTbl alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientReqStatus as string,",
+						"          ElloreeReqStatus as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_ReqType')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentReqTypeMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "ReqTypeMapTbl"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentReqTypeMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientReqType as string,",
+						"          ElloreeReqType as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TAReqTypeMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> ReqTypeMapTbl",
+						"ReqTypeMapTbl alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientReqType as string,",
+						"          ElloreeReqType as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_Veteran')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentVeteranMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "VeteranMapTbl"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentVeteranMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientVeteran as string,",
+						"          ElloreeVeteran as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[VeteranMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> VeteranMapTbl",
+						"VeteranMapTbl alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientVeteran as string,",
+						"          ElloreeVeteran as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FullLoad_BLSTbl')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "BLS_AmerIndAlaskNat_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AmerIndAlaskNatFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_AmerIndAlaskNat_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AmerIndAlaskNatMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_AmerIndAlaskNat_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AmerIndAlaskNatTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "Female"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Latinx_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "LatinxFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Latinx_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "LatinxMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Latinx_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "LatinxTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "Male"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_NatHawPacIsl_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "NatHawPacIslFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_NatHawPacIsl_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "NatHawPacIslMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_NatHawPacIsl_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "NatHawPacIslTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "Total"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_TwoOrMore_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "TwoOrMoreFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_TwoOrMore_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "TwoOrMoreMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_TwoOrMore_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "TwoOrMoreTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Female_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianFemaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Female_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianFemaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Male_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianMaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Male_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianMaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Total_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianTotalHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Total_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianTotalNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Female_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackFemaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Female_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackFemaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Male_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackMaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Male_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackMaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Total_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackTotalHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Total_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackTotalNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Other_Female_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "OtherFemaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Other_Male_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "OtherMaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Other_Total_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "OtherTotalHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Female_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteFemaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Female_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteFemaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Male_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteMaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Male_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteMaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Total_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteTotalHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Total_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteTotalNonHisp"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentBLSTbl",
+								"type": "DatasetReference"
+							},
+							"name": "FullLoadBLSTable"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "union1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AmerIndAlaskNatFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AmerIndAlaskNatMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AmerIndAlaskNatTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Female",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> LatinxFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> LatinxMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> LatinxTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Male",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> NatHawPacIslFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> NatHawPacIslMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> NatHawPacIslTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Total",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TwoOrMoreFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TwoOrMoreMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TwoOrMoreTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianFemaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianFemaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianMaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianMaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianTotalHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianTotalNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackFemaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackFemaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackMaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackMaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackTotalHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackTotalNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> OtherFemaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> OtherMaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> OtherTotalHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteFemaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteFemaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteMaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteMaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteTotalHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteTotalNonHisp",
+						"union1 derive(LastRefreshDt = currentTimestamp()) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          LastRefreshDt,",
+						"          Source,",
+						"          SourceId,",
+						"          SourceDesc = Desc,",
+						"          Year,",
+						"          Quarter,",
+						"          Latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"AmerIndAlaskNatFemale, AmerIndAlaskNatMale, AmerIndAlaskNatTotal, AsianFemale, AsianMale, AsianTotal, BlackFemale, BlackMale, BlackTotal, Female, LatinxFemale, LatinxMale, LatinxTotal, Male, NatHawPacIslFemale, NatHawPacIslMale, NatHawPacIslTotal, Total, TwoOrMoreFemale, TwoOrMoreMale, TwoOrMoreTotal, WhiteFemale, WhiteMale, WhiteTotal, AsianFemaleHisp, AsianFemaleNonHisp, AsianMaleHisp, AsianMaleNonHisp, AsianTotalHisp, AsianTotalNonHisp, BlackFemaleHisp, BlackFemaleNonHisp, BlackMaleHisp, BlackMaleNonHisp, BlackTotalHisp, BlackTotalNonHisp, OtherFemaleHisp, OtherMaleHisp, OtherTotalHisp, WhiteFemaleHisp, WhiteFemaleNonHisp, WhiteMaleHisp, WhiteMaleNonHisp, WhiteTotalHisp, WhiteTotalNonHisp union(byName: true)~> union1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          LastRefreshDt as date,",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          SourceDesc as string,",
+						"          Year as integer,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     truncate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> FullLoadBLSTable"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_ApplStatus')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Append_FactTbl_Req_Hist",
+						"name": "Append_FactTbl_ApplStatus",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DeleteAllHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_ApplStatus",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"ApplStatus": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendApplStatusFact": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DeleteAllHistory",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_All_Rec_FactTbl_ApplicantStatus",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_All_Rec_FactTbl_ApplicantStatus",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"ApplicantStatus": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Delete_History_No_All": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T20:14:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_ApplStatus_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_ApplStatus_Hist",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -32,7 +1710,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "Append_FactTbl_Req_Hist",
+								"referenceName": "Append_FactTbl_ApplStatus_Hist",
 								"type": "DataFlowReference",
 								"parameters": {
 									"Flow_Client_Id": {
@@ -49,8 +1727,8 @@
 									}
 								},
 								"datasetParameters": {
-									"Requisitions": {},
-									"AppendReqFact": {}
+									"ApplStatus": {},
+									"AppendApplStatusFact": {}
 								}
 							},
 							"staging": {},
@@ -86,13 +1764,13 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_SilverMedalist')]",
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Applicant')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Append_FactTbl_SilverMedalist",
+						"name": "Append_FactTbl_Applicant",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [
 							{
@@ -103,7 +1781,7 @@
 							}
 						],
 						"policy": {
-							"timeout": "0.12:00:00",
+							"timeout": "1.00:00:00",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false,
@@ -112,11 +1790,11 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "Append_FactTbl_SilverMedalist",
+								"referenceName": "Append_FactTbl_Applicant",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"SilverMedalist": {
+									"Applicant": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -134,7 +1812,7 @@
 											"type": "Expression"
 										}
 									},
-									"AppendSilverMedalistFAct": {}
+									"sink1": {}
 								}
 							},
 							"staging": {},
@@ -157,7 +1835,7 @@
 							},
 							"ifTrueActivities": [
 								{
-									"name": "Delete_All_Rec_FactTbl_SilverMedalist",
+									"name": "Delete_All_Rec_FactTbl_Applicant",
 									"type": "ExecuteDataFlow",
 									"dependsOn": [],
 									"policy": {
@@ -170,7 +1848,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"dataflow": {
-											"referenceName": "Delete_All_Rec_FactTbl_SilverMedalist",
+											"referenceName": "Delete_All_Rec_FactTbl_Applicant",
 											"type": "DataFlowReference",
 											"parameters": {
 												"Flow_Client_Id": {
@@ -183,7 +1861,7 @@
 												}
 											},
 											"datasetParameters": {
-												"SilverMedalistFactTbl": {},
+												"ApplicantFact": {},
 												"DeleteRecords": {}
 											}
 										},
@@ -217,6 +1895,881 @@
 						"type": "string"
 					},
 					"P_Delete_History_No_All": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T19:52:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Applicant_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_Applicant_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_Applicant_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Applicant": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Hist_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load From Prior Engagement"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:28Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_ClientInfo_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_Tbl_Client_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Tbl_Client_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"SourceCore": {},
+									"LoadClientInfo": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Hist_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load From Prior Engagement"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:28Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Core')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_Core",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DeleteQtrHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_Core",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Core": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendCoreFact": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DeleteAllHistory",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All_Qtr, 'All')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_All_Rec_FactTbl_Core",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_All_Rec_FactTbl_Core",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"Core": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "DeleteQtrHistory",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "DeleteAllHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All_Qtr, 'QTR')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_Qtr_Rec_FactTbl_Core",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_Qtr_Rec_FactTbl_Core",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												},
+												"Flow_Year": {
+													"value": "'@{pipeline().parameters.P_Folder_Year}'",
+													"type": "Expression"
+												},
+												"Flow_Quarter": {
+													"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"Core": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Delete_History_No_All_Qtr": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T19:52:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Core_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_Core_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_Core_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Core": {},
+									"AppendCoreFact": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Hist_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load From Prior Engagement"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:28Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_DivSlate')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_DivSlate",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DeleteAllHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_DivSlate",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"DivSlate": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendDivSlateFact": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DeleteAllHistory",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_All_Rec_FactTbl_DivSlate",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_All_Rec_FactTbl_DivSlate",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"DivSlateFactTbl": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Delete_History_No_All": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T20:19:39Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_DivSlate_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_DivSlate_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_DivSlate_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"DivSlate": {},
+									"AppendDivSlateFact": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Hist_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load From Prior Engagement"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:28Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_OtherCore')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_Other",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DeleteQtrHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_OtherCore",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Other": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendOtherFactTbl": {},
+									"OtherNullRecordOutput": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DeleteAllHistory",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All_Qtr, 'All')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_All_Rec_FactTbl_OtherCore",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_All_Rec_FactTbl_OtherCore",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"OtherCoreFactTbl": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "DeleteQtrHistory",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "DeleteAllHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All_Qtr, 'Qtr')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_Qtr_Rec_FactTbl_OtherCore",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_Qtr_Rec_FactTbl_OtherCore",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												},
+												"Flow_Year": {
+													"value": "'@{pipeline().parameters.P_Folder_Year}'",
+													"type": "Expression"
+												},
+												"Flow_Quarter": {
+													"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"OtherCoreFactTbl": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Delete_History_No_All_Qtr": {
 						"type": "string"
 					}
 				},
@@ -229,13 +2782,13 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_SilverMedalist_Hist')]",
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_OtherCore_Hist')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Append_FactTbl_SilverMedalist_Hist",
+						"name": "Append_FactTbl_OtherCore_Hist",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -248,7 +2801,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "Append_FactTbl_SilverMedalist_Hist",
+								"referenceName": "Append_FactTbl_OtherCore_Hist",
 								"type": "DataFlowReference",
 								"parameters": {
 									"Flow_Client_Id": {
@@ -265,8 +2818,8 @@
 									}
 								},
 								"datasetParameters": {
-									"SilverMedalist": {},
-									"AppendSilverMedalistFAct": {}
+									"Other": {},
+									"AppendOtherFactTbl": {}
 								}
 							},
 							"staging": {},
@@ -302,166 +2855,13 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Speedbumps')]",
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_PerfRatingHist')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Append_FactTbl_Speedbumps",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_FactTbl_Speedbumps",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"Speedbumps": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:44:11Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Speedbumps_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_FactTbl_Speedbumps_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_FactTbl_Speedbumps_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Speedbumps": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Fact Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_FactTbl_Talent",
+						"name": "Append_FactTbl_PerfRatingHist",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [
 							{
@@ -481,11 +2881,11 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "Append_FactTbl_Talent",
+								"referenceName": "Append_FactTbl_PerfRatingHist",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"Talent": {
+									"PerRatingHistory": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -526,7 +2926,7 @@
 							},
 							"ifTrueActivities": [
 								{
-									"name": "Delete_All_Rec_FactTbl_Talent",
+									"name": "Delete_All_Rec_FactTbl_PerfRatingHist",
 									"type": "ExecuteDataFlow",
 									"dependsOn": [],
 									"policy": {
@@ -539,7 +2939,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"dataflow": {
-											"referenceName": "Delete_All_Rec_FactTbl_Talent",
+											"referenceName": "Delete_All_Rec_FactTbl_PerfRatingHist",
 											"type": "DataFlowReference",
 											"parameters": {
 												"Flow_Client_Id": {
@@ -552,7 +2952,7 @@
 												}
 											},
 											"datasetParameters": {
-												"TalentFactTbl": {},
+												"PerfRatingHistFactTbl": {},
 												"DeleteRecords": {}
 											}
 										},
@@ -593,18 +2993,18 @@
 					"name": "Client/Database/Load Fact Tables"
 				},
 				"annotations": [],
-				"lastPublishTime": "2023-01-12T20:31:36Z"
+				"lastPublishTime": "2023-01-12T20:23:16Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent_Hist')]",
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_PerfRating_Hist')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Append_FactTbl_Talent_Hist",
+						"name": "Append_FactTbl_PerfRatingHist_Hist",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -617,7 +3017,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "Append_FactTbl_Talent_Hist",
+								"referenceName": "Append_FactTbl_PerfRatingHist_Hist",
 								"type": "DataFlowReference",
 								"parameters": {
 									"Flow_Client_Id": {
@@ -634,7 +3034,7 @@
 									}
 								},
 								"datasetParameters": {
-									"Talent": {},
+									"PerRatingHistory": {},
 									"AppendTalentMapping": {}
 								}
 							},
@@ -664,1008 +3064,6 @@
 				},
 				"folder": {
 					"name": "Client/Database/Load Fact Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_FactTbl_YearRef",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "Delete_All_Rec_FactTbl_YearRef",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_FactTbl_YearRef",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"YearRef": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"AppendYearRef": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "Delete_All_Rec_FactTbl_YearRef",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Delete_All_Rec_FactTbl_YearRef",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"YearRefTbl": {},
-									"DeleteRecords": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T20:31:36Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_FactTbl_YearRef_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_FactTbl_YearRef_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"YearRef": {},
-									"AppendYearRef": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Fact Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ApplicantFlow_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_ApplicantFlow_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_ApplicantFlow_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"ApplicantFlowMapping": {},
-									"AppendApplicantFlowMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_BusHierarchy_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_BusHierarchy_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_BusHierarchy_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"BusHierarchy": {},
-									"AppendBusHierarchyMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_CorpTitle_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_CorpTitle",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_CorpTitle_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"CorpTitle": {},
-									"AppendCorpTitleMappingToDB": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Disability_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_Disability_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_Disability_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Disability": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Ethnicity_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_Ethnicity_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_Ethnicity_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Ethnicity": {},
-									"AppendEthnicityMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Event_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_Event_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_Event_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Event": {},
-									"AppendEventMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Gender_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_Gender_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_Gender_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Gender": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_LGTBQ_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_LGBTQ_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_LGBTQ_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"LGTBQ": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Location_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_Location_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_Location_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Location": {},
-									"AppendLocationMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_PerformanceRating_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_PerformanceRating_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_PerformanceRating_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Performance": {},
-									"AppendPerformanceMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ReqStatus_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_ReqStatus_Hist",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_ReqStatus_Hist",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Hist_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"RequisitionStatus": {},
-									"AppendReqStatusMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-12T14:43:28Z"
