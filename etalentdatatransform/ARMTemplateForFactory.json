@@ -1736,6 +1736,285 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/4_Processing_Speedbumps_Baseline_Evergreen')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Load all fact tables to the database once audit files have been reviewed and any remediation action taken.",
+				"activities": [
+					{
+						"name": "Output_FactTbl_File_Speedbumps_Baseline",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Output_FactTbl_File_Speedbumps_BL_Evergreen",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Folder_Year": {
+									"value": "@pipeline().parameters.P_Folder_Year",
+									"type": "Expression"
+								},
+								"P_Folder_Quarter": {
+									"value": "@pipeline().parameters.P_Folder_Quarter",
+									"type": "Expression"
+								},
+								"P_BL_SB_Year": {
+									"value": "@pipeline().parameters.P_SB_Year",
+									"type": "Expression"
+								},
+								"P_BL_SB_Quarter": {
+									"value": "@pipeline().parameters.P_SB_Quarter",
+									"type": "Expression"
+								},
+								"P_SB1_MgrLvl": {
+									"value": "@pipeline().parameters.SB1_MgrLvl",
+									"type": "Expression"
+								},
+								"P_SB2_MgrTalent": {
+									"value": "@pipeline().parameters.SB2_MgrTalent",
+									"type": "Expression"
+								},
+								"P_SB3_MgrExp": {
+									"value": "@pipeline().parameters.SB3_MgrExp",
+									"type": "Expression"
+								},
+								"P_SB4_Promotion": {
+									"value": "@pipeline().parameters.SB4_Promotion",
+									"type": "Expression"
+								},
+								"P_SB5_Applied5": {
+									"value": "@pipeline().parameters.SB5_Applied5",
+									"type": "Expression"
+								},
+								"P_SB6_SilvMedal": {
+									"value": "@pipeline().parameters.SB6_SilvMedal",
+									"type": "Expression"
+								},
+								"P_SB7_Mgr3Plus": {
+									"value": "@pipeline().parameters.SB7_Mgr3Plus",
+									"type": "Expression"
+								},
+								"P_SB8_Placeholder": {
+									"value": "@pipeline().parameters.SB8_Placeholder",
+									"type": "Expression"
+								},
+								"P_SB9_Placeholder": {
+									"value": "@pipeline().parameters.SB9_Placeholder",
+									"type": "Expression"
+								},
+								"P_SB10_Placeholder": {
+									"value": "@pipeline().parameters.SB10_Placeholder",
+									"type": "Expression"
+								},
+								"P_SB11_Placeholder": {
+									"value": "@pipeline().parameters.SB11_Placeholder",
+									"type": "Expression"
+								},
+								"P_SB12_Placeholder": {
+									"value": "@pipeline().parameters.SB12_Placeholder",
+									"type": "Expression"
+								},
+								"P_SB13_Placeholder": {
+									"value": "@pipeline().parameters.SB13_Placeholder",
+									"type": "Expression"
+								},
+								"P_SB14_Placeholder": {
+									"value": "@pipeline().parameters.SB14_Placeholder",
+									"type": "Expression"
+								},
+								"P_SB15_Placeholder": {
+									"value": "@pipeline().parameters.SB15_Placeholder",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Speedbumps",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_Speedbumps",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Speedbumps",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Folder_Year": {
+									"value": "@pipeline().parameters.P_Folder_Year",
+									"type": "Expression"
+								},
+								"P_Folder_Quarter": {
+									"value": "@pipeline().parameters.P_Folder_Quarter",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_Speedbumps",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Output_FactTbl_File_Speedbumps_Baseline",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Qtr_Rec_FactTbl_Speedbumps_NEW",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_SB_Year": {
+									"value": "@pipeline().parameters.P_Folder_Year",
+									"type": "Expression"
+								},
+								"P_SB_Quarter": {
+									"value": "@pipeline().parameters.P_Folder_Quarter",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_SB_Year": {
+						"type": "string"
+					},
+					"P_SB_Quarter": {
+						"type": "string"
+					},
+					"SB1_MgrLvl": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB2_MgrTalent": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB3_MgrExp": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB4_Promotion": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB5_Applied5": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB6_SilvMedal": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB7_Mgr3Plus": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB8_Placeholder": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB9_Placeholder": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB10_Placeholder": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB11_Placeholder": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB12_Placeholder": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB13_Placeholder": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB14_Placeholder": {
+						"type": "string",
+						"defaultValue": "Y"
+					},
+					"SB15_Placeholder": {
+						"type": "string",
+						"defaultValue": "Y"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Custom Setup Routines"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:58:24Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/Output_FactTbl_File_Speedbumps_BL_Evergreen')]",
+				"[concat(variables('factoryId'), '/pipelines/Append_FactTbl_Speedbumps')]",
+				"[concat(variables('factoryId'), '/pipelines/Delete_Qtr_Rec_FactTbl_Speedbumps_NEW')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/4_Processing_Speedbumps_Quarter')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -25413,6 +25692,225 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/DF_FactTbl_Speedbumps_BL_wParam_Bamboo')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_Speedbumps_BL_Evergreen')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DF_FactTbl_Speedbumps_BL_wParam_Evergreen",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_FactTbl_Speedbumps_BL_wParam_Evergreen",
+								"type": "DataFlowReference",
+								"parameters": {
+									"SB_BL_Year": {
+										"value": "'@{pipeline().parameters.P_BL_SB_Year}'",
+										"type": "Expression"
+									},
+									"SB_BL_Quarter": {
+										"value": "'@{pipeline().parameters.P_BL_SB_Quarter}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"SB1_MgrLvl": {
+										"value": "'@{pipeline().parameters.P_SB1_MgrLvl}'",
+										"type": "Expression"
+									},
+									"SB2_MgrTalent": {
+										"value": "'@{pipeline().parameters.P_SB2_MgrTalent}'",
+										"type": "Expression"
+									},
+									"SB3_MgrExp": {
+										"value": "'@{pipeline().parameters.P_SB3_MgrExp}'",
+										"type": "Expression"
+									},
+									"SB4_Promotion": {
+										"value": "'@{pipeline().parameters.P_SB4_Promotion}'",
+										"type": "Expression"
+									},
+									"SB5_Applied5": {
+										"value": "'@{pipeline().parameters.P_SB5_Applied5}'",
+										"type": "Expression"
+									},
+									"SB6_SilvMedal": {
+										"value": "'@{pipeline().parameters.P_SB6_SilvMedal}'",
+										"type": "Expression"
+									},
+									"SB7_Mgr3Plus": {
+										"value": "'@{pipeline().parameters.P_SB7_Mgr3Plus}'",
+										"type": "Expression"
+									},
+									"SB8_Placeholder": {
+										"value": "'@{pipeline().parameters.P_SB8_Placeholder}'",
+										"type": "Expression"
+									},
+									"SB9_Placeholder": {
+										"value": "'@{pipeline().parameters.P_SB9_Placeholder}'",
+										"type": "Expression"
+									},
+									"SB10_Placeholder": {
+										"value": "'@{pipeline().parameters.P_SB10_Placeholder}'",
+										"type": "Expression"
+									},
+									"SB11_Placeholder": {
+										"value": "'@{pipeline().parameters.P_SB11_Placeholder}'",
+										"type": "Expression"
+									},
+									"SB12_Placeholder": {
+										"value": "'@{pipeline().parameters.P_SB12_Placeholder}'",
+										"type": "Expression"
+									},
+									"SB13_Placeholder": {
+										"value": "'@{pipeline().parameters.P_SB13_Placeholder}'",
+										"type": "Expression"
+									},
+									"SB14_Placeholder": {
+										"value": "'@{pipeline().parameters.P_SB14_Placeholder}'",
+										"type": "Expression"
+									},
+									"SB15_Placeholder": {
+										"value": "'@{pipeline().parameters.P_SB15_Placeholder}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"CoreFact": {},
+									"SilverMedalist": {},
+									"PerfRatingHistory": {},
+									"CoreYear": {},
+									"LevelMapForEmp": {},
+									"CorePromo": {},
+									"Applicant": {},
+									"AllCore": {},
+									"Talent": {},
+									"OtherCore": {},
+									"OutputSpeedbumpsFactTbl": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_BL_SB_Year": {
+						"type": "string"
+					},
+					"P_BL_SB_Quarter": {
+						"type": "string"
+					},
+					"P_SB1_MgrLvl": {
+						"type": "string"
+					},
+					"P_SB2_MgrTalent": {
+						"type": "string"
+					},
+					"P_SB3_MgrExp": {
+						"type": "string"
+					},
+					"P_SB4_Promotion": {
+						"type": "string"
+					},
+					"P_SB5_Applied5": {
+						"type": "string"
+					},
+					"P_SB6_SilvMedal": {
+						"type": "string"
+					},
+					"P_SB7_Mgr3Plus": {
+						"type": "string"
+					},
+					"P_SB8_Placeholder": {
+						"type": "string"
+					},
+					"P_SB9_Placeholder": {
+						"type": "string"
+					},
+					"P_SB10_Placeholder": {
+						"type": "string"
+					},
+					"P_SB11_Placeholder": {
+						"type": "string"
+					},
+					"P_SB12_Placeholder": {
+						"type": "string"
+					},
+					"P_SB13_Placeholder": {
+						"type": "string"
+					},
+					"P_SB14_Placeholder": {
+						"type": "string"
+					},
+					"P_SB15_Placeholder": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Create Fact Table Files/Create Custom Fact Table Files"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-11T23:59:37Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_FactTbl_Speedbumps_BL_wParam_Evergreen')]"
 			]
 		},
 		{
@@ -69150,6 +69648,13 @@
 								"type": "DatasetReference"
 							},
 							"name": "Talent"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "OtherCore"
 						}
 					],
 					"sinks": [
@@ -69335,6 +69840,81 @@
 						},
 						{
 							"name": "JoinTalentIdentifiers"
+						},
+						{
+							"name": "FilterEngagementSurveyeSat"
+						},
+						{
+							"name": "CalceSatSurveyAvg"
+						},
+						{
+							"name": "derivedSpeedBump8eSat"
+						},
+						{
+							"name": "SelectSpeedbump8"
+						},
+						{
+							"name": "FilterEngagementSurveySafeBelongMatter"
+						},
+						{
+							"name": "CalcBelongSurveyAvg"
+						},
+						{
+							"name": "derivedSpeedBump9Belong"
+						},
+						{
+							"name": "SelectSpeedbump9"
+						},
+						{
+							"name": "FilterEngagementSurveyGrowth"
+						},
+						{
+							"name": "CalcGrowthSurveyAvg"
+						},
+						{
+							"name": "derivedSpeedBump10Growth"
+						},
+						{
+							"name": "SelectSpeedbump10"
+						},
+						{
+							"name": "FilterEngagementSurveyMgrFBkConvo"
+						},
+						{
+							"name": "CalcMgrFBkConvoSurveyAvg"
+						},
+						{
+							"name": "derivedSpeedBump11MgrFBkConvo"
+						},
+						{
+							"name": "SelectSpeedbump11"
+						},
+						{
+							"name": "FilterEngagementSurveyPotential"
+						},
+						{
+							"name": "derivedSpeedBump12Potential"
+						},
+						{
+							"name": "SelectSpeedbump12"
+						},
+						{
+							"name": "joinSurveySpeedbump8"
+						},
+						{
+							"name": "joinSpeedbump9"
+						},
+						{
+							"name": "joinSpeedbump10"
+						},
+						{
+							"name": "joinSpeedbump11"
+						},
+						{
+							"name": "joinSpeedbump12"
+						},
+						{
+							"name": "CleanupJoinFields"
 						}
 					],
 					"scriptLines": [
@@ -69718,6 +70298,31 @@
 						"     isolationLevel: 'READ_UNCOMMITTED',",
 						"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventYear = '{$SB_BL_Year}'\"),",
 						"     format: 'query') ~> Talent",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          EventDesc as string,",
+						"          EventType as string,",
+						"          OtherCharVal11 as string,",
+						"          OtherCharVal2 as string,",
+						"          OtherNumVal1 as double,",
+						"          OtherNumVal2 as double,",
+						"          OtherDtVal1 as date,",
+						"          OtherDtVal2 as date,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventYear <= '{$SB_BL_Year}'\"),",
+						"     format: 'query') ~> OtherCore",
 						"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 						"     && EventYear == {Emp Perf Rating Event Year},",
 						"     joinType:'inner',",
@@ -69847,13 +70452,7 @@
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> JoinP1Promo",
-						"Join3YrWorkerMgrCount derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y',\r",
-						"iif(TalentIdentifier1=='Group 1 (O-3)','Y',\r",
-						"iif(TalentIdentifier1=='Group 2 (O-2)','Y',\r",
-						"iif(TalentIdentifier1=='Group 3 (O-1)','Y',\r",
-						"iif(TalentIdentifier1=='Group 4 (E-3)','Y',\r",
-						"iif(TalentIdentifier1=='Group 5 (E-2)','Y',\r",
-						"iif(TalentIdentifier1=='Group 6 (E-1)','Y','N'))))))),",
+						"CleanupJoinFields derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y','N'),",
 						"          {Speedbump Worker Status} = 'Active',",
 						"          {Speedbump 1 Name} = 'Mgr Level',",
 						"          {Speedbump 1 Desc} = 'Assigned to a manager at their same level (non Exec)',",
@@ -69866,7 +70465,7 @@
 						"          {Speedbump 3 Flag} = iif($SB3_MgrExp=='Y',iif(isNull({Mgr Worker ID}),'N',iif({Years of Service}>={Mgr Years of Service},'Y','N')),'N'),",
 						"          {Speedbump 4 Name} = 'Promotion History',",
 						"          {Speedbump 4 Desc} = 'Have not been promoted (normally this is in the last 3 years to coincide with the promo data we are provided)',",
-						"          {Speedbump 4 Flag} = iif($SB4_Promotion=='Y',iif({Elloree Corporate Title Sort}==1, 'N',iif({Curr Promo}=='Y','N',iif({P1 Promo}=='Y','N',iif({P2 Promo}=='Y','N',iif(isNull(CoreLastPromoDt),'Y',iif(year(CoreLastPromoDt)>=toInteger($SB_BL_Year)-2,'N','Y')))))),'N'),",
+						"          {Speedbump 4 Flag} = iif($SB4_Promotion=='Y',iif({Years of Service}>=5,iif({Elloree Corporate Title Sort}==1, 'N',iif({Curr Promo}=='Y','N',iif({P1 Promo}=='Y','N',iif({P2 Promo}=='Y','N',iif(isNull(CoreLastPromoDt),'Y',iif(year(CoreLastPromoDt)>=toInteger($SB_BL_Year)-2,'N','Y')))))),'N'),'N'),",
 						"          {Speedbump 5 Name} = 'Applied Roles',",
 						"          {Speedbump 5 Desc} = 'Employee applied for 5 or more roles in the current year',",
 						"          {Speedbump 5 Flag} = iif($SB5_Applied5=='Y',iif({Applicant Five or More}=='Y','Y','N'),'N'),",
@@ -69876,21 +70475,21 @@
 						"          {Speedbump 7 Name} = '3+ Managers',",
 						"          {Speedbump 7 Desc} = 'Employee has had 3 or more managers in the past 3 years',",
 						"          {Speedbump 7 Flag} = iif($SB7_Mgr3Plus=='Y',iif(ManagerCount>=3,'Y','N'),'N'),",
-						"          {Speedbump 8 Name} = 'Individual Contributors',",
-						"          {Speedbump 8 Desc} = 'Individual contributors, with no management accountability (for senior talent)',",
-						"          {Speedbump 8 Flag} = iif($SB8_Placeholder=='Y',iif({Elloree Corporate Title Sort}<=2,iif(ManagerInd=='N','Y','N'),'N'),'N'),",
-						"          {Speedbump 9 Name} = 'Loss Risk',",
-						"          {Speedbump 9 Desc} = 'Risk of Loss is High',",
-						"          {Speedbump 9 Flag} = iif($SB9_Placeholder=='Y',iif(TalentIdentifier2=='High','Y','N'),'N'),",
-						"          {Speedbump 10 Name} = 'Loss Impact',",
-						"          {Speedbump 10 Desc} = 'Impact of Loss is High',",
-						"          {Speedbump 10 Flag} = iif($SB10_Placeholder=='Y',iif(TalentIdentifier3=='High','Y','N'),'N'),",
-						"          {Speedbump 11 Name} = 'Speedbump 11',",
-						"          {Speedbump 11 Desc} = 'N/A',",
-						"          {Speedbump 11 Flag} = 'N/A',",
-						"          {Speedbump 12 Name} = 'Speedbump 12',",
-						"          {Speedbump 12 Desc} = 'N/A',",
-						"          {Speedbump 12 Flag} = 'N/A',",
+						"          {Speedbump 8 Name} = 'Engagement Survery - Employee Satisfaction',",
+						"          {Speedbump 8 Desc} = 'Employees with an average score below 82.8 when asked about satisfaction with working at the company',",
+						"          {Speedbump 8 Flag} = iif($SB8_Placeholder=='Y',iif(not(isNull(eSatSpeedbump8)),eSatSpeedbump8,'N'),'N'),",
+						"          {Speedbump 9 Name} = 'Engagement Survey - Belonging',",
+						"          {Speedbump 9 Desc} = 'Employees with an average score below 84.7 when asked about being themselves and belomging at the company',",
+						"          {Speedbump 9 Flag} = iif($SB9_Placeholder=='Y',iif(not(isNull(BelongSpeedbump9)),BelongSpeedbump9,'N'),'N'),",
+						"          {Speedbump 10 Name} = 'Engagement Survey - Growth',",
+						"          {Speedbump 10 Desc} = 'Employees with an average score below 81.2 when asked about opportunities to learn and develop their skillset at the company',",
+						"          {Speedbump 10 Flag} = iif($SB10_Placeholder=='Y',iif(not(isNull(GrowthSpeedbump10)),GrowthSpeedbump10,'N'),'N'),",
+						"          {Speedbump 11 Name} = 'Engagement Survey - Manager Support, Feedback and Quarterly Conversations',",
+						"          {Speedbump 11 Desc} = 'Employees with an average score below 82.5 when asked about their Manager prioritizing their wellbeing, providing feedback and having quarterly conversations about role effectiveness.',",
+						"          {Speedbump 11 Flag} = iif($SB11_Placeholder=='Y',iif(not(isNull(MgrFBkConvoSpeedbump11)),MgrFBkConvoSpeedbump11,'N'),'N'),",
+						"          {Speedbump 12 Name} = 'Performance Calibration - Potential',",
+						"          {Speedbump 12 Desc} = 'Perf Review - Final Calibrated Potential Value',",
+						"          {Speedbump 12 Flag} = iif($SB12_Placeholder=='Y',iif(not(isNull(PotentialSpeedbump12)),PotentialSpeedbump12,'N'),'N'),",
 						"          {Speedbump 13 Name} = 'Speedbump 13',",
 						"          {Speedbump 13 Desc} = 'N/A',",
 						"          {Speedbump 13 Flag} = 'N/A',",
@@ -70100,6 +70699,128 @@
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> JoinTalentIdentifiers",
+						"OtherCore filter(EventType=='Engagement Survey - eSat') ~> FilterEngagementSurveyeSat",
+						"FilterEngagementSurveyeSat aggregate(groupBy(WorkerId),",
+						"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
+						"          SumSurveryValues = sum(OtherNumVal1),",
+						"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalceSatSurveyAvg",
+						"CalceSatSurveyAvg derive(eSatSpeedbump8 = iif(SurveryAvg<82.8, 'Y','N')) ~> derivedSpeedBump8eSat",
+						"derivedSpeedBump8eSat select(mapColumn(",
+						"          WorkerId,",
+						"          eSatSpeedbump8",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump8",
+						"OtherCore filter(EventType=='Engagement Survey - Safe_Belong_Matter' && EventDesc=='I can be myself and belong at Equinix.') ~> FilterEngagementSurveySafeBelongMatter",
+						"FilterEngagementSurveySafeBelongMatter aggregate(groupBy(WorkerId),",
+						"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
+						"          SumSurveyValues = sum(OtherNumVal1),",
+						"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcBelongSurveyAvg",
+						"CalcBelongSurveyAvg derive(BelongSpeedbump9 = iif(SurveryAvg<84.7, 'Y','N')) ~> derivedSpeedBump9Belong",
+						"derivedSpeedBump9Belong select(mapColumn(",
+						"          WorkerId,",
+						"          BelongSpeedbump9",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump9",
+						"OtherCore filter(EventType=='Engagement Survey - Growth_Devt') ~> FilterEngagementSurveyGrowth",
+						"FilterEngagementSurveyGrowth aggregate(groupBy(WorkerId),",
+						"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
+						"          SumSurveyValues = sum(OtherNumVal1),",
+						"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcGrowthSurveyAvg",
+						"CalcGrowthSurveyAvg derive(GrowthSpeedbump10 = iif(SurveryAvg<81.2, 'Y','N')) ~> derivedSpeedBump10Growth",
+						"derivedSpeedBump10Growth select(mapColumn(",
+						"          WorkerId,",
+						"          GrowthSpeedbump10",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump10",
+						"OtherCore filter(EventType=='Engagement Survey - Well_Being_Mgr' || EventType=='Engagement Survey - Feedback' || EventType=='Engagement Survey - Quarter_Convo') ~> FilterEngagementSurveyMgrFBkConvo",
+						"FilterEngagementSurveyMgrFBkConvo aggregate(groupBy(WorkerId),",
+						"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
+						"          SumSurveyValues = sum(OtherNumVal1),",
+						"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcMgrFBkConvoSurveyAvg",
+						"CalcMgrFBkConvoSurveyAvg derive(MgrFBkConvoSpeedbump11 = iif(SurveryAvg<82.5, 'Y','N')) ~> derivedSpeedBump11MgrFBkConvo",
+						"derivedSpeedBump11MgrFBkConvo select(mapColumn(",
+						"          WorkerId,",
+						"          MgrFBkConvoSpeedbump11",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump11",
+						"OtherCore filter(EventType=='Potential') ~> FilterEngagementSurveyPotential",
+						"FilterEngagementSurveyPotential derive(PotentialSpeedbump12 = iif(OtherCharVal11=='At Potential / Well Placed', 'Y','N')) ~> derivedSpeedBump12Potential",
+						"derivedSpeedBump12Potential select(mapColumn(",
+						"          WorkerId,",
+						"          PotentialSpeedbump12",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump12",
+						"Join3YrWorkerMgrCount, SelectSpeedbump8 join({Worker ID} == WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinSurveySpeedbump8",
+						"joinSurveySpeedbump8, SelectSpeedbump9 join({Worker ID} == SelectSpeedbump9@WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinSpeedbump9",
+						"joinSpeedbump9, SelectSpeedbump10 join({Worker ID} == SelectSpeedbump10@WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinSpeedbump10",
+						"joinSpeedbump10, SelectSpeedbump11 join({Worker ID} == SelectSpeedbump11@WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinSpeedbump11",
+						"joinSpeedbump11, SelectSpeedbump12 join({Worker ID} == SelectSpeedbump12@WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinSpeedbump12",
+						"joinSpeedbump12 select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Worker ID},",
+						"          ManagerInd,",
+						"          {Core Event Id},",
+						"          {Core Event Date},",
+						"          EventQuarter,",
+						"          {Event Year},",
+						"          {Years of Service},",
+						"          {Elloree Corporate Title},",
+						"          {Elloree Corporate Title Sort},",
+						"          {Curr Talent Tag},",
+						"          {Direct Manager Worker ID},",
+						"          CoreLastPromoDt,",
+						"          {Curr Promo},",
+						"          {P2 Promo},",
+						"          {P1 Promo},",
+						"          {P3 Promo},",
+						"          {Silver Medalist Ind},",
+						"          {Applicant Five or More},",
+						"          TalentIdentifier1,",
+						"          TalentIdentifier2,",
+						"          TalentIdentifier3,",
+						"          TalentIdentifier4,",
+						"          TalentIdentifier5,",
+						"          {Mgr Worker ID},",
+						"          {Mgr Years of Service},",
+						"          {Mgr Elloree Corporate Title},",
+						"          {Mgr Elloree Corporate Title Sort},",
+						"          {Mgr Curr Talent Tag},",
+						"          WorkerIdForMgrCount,",
+						"          ManagerCount,",
+						"          eSatSpeedbump8,",
+						"          BelongSpeedbump9,",
+						"          GrowthSpeedbump10,",
+						"          MgrFBkConvoSpeedbump11,",
+						"          PotentialSpeedbump12",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
 						"FilterOnlySpeedbumpPop sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -70146,6 +70867,7 @@
 				"[concat(variables('factoryId'), '/datasets/etalentCorpTitleMapTbl')]",
 				"[concat(variables('factoryId'), '/datasets/etalentApplicantFactTbl')]",
 				"[concat(variables('factoryId'), '/datasets/etalentTalentFactTbl')]",
+				"[concat(variables('factoryId'), '/datasets/etalentOtherCoreFactTbl')]",
 				"[concat(variables('factoryId'), '/datasets/Source_FactTblFldr')]"
 			]
 		},
