@@ -275,7 +275,7 @@
 					"name": "SelectSpeedbump8"
 				},
 				{
-					"name": "FilterEngagementSurveySAfeBelongMatter"
+					"name": "FilterEngagementSurveySafeBelongMatter"
 				},
 				{
 					"name": "FilterbyEventDescBelong"
@@ -288,6 +288,18 @@
 				},
 				{
 					"name": "SelectSpeedbump9"
+				},
+				{
+					"name": "FilterEngagementSurveyGrowth"
+				},
+				{
+					"name": "CalcGrowthSurveyAvg"
+				},
+				{
+					"name": "derivedSpeedBump10Growth"
+				},
+				{
+					"name": "SelectSpeedbump10"
 				}
 			],
 			"scriptLines": [
@@ -1090,8 +1102,8 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump8",
-				"OtherCore filter(EventType=='Engagement Survey - Safe_Belong_Matter' ) ~> FilterEngagementSurveySAfeBelongMatter",
-				"FilterEngagementSurveySAfeBelongMatter filter(EventDesc=='I can be myself and belong at Equinix.') ~> FilterbyEventDescBelong",
+				"OtherCore filter(EventType=='Engagement Survey - Safe_Belong_Matter' ) ~> FilterEngagementSurveySafeBelongMatter",
+				"FilterEngagementSurveySafeBelongMatter filter(EventDesc=='I can be myself and belong at Equinix.') ~> FilterbyEventDescBelong",
 				"FilterbyEventDescBelong aggregate(groupBy(WorkerId),",
 				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
 				"          SumSurveyValues = sum(OtherNumVal1),",
@@ -1103,6 +1115,18 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump9",
+				"OtherCore filter(EventType=='Engagement Survey - Growth_Devt') ~> FilterEngagementSurveyGrowth",
+				"FilterEngagementSurveyGrowth aggregate(groupBy(WorkerId),",
+				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
+				"          SumSurveyValues = sum(OtherNumVal1),",
+				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcGrowthSurveyAvg",
+				"CalcGrowthSurveyAvg derive(GrowthSpeedbump10 = iif(SurveryAvg<81.2, 'Y','N')) ~> derivedSpeedBump10Growth",
+				"derivedSpeedBump10Growth select(mapColumn(",
+				"          WorkerId,",
+				"          GrowthSpeedbump10",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump10",
 				"FilterOnlySpeedbumpPop sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
