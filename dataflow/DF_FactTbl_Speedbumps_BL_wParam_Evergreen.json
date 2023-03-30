@@ -273,6 +273,21 @@
 				},
 				{
 					"name": "SelectSpeedbump8"
+				},
+				{
+					"name": "FilterEngagementSurveySAfeBelongMatter"
+				},
+				{
+					"name": "FilterbyEventDescBelong"
+				},
+				{
+					"name": "CalcBelongSurveyAvg"
+				},
+				{
+					"name": "derivedSpeedBump9Belong"
+				},
+				{
+					"name": "SelectSpeedbump9"
 				}
 			],
 			"scriptLines": [
@@ -1075,6 +1090,19 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump8",
+				"OtherCore filter(EventType=='Engagement Survey - Safe_Belong_Matter' ) ~> FilterEngagementSurveySAfeBelongMatter",
+				"FilterEngagementSurveySAfeBelongMatter filter(EventDesc=='I can be myself and belong at Equinix.') ~> FilterbyEventDescBelong",
+				"FilterbyEventDescBelong aggregate(groupBy(WorkerId),",
+				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
+				"          SumSurveyValues = sum(OtherNumVal1),",
+				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcBelongSurveyAvg",
+				"CalcBelongSurveyAvg derive(BelongSpeedbump9 = iif(SurveryAvg<84.7, 'Y','N')) ~> derivedSpeedBump9Belong",
+				"derivedSpeedBump9Belong select(mapColumn(",
+				"          WorkerId,",
+				"          BelongSpeedbump9",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump9",
 				"FilterOnlySpeedbumpPop sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
