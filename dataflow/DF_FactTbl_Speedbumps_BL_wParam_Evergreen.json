@@ -261,6 +261,18 @@
 				},
 				{
 					"name": "JoinTalentIdentifiers"
+				},
+				{
+					"name": "FilterEngagementSurveyeSat"
+				},
+				{
+					"name": "CalceSatSurveyAvg"
+				},
+				{
+					"name": "derivedSpeedBump8eSat"
+				},
+				{
+					"name": "SelectSpeedbump8"
 				}
 			],
 			"scriptLines": [
@@ -1051,6 +1063,18 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinTalentIdentifiers",
+				"OtherCore filter(EventType=='Engagement Survey - eSat') ~> FilterEngagementSurveyeSat",
+				"FilterEngagementSurveyeSat aggregate(groupBy(WorkerId),",
+				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
+				"          SumSurveryValues = sum(OtherNumVal1),",
+				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalceSatSurveyAvg",
+				"CalceSatSurveyAvg derive(eSatSpeedbump8 = iif(SurveryAvg<82.8, 'Y','N')) ~> derivedSpeedBump8eSat",
+				"derivedSpeedBump8eSat select(mapColumn(",
+				"          WorkerId,",
+				"          eSatSpeedbump8",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump8",
 				"FilterOnlySpeedbumpPop sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
