@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'RestService1'"
 		},
+		"RestServiceUSCensusTest_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'RestServiceUSCensusTest'"
+		},
 		"etalentdb_connection_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'etalentdb_connection'"
@@ -24,6 +28,14 @@
 			"defaultValue": "@{linkedService().SeriesId}"
 		},
 		"RestService1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "scott.prince@elloreetalent.com"
+		},
+		"RestServiceUSCensusTest_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api.census.gov/data/2019/acs/acs1/subject?get=NAME,S0101_C01_001E"
+		},
+		"RestServiceUSCensusTest_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "scott.prince@elloreetalent.com"
 		},
@@ -69,6 +81,26 @@
 					"password": {
 						"type": "SecureString",
 						"value": "[parameters('RestService1_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestServiceUSCensusTest')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('RestServiceUSCensusTest_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('RestServiceUSCensusTest_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('RestServiceUSCensusTest_password')]"
 					}
 				}
 			},
@@ -1095,79 +1127,6 @@
 					"location": {
 						"type": "AzureBlobStorageLocation",
 						"fileName": "BLS_Black_Female_NonHisp.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Black_Female_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_Black_Female.csv",
 						"folderPath": "External Data/BLS",
 						"container": "processing"
 					},

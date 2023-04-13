@@ -13,6 +13,216 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/BLS_Male')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Json_BLS_Male",
+								"type": "DatasetReference"
+							},
+							"name": "BLSJsonSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_BLS_Output",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flatten3"
+						},
+						{
+							"name": "flatten4"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          status as string,",
+						"          responseTime as integer,",
+						"          message as string[],",
+						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
+						"BLSJsonSource foldDown(unroll(Results.series),",
+						"     mapColumn(",
+						"          status,",
+						"          responseTime,",
+						"          message,",
+						"          seriesID = Results.series.seriesID,",
+						"          data = Results.series.data",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten3",
+						"flatten3 foldDown(unroll(data),",
+						"     mapColumn(",
+						"          seriesID,",
+						"          year = data.year,",
+						"          period = data.period,",
+						"          latest = data.latest,",
+						"          value = data.value",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten4",
+						"flatten4 derive(Race = 'All',",
+						"          Source = 'BLS',",
+						"          EthnicOrigin = 'All',",
+						"          Gender = 'Male',",
+						"          SeriesDesc = '(unadj) Civilian Labor Force Level - Men',",
+						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
+						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          Source,",
+						"          SourceId = seriesID,",
+						"          Desc = SeriesDesc,",
+						"          Year = year,",
+						"          Quarter,",
+						"          Latest = latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['BLS_Male.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLS_NatHawPacIsl_Female')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Json_BLS_NatHawPacIsl_Female",
+								"type": "DatasetReference"
+							},
+							"name": "BLSJsonSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_BLS_Output",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flatten3"
+						},
+						{
+							"name": "flatten4"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          status as string,",
+						"          responseTime as integer,",
+						"          message as string[],",
+						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
+						"BLSJsonSource foldDown(unroll(Results.series),",
+						"     mapColumn(",
+						"          status,",
+						"          responseTime,",
+						"          message,",
+						"          seriesID = Results.series.seriesID,",
+						"          data = Results.series.data",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten3",
+						"flatten3 foldDown(unroll(data),",
+						"     mapColumn(",
+						"          seriesID,",
+						"          year = data.year,",
+						"          period = data.period,",
+						"          latest = data.latest,",
+						"          value = data.value",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten4",
+						"flatten4 derive(Race = 'Native Hawaiian or Other Pacific Islander',",
+						"          Source = 'BLS',",
+						"          EthnicOrigin = 'All',",
+						"          Gender = 'Female',",
+						"          SeriesDesc = '(unadj) Civilian labor force, Women, Native Hawaiian or other Pacific Islander only',",
+						"          Quarter = 4,",
+						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          Source,",
+						"          SourceId = seriesID,",
+						"          Desc = SeriesDesc,",
+						"          Year = year,",
+						"          Quarter,",
+						"          Latest = latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['BLS_NatHawPacIsl_Female.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/BLS_NatHawPacIsl_Male')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1894,616 +2104,6 @@
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['BLS_White_Total_NonHisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_FactTbl_ApplStatus')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Create Fact Table Files"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_Applicant_File",
-								"type": "DatasetReference"
-							},
-							"name": "Applicant"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_Ethnicity",
-								"type": "DatasetReference"
-							},
-							"name": "EthnicityMap"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_Gender",
-								"type": "DatasetReference"
-							},
-							"name": "GenderMap"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_Applicant",
-								"type": "DatasetReference"
-							},
-							"name": "ApplicantMap"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTblFldr",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "select1"
-						},
-						{
-							"name": "JoinEthMap"
-						},
-						{
-							"name": "JoinGenderMap"
-						},
-						{
-							"name": "SelectEthnicity"
-						},
-						{
-							"name": "SelectGender"
-						},
-						{
-							"name": "JoinApplicantMap"
-						},
-						{
-							"name": "SelectApplicant"
-						},
-						{
-							"name": "SelectToRemoveJoinFields"
-						},
-						{
-							"name": "CalcApplicantStatus"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Engagement Type} as string,",
-						"          {Event Date} as string,",
-						"          EventMonth as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Year} as string,",
-						"          Event as string,",
-						"          {Requisition ID} as string,",
-						"          {Applicant ID} as string,",
-						"          Source as string,",
-						"          {Applicant Type} as string,",
-						"          {Internal Worker ID} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Applicant Final Disposition} as string,",
-						"          {Applicant Step Before Final Disposition} as string,",
-						"          {Applicant Rejected Reason} as string,",
-						"          {Applicant Other (1)} as string,",
-						"          {Applicant Other (2)} as string,",
-						"          {Applicant Other (3)} as string,",
-						"          {Applicant Other (4)} as string,",
-						"          {Applicant Other (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Applicant",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Race} as string,",
-						"          {Client Hispanic or Latino Origin} as string,",
-						"          {Elloree Race} as string,",
-						"          {Elloree Hispanic or Latino Origin} as string,",
-						"          {Suggested Elloree Race} as string,",
-						"          {Suggested Elloree Hispanic or Latino Origin} as string,",
-						"          {Suggested Source} as string,",
-						"          {2017 Headcount} as string,",
-						"          {2018 Headcount} as string,",
-						"          {2018 Hire} as string,",
-						"          {2018 Promo} as string,",
-						"          {2018 Term} as string,",
-						"          {2019 Headcount} as string,",
-						"          {2019 Hire} as string,",
-						"          {2019 Promo} as string,",
-						"          {2019 Term} as string,",
-						"          {2020 Headcount} as string,",
-						"          {2020 Hire} as string,",
-						"          {2020 Promo} as string,",
-						"          {2020 Term} as string,",
-						"          {2021 Headcount} as string,",
-						"          {2021 Hire} as string,",
-						"          {2021 Promo} as string,",
-						"          {2021 Term} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> EthnicityMap",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Gender} as string,",
-						"          {Elloree Gender} as string,",
-						"          {Suggested Elloree Gender} as string,",
-						"          {Suggested Source} as string,",
-						"          {2017 Headcount} as string,",
-						"          {2018 Headcount} as string,",
-						"          {2018 Hire} as string,",
-						"          {2018 Promo} as string,",
-						"          {2018 Term} as string,",
-						"          {2019 Headcount} as string,",
-						"          {2019 Hire} as string,",
-						"          {2019 Promo} as string,",
-						"          {2019 Term} as string,",
-						"          {2020 Headcount} as string,",
-						"          {2020 Hire} as string,",
-						"          {2020 Promo} as string,",
-						"          {2020 Term} as string,",
-						"          {2021 Headcount} as string,",
-						"          {2021 Hire} as string,",
-						"          {2021 Promo} as string,",
-						"          {2021 Term} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> GenderMap",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Applicant Final Disposition} as string,",
-						"          {Client Applicant Step Before Final Disposition} as string,",
-						"          {Client Applicant Rejected Reason} as string,",
-						"          {Elloree Applicant Final Disposition} as string,",
-						"          {Elloree Applicant Category} as string,",
-						"          {Elloree Submitted to Mgr Fl} as string,",
-						"          {Suggested Elloree Applicant Final Disposition} as string,",
-						"          {Suggested Elloree Applicant Category} as string,",
-						"          {Suggested Elloree Submitted to Mgr Fl} as string,",
-						"          {Suggested Source} as string,",
-						"          {2021 Job Applicant} as string,",
-						"          {2022 Job Applicant} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> ApplicantMap",
-						"Applicant select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Applicant ID},",
-						"          {Requisition ID},",
-						"          {Event Date},",
-						"          EventMonth,",
-						"          {Event Quarter},",
-						"          {Event Year},",
-						"          Event,",
-						"          {Applicant Type},",
-						"          Race,",
-						"          {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          {Applicant Final Disposition},",
-						"          {Applicant Step Before Final Disposition},",
-						"          {Applicant Rejected Reason}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1, SelectEthnicity join({Client ID} == {Ethnicity Client ID}",
-						"     && {Client Engagement Date} == {Ethnicity Client Engagement Date}",
-						"     && Race == {Ethnicity Client Race}",
-						"     && {Hispanic or Latino Origin} == {Ethnicity Client Hispanic or Latino Origin},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinEthMap",
-						"JoinEthMap, SelectGender join({Client ID} == {Gender Client ID}",
-						"     && {Client Engagement Date} == {Gender Client Engagement Date}",
-						"     && Gender == {Gender Client Gender},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinGenderMap",
-						"EthnicityMap select(mapColumn(",
-						"          {Ethnicity Client ID} = {Client ID},",
-						"          {Ethnicity Client Engagement Date} = {Client Engagement Date},",
-						"          {Ethnicity Client Race} = {Client Race},",
-						"          {Ethnicity Client Hispanic or Latino Origin} = {Client Hispanic or Latino Origin},",
-						"          {Ethnicity Elloree Race} = {Elloree Race},",
-						"          {Ethnicity Elloree Hispanic or Latino Origin} = {Elloree Hispanic or Latino Origin}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectEthnicity",
-						"GenderMap select(mapColumn(",
-						"          {Gender Client ID} = {Client ID},",
-						"          {Gender Client Engagement Date} = {Client Engagement Date},",
-						"          {Gender Client Gender} = {Client Gender},",
-						"          {Gender Elloree Gender} = {Elloree Gender}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectGender",
-						"JoinGenderMap, SelectApplicant join({Client ID} == {Applicant Client ID}",
-						"     && {Client Engagement Date} == {Applicant Client Engagement Date}",
-						"     && {Applicant Final Disposition} == {Applicant Client Applicant Final Disposition}",
-						"     && {Applicant Step Before Final Disposition} == {Applicant Client Applicant Step Before Final Disposition}",
-						"     && {Applicant Rejected Reason} == {Applicant Client Applicant Rejected Reason},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinApplicantMap",
-						"ApplicantMap select(mapColumn(",
-						"          {Applicant Client ID} = {Client ID},",
-						"          {Applicant Client Engagement Date} = {Client Engagement Date},",
-						"          {Applicant Client Applicant Final Disposition} = {Client Applicant Final Disposition},",
-						"          {Applicant Client Applicant Step Before Final Disposition} = {Client Applicant Step Before Final Disposition},",
-						"          {Applicant Client Applicant Rejected Reason} = {Client Applicant Rejected Reason},",
-						"          {Applicant Elloree Applicant Final Disposition} = {Elloree Applicant Final Disposition},",
-						"          {Applicant Elloree Applicant Category} = {Elloree Applicant Category},",
-						"          {Applicant Elloree Submitted to Mgr Fl} = {Elloree Submitted to Mgr Fl}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectApplicant",
-						"JoinApplicantMap select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Applicant ID},",
-						"          {Requisition ID},",
-						"          {Event Date},",
-						"          EventMonth,",
-						"          {Event Quarter},",
-						"          {Event Year},",
-						"          {Applicant Type},",
-						"          {Elloree Applicant Final Disposition} = {Applicant Elloree Applicant Final Disposition},",
-						"          {Elloree Applicant Category} = {Applicant Elloree Applicant Category},",
-						"          {Elloree Submitted to Mgr Fl} = {Applicant Elloree Submitted to Mgr Fl},",
-						"          {Elloree Race} = {Ethnicity Elloree Race},",
-						"          {Elloree Hispanic or Latino Origin} = {Ethnicity Elloree Hispanic or Latino Origin},",
-						"          {Elloree Gender} = {Gender Elloree Gender}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectToRemoveJoinFields",
-						"SelectToRemoveJoinFields derive(Applicant = 1,",
-						"          {White Appl} = iif({Elloree Race}=='White',1,0),",
-						"          {Black Appl} = iif({Elloree Race}=='Black',1,0),",
-						"          {Latinx Appl} = iif(or({Elloree Race}=='Latinx',{Elloree Hispanic or Latino Origin}=='Y'),1,0),",
-						"          {Asian Appl} = iif({Elloree Race}=='Asian',1,0),",
-						"          {Two or More Appl} = iif({Elloree Race}=='2+ Races',1,0),",
-						"          {Other Appl} = iif({Elloree Race}=='Other',1,0),",
-						"          {DNSID Appl} = iif(and({Elloree Race}=='Did Not Self Identify',or({Elloree Hispanic or Latino Origin}=='Did Not Self Identify',{Elloree Hispanic or Latino Origin}=='N')),1,0),",
-						"          {Female Appl} = iif({Elloree Gender}=='Female',1,0),",
-						"          {PoC Appl} = iif(or(or(or({Elloree Race}=='Black',{Elloree Race}=='Asian'),\r",
-						"or({Elloree Race}=='2+ Races',{Elloree Race}=='Other')),\r",
-						"or({Elloree Race}=='Latinx',{Elloree Hispanic or Latino Origin}=='Y')),1,0),",
-						"          {Male Appl} = iif({Elloree Gender}=='Male',1,0),",
-						"          {Other Gender Appl} = iif({Elloree Gender}=='Other',1,0),",
-						"          {DNSID Gender Appl} = iif({Elloree Gender}=='Did Not Self Identify',1,0),",
-						"          {Diverse Applicant} = iif(or(or(or(or({Elloree Race}=='Black',{Elloree Race}=='Asian'),\r",
-						"or({Elloree Race}=='2+ Races',{Elloree Race}=='Other')),\r",
-						"or({Elloree Race}=='Latinx',{Elloree Hispanic or Latino Origin}=='Y')),\r",
-						"{Elloree Gender}==\"Female\"),1,0),",
-						"          {Applicant Rejected by HR} = iif(and({Elloree Applicant Category}=='Applicant',{Elloree Applicant Final Disposition}=='Not Selected - HR'),1,0),",
-						"          {Applicant Withdrew} = iif(and({Elloree Applicant Category}=='Applicant',{Elloree Applicant Final Disposition}=='Withdrew'),1,0),",
-						"          Candidate = iif({Elloree Applicant Category}=='Candidate',1,0),",
-						"          {Candidate Rejected by HR} = iif(and({Elloree Applicant Category}=='Candidate',{Elloree Applicant Final Disposition}=='Not Selected - HR'),1,0),",
-						"          {Candidate StM} = iif(and({Elloree Applicant Category}=='Candidate',{Elloree Submitted to Mgr Fl}=='Y'),1,0),",
-						"          {Candidate Rejected by HM} = iif(and({Elloree Applicant Category}=='Candidate',{Elloree Applicant Final Disposition}=='Not Selected - HM'),1,0),",
-						"          {Candidate Interviewed} = iif(and({Elloree Applicant Category}=='Candidate',{Elloree Submitted to Mgr Fl}=='Y'),\r",
-						"iif(or({Elloree Applicant Final Disposition}=='Interviewed',{Elloree Applicant Final Disposition}=='Hired'),1,0),0),",
-						"          {Candidate Hired} = iif(and({Elloree Applicant Category}=='Candidate',{Elloree Submitted to Mgr Fl}=='Y'),\r",
-						"iif({Elloree Applicant Final Disposition}==\"Hired\",1,0),0),",
-						"          {Candidate Withdrew} = iif(and({Elloree Applicant Category}=='Candidate',{Elloree Submitted to Mgr Fl}=='Y'),\r",
-						"iif({Elloree Applicant Final Disposition}==\"Withdrew\",1,0),0)) ~> CalcApplicantStatus",
-						"CalcApplicantStatus sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          Column_1 as string,",
-						"          Column_2 as string,",
-						"          Column_3 as string,",
-						"          Column_4 as string,",
-						"          Column_5 as string,",
-						"          Column_6 as string,",
-						"          Column_7 as string,",
-						"          Column_8 as string,",
-						"          Column_9 as string,",
-						"          Column_10 as string,",
-						"          Column_11 as string,",
-						"          Column_12 as string,",
-						"          Column_13 as string,",
-						"          Column_14 as string,",
-						"          Column_15 as string,",
-						"          Column_16 as string,",
-						"          Column_17 as string,",
-						"          Column_18 as string,",
-						"          Column_19 as string,",
-						"          Column_20 as string,",
-						"          Column_21 as string,",
-						"          Column_22 as string,",
-						"          Column_23 as string,",
-						"          Column_24 as string,",
-						"          Column_25 as string,",
-						"          Column_26 as string,",
-						"          Column_27 as string,",
-						"          Column_28 as string",
-						"     ),",
-						"     partitionFileNames:['TAApplStatusFactTbl.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_FactTbl_Applicant_File')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Create Fact Table Files"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Template_JobApplicants",
-								"type": "DatasetReference"
-							},
-							"name": "Applicants"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTblFldr",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "FilterOutClientHeaderRowAndColumn"
-						},
-						{
-							"name": "SelectFinal"
-						},
-						{
-							"name": "AddDerived"
-						},
-						{
-							"name": "ConvertNullsForKeyFields"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "RemoveNullRecords"
-						},
-						{
-							"name": "aggregate1"
-						},
-						{
-							"name": "aggregate2"
-						},
-						{
-							"name": "derivedColumn2"
-						},
-						{
-							"name": "filter1"
-						},
-						{
-							"name": "NOTUSEDSelectApplicantIdWithMatchingInternalWorkerId"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Event Year} as short,",
-						"          {Event Quarter} as integer,",
-						"          {Event Date} as date,",
-						"          {Requisition ID} as string,",
-						"          {Applicant ID} as string,",
-						"          Source as string,",
-						"          {Applicant Type} as string,",
-						"          {Internal Worker ID} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Applicant Final Disposition} as string,",
-						"          {Applicant Step Before Final Disposition} as string,",
-						"          {Applicant Rejected Reason} as string,",
-						"          {Applicant Other (1)} as string,",
-						"          {Applicant Other (2)} as string,",
-						"          {Applicant Other (3)} as string,",
-						"          {Applicant Other (4)} as string,",
-						"          {Applicant Other (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Applicants",
-						"Applicants filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
-						"derivedColumn1 select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event Date},",
-						"          EventMonth,",
-						"          {Event Quarter},",
-						"          {Event Year},",
-						"          Event,",
-						"          {Requisition ID},",
-						"          {Applicant ID},",
-						"          Source,",
-						"          {Applicant Type},",
-						"          {Internal Worker ID},",
-						"          Race,",
-						"          {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          {Veteran Ind},",
-						"          LGTBQ,",
-						"          {Disability Ind},",
-						"          {Applicant Final Disposition},",
-						"          {Applicant Step Before Final Disposition},",
-						"          {Applicant Rejected Reason},",
-						"          {Applicant Other (1)},",
-						"          {Applicant Other (2)},",
-						"          {Applicant Other (3)},",
-						"          {Applicant Other (4)},",
-						"          {Applicant Other (5)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectFinal",
-						"RemoveNullRecords derive({Client ID} = $Flow_Client_Id,",
-						"          {Client Engagement Date} = $Flow_Client_Dt,",
-						"          Event = 'Job Applicant') ~> AddDerived",
-						"AddDerived derive(Event = iif(isNull(Event),'Job Applicant',Event),",
-						"          Source = iif(isNull(Source),'N/A',Source),",
-						"          {Applicant Type} = iif(isNull({Applicant Type}),'N/A',{Applicant Type}),",
-						"          Race = iif(isNull(Race),'N/A',Race),",
-						"          {Hispanic or Latino Origin} = iif(isNull({Hispanic or Latino Origin}),'N/A',{Hispanic or Latino Origin}),",
-						"          Gender = iif(isNull(Gender),'N/A',Gender),",
-						"          {Veteran Ind} = iif(isNull({Veteran Ind}),'N/A',{Veteran Ind}),",
-						"          LGTBQ = iif(isNull(LGTBQ),'N/A',LGTBQ),",
-						"          {Disability Ind} = iif(isNull({Disability Ind}),'N/A',{Disability Ind}),",
-						"          {Applicant Step Before Final Disposition} = iif(isNull({Applicant Step Before Final Disposition}),'N/A',{Applicant Step Before Final Disposition}),",
-						"          {Applicant Rejected Reason} = iif(isNull({Applicant Rejected Reason}),'N/A',{Applicant Rejected Reason})) ~> ConvertNullsForKeyFields",
-						"ConvertNullsForKeyFields derive(EventMonth = month({Event Date})) ~> derivedColumn1",
-						"FilterOutClientHeaderRowAndColumn filter(!(isNull({Applicant ID}))) ~> RemoveNullRecords",
-						"SelectFinal aggregate(groupBy({Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event Date},",
-						"          EventMonth,",
-						"          {Event Quarter},",
-						"          {Event Year},",
-						"          Event,",
-						"          {Requisition ID},",
-						"          {Applicant ID},",
-						"          Source,",
-						"          {Applicant Type},",
-						"          {Internal Worker ID},",
-						"          Race,",
-						"          {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          {Veteran Ind},",
-						"          LGTBQ,",
-						"          {Disability Ind},",
-						"          {Applicant Final Disposition},",
-						"          {Applicant Step Before Final Disposition},",
-						"          {Applicant Rejected Reason},",
-						"          {Applicant Other (1)},",
-						"          {Applicant Other (2)},",
-						"          {Applicant Other (3)},",
-						"          {Applicant Other (4)},",
-						"          {Applicant Other (5)}),",
-						"     RowCount = count({Applicant ID})) ~> aggregate1",
-						"aggregate1 aggregate(groupBy({Applicant ID},",
-						"          {Internal Worker ID}),",
-						"     RowCount = count({Requisition ID})) ~> aggregate2",
-						"aggregate2 derive(WorkerIDValue = iif(length(trim({Internal Worker ID}))>0, 'Y','N')) ~> derivedColumn2",
-						"derivedColumn2 filter(WorkerIDValue=='Y') ~> filter1",
-						"filter1 select(mapColumn(",
-						"          {Applicant ID},",
-						"          {Internal Worker ID for Match} = {Internal Worker ID}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> NOTUSEDSelectApplicantIdWithMatchingInternalWorkerId",
-						"aggregate1 select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event Date},",
-						"          EventMonth,",
-						"          {Event Quarter},",
-						"          {Event Year},",
-						"          Event,",
-						"          {Requisition ID},",
-						"          {Applicant ID},",
-						"          Source,",
-						"          {Applicant Type},",
-						"          {Internal Worker ID},",
-						"          Race,",
-						"          {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          {Veteran Ind},",
-						"          LGTBQ,",
-						"          {Disability Ind},",
-						"          {Applicant Final Disposition},",
-						"          {Applicant Step Before Final Disposition},",
-						"          {Applicant Rejected Reason},",
-						"          {Applicant Other (1)},",
-						"          {Applicant Other (2)},",
-						"          {Applicant Other (3)},",
-						"          {Applicant Other (4)},",
-						"          {Applicant Other (5)},",
-						"          RowCount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          Column_1 as string,",
-						"          Column_2 as string,",
-						"          Column_3 as string,",
-						"          Column_4 as string,",
-						"          Column_5 as string,",
-						"          Column_6 as string,",
-						"          Column_7 as string,",
-						"          Column_8 as string,",
-						"          Column_9 as string,",
-						"          Column_10 as string,",
-						"          Column_11 as string,",
-						"          Column_12 as string,",
-						"          Column_13 as string,",
-						"          Column_14 as string,",
-						"          Column_15 as string,",
-						"          Column_16 as string,",
-						"          Column_17 as string,",
-						"          Column_18 as string,",
-						"          Column_19 as string,",
-						"          Column_20 as string,",
-						"          Column_21 as string,",
-						"          Column_22 as string,",
-						"          Column_23 as string,",
-						"          Column_24 as string,",
-						"          Column_25 as string,",
-						"          Column_26 as string,",
-						"          Column_27 as string,",
-						"          Column_28 as string",
-						"     ),",
-						"     partitionFileNames:['ApplicantTbl.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink1"

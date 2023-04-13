@@ -13,6 +13,86 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_ReqType')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "reqtype_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2021 Job Requisition",
+						"type": "String"
+					},
+					{
+						"name": "2022 Job Requisition",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Veteran')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2023,6 +2103,32 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Source_USCensus_Site')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RestServiceUSCensusTest",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"SeriesId": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": "&for=metropolitan%20statistical%20area/micropolitan%20statistical%20area:*"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Test')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2289,219 +2395,6 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "TAApplStatusFactTbl"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentApplicantFactTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "connection to Applicant Fact table",
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Database"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ClientId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEngagementDt",
-						"type": "date"
-					},
-					{
-						"name": "ClientEngagementType",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EventDt",
-						"type": "date"
-					},
-					{
-						"name": "EventMonth",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "EventQuarter",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "EventYear",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Event",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EventId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ReqId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ApplicantId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Source",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ApplType",
-						"type": "nvarchar"
-					},
-					{
-						"name": "InternalWorkerId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Race",
-						"type": "nvarchar"
-					},
-					{
-						"name": "HispanicLatinoOrigin",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Gender",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Veteran",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LGTBQ",
-						"type": "nvarchar"
-					},
-					{
-						"name": "DisabilityInd",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ApplFinalDisp",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ApplStepBeforeFinalDisp",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ApplRejectedReason",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ApplOther1",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ApplOther2",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ApplOther3",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ApplOther4",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ApplOther5",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDt",
-						"type": "date"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "TAApplTbl"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentBLSTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "LastRefreshDt",
-						"type": "date"
-					},
-					{
-						"name": "Source",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SourceId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SourceDesc",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Year",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Quarter",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Latest",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Race",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Gender",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Headcount",
-						"type": "int",
-						"precision": 10
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "BLSTbl"
 				}
 			},
 			"dependsOn": []

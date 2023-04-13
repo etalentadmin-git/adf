@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'RestService1'"
 		},
+		"RestServiceUSCensusTest_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'RestServiceUSCensusTest'"
+		},
 		"etalentdb_connection_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'etalentdb_connection'"
@@ -24,6 +28,14 @@
 			"defaultValue": "@{linkedService().SeriesId}"
 		},
 		"RestService1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "scott.prince@elloreetalent.com"
+		},
+		"RestServiceUSCensusTest_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api.census.gov/data/2019/acs/acs1/subject?get=NAME,S0101_C01_001E"
+		},
+		"RestServiceUSCensusTest_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "scott.prince@elloreetalent.com"
 		},
@@ -46698,6 +46710,34 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Source_USCensus_Site')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RestServiceUSCensusTest",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"SeriesId": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": "&for=metropolitan%20statistical%20area/micropolitan%20statistical%20area:*"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/RestServiceUSCensusTest')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Test')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -49991,6 +50031,26 @@
 					"password": {
 						"type": "SecureString",
 						"value": "[parameters('RestService1_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestServiceUSCensusTest')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('RestServiceUSCensusTest_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('RestServiceUSCensusTest_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('RestServiceUSCensusTest_password')]"
 					}
 				}
 			},
@@ -70894,7 +70954,8 @@
 						"|| ({Elloree Corporate Title Sort}==5 && {Years of Service}<=3.6),1,0)+\r",
 						"iif({Speedbump 4 Flag}=='Y',1,0)+\r",
 						"iif({Speedbump 8 Flag}=='Y',1,0)+\r",
-						"iif({Speedbump 9 Flag}=='Y',1,0))>=3,'Y','N'),'N')) ~> SpecialCalcForFlightRisk",
+						"iif({Speedbump 9 Flag}=='Y',1,0)+\r",
+						"iif({Speedbump 13 Flag}=='Y',1,0))>=3,'Y','N'),'N')) ~> SpecialCalcForFlightRisk",
 						"select4 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",

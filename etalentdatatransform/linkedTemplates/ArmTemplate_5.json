@@ -13,6 +13,35 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Source_BLS_Output')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "External Data/BLS",
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Source_BLS_Site')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2174,122 +2203,6 @@
 					}
 				},
 				"schema": {}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_OtherCore_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"Source_Client_Fldr": {
-						"type": "string"
-					},
-					"Source_Client_Date": {
-						"type": "string"
-					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Template Prep/Fact Table"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "OthrCoreFlexTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Event Date",
-						"type": "String"
-					},
-					{
-						"name": "EventMonth",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Event ID",
-						"type": "String"
-					},
-					{
-						"name": "Event",
-						"type": "String"
-					},
-					{
-						"name": "Event (Type)",
-						"type": "String"
-					},
-					{
-						"name": "Event (Desc)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Char Value 1)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Char Value 2)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Num Value 1)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Num Value 2)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Date Value 1)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Date Value 2)",
-						"type": "String"
-					}
-				]
 			},
 			"dependsOn": []
 		}

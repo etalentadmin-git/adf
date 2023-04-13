@@ -13,6 +13,210 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Delete_All_Rec_FactTbl_ApplicantStatus')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables/All Records"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplStatusFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "ApplicantStatus"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplStatusFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ApplId as string,",
+						"          ReqId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Applicants as integer,",
+						"          WhiteAppl as integer,",
+						"          BlackAppl as integer,",
+						"          LatinxAppl as integer,",
+						"          AsianAppl as integer,",
+						"          TwoorMoreAppl as integer,",
+						"          OtherAppl as integer,",
+						"          DNSIDAppl as integer,",
+						"          PoCAppl as integer,",
+						"          FemaleAppl as integer,",
+						"          MaleAppl as integer,",
+						"          OtherGenderAppl as integer,",
+						"          DNSIDGenderAppl as integer,",
+						"          DiverseAppl as integer,",
+						"          ApplRejected as integer,",
+						"          ApplWithdrew as integer,",
+						"          Candidates as integer,",
+						"          CandRejectedHR as integer,",
+						"          CandStM as integer,",
+						"          CandRejectedHM as integer,",
+						"          CandInterviewed as integer,",
+						"          CandHired as integer,",
+						"          CandWithdrew as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TAApplStatusFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> ApplicantStatus",
+						"ApplicantStatus alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ApplId as string,",
+						"          ReqId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Applicants as integer,",
+						"          WhiteAppl as integer,",
+						"          BlackAppl as integer,",
+						"          LatinxAppl as integer,",
+						"          AsianAppl as integer,",
+						"          TwoorMoreAppl as integer,",
+						"          OtherAppl as integer,",
+						"          DNSIDAppl as integer,",
+						"          PoCAppl as integer,",
+						"          FemaleAppl as integer,",
+						"          MaleAppl as integer,",
+						"          OtherGenderAppl as integer,",
+						"          DNSIDGenderAppl as integer,",
+						"          DiverseAppl as integer,",
+						"          ApplRejected as integer,",
+						"          ApplWithdrew as integer,",
+						"          Candidates as integer,",
+						"          CandRejectedHR as integer,",
+						"          CandStM as integer,",
+						"          CandRejectedHM as integer,",
+						"          CandInterviewed as integer,",
+						"          CandHired as integer,",
+						"          CandWithdrew as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_All_Rec_FactTbl_Client')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables/All Records"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentClientTbl",
+								"type": "DatasetReference"
+							},
+							"name": "ClientTbl"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentClientTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientEngagementType as string,",
+						"          ClientSector as string,",
+						"          ClientDesc as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[ClientTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> ClientTbl",
+						"ClientTbl alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientEngagementType as string,",
+						"          ClientSector as string,",
+						"          ClientDesc as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Delete_All_Rec_FactTbl_Core')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -2432,164 +2636,6 @@
 						"          ElloreeRace as string,",
 						"          ElloreeHispanicLatinoOrigin as string,",
 						"          ElloreeEthnicGroup as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:true,",
-						"     insertable:false,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     keys:['ClientId','ClientEngagementDt'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_Event')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Delete Records/Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentEventMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "EventMapTbl"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentEventMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "DeleteRecords"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEvent as string,",
-						"          ClientEventType as string,",
-						"          ClientEventReason as string,",
-						"          ElloreeEvent as string,",
-						"          ElloreeEventType as string,",
-						"          ElloreeEventReason as string,",
-						"          ElloreeTermReason as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[EventMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-						"     format: 'query') ~> EventMapTbl",
-						"EventMapTbl alterRow(deleteIf(true())) ~> alterRow1",
-						"alterRow1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEvent as string,",
-						"          ClientEventType as string,",
-						"          ClientEventReason as string,",
-						"          ElloreeEvent as string,",
-						"          ElloreeEventType as string,",
-						"          ElloreeEventReason as string,",
-						"          ElloreeTermReason as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:true,",
-						"     insertable:false,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     keys:['ClientId','ClientEngagementDt'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_Gender')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Delete Records/Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentGenderMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "GenderMapTbl"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentGenderMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "DeleteRecords"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientGender as string,",
-						"          ElloreeGender as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[GenderMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-						"     format: 'query') ~> GenderMapTbl",
-						"GenderMapTbl alterRow(deleteIf(true())) ~> alterRow1",
-						"alterRow1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientGender as string,",
-						"          ElloreeGender as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:true,",
