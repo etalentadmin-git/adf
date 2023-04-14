@@ -359,7 +359,7 @@
 					"name": "FilterEngagementSurveyGoals"
 				},
 				{
-					"name": "SelectSurveyGoals"
+					"name": "SurveyGoalsCurr"
 				},
 				{
 					"name": "filter1"
@@ -437,13 +437,13 @@
 					"name": "filter2"
 				},
 				{
-					"name": "SurveyImpactReach"
+					"name": "SurveyGoalsImpactReach1P"
 				},
 				{
 					"name": "filter3"
 				},
 				{
-					"name": "SurveyImpactSeize"
+					"name": "SurveyGoalsSeizeOpp1P"
 				},
 				{
 					"name": "JoinSurveyGoalVal"
@@ -453,6 +453,21 @@
 				},
 				{
 					"name": "FilterSurveyGoalsSeize1P"
+				},
+				{
+					"name": "FilterSurveyGoalsSeize2P"
+				},
+				{
+					"name": "SurveyGoalsSeizeOpp2P"
+				},
+				{
+					"name": "FilterSurveyGoalsImpactReach1P"
+				},
+				{
+					"name": "FilterSurveyGoalsSeize2PVal"
+				},
+				{
+					"name": "SurveyGoalsImpactReach2P"
 				}
 			],
 			"scriptLines": [
@@ -1469,7 +1484,7 @@
 				"          {Goals Survey Val} = OtherCharVal11",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSurveyGoals",
+				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsCurr",
 				"OtherCore filter(EventType=='Values') ~> filter1",
 				"filter1 select(mapColumn(",
 				"          WorkerId,",
@@ -1479,7 +1494,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSurveyValues",
-				"Join3YrWorkerMgrCount, SelectSurveyGoals join({Worker ID} == WorkerId,",
+				"Join3YrWorkerMgrCount, SurveyGoalsCurr join({Worker ID} == WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1695,25 +1710,25 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectHCTCleanup",
 				"OtherCore filter(EventType=='Impact - Reach Qtrly Goals') ~> filter2",
-				"filter2 select(mapColumn(",
+				"FilterSurveyGoalsImpactReach1P select(mapColumn(",
 				"          WorkerId,",
-				"          {Goals - Impact Reach} = OtherCharVal11",
+				"          {Survey 1P Goals (Impact Reach) } = OtherCharVal11",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SurveyImpactReach",
+				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsImpactReach1P",
 				"OtherCore filter(EventType=='Impact - Seize Opportunities') ~> filter3",
 				"FilterSurveyGoalsSeize1P select(mapColumn(",
 				"          WorkerId,",
 				"          {Survey 1P Goals (Seize Opp) } = OtherCharVal11",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SurveyImpactSeize",
-				"SelectHCTCleanup, SelectSurveyGoals join(SelectHCTCleanup@WorkerId == SelectSurveyGoals@WorkerId,",
+				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsSeizeOpp1P",
+				"SelectHCTCleanup, SurveyGoalsCurr join(SelectHCTCleanup@WorkerId == SurveyGoalsCurr@WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinSurveyGoalVal",
-				"JoinSurveyGoalVal, SurveyImpactSeize join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"JoinSurveyGoalVal, SurveyGoalsSeizeOpp1P join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1723,6 +1738,33 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> FilterSurveyGoalsSeize1P",
+				"filter3, Select2PYear join(EventYear == Max2PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> FilterSurveyGoalsSeize2P",
+				"FilterSurveyGoalsSeize2P select(mapColumn(",
+				"          WorkerId,",
+				"          {Survey 2P Goals (Seize Opp) } = OtherCharVal11",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsSeizeOpp2P",
+				"filter2, Select1PYear join(EventYear == Max1PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> FilterSurveyGoalsImpactReach1P",
+				"filter2, Select2PYear join(EventYear == Max2PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> FilterSurveyGoalsSeize2PVal",
+				"FilterSurveyGoalsSeize2PVal select(mapColumn(",
+				"          WorkerId,",
+				"          {Survey 2P Goals (Impact Reach) } = OtherCharVal11",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsImpactReach2P",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
