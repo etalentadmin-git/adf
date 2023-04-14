@@ -142,25 +142,22 @@
 					"name": "SelectSpeedbump11"
 				},
 				{
-					"name": "FilterEngagementSurveyPotential"
+					"name": "FilterSurveyValuesCulture"
 				},
 				{
-					"name": "derivedSpeedBump12Potential"
+					"name": "SurveyValuesCulture1P"
 				},
 				{
-					"name": "SelectSpeedbump12"
-				},
-				{
-					"name": "FilterEngagementSurveyGoals"
+					"name": "FilterSurveyGoals"
 				},
 				{
 					"name": "SurveyGoalsCu"
 				},
 				{
-					"name": "filter1"
+					"name": "FilterValues"
 				},
 				{
-					"name": "SelectSurveyValues"
+					"name": "SurveyValuesCurr"
 				},
 				{
 					"name": "HCTCurrent"
@@ -259,13 +256,13 @@
 					"name": "FilterSurveyGoalsCurr"
 				},
 				{
-					"name": "join3"
-				},
-				{
-					"name": "select12"
+					"name": "FilterSurveyValuesCurr"
 				},
 				{
 					"name": "JoinTalentTag"
+				},
+				{
+					"name": "FilterSurveyValuesCulture1P"
 				}
 			],
 			"scriptLines": [
@@ -639,31 +636,27 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump11",
-				"OtherCore filter(EventType=='Potential') ~> FilterEngagementSurveyPotential",
-				"FilterEngagementSurveyPotential derive(PotentialSpeedbump12 = iif(OtherCharVal11=='At Potential / Well Placed', 'Y','N')) ~> derivedSpeedBump12Potential",
-				"derivedSpeedBump12Potential select(mapColumn(",
+				"OtherCore filter(EventType=='Values - Culture and Values') ~> FilterSurveyValuesCulture",
+				"FilterSurveyValuesCulture1P select(mapColumn(",
 				"          WorkerId,",
-				"          PotentialSpeedbump12,",
 				"          {Potential Survey Val} = OtherCharVal11",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump12",
-				"OtherCore filter(EventType=='Goals') ~> FilterEngagementSurveyGoals",
+				"     skipDuplicateMapOutputs: true) ~> SurveyValuesCulture1P",
+				"OtherCore filter(EventType=='Goals') ~> FilterSurveyGoals",
 				"FilterSurveyGoalsCurr select(mapColumn(",
 				"          WorkerId,",
 				"          {Survey Curr Goals} = OtherCharVal11",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsCu",
-				"OtherCore filter(EventType=='Values') ~> filter1",
-				"join3 select(mapColumn(",
+				"OtherCore filter(EventType=='Values') ~> FilterValues",
+				"FilterSurveyValuesCurr select(mapColumn(",
 				"          WorkerId,",
-				"          EventDesc,",
-				"          EventType,",
-				"          {Values Survey Val} = OtherCharVal11",
+				"          {Survey Curr Values} = OtherCharVal11",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSurveyValues",
+				"     skipDuplicateMapOutputs: true) ~> SurveyValuesCurr",
 				"SelectAllCore, SelectCurrYear join(EventYear == MaxCurrYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
@@ -914,46 +907,27 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsImpactReach2P",
-				"FilterEngagementSurveyGoals, SelectCurrYear join(EventYear == MaxCurrYear,",
+				"FilterSurveyGoals, SelectCurrYear join(EventYear == MaxCurrYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> FilterSurveyGoalsCurr",
-				"filter1, SelectCurrYear join(EventYear == MaxCurrYear,",
+				"FilterValues, SelectCurrYear join(EventYear == MaxCurrYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join3",
-				"join3 select(mapColumn(",
-				"          ClientId,",
-				"          ClientEngagementDt,",
-				"          WorkerId,",
-				"          EventDt,",
-				"          EventMonth,",
-				"          EventQuarter,",
-				"          EventYear,",
-				"          Event,",
-				"          EventId,",
-				"          EventDesc,",
-				"          EventType,",
-				"          OtherCharVal11,",
-				"          OtherCharVal2,",
-				"          OtherNumVal1,",
-				"          OtherNumVal2,",
-				"          OtherDtVal1,",
-				"          OtherDtVal2,",
-				"          LoadDt,",
-				"          {Client ID},",
-				"          MaxCurrYear",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select12",
+				"     broadcast: 'auto')~> FilterSurveyValuesCurr",
 				"JoinElloreeGender, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> JoinTalentTag"
+				"     broadcast: 'auto')~> JoinTalentTag",
+				"FilterSurveyValuesCulture, Select1PYear join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> FilterSurveyValuesCulture1P"
 			]
 		}
 	}
