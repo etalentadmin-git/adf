@@ -16,13 +16,6 @@
 				},
 				{
 					"dataset": {
-						"referenceName": "etalentSilverMedalistFactTbl",
-						"type": "DatasetReference"
-					},
-					"name": "SilverMedalist"
-				},
-				{
-					"dataset": {
 						"referenceName": "etalentPerfRatingHistFactTbl",
 						"type": "DatasetReference"
 					},
@@ -185,13 +178,7 @@
 					"name": "CalcSpeedBumps"
 				},
 				{
-					"name": "AggregateSilverMedalists"
-				},
-				{
 					"name": "JoinApplicant"
-				},
-				{
-					"name": "SelectSilverMedalists"
 				},
 				{
 					"name": "AggApplicantData"
@@ -207,9 +194,6 @@
 				},
 				{
 					"name": "select4"
-				},
-				{
-					"name": "DerivedApplIntWorkerID"
 				},
 				{
 					"name": "Select3PYear"
@@ -231,9 +215,6 @@
 				},
 				{
 					"name": "SelectApplColumns"
-				},
-				{
-					"name": "select7"
 				},
 				{
 					"name": "aggregate1"
@@ -477,6 +458,9 @@
 				},
 				{
 					"name": "select12"
+				},
+				{
+					"name": "JoinTalentTag"
 				}
 			],
 			"scriptLines": [
@@ -558,21 +542,6 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT' and EventYear = '{$SB_BL_Year}' and EventQuarter = '{$SB_BL_Quarter}'\"),",
 				"     format: 'query') ~> CoreFact",
-				"source(output(",
-				"          ClientId as string,",
-				"          ClientEngagementDt as date,",
-				"          EventYear as integer,",
-				"          ReqId as string,",
-				"          ApplId as string,",
-				"          IntWorkerId as string,",
-				"          SilverMedalistInd as string,",
-				"          LoadDt as date",
-				"     ),",
-				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select * from [dbo].[TASilverMedalistFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventYear = '{$SB_BL_Year}'\"),",
-				"     format: 'query') ~> SilverMedalist",
 				"source(output(",
 				"          ClientId as string,",
 				"          ClientEngagementDt as date,",
@@ -1000,7 +969,7 @@
 				"          {P2 Promo} = {P1 Promo},",
 				"          {P1 Promo} = {P2 Promo},",
 				"          {P3 Promo},",
-				"          {Silver Medalist Ind},",
+				"          {Silver Medalist Ind} = SilverMedalistInd,",
 				"          {Applicant Five or More},",
 				"          TalentIdentifier1,",
 				"          TalentIdentifier2,",
@@ -1157,23 +1126,18 @@
 				"          {Speedbump 15 Name} = 'Speedbump 15',",
 				"          {Speedbump 15 Desc} = 'N/A',",
 				"          {Speedbump 15 Flag} = 'N/A') ~> CalcSpeedBumps",
-				"DerivedApplIntWorkerID aggregate(groupBy({Applicant ID Calculated},",
-				"          {Event Year},",
-				"          {Silver Medalist Ind}),",
-				"     {Silver Medal Count} = count({Requisition ID})) ~> AggregateSilverMedalists",
-				"JoinP1Promo, SelectSilverMedalists join(WorkerId == {Applicant ID Calculated}",
-				"     && EventYear <= {Event Year},",
+				"JoinP1Promo join(WorkerId == {Applicant ID Calculated}",
+				"     && CoreFact@EventYear <= select7@EventYear,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'both')~> JoinApplicant",
-				"AggregateSilverMedalists filter({Silver Medalist Ind}=='Y') ~> SelectSilverMedalists",
 				"CalcApplicantId aggregate(groupBy({Applicant ID Calculated},",
 				"          {Event Year}),",
 				"     {Count Req} = count({Requisition ID})) ~> AggApplicantData",
 				"SelectApplColumns derive({Applicant ID Calculated} = iif(not(isNull({Internal Worker ID})),{Internal Worker ID},{Applicant ID})) ~> CalcApplicantId",
 				"JoinApplicant, Select5orMoreAppliedApplicant join(WorkerId == AggApplicantData@{Applicant ID Calculated}",
-				"     && EventYear == AggApplicantData@{Event Year},",
+				"     && CoreFact@EventYear == {Event Year},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1238,7 +1202,6 @@
 				"     ),",
 				"     skipDuplicateMapInputs: false,",
 				"     skipDuplicateMapOutputs: false) ~> select4",
-				"select7 derive({Applicant ID Calculated} = iif(not(isNull({Internal Worker ID})),{Internal Worker ID},{Applicant ID})) ~> DerivedApplIntWorkerID",
 				"RemoveYearNullRows aggregate(groupBy({Client ID}),",
 				"     Max3PYear = max({Event Year})-3) ~> Select3PYear",
 				"SelectPromoWorkerID, Select3PYear join({Event Year} == Max3PYear,",
@@ -1284,18 +1247,6 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectApplColumns",
-				"SilverMedalist select(mapColumn(",
-				"          ClientId,",
-				"          ClientEngagementDt,",
-				"          {Event Year} = EventYear,",
-				"          {Requisition ID} = ReqId,",
-				"          {Applicant ID} = ApplId,",
-				"          {Internal Worker ID} = IntWorkerId,",
-				"          {Silver Medalist Ind} = SilverMedalistInd,",
-				"          LoadDt",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select7",
 				"selectP3Promo aggregate(groupBy({P3 YR PRO Worker ID}),",
 				"     P3ProCount = count({P3 YR PRO Worker ID})) ~> aggregate1",
 				"selectP2Promo aggregate(groupBy({P2 YR PRO Worker ID}),",
@@ -1568,7 +1519,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinElloreeGender",
-				"JoinElloreeGender select(mapColumn(",
+				"JoinTalentTag select(mapColumn(",
 				"          ClientId = CoreForSupplement@ClientId,",
 				"          ClientEngagementDt = CoreForSupplement@ClientEngagementDt,",
 				"          WorkerId,",
@@ -1806,6 +1757,12 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select12",
+				"JoinElloreeGender, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
+				"     && EventYear == {Emp Perf Rating Event Year},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinTalentTag",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
