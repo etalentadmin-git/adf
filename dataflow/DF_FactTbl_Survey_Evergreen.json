@@ -83,6 +83,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "CoreForSupplement"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentEthnicityMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
 				}
 			],
 			"sinks": [
@@ -379,6 +386,12 @@
 				},
 				{
 					"name": "HCTin1P"
+				},
+				{
+					"name": "HCTin2P"
+				},
+				{
+					"name": "join3"
 				}
 			],
 			"scriptLines": [
@@ -844,6 +857,21 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT'\"),",
 				"     format: 'query') ~> CoreForSupplement",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientRace as string,",
+				"          ClientHispanicLatinoOrigin as string,",
+				"          ElloreeRace as string,",
+				"          ElloreeHispanicLatinoOrigin as string,",
+				"          ElloreeEthnicGroup as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventYear <= '{$SB_BL_Year}'\"),",
+				"     format: 'query') ~> source1",
 				"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
 				"     joinType:'inner',",
@@ -1409,7 +1437,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> HCT1P",
-				"CoreForSupplement, Select2PYear join(EventYear == Max2PYear,",
+				"join3, Select2PYear join(EventYear == Max2PYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1429,6 +1457,16 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> HCTin1P",
+				"HCTin1P, WorkerID2P join(WorkerId == {WorkerId 2P},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> HCTin2P",
+				"CoreForSupplement join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join3",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
