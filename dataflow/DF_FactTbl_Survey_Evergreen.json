@@ -471,6 +471,12 @@
 				},
 				{
 					"name": "FilterSurveyGoalsCurr"
+				},
+				{
+					"name": "join3"
+				},
+				{
+					"name": "select12"
 				}
 			],
 			"scriptLines": [
@@ -1487,7 +1493,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsCu",
 				"OtherCore filter(EventType=='Values') ~> filter1",
-				"filter1 select(mapColumn(",
+				"join3 select(mapColumn(",
 				"          WorkerId,",
 				"          EventDesc,",
 				"          EventType,",
@@ -1771,6 +1777,35 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> FilterSurveyGoalsCurr",
+				"filter1, SelectCurrYear join(EventYear == MaxCurrYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join3",
+				"join3 select(mapColumn(",
+				"          ClientId,",
+				"          ClientEngagementDt,",
+				"          WorkerId,",
+				"          EventDt,",
+				"          EventMonth,",
+				"          EventQuarter,",
+				"          EventYear,",
+				"          Event,",
+				"          EventId,",
+				"          EventDesc,",
+				"          EventType,",
+				"          OtherCharVal11,",
+				"          OtherCharVal2,",
+				"          OtherNumVal1,",
+				"          OtherNumVal2,",
+				"          OtherDtVal1,",
+				"          OtherDtVal2,",
+				"          LoadDt,",
+				"          {Client ID},",
+				"          MaxCurrYear",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select12",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
