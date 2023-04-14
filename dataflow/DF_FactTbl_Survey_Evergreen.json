@@ -468,6 +468,9 @@
 				},
 				{
 					"name": "SurveyGoalsImpactReach2P"
+				},
+				{
+					"name": "join3"
 				}
 			],
 			"scriptLines": [
@@ -1477,7 +1480,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
 				"OtherCore filter(EventType=='Goals') ~> FilterEngagementSurveyGoals",
-				"FilterEngagementSurveyGoals select(mapColumn(",
+				"join3 select(mapColumn(",
 				"          WorkerId,",
 				"          EventDesc,",
 				"          EventType,",
@@ -1765,6 +1768,11 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsImpactReach2P",
+				"FilterEngagementSurveyGoals, SelectCurrYear join(EventYear == MaxCurrYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join3",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
