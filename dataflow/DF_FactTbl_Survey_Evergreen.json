@@ -89,6 +89,13 @@
 						"referenceName": "etalentEthnicityMapTbl",
 						"type": "DatasetReference"
 					},
+					"name": "EthnicityMap"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentGenderMapTbl",
+						"type": "DatasetReference"
+					},
 					"name": "source1"
 				}
 			],
@@ -870,7 +877,19 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select * from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventYear <= '{$SB_BL_Year}'\"),",
+				"     query: (\"select * from [dbo].[EthnicityMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> EthnicityMap",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientGender as string,",
+				"          ElloreeGender as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[GenderMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> source1",
 				"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
