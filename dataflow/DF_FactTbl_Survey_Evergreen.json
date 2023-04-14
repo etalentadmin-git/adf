@@ -426,6 +426,9 @@
 				},
 				{
 					"name": "WorkerMgrCount"
+				},
+				{
+					"name": "JoinMgrCount"
 				}
 			],
 			"scriptLines": [
@@ -1605,6 +1608,11 @@
 				"     skipDuplicateMapOutputs: true) ~> SeleceWorkerMgrCombo",
 				"SeleceWorkerMgrCombo aggregate(groupBy(WorkerId),",
 				"     MgrCount = count(DirectMgrWorkerId)) ~> WorkerMgrCount",
+				"HCTin2P, WorkerMgrCount join(SelectAllCore@WorkerId == WorkerMgrCount@WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinMgrCount",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
