@@ -405,6 +405,27 @@
 				},
 				{
 					"name": "SelectAllCore"
+				},
+				{
+					"name": "HCTCurrMgr"
+				},
+				{
+					"name": "HCT1PMgr"
+				},
+				{
+					"name": "HCT2PMgr"
+				},
+				{
+					"name": "unionAllWorkerMgr"
+				},
+				{
+					"name": "GroupWorkerMgrCombo"
+				},
+				{
+					"name": "SeleceWorkerMgrCombo"
+				},
+				{
+					"name": "WorkerMgrCount"
 				}
 			],
 			"scriptLines": [
@@ -1554,6 +1575,36 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectAllCore",
+				"HCTCurrent select(mapColumn(",
+				"          WorkerId,",
+				"          DirectMgrWorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> HCTCurrMgr",
+				"HCT1P select(mapColumn(",
+				"          WorkerId,",
+				"          DirectMgrWorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> HCT1PMgr",
+				"HCT2P select(mapColumn(",
+				"          WorkerId,",
+				"          DirectMgrWorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> HCT2PMgr",
+				"HCTCurrMgr, HCT1PMgr, HCT2PMgr union(byName: true)~> unionAllWorkerMgr",
+				"unionAllWorkerMgr aggregate(groupBy(WorkerId,",
+				"          DirectMgrWorkerId),",
+				"     RowCount = count(DirectMgrWorkerId)) ~> GroupWorkerMgrCombo",
+				"GroupWorkerMgrCombo select(mapColumn(",
+				"          WorkerId,",
+				"          DirectMgrWorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleceWorkerMgrCombo",
+				"SeleceWorkerMgrCombo aggregate(groupBy(WorkerId),",
+				"     MgrCount = count(DirectMgrWorkerId)) ~> WorkerMgrCount",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
