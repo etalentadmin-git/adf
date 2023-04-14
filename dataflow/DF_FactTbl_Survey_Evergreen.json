@@ -361,6 +361,24 @@
 				},
 				{
 					"name": "SpecialCalcForFlightRisk"
+				},
+				{
+					"name": "HCTCurrent"
+				},
+				{
+					"name": "HCT1P"
+				},
+				{
+					"name": "HCT2P"
+				},
+				{
+					"name": "WorkerID1P"
+				},
+				{
+					"name": "WorkerID2P"
+				},
+				{
+					"name": "HCTin1P"
 				}
 			],
 			"scriptLines": [
@@ -1381,6 +1399,36 @@
 				"iif({Speedbump 8 Flag}=='Y',1,0)+\r",
 				"iif({Speedbump 9 Flag}=='Y',1,0)+\r",
 				"iif({Speedbump 13 Flag}=='Y',1,0))>=3,'Y','N'),'N')) ~> SpecialCalcForFlightRisk",
+				"CoreForSupplement, SelectCurrYear join(EventYear == MaxCurrYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> HCTCurrent",
+				"CoreForSupplement, Select1PYear join(EventYear == Max1PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> HCT1P",
+				"CoreForSupplement, Select2PYear join(EventYear == Max2PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> HCT2P",
+				"HCT1P select(mapColumn(",
+				"          {WorkerId 1P} = WorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> WorkerID1P",
+				"HCT2P select(mapColumn(",
+				"          {WorkerId 2P} = WorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> WorkerID2P",
+				"HCTCurrent, WorkerID1P join(WorkerId == {WorkerId 1P},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> HCTin1P",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
