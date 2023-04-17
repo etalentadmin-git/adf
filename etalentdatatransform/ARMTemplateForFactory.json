@@ -50938,6 +50938,9 @@
 						},
 						{
 							"name": "derivedColumn1"
+						},
+						{
+							"name": "PROTOBEREMOVED"
 						}
 					],
 					"scriptLines": [
@@ -51042,8 +51045,9 @@
 						"     deleteIf(isNull({Generation Desc})),",
 						"     deleteIf(isNull({Generation Sort ID})),",
 						"     deleteIf(isNull(EmpCount))) ~> alterRow1",
-						"Core filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullRows",
+						"PROTOBEREMOVED filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullRows",
 						"alterRow1 derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"Core filter({Event Code}=='PRO') ~> PROTOBEREMOVED",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
