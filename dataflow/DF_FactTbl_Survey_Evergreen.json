@@ -317,6 +317,9 @@
 				},
 				{
 					"name": "select7"
+				},
+				{
+					"name": "join1"
 				}
 			],
 			"scriptLines": [
@@ -942,7 +945,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectValuesWorksCollab1PYear",
-				"FilterValuesWorksCollab, Select2PYear join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"FilterValuesWorksCollab, Select2PYear join(EventYear == Max2PYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1000,7 +1003,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectPotentialLearnInnov2P",
-				"FilterPotentialLearningInnov, Select1PYear join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"FilterPotentialLearningInnov, Select1PYear join(EventYear == Max1PYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1076,7 +1079,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinPotentialLearnInnov2P",
-				"JoinPotentialLearnInnov2P select(mapColumn(",
+				"join1 select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
 				"          WorkerId = SelectHCTCleanup@WorkerId,",
@@ -1128,7 +1131,6 @@
 				"          BirthYear,",
 				"          Generation,",
 				"          GenerationSortId,",
-				"          EmpCount,",
 				"          ElloreeHispanicLatinoOrigin,",
 				"          {Goals Curr},",
 				"          {Goals 1P (Seize Opp) },",
@@ -1144,10 +1146,17 @@
 				"          {Potential 1P (G&P - Broader Responsibilities)},",
 				"          {Potential 2P (G&P - Broader Responsibilities)},",
 				"          {Potential 1P (G&P - Learning and Innovation)},",
-				"          {Potential 2P (G&P - Learning and Innovation)}",
+				"          {Potential 2P (G&P - Learning and Innovation)},",
+				"          {Emp Perf Rating Curr Talent Tag},",
+				"          EmpCount",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select7"
+				"     skipDuplicateMapOutputs: true) ~> select7",
+				"JoinPotentialLearnInnov2P, SelectEmpTalentTag join(SelectHCTCleanup@WorkerId == {Emp Perf Rating Worker ID},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1"
 			]
 		}
 	}
