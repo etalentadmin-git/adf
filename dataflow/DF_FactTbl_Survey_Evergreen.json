@@ -151,7 +151,7 @@
 					"name": "FilterSurveyGoals"
 				},
 				{
-					"name": "SurveyGoalsCu"
+					"name": "SurveyGoalsCurr"
 				},
 				{
 					"name": "FilterValues"
@@ -263,6 +263,12 @@
 				},
 				{
 					"name": "FilterSurveyValuesCulture1P"
+				},
+				{
+					"name": "FilterSurveyValuesCulture2P"
+				},
+				{
+					"name": "SurveyValuesCulture2P"
 				}
 			],
 			"scriptLines": [
@@ -649,7 +655,7 @@
 				"          {Survey Curr Goals} = OtherCharVal11",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsCu",
+				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsCurr",
 				"OtherCore filter(EventType=='Values') ~> FilterValues",
 				"FilterSurveyValuesCurr select(mapColumn(",
 				"          WorkerId,",
@@ -865,7 +871,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SurveyGoalsSeizeOpp1P",
-				"SelectHCTCleanup, SurveyGoalsCu join(SelectHCTCleanup@WorkerId == SurveyGoalsCu@WorkerId,",
+				"SelectHCTCleanup, SurveyGoalsCurr join(SelectHCTCleanup@WorkerId == SurveyGoalsCurr@WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -923,11 +929,22 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinTalentTag",
-				"FilterSurveyValuesCulture, Select1PYear join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"FilterSurveyValuesCulture, Select1PYear join(EventYear == Max1PYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> FilterSurveyValuesCulture1P"
+				"     broadcast: 'auto')~> FilterSurveyValuesCulture1P",
+				"FilterSurveyValuesCulture, Select2PYear join(EventYear == Max2PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> FilterSurveyValuesCulture2P",
+				"FilterSurveyValuesCulture2P select(mapColumn(",
+				"          WorkerId,",
+				"          {Survey 2P Values} = OtherCharVal11",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SurveyValuesCulture2P"
 			]
 		}
 	}
