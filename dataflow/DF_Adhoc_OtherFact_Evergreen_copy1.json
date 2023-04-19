@@ -12,21 +12,25 @@
 						"referenceName": "etalentOtherCoreFactTbl",
 						"type": "DatasetReference"
 					},
-					"name": "OtherCore"
+					"name": "T1OtherCore"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "T2OtherCore"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "T3OtherCore"
 				}
 			],
 			"sinks": [],
-			"transformations": [
-				{
-					"name": "FilterPotentialLearningInnov"
-				},
-				{
-					"name": "FilterPotentialLearnInnov1P"
-				},
-				{
-					"name": "SelectPotentialLearnInnov1P"
-				}
-			],
+			"transformations": [],
 			"scriptLines": [
 				"parameters{",
 				"     Flow_Client_Id as string,",
@@ -153,9 +157,7 @@
 				"     T40_Event_Qtr as string",
 				"}",
 				"source(output(",
-				"          WorkerId as string,",
-				"          T1_Year as integer,",
-				"          T1_Qtr as integer,",
+				"          T1_WorkerId as string,",
 				"          EventType as string,",
 				"          T1_CharVal1 as string,",
 				"          T1_CharVal2 as string,",
@@ -167,20 +169,38 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select WorkerId,EventYear as T1_Year,EventQuarter as T1_Qtr,EventType as EventType,OtherCharVal11 T1_CharVal1,OtherCharVal2 T1_CharVal2,OtherNumVal1 as T1_NumVal1,OtherNumVal2 as T1_NumVal2,OtherDtVal1 as T1_DtVal1,OtherDtVal2 as T1_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T1_Event_Type}' and EventYear = '{$T1_Event_Year}' and EventQuarter = '{$T1_Event_Qtr}'\"),",
-				"     format: 'query') ~> OtherCore",
-				"OtherCore filter(EventType=='G&P - Learning and Innovation') ~> FilterPotentialLearningInnov",
-				"FilterPotentialLearningInnov join(OtherCore@EventYear == Max1PYear,",
-				"     joinType:'inner',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> FilterPotentialLearnInnov1P",
-				"FilterPotentialLearnInnov1P select(mapColumn(",
-				"          WorkerId,",
-				"          {Potential 1P (G&P - Learning and Innovation)} = OtherCharVal11",
+				"     query: (\"select WorkerId as T1_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as EventType,OtherCharVal11 T1_CharVal1,OtherCharVal2 T1_CharVal2,OtherNumVal1 as T1_NumVal1,OtherNumVal2 as T1_NumVal2,OtherDtVal1 as T1_DtVal1,OtherDtVal2 as T1_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T1_Event_Type}' and EventYear = '{$T1_Event_Year}' and EventQuarter = '{$T1_Event_Qtr}'\"),",
+				"     format: 'query') ~> T1OtherCore",
+				"source(output(",
+				"          T2_WorkerId as string,",
+				"          EventType as string,",
+				"          T2_CharVal1 as string,",
+				"          T2_CharVal2 as string,",
+				"          T2_NumVal1 as double,",
+				"          T2_NumVal2 as double,",
+				"          T2_DtVal1 as date,",
+				"          T2_DtVal2 as date",
 				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectPotentialLearnInnov1P"
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select WorkerId as T2_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as EventType,OtherCharVal11 T2_CharVal1,OtherCharVal2 T2_CharVal2,OtherNumVal1 as T2_NumVal1,OtherNumVal2 as T2_NumVal2,OtherDtVal1 as T2_DtVal1,OtherDtVal2 as T2_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T2_Event_Type}' and EventYear = '{$T2_Event_Year}' and EventQuarter = '{$T2_Event_Qtr}'\"),",
+				"     format: 'query') ~> T2OtherCore",
+				"source(output(",
+				"          T3_WorkerId as string,",
+				"          EventType as string,",
+				"          T3_CharVal1 as string,",
+				"          T3_CharVal2 as string,",
+				"          T3_NumVal1 as double,",
+				"          T3_NumVal2 as double,",
+				"          T3_DtVal1 as date,",
+				"          T3_DtVal2 as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select WorkerId as T3_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as EventType,OtherCharVal11 T3_CharVal1,OtherCharVal2 T3_CharVal2,OtherNumVal1 as T3_NumVal1,OtherNumVal2 as T3_NumVal2,OtherDtVal1 as T3_DtVal1,OtherDtVal2 as T3_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T3_Event_Type}' and EventYear = '{$T3_Event_Year}' and EventQuarter = '{$T3_Event_Qtr}'\"),",
+				"     format: 'query') ~> T3OtherCore"
 			]
 		}
 	}
