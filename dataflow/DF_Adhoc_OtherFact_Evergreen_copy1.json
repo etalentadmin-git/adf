@@ -408,6 +408,12 @@
 				},
 				{
 					"name": "joinT14"
+				},
+				{
+					"name": "joinT15"
+				},
+				{
+					"name": "joinT16"
 				}
 			],
 			"scriptLines": [
@@ -791,25 +797,14 @@
 				"     query: (\"select WorkerId as T15_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T15_EventType,OtherCharVal11 T15_CharVal1,OtherCharVal2 T15_CharVal2,OtherNumVal1 as T15_NumVal1,OtherNumVal2 as T15_NumVal2,OtherDtVal1 as T15_DtVal1,OtherDtVal2 as T15_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T15_Event_Type}' and EventYear = '{$T15_Event_Year}' and EventQuarter = '{$T15_Event_Qtr}'\"),",
 				"     format: 'query') ~> T15OtherCore",
 				"source(output(",
-				"          ClientId as string,",
-				"          ClientEngagementDt as date,",
-				"          ClientEngagementType as string,",
-				"          WorkerId as string,",
-				"          EventDt as date,",
-				"          EventMonth as integer,",
-				"          EventQuarter as integer,",
-				"          EventYear as integer,",
-				"          Event as string,",
-				"          EventId as string,",
-				"          EventDesc as string,",
-				"          EventType as string,",
-				"          OtherCharVal11 as string,",
-				"          OtherCharVal2 as string,",
-				"          OtherNumVal1 as double,",
-				"          OtherNumVal2 as double,",
-				"          OtherDtVal1 as date,",
-				"          OtherDtVal2 as date,",
-				"          LoadDt as date",
+				"          T16_WorkerId as string,",
+				"          T16_EventType as string,",
+				"          T16_CharVal1 as string,",
+				"          T16_CharVal2 as string,",
+				"          T16_NumVal1 as double,",
+				"          T16_NumVal2 as double,",
+				"          T16_DtVal1 as date,",
+				"          T16_DtVal2 as date",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
@@ -1402,10 +1397,20 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinT13",
 				"joinT13, T14OtherCore join(WorkerId == T14_WorkerId,",
-				"     joinType:'inner',",
+				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinT14"
+				"     broadcast: 'auto')~> joinT14",
+				"joinT14, T15OtherCore join(WorkerId == T15_WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT15",
+				"joinT15, T16OtherCore join(WorkerId == T16_WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT16"
 			]
 		}
 	}
