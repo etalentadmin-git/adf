@@ -40,13 +40,6 @@
 						"referenceName": "etalentOtherCoreFactTbl",
 						"type": "DatasetReference"
 					},
-					"name": "OtherCoreTotalWorkerIds"
-				},
-				{
-					"dataset": {
-						"referenceName": "etalentOtherCoreFactTbl",
-						"type": "DatasetReference"
-					},
 					"name": "T5OtherCore"
 				},
 				{
@@ -363,6 +356,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "T50OtherCore"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "OtherCoreFullPop"
 				}
 			],
 			"sinks": [],
@@ -378,6 +378,9 @@
 				},
 				{
 					"name": "joinT4"
+				},
+				{
+					"name": "joinT5"
 				}
 			],
 			"scriptLines": [
@@ -595,16 +598,6 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select WorkerId as T4_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T4_EventType,OtherCharVal11 T4_CharVal1,OtherCharVal2 T4_CharVal2,OtherNumVal1 as T4_NumVal1,OtherNumVal2 as T4_NumVal2,OtherDtVal1 as T4_DtVal1,OtherDtVal2 as T4_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T4_Event_Type}' and EventYear = '{$T4_Event_Year}' and EventQuarter = '{$T4_Event_Qtr}'\"),",
 				"     format: 'query') ~> T4OtherCore",
-				"source(output(",
-				"          WorkerId as string,",
-				"          ClientId as string,",
-				"          ClientEngagementDt as date",
-				"     ),",
-				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select WorkerId,ClientId,ClientEngagementDt from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-				"     format: 'query') ~> OtherCoreTotalWorkerIds",
 				"source(output(",
 				"          T5_WorkerId as string,",
 				"          T5_EventType as string,",
@@ -1306,7 +1299,17 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select WorkerId as T50_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T50_EventType,OtherCharVal11 T50_CharVal1,OtherCharVal2 T50_CharVal2,OtherNumVal1 as T50_NumVal1,OtherNumVal2 as T50_NumVal2,OtherDtVal1 as T50_DtVal1,OtherDtVal2 as T50_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T50_Event_Type}' and EventYear = '{$T50_Event_Year}' and EventQuarter = '{$T50_Event_Qtr}'\"),",
 				"     format: 'query') ~> T50OtherCore",
-				"OtherCoreTotalWorkerIds, T1OtherCore join(WorkerId == T1_WorkerId,",
+				"source(output(",
+				"          WorkerId as string,",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select WorkerId,ClientId,ClientEngagementDt from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> OtherCoreFullPop",
+				"OtherCoreFullPop, T1OtherCore join(WorkerId == T1_WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1325,7 +1328,12 @@
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinT4"
+				"     broadcast: 'auto')~> joinT4",
+				"joinT4, T5OtherCore join(WorkerId == T5_WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT5"
 			]
 		}
 	}
