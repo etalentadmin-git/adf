@@ -47,8 +47,8 @@
 							}
 						},
 						{
-							"name": "Lookup1",
-							"type": "Lookup",
+							"name": "If Condition T1",
+							"type": "IfCondition",
 							"dependsOn": [
 								{
 									"activity": "Set variable2",
@@ -57,28 +57,102 @@
 									]
 								}
 							],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
 							"userProperties": [],
 							"typeProperties": {
-								"source": {
-									"type": "AzureSqlSource",
-									"sqlReaderQuery": {
-										"value": "\"select * from [dbo].[Tmp_OtherAnalysisTbl] where [dbo].[Id]='@{variables('Counter')}'\"",
-										"type": "Expression"
-									},
-									"queryTimeout": "02:00:00",
-									"partitionOption": "None"
+								"expression": {
+									"value": "@equals(variables('Counter'),['1'])",
+									"type": "Expression"
 								},
-								"dataset": {
-									"referenceName": "etalentTmp_OtherAnalysisTbl",
-									"type": "DatasetReference"
-								}
+								"ifTrueActivities": [
+									{
+										"name": "LookupT1",
+										"type": "Lookup",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "AzureSqlSource",
+												"sqlReaderQuery": {
+													"value": "\"select * from [dbo].[Tmp_OtherAnalysisTbl] where [dbo].[Id]='@{variables('Counter')}'\"",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"dataset": {
+												"referenceName": "etalentTmp_OtherAnalysisTbl",
+												"type": "DatasetReference"
+											}
+										}
+									},
+									{
+										"name": "Set T1 Type",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "LookupT1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "T1_Type",
+											"value": {
+												"value": "@activity('LookupT1').output.firstRow.Id",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "Set T1 Year",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "LookupT1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "T1_Year",
+											"value": {
+												"value": "@activity('LookupT1').output.firstRow.Year",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "Set T2 Quarter",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "LookupT1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "T1_Quarter",
+											"value": {
+												"value": "@activity('LookupT1').output.firstRow.Quarter",
+												"type": "Expression"
+											}
+										}
+									}
+								]
 							}
 						}
 					],
