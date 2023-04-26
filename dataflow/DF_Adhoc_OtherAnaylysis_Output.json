@@ -20,6 +20,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "OtherCoreFullPop"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentTmp_OtherAnalysisTbl",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
 				}
 			],
 			"sinks": [
@@ -37,15 +44,15 @@
 				},
 				{
 					"name": "SelectCleanup"
+				},
+				{
+					"name": "join1"
 				}
 			],
 			"scriptLines": [
 				"parameters{",
 				"     Flow_Client_Id as string,",
-				"     Flow_Client_Dt as string,",
-				"     T1_Event_Type as string,",
-				"     T1_Event_Year as string,",
-				"     T1_Event_Qtr as string",
+				"     Flow_Client_Dt as string",
 				"}",
 				"source(output(",
 				"          T1_WorkerId as string,",
@@ -60,8 +67,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select WorkerId as T1_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T1_EventType,OtherCharVal11 T1_CharVal1,OtherCharVal2 T1_CharVal2,OtherNumVal1 as T1_NumVal1,OtherNumVal2 as T1_NumVal2,OtherDtVal1 as T1_DtVal1,OtherDtVal2 as T1_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T1_Event_Type}' and EventYear = '{$T1_Event_Year}' and EventQuarter = '{$T1_Event_Qtr}'\"),",
-				"     format: 'query') ~> T1OtherCore",
+				"     format: 'table') ~> T1OtherCore",
 				"source(output(",
 				"          WorkerId as string,",
 				"          ClientId as string,",
@@ -72,6 +78,17 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select WorkerId,ClientId,ClientEngagementDt from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> OtherCoreFullPop",
+				"source(output(",
+				"          Id as integer,",
+				"          Type as string,",
+				"          Year as integer,",
+				"          Quarter as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[Tmp_OtherAnalysisTbl] where Id=1\"),",
+				"     format: 'query') ~> source1",
 				"OtherCoreFullPop, T1OtherCore join(WorkerId == T1_WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
@@ -91,6 +108,12 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectCleanup",
+				"T1OtherCore, source1 join(T1_EventType == Type",
+				"     && ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
 				"SelectCleanup sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
