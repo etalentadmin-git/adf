@@ -32304,6 +32304,289 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Until1",
+						"type": "Until",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(variables('Counter'),['50'])",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Set variable1",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "tempCounter",
+										"value": {
+											"value": "@string(add(int(variables('Counter')\n),1))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set variable2",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set variable1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "Counter",
+										"value": {
+											"value": "@variables('tempCounter')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "If Condition T1",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "Set variable2",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(variables('Counter'),['1'])",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "LookupT1",
+												"type": "Lookup",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"sqlReaderQuery": {
+															"value": "\"select * from [dbo].[Tmp_OtherAnalysisTbl] where [dbo].[Id]='@{variables('Counter')}'\"",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"dataset": {
+														"referenceName": "etalentTmp_OtherAnalysisTbl",
+														"type": "DatasetReference",
+														"parameters": {}
+													}
+												}
+											},
+											{
+												"name": "Set T1 Type",
+												"type": "SetVariable",
+												"dependsOn": [
+													{
+														"activity": "LookupT1",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"userProperties": [],
+												"typeProperties": {
+													"variableName": "T1_Type",
+													"value": {
+														"value": "@activity('LookupT1').output.firstRow.Id",
+														"type": "Expression"
+													}
+												}
+											},
+											{
+												"name": "Set T1 Year",
+												"type": "SetVariable",
+												"dependsOn": [
+													{
+														"activity": "LookupT1",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"userProperties": [],
+												"typeProperties": {
+													"variableName": "T1_Year",
+													"value": {
+														"value": "@activity('LookupT1').output.firstRow.Year",
+														"type": "Expression"
+													}
+												}
+											},
+											{
+												"name": "Set T2 Quarter",
+												"type": "SetVariable",
+												"dependsOn": [
+													{
+														"activity": "LookupT1",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"userProperties": [],
+												"typeProperties": {
+													"variableName": "T1_Quarter",
+													"value": {
+														"value": "@activity('LookupT1').output.firstRow.Quarter",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									}
+								}
+							],
+							"timeout": "0.12:00:00"
+						}
+					},
+					{
+						"name": "DF_Adhoc_OtherFact_Evergreen_copy1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Until1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Adhoc_OtherAnaylysis_Output",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"T1_Event_Type": {
+										"value": "'@{variables('T1_Type')}'",
+										"type": "Expression"
+									},
+									"T1_Event_Year": {
+										"value": "'@{variables('T1_Year')}'",
+										"type": "Expression"
+									},
+									"T1_Event_Qtr": {
+										"value": "'@{variables('T1_Quarter')}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"T1OtherCore": {},
+									"OtherCoreFullPop": {},
+									"sink1": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@pipeline().parameters.P_Folder_Quarter",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"tempCounter": {
+						"type": "String"
+					},
+					"Counter": {
+						"type": "String"
+					},
+					"T1_Type": {
+						"type": "String"
+					},
+					"T1_Year": {
+						"type": "String"
+					},
+					"T1_Quarter": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_Adhoc_OtherAnaylysis_Output')]",
+				"[concat(variables('factoryId'), '/datasets/etalentTmp_OtherAnalysisTbl')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/BLS_AmerIndAlaskNat_Female_Tbl')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -63065,6 +63348,145 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Json_BLS_White_Total_NonHisp')]",
 				"[concat(variables('factoryId'), '/datasets/Source_BLS_Output')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Adhoc_OtherAnaylysis_Output')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Adhoc"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T1OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "OtherCoreFullPop"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTblFldr",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "joinT1"
+						},
+						{
+							"name": "SelectCleanup"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     T1_Event_Type as string,",
+						"     T1_Event_Year as string,",
+						"     T1_Event_Qtr as string",
+						"}",
+						"source(output(",
+						"          T1_WorkerId as string,",
+						"          T1_EventType as string,",
+						"          T1_CharVal1 as string,",
+						"          T1_CharVal2 as string,",
+						"          T1_NumVal1 as double,",
+						"          T1_NumVal2 as double,",
+						"          T1_DtVal1 as date,",
+						"          T1_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T1_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T1_EventType,OtherCharVal11 T1_CharVal1,OtherCharVal2 T1_CharVal2,OtherNumVal1 as T1_NumVal1,OtherNumVal2 as T1_NumVal2,OtherDtVal1 as T1_DtVal1,OtherDtVal2 as T1_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T1_Event_Type}' and EventYear = '{$T1_Event_Year}' and EventQuarter = '{$T1_Event_Qtr}'\"),",
+						"     format: 'query') ~> T1OtherCore",
+						"source(output(",
+						"          WorkerId as string,",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId,ClientId,ClientEngagementDt from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> OtherCoreFullPop",
+						"OtherCoreFullPop, T1OtherCore join(WorkerId == T1_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT1",
+						"joinT1 select(mapColumn(",
+						"          WorkerId,",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          T1_EventType,",
+						"          T1_CharVal1,",
+						"          T1_CharVal2,",
+						"          T1_NumVal1,",
+						"          T1_NumVal2,",
+						"          T1_DtVal1,",
+						"          T1_DtVal2",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectCleanup",
+						"SelectCleanup sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
+						"     ),",
+						"     partitionFileNames:['TestOtherAnalysisOutput.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/etalentOtherCoreFactTbl')]",
+				"[concat(variables('factoryId'), '/datasets/Source_FactTblFldr')]"
 			]
 		},
 		{

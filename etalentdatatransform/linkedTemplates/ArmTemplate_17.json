@@ -13,6 +13,161 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_PerformanceRating')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "This workflow outputs 1 file for review of performance values across events and time periods.",
+				"folder": {
+					"name": "Client/Create Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_TalentData_File",
+								"type": "DatasetReference"
+							},
+							"name": "AllCoreData"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_PerformanceRating",
+								"type": "DatasetReference"
+							},
+							"name": "PerformanceMapping"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputPeerformanceReview"
+						}
+					],
+					"transformations": [
+						{
+							"name": "CreatePivotPerformanceAndEventTime"
+						},
+						{
+							"name": "SortOnEvent"
+						},
+						{
+							"name": "AddPerformanceMapping"
+						},
+						{
+							"name": "SortOnRating"
+						},
+						{
+							"name": "SelectColumns"
+						},
+						{
+							"name": "AddDerivedEventYearColumn"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Event Year} as string,",
+						"          {Event Date} as string,",
+						"          Event as string,",
+						"          {Event Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Performance Rating} as string,",
+						"          {Performance Rating Date} as string,",
+						"          {Talent Identifier (1)} as string,",
+						"          {Talent Identifier (2)} as string,",
+						"          {Talent Identifier (3)} as string,",
+						"          {Talent Identifier (4)} as string,",
+						"          {Talent Identifier (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AllCoreData",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Client Performance Rating} as string,",
+						"          {Elloree Performance Rating} as string,",
+						"          {Elloree Performance Rating Sort} as string,",
+						"          {Suggested Elloree Performance Rating} as string,",
+						"          {Suggested Elloree Performane Rating Sort Id} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Talent Assessment} as string,",
+						"          {2018 Talent Assessment} as string,",
+						"          {2019 Talent Assessment} as string,",
+						"          {2020 Talent Assessment} as string,",
+						"          {2021 Talent Assessment} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> PerformanceMapping",
+						"SortOnEvent pivot(groupBy({Performance Rating},",
+						"          {Elloree Performance Rating},",
+						"          {Elloree Performance Rating Sort},",
+						"          {Client ID},",
+						"          {Client Engagement Date}),",
+						"     pivotBy({Event and Year}),",
+						"     {} = count({Worker ID}),",
+						"     columnNaming: '$N$V',",
+						"     lateral: false,",
+						"     partitionBy('hash', 1)) ~> CreatePivotPerformanceAndEventTime",
+						"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
+						"AllCoreData, PerformanceMapping join({Performance Rating} == {Client Performance Rating},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> AddPerformanceMapping",
+						"CreatePivotPerformanceAndEventTime sort(asc({Performance Rating}, true),",
+						"     asc({Elloree Performance Rating}, true)) ~> SortOnRating",
+						"AddPerformanceMapping select(mapColumn(",
+						"          {Client ID} = AllCoreData@{Client ID},",
+						"          {Client Engagement Date} = AllCoreData@{Client Engagement Date},",
+						"          {Event Year},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Event Type},",
+						"          {Worker ID},",
+						"          {Performance Rating},",
+						"          {Performance Rating Date},",
+						"          {Talent Identifier (1)},",
+						"          {Talent Identifier (2)},",
+						"          {Talent Identifier (3)},",
+						"          {Talent Identifier (4)},",
+						"          {Talent Identifier (5)},",
+						"          {Client ID} = PerformanceMapping@{Client ID},",
+						"          {Client Engagement Date} = PerformanceMapping@{Client Engagement Date},",
+						"          {Client Performance Rating},",
+						"          {Elloree Performance Rating},",
+						"          {Elloree Performance Rating Sort},",
+						"          {Suggested Elloree Performance Rating},",
+						"          {Suggested Elloree Performane Rating Sort Id},",
+						"          {Suggested Source},",
+						"          {2017 Talent Assessment},",
+						"          {2018 Talent Assessment},",
+						"          {2019 Talent Assessment},",
+						"          {2020 Talent Assessment},",
+						"          {2021 Talent Assessment}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectColumns",
+						"SelectColumns derive({Event and Year} = concat(toString(Event),concat(' ',{Event Year}))) ~> AddDerivedEventYearColumn",
+						"SortOnRating sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Dimension Review - Performance.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputPeerformanceReview"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_Template_Column_Core')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -5020,185 +5175,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_Qtr_Rec_FactTbl_Speedbumps')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Delete Records/Fact Tables/Quarter Records"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentSpeedbumpsFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "SpeedbumpsFactTbl"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentSpeedbumpsFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "DeleteRecords"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_SB_Year as string,",
-						"     Flow_SB_Quarter as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          CoreEventId as string,",
-						"          CoreEventQuarter as integer,",
-						"          CoreEventDate as date,",
-						"          WorkerId as string,",
-						"          SpeedbumnpWorkerStatus as string,",
-						"          SpeedbumpPopulationInd as string,",
-						"          Speedbump1Name as string,",
-						"          Speedbump1Desc as string,",
-						"          Speedbump1Flag as string,",
-						"          Speedbump2Name as string,",
-						"          Speedbump2Desc as string,",
-						"          Speedbump2Flag as string,",
-						"          Speedbump3Name as string,",
-						"          Speedbump3Desc as string,",
-						"          Speedbump3Flag as string,",
-						"          Speedbump4Name as string,",
-						"          Speedbump4Desc as string,",
-						"          Speedbump4Flag as string,",
-						"          Speedbump5Name as string,",
-						"          Speedbump5Desc as string,",
-						"          Speedbump5Flag as string,",
-						"          Speedbump6Name as string,",
-						"          Speedbump6Desc as string,",
-						"          Speedbump6Flag as string,",
-						"          Speedbump7Name as string,",
-						"          Speedbump7Desc as string,",
-						"          Speedbump7Flag as string,",
-						"          Speedbump8Name as string,",
-						"          Speedbump8Desc as string,",
-						"          Speedbump8Flag as string,",
-						"          Speedbump9Name as string,",
-						"          Speedbump9Desc as string,",
-						"          Speedbump9Flag as string,",
-						"          Speedbump10Name as string,",
-						"          Speedbump10Desc as string,",
-						"          Speedbump10Flag as string,",
-						"          Speedbump11Name as string,",
-						"          Speedbump11Desc as string,",
-						"          Speedbump11Flag as string,",
-						"          Speedbump12Name as string,",
-						"          Speedbump12Desc as string,",
-						"          Speedbump12Flag as string,",
-						"          Speedbump13Name as string,",
-						"          Speedbump13Desc as string,",
-						"          Speedbump13Flag as string,",
-						"          Speedbump14Name as string,",
-						"          Speedbump14Desc as string,",
-						"          Speedbump14Flag as string,",
-						"          Speedbump15Name as string,",
-						"          Speedbump15Desc as string,",
-						"          Speedbump15Flag as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[SpeedbumpsFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-						"     format: 'query') ~> SpeedbumpsFactTbl",
-						"SpeedbumpsFactTbl alterRow(deleteIf(EventQuarter==toInteger($Flow_SB_Quarter)),",
-						"     deleteIf(EventYear==toInteger($Flow_SB_Year))) ~> alterRow1",
-						"alterRow1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          CoreEventId as string,",
-						"          CoreEventQuarter as integer,",
-						"          CoreEventDate as date,",
-						"          WorkerId as string,",
-						"          SpeedbumnpWorkerStatus as string,",
-						"          SpeedbumpPopulationInd as string,",
-						"          Speedbump1Name as string,",
-						"          Speedbump1Desc as string,",
-						"          Speedbump1Flag as string,",
-						"          Speedbump2Name as string,",
-						"          Speedbump2Desc as string,",
-						"          Speedbump2Flag as string,",
-						"          Speedbump3Name as string,",
-						"          Speedbump3Desc as string,",
-						"          Speedbump3Flag as string,",
-						"          Speedbump4Name as string,",
-						"          Speedbump4Desc as string,",
-						"          Speedbump4Flag as string,",
-						"          Speedbump5Name as string,",
-						"          Speedbump5Desc as string,",
-						"          Speedbump5Flag as string,",
-						"          Speedbump6Name as string,",
-						"          Speedbump6Desc as string,",
-						"          Speedbump6Flag as string,",
-						"          Speedbump7Name as string,",
-						"          Speedbump7Desc as string,",
-						"          Speedbump7Flag as string,",
-						"          Speedbump8Name as string,",
-						"          Speedbump8Desc as string,",
-						"          Speedbump8Flag as string,",
-						"          Speedbump9Name as string,",
-						"          Speedbump9Desc as string,",
-						"          Speedbump9Flag as string,",
-						"          Speedbump10Name as string,",
-						"          Speedbump10Desc as string,",
-						"          Speedbump10Flag as string,",
-						"          Speedbump11Name as string,",
-						"          Speedbump11Desc as string,",
-						"          Speedbump11Flag as string,",
-						"          Speedbump12Name as string,",
-						"          Speedbump12Desc as string,",
-						"          Speedbump12Flag as string,",
-						"          Speedbump13Name as string,",
-						"          Speedbump13Desc as string,",
-						"          Speedbump13Flag as string,",
-						"          Speedbump14Name as string,",
-						"          Speedbump14Desc as string,",
-						"          Speedbump14Flag as string,",
-						"          Speedbump15Name as string,",
-						"          Speedbump15Desc as string,",
-						"          Speedbump15Flag as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:true,",
-						"     insertable:false,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     keys:['ClientId','ClientEngagementDt','EventQuarter','EventYear'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
 					]
 				}
 			},
