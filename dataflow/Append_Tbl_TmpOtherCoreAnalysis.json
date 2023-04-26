@@ -1,0 +1,75 @@
+{
+	"name": "Append_Tbl_TmpOtherCoreAnalysis",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Temp Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Template_Analysis_OtherTable",
+						"type": "DatasetReference"
+					},
+					"name": "SourceTmpOtherCoreAnalysis"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentTmp_OtherAnalysisTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendOtherCoreAnalysisTemp"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AssignDerivedColumns"
+				},
+				{
+					"name": "alterRow2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Id as integer,",
+				"          Type as string,",
+				"          Year as integer,",
+				"          Quarter as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> SourceTmpOtherCoreAnalysis",
+				"SourceTmpOtherCoreAnalysis derive(Type = iif(isNull(Type),'NA',Type),",
+				"          Year = iif(isNull(Year),0,Year),",
+				"          Quarter = iif(isNull(Quarter),0,Quarter)) ~> AssignDerivedColumns",
+				"AssignDerivedColumns alterRow(upsertIf(true())) ~> alterRow2",
+				"alterRow2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Id as integer,",
+				"          Type as string,",
+				"          Year as integer,",
+				"          Quarter as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['Id','Type','Year','Quarter'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Id,",
+				"          Type,",
+				"          Year,",
+				"          Quarter",
+				"     )) ~> AppendOtherCoreAnalysisTemp"
+			]
+		}
+	}
+}
