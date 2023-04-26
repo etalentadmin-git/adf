@@ -299,6 +299,68 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Analysis_OtherTable')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Analysis"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "OtherTableAnalysisEvents.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Analysis/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"sheetIndex": 0,
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Year",
+						"type": "String"
+					},
+					{
+						"name": "Quarter",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Source_Template_Applicant_Append')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2217,184 +2279,6 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "TAApplMapTbl"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentApplStatusFactTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "connection to Silver Medalist Fact table",
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Database"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ClientId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEngagementDt",
-						"type": "date"
-					},
-					{
-						"name": "ApplId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ReqId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EventDt",
-						"type": "date"
-					},
-					{
-						"name": "EventMonth",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "EventQuarter",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "EventYear",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Applicants",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "WhiteAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "BlackAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "LatinxAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "AsianAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "TwoorMoreAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "OtherAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "DNSIDAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "PoCAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "FemaleAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "MaleAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "OtherGenderAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "DNSIDGenderAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "DiverseAppl",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ApplRejected",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ApplWithdrew",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Candidates",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CandRejectedHR",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CandRejectedHM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CandInterviewed",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CandWithdrew",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "LoadDt",
-						"type": "date"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "TAApplStatusFactTbl"
 				}
 			},
 			"dependsOn": []

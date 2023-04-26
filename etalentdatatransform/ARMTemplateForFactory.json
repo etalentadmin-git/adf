@@ -9699,6 +9699,110 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_TmpTbl_OtherCoreAnalysis')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_TmpTbl_OtherCoreAnalysis",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Delete_TmpTbl_OtherCoreAnalysis",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_TmpTbl_OtherCoreAnalysis",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceTmpOtherCoreAnalysis": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@pipeline().parameters.P_Folder_Quarter",
+											"type": "Expression"
+										}
+									},
+									"AppendOtherCoreAnalysisTmp": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete_TmpTbl_OtherCoreAnalysis",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_TmpTbl_OtherCoreAnalysis",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Temp Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T20:31:36Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Append_TmpTbl_OtherCoreAnalysis')]",
+				"[concat(variables('factoryId'), '/pipelines/Delete_TmpTbl_OtherCoreAnalysis')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/BLS_AmerIndAlaskNat_Female')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -19470,6 +19574,58 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/Delete_Rec_Mapping_Veteran')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_TmpTbl_OtherCoreAnalysis')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all Other Analysis Temp records",
+				"activities": [
+					{
+						"name": "Delete_TmpTbl_OtherCoreAnalysis",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_Tmp_OtherCoreAnalysis",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Core": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Temp Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T16:53:04Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Delete_Tmp_OtherCoreAnalysis')]"
 			]
 		},
 		{
@@ -44989,6 +45145,70 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Analysis_OtherTable')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template Prep/Analysis"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "OtherTableAnalysisEvents.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Analysis/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"sheetIndex": 0,
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Year",
+						"type": "String"
+					},
+					{
+						"name": "Quarter",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage2')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Source_Template_Applicant_Append')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -49985,6 +50205,51 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "TalentFactTbl"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/etalentTmp_OtherAnalysisTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "connection to Core Fact table",
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Database"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Quarter",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Tmp_OtherAnalysisTbl"
 				}
 			},
 			"dependsOn": [
@@ -57862,6 +58127,87 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_TmpTbl_OtherCoreAnalysis')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Temp Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Analysis_OtherTable",
+								"type": "DatasetReference"
+							},
+							"name": "SourceTmpOtherCoreAnalysis"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentTmp_OtherAnalysisTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendOtherCoreAnalysisTmp"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AssignDerivedColumns"
+						},
+						{
+							"name": "alterRow2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Id as integer,",
+						"          Type as string,",
+						"          Year as integer,",
+						"          Quarter as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> SourceTmpOtherCoreAnalysis",
+						"SourceTmpOtherCoreAnalysis derive(Type = iif(isNull(Type),'NA',Type),",
+						"          Year = iif(isNull(Year),0,Year),",
+						"          Quarter = iif(isNull(Quarter),0,Quarter)) ~> AssignDerivedColumns",
+						"AssignDerivedColumns alterRow(upsertIf(true())) ~> alterRow2",
+						"alterRow2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Id as integer,",
+						"          Type as string,",
+						"          Year as integer,",
+						"          Quarter as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['Id','Type','Year','Quarter'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          Id,",
+						"          Type,",
+						"          Year,",
+						"          Quarter",
+						"     )) ~> AppendOtherCoreAnalysisTmp"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Source_Template_Analysis_OtherTable')]",
+				"[concat(variables('factoryId'), '/datasets/etalentTmp_OtherAnalysisTbl')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/BLS_AmerIndAlaskNat_Female')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -63937,6 +64283,2105 @@
 				"[concat(variables('factoryId'), '/datasets/etalentOtherCoreFactTbl')]",
 				"[concat(variables('factoryId'), '/datasets/etalentEthnicityMapTbl')]",
 				"[concat(variables('factoryId'), '/datasets/etalentGenderMapTbl')]",
+				"[concat(variables('factoryId'), '/datasets/Source_FactTblFldr')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Adhoc_OtherFact_Evergreen_copy1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Adhoc"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T1OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T2OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T3OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T4OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T5OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T6OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T7OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T8OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T9OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T10OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T11OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T12OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T13OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T14OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T15OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T16OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T17OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T18OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T19OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T20OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T21OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T22OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T23OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T24OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T25OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T26OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T27OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T28OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T29OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T30OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T31OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T32OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T33OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T34OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T35OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T36OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T37OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T38OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T39OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T40OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T41OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T42OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T43OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T44OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T45OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T46OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T47OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T48OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T49OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "T50OtherCore"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "OtherCoreFullPop"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTblFldr",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "joinT1"
+						},
+						{
+							"name": "joinT2"
+						},
+						{
+							"name": "joinT3"
+						},
+						{
+							"name": "joinT4"
+						},
+						{
+							"name": "joinT5"
+						},
+						{
+							"name": "join1"
+						},
+						{
+							"name": "joinT7"
+						},
+						{
+							"name": "joinT8"
+						},
+						{
+							"name": "joinT9"
+						},
+						{
+							"name": "joinT10"
+						},
+						{
+							"name": "joinT11"
+						},
+						{
+							"name": "joinT12"
+						},
+						{
+							"name": "joinT13"
+						},
+						{
+							"name": "joinT14"
+						},
+						{
+							"name": "joinT15"
+						},
+						{
+							"name": "joinT16"
+						},
+						{
+							"name": "joinT17"
+						},
+						{
+							"name": "joinT18"
+						},
+						{
+							"name": "joinT19"
+						},
+						{
+							"name": "joinT20"
+						},
+						{
+							"name": "joinT21"
+						},
+						{
+							"name": "joinT22"
+						},
+						{
+							"name": "joinT23"
+						},
+						{
+							"name": "joinT24"
+						},
+						{
+							"name": "joinT25"
+						},
+						{
+							"name": "joinT26"
+						},
+						{
+							"name": "joinT27"
+						},
+						{
+							"name": "joinT28"
+						},
+						{
+							"name": "joinT29"
+						},
+						{
+							"name": "joinT30"
+						},
+						{
+							"name": "joinT31"
+						},
+						{
+							"name": "joinT32"
+						},
+						{
+							"name": "joinT33"
+						},
+						{
+							"name": "joinT34"
+						},
+						{
+							"name": "joinT35"
+						},
+						{
+							"name": "joinT36"
+						},
+						{
+							"name": "joinT37"
+						},
+						{
+							"name": "joinT38"
+						},
+						{
+							"name": "joinT39"
+						},
+						{
+							"name": "join40"
+						},
+						{
+							"name": "joinT41"
+						},
+						{
+							"name": "joinT42"
+						},
+						{
+							"name": "joinT43"
+						},
+						{
+							"name": "joinT44"
+						},
+						{
+							"name": "joinT45"
+						},
+						{
+							"name": "joinT46"
+						},
+						{
+							"name": "joinT47"
+						},
+						{
+							"name": "joinT48"
+						},
+						{
+							"name": "joinT49"
+						},
+						{
+							"name": "joinT50"
+						},
+						{
+							"name": "SelectCleanup"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     T1_Event_Type as string,",
+						"     T1_Event_Year as string,",
+						"     T1_Event_Qtr as string,",
+						"     T2_Event_Type as string,",
+						"     T2_Event_Year as string,",
+						"     T2_Event_Qtr as string,",
+						"     T3_Event_Type as string,",
+						"     T3_Event_Year as string,",
+						"     T3_Event_Qtr as string,",
+						"     T4_Event_Type as string,",
+						"     T4_Event_Year as string,",
+						"     T4_Event_Qtr as string,",
+						"     T5_Event_Type as string,",
+						"     T5_Event_Year as string,",
+						"     T5_Event_Qtr as string,",
+						"     T6_Event_Type as string,",
+						"     T6_Event_Year as string,",
+						"     T6_Event_Qtr as string,",
+						"     T7_Event_Type as string,",
+						"     T7_Event_Year as string,",
+						"     T7_Event_Qtr as string,",
+						"     T8_Event_Type as string,",
+						"     T8_Event_Year as string,",
+						"     T8_Event_Qtr as string,",
+						"     T9_Event_Type as string,",
+						"     T9_Event_Year as string,",
+						"     T9_Event_Qtr as string,",
+						"     T10_Event_Type as string,",
+						"     T10_Event_Year as string,",
+						"     T10_Event_Qtr as string,",
+						"     T11_Event_Type as string,",
+						"     T11_Event_Year as string,",
+						"     T11_Event_Qtr as string,",
+						"     T12_Event_Type as string,",
+						"     T12_Event_Year as string,",
+						"     T12_Event_Qtr as string,",
+						"     T13_Event_Type as string,",
+						"     T13_Event_Year as string,",
+						"     T13_Event_Qtr as string,",
+						"     T14_Event_Type as string,",
+						"     T14_Event_Year as string,",
+						"     T14_Event_Qtr as string,",
+						"     T15_Event_Type as string,",
+						"     T15_Event_Year as string,",
+						"     T15_Event_Qtr as string,",
+						"     T16_Event_Type as string,",
+						"     T16_Event_Year as string,",
+						"     T16_Event_Qtr as string,",
+						"     T17_Event_Type as string,",
+						"     T17_Event_Year as string,",
+						"     T17_Event_Qtr as string,",
+						"     T18_Event_Type as string,",
+						"     T18_Event_Year as string,",
+						"     T18_Event_Qtr as string,",
+						"     T19_Event_Type as string,",
+						"     T19_Event_Year as string,",
+						"     T19_Event_Qtr as string,",
+						"     T20_Event_Type as string,",
+						"     T20_Event_Year as string,",
+						"     T20_Event_Qtr as string,",
+						"     T21_Event_Type as string,",
+						"     T21_Event_Year as string,",
+						"     T21_Event_Qtr as string,",
+						"     T22_Event_Type as string,",
+						"     T22_Event_Year as string,",
+						"     T22_Event_Qtr as string,",
+						"     T23_Event_Type as string,",
+						"     T23_Event_Year as string,",
+						"     T23_Event_Qtr as string,",
+						"     T24_Event_Type as string,",
+						"     T24_Event_Year as string,",
+						"     T24_Event_Qtr as string,",
+						"     T25_Event_Type as string,",
+						"     T25_Event_Year as string,",
+						"     T25_Event_Qtr as string,",
+						"     T26_Event_Type as string,",
+						"     T26_Event_Year as string,",
+						"     T26_Event_Qtr as string,",
+						"     T27_Event_Type as string,",
+						"     T27_Event_Year as string,",
+						"     T27_Event_Qtr as string,",
+						"     T28_Event_Type as string,",
+						"     T28_Event_Year as string,",
+						"     T28_Event_Qtr as string,",
+						"     T29_Event_Type as string,",
+						"     T29_Event_Year as string,",
+						"     T29_Event_Qtr as string,",
+						"     T30_Event_Type as string,",
+						"     T30_Event_Year as string,",
+						"     T30_Event_Qtr as string,",
+						"     T31_Event_Type as string,",
+						"     T31_Event_Year as string,",
+						"     T31_Event_Qtr as string,",
+						"     T32_Event_Type as string,",
+						"     T32_Event_Year as string,",
+						"     T32_Event_Qtr as string,",
+						"     T33_Event_Type as string,",
+						"     T33_Event_Year as string,",
+						"     T33_Event_Qtr as string,",
+						"     T34_Event_Type as string,",
+						"     T34_Event_Year as string,",
+						"     T34_Event_Qtr as string,",
+						"     T35_Event_Type as string,",
+						"     T35_Event_Year as string,",
+						"     T35_Event_Qtr as string,",
+						"     T36_Event_Type as string,",
+						"     T36_Event_Year as string,",
+						"     T36_Event_Qtr as string,",
+						"     T37_Event_Type as string,",
+						"     T37_Event_Year as string,",
+						"     T37_Event_Qtr as string,",
+						"     T38_Event_Type as string,",
+						"     T38_Event_Year as string,",
+						"     T38_Event_Qtr as string,",
+						"     T39_Event_Type as string,",
+						"     T39_Event_Year as string,",
+						"     T39_Event_Qtr as string,",
+						"     T40_Event_Type as string,",
+						"     T40_Event_Year as string,",
+						"     T40_Event_Qtr as string,",
+						"     T41_Event_Type as string,",
+						"     T41_Event_Year as string,",
+						"     T41_Event_Qtr as string,",
+						"     T42_Event_Type as string,",
+						"     T42_Event_Year as string,",
+						"     T42_Event_Qtr as string,",
+						"     T43_Event_Type as string,",
+						"     T43_Event_Year as string,",
+						"     T43_Event_Qtr as string,",
+						"     T44_Event_Type as string,",
+						"     T44_Event_Year as string,",
+						"     T44_Event_Qtr as string,",
+						"     T45_Event_Type as string,",
+						"     T45_Event_Year as string,",
+						"     T45_Event_Qtr as string,",
+						"     T46_Event_Type as string,",
+						"     T46_Event_Year as string,",
+						"     T46_Event_Qtr as string,",
+						"     T47_Event_Type as string,",
+						"     T47_Event_Year as string,",
+						"     T47_Event_Qtr as string,",
+						"     T48_Event_Type as string,",
+						"     T48_Event_Year as string,",
+						"     T48_Event_Qtr as string,",
+						"     T49_Event_Type as string,",
+						"     T49_Event_Year as string,",
+						"     T49_Event_Qtr as string,",
+						"     T50_Event_Type as string,",
+						"     T50_Event_Year as string,",
+						"     T50_Event_Qtr as string",
+						"}",
+						"source(output(",
+						"          T1_WorkerId as string,",
+						"          T1_EventType as string,",
+						"          T1_CharVal1 as string,",
+						"          T1_CharVal2 as string,",
+						"          T1_NumVal1 as double,",
+						"          T1_NumVal2 as double,",
+						"          T1_DtVal1 as date,",
+						"          T1_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T1_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T1_EventType,OtherCharVal11 T1_CharVal1,OtherCharVal2 T1_CharVal2,OtherNumVal1 as T1_NumVal1,OtherNumVal2 as T1_NumVal2,OtherDtVal1 as T1_DtVal1,OtherDtVal2 as T1_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T1_Event_Type}' and EventYear = '{$T1_Event_Year}' and EventQuarter = '{$T1_Event_Qtr}'\"),",
+						"     format: 'query') ~> T1OtherCore",
+						"source(output(",
+						"          T2_WorkerId as string,",
+						"          T2_EventType as string,",
+						"          T2_CharVal1 as string,",
+						"          T2_CharVal2 as string,",
+						"          T2_NumVal1 as double,",
+						"          T2_NumVal2 as double,",
+						"          T2_DtVal1 as date,",
+						"          T2_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T2_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T2_EventType,OtherCharVal11 T2_CharVal1,OtherCharVal2 T2_CharVal2,OtherNumVal1 as T2_NumVal1,OtherNumVal2 as T2_NumVal2,OtherDtVal1 as T2_DtVal1,OtherDtVal2 as T2_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T2_Event_Type}' and EventYear = '{$T2_Event_Year}' and EventQuarter = '{$T2_Event_Qtr}'\"),",
+						"     format: 'query') ~> T2OtherCore",
+						"source(output(",
+						"          T3_WorkerId as string,",
+						"          T3_EventType as string,",
+						"          T3_CharVal1 as string,",
+						"          T3_CharVal2 as string,",
+						"          T3_NumVal1 as double,",
+						"          T3_NumVal2 as double,",
+						"          T3_DtVal1 as date,",
+						"          T3_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T3_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T3_EventType,OtherCharVal11 T3_CharVal1,OtherCharVal2 T3_CharVal2,OtherNumVal1 as T3_NumVal1,OtherNumVal2 as T3_NumVal2,OtherDtVal1 as T3_DtVal1,OtherDtVal2 as T3_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T3_Event_Type}' and EventYear = '{$T3_Event_Year}' and EventQuarter = '{$T3_Event_Qtr}'\"),",
+						"     format: 'query') ~> T3OtherCore",
+						"source(output(",
+						"          T4_WorkerId as string,",
+						"          T4_EventType as string,",
+						"          T4_CharVal1 as string,",
+						"          T4_CharVal2 as string,",
+						"          T4_NumVal1 as double,",
+						"          T4_NumVal2 as double,",
+						"          T4_DtVal1 as date,",
+						"          T4_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T4_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T4_EventType,OtherCharVal11 T4_CharVal1,OtherCharVal2 T4_CharVal2,OtherNumVal1 as T4_NumVal1,OtherNumVal2 as T4_NumVal2,OtherDtVal1 as T4_DtVal1,OtherDtVal2 as T4_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T4_Event_Type}' and EventYear = '{$T4_Event_Year}' and EventQuarter = '{$T4_Event_Qtr}'\"),",
+						"     format: 'query') ~> T4OtherCore",
+						"source(output(",
+						"          T5_WorkerId as string,",
+						"          T5_EventType as string,",
+						"          T5_CharVal1 as string,",
+						"          T5_CharVal2 as string,",
+						"          T5_NumVal1 as double,",
+						"          T5_NumVal2 as double,",
+						"          T5_DtVal1 as date,",
+						"          T5_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T5_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T5_EventType,OtherCharVal11 T5_CharVal1,OtherCharVal2 T5_CharVal2,OtherNumVal1 as T5_NumVal1,OtherNumVal2 as T5_NumVal2,OtherDtVal1 as T5_DtVal1,OtherDtVal2 as T5_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T5_Event_Type}' and EventYear = '{$T5_Event_Year}' and EventQuarter = '{$T5_Event_Qtr}'\"),",
+						"     format: 'query') ~> T5OtherCore",
+						"source(output(",
+						"          T6_WorkerId as string,",
+						"          T6_EventType as string,",
+						"          T6_CharVal1 as string,",
+						"          T6_CharVal2 as string,",
+						"          T6_NumVal1 as double,",
+						"          T6_NumVal2 as double,",
+						"          T6_DtVal1 as date,",
+						"          T6_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T6_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T6_EventType,OtherCharVal11 T6_CharVal1,OtherCharVal2 T6_CharVal2,OtherNumVal1 as T6_NumVal1,OtherNumVal2 as T6_NumVal2,OtherDtVal1 as T6_DtVal1,OtherDtVal2 as T6_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T6_Event_Type}' and EventYear = '{$T6_Event_Year}' and EventQuarter = '{$T6_Event_Qtr}'\"),",
+						"     format: 'query') ~> T6OtherCore",
+						"source(output(",
+						"          T7_WorkerId as string,",
+						"          T7_EventType as string,",
+						"          T7_CharVal1 as string,",
+						"          T7_CharVal2 as string,",
+						"          T7_NumVal1 as double,",
+						"          T7_NumVal2 as double,",
+						"          T7_DtVal1 as date,",
+						"          T7_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T7_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T7_EventType,OtherCharVal11 T7_CharVal1,OtherCharVal2 T7_CharVal2,OtherNumVal1 as T7_NumVal1,OtherNumVal2 as T7_NumVal2,OtherDtVal1 as T7_DtVal1,OtherDtVal2 as T7_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T7_Event_Type}' and EventYear = '{$T7_Event_Year}' and EventQuarter = '{$T7_Event_Qtr}'\"),",
+						"     format: 'query') ~> T7OtherCore",
+						"source(output(",
+						"          T8_WorkerId as string,",
+						"          T8_EventType as string,",
+						"          T8_CharVal1 as string,",
+						"          T8_CharVal2 as string,",
+						"          T8_NumVal1 as double,",
+						"          T8_NumVal2 as double,",
+						"          T8_DtVal1 as date,",
+						"          T8_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T8_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T8_EventType,OtherCharVal11 T8_CharVal1,OtherCharVal2 T8_CharVal2,OtherNumVal1 as T8_NumVal1,OtherNumVal2 as T8_NumVal2,OtherDtVal1 as T8_DtVal1,OtherDtVal2 as T8_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T8_Event_Type}' and EventYear = '{$T8_Event_Year}' and EventQuarter = '{$T8_Event_Qtr}'\"),",
+						"     format: 'query') ~> T8OtherCore",
+						"source(output(",
+						"          T9_WorkerId as string,",
+						"          T9_EventType as string,",
+						"          T9_CharVal1 as string,",
+						"          T9_CharVal2 as string,",
+						"          T9_NumVal1 as double,",
+						"          T9_NumVal2 as double,",
+						"          T9_DtVal1 as date,",
+						"          T9_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T9_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T9_EventType,OtherCharVal11 T9_CharVal1,OtherCharVal2 T9_CharVal2,OtherNumVal1 as T9_NumVal1,OtherNumVal2 as T9_NumVal2,OtherDtVal1 as T9_DtVal1,OtherDtVal2 as T9_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T9_Event_Type}' and EventYear = '{$T9_Event_Year}' and EventQuarter = '{$T9_Event_Qtr}'\"),",
+						"     format: 'query') ~> T9OtherCore",
+						"source(output(",
+						"          T10_WorkerId as string,",
+						"          T10_EventType as string,",
+						"          T10_CharVal1 as string,",
+						"          T10_CharVal2 as string,",
+						"          T10_NumVal1 as double,",
+						"          T10_NumVal2 as double,",
+						"          T10_DtVal1 as date,",
+						"          T10_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T10_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T10_EventType,OtherCharVal11 T10_CharVal1,OtherCharVal2 T10_CharVal2,OtherNumVal1 as T10_NumVal1,OtherNumVal2 as T10_NumVal2,OtherDtVal1 as T10_DtVal1,OtherDtVal2 as T10_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T10_Event_Type}' and EventYear = '{$T10_Event_Year}' and EventQuarter = '{$T10_Event_Qtr}'\"),",
+						"     format: 'query') ~> T10OtherCore",
+						"source(output(",
+						"          T11_WorkerId as string,",
+						"          T11_EventType as string,",
+						"          T11_CharVal1 as string,",
+						"          T11_CharVal2 as string,",
+						"          T11_NumVal1 as double,",
+						"          T11_NumVal2 as double,",
+						"          T11_DtVal1 as date,",
+						"          T11_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T11_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T11_EventType,OtherCharVal11 T11_CharVal1,OtherCharVal2 T11_CharVal2,OtherNumVal1 as T11_NumVal1,OtherNumVal2 as T11_NumVal2,OtherDtVal1 as T11_DtVal1,OtherDtVal2 as T11_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T11_Event_Type}' and EventYear = '{$T11_Event_Year}' and EventQuarter = '{$T11_Event_Qtr}'\"),",
+						"     format: 'query') ~> T11OtherCore",
+						"source(output(",
+						"          T12_WorkerId as string,",
+						"          T12_EventType as string,",
+						"          T12_CharVal1 as string,",
+						"          T12_CharVal2 as string,",
+						"          T12_NumVal1 as double,",
+						"          T12_NumVal2 as double,",
+						"          T12_DtVal1 as date,",
+						"          T12_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T12_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T12_EventType,OtherCharVal11 T12_CharVal1,OtherCharVal2 T12_CharVal2,OtherNumVal1 as T12_NumVal1,OtherNumVal2 as T12_NumVal2,OtherDtVal1 as T12_DtVal1,OtherDtVal2 as T12_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T12_Event_Type}' and EventYear = '{$T12_Event_Year}' and EventQuarter = '{$T12_Event_Qtr}'\"),",
+						"     format: 'query') ~> T12OtherCore",
+						"source(output(",
+						"          T13_WorkerId as string,",
+						"          T13_EventType as string,",
+						"          T13_CharVal1 as string,",
+						"          T13_CharVal2 as string,",
+						"          T13_NumVal1 as double,",
+						"          T13_NumVal2 as double,",
+						"          T13_DtVal1 as date,",
+						"          T13_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T13_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T13_EventType,OtherCharVal11 T13_CharVal1,OtherCharVal2 T13_CharVal2,OtherNumVal1 as T13_NumVal1,OtherNumVal2 as T13_NumVal2,OtherDtVal1 as T13_DtVal1,OtherDtVal2 as T13_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T13_Event_Type}' and EventYear = '{$T13_Event_Year}' and EventQuarter = '{$T13_Event_Qtr}'\"),",
+						"     format: 'query') ~> T13OtherCore",
+						"source(output(",
+						"          T14_WorkerId as string,",
+						"          T14_EventType as string,",
+						"          T14_CharVal1 as string,",
+						"          T14_CharVal2 as string,",
+						"          T14_NumVal1 as double,",
+						"          T14_NumVal2 as double,",
+						"          T14_DtVal1 as date,",
+						"          T14_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T14_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T14_EventType,OtherCharVal11 T14_CharVal1,OtherCharVal2 T14_CharVal2,OtherNumVal1 as T14_NumVal1,OtherNumVal2 as T14_NumVal2,OtherDtVal1 as T14_DtVal1,OtherDtVal2 as T14_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T14_Event_Type}' and EventYear = '{$T14_Event_Year}' and EventQuarter = '{$T14_Event_Qtr}'\"),",
+						"     format: 'query') ~> T14OtherCore",
+						"source(output(",
+						"          T15_WorkerId as string,",
+						"          T15_EventType as string,",
+						"          T15_CharVal1 as string,",
+						"          T15_CharVal2 as string,",
+						"          T15_NumVal1 as double,",
+						"          T15_NumVal2 as double,",
+						"          T15_DtVal1 as date,",
+						"          T15_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T15_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T15_EventType,OtherCharVal11 T15_CharVal1,OtherCharVal2 T15_CharVal2,OtherNumVal1 as T15_NumVal1,OtherNumVal2 as T15_NumVal2,OtherDtVal1 as T15_DtVal1,OtherDtVal2 as T15_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T15_Event_Type}' and EventYear = '{$T15_Event_Year}' and EventQuarter = '{$T15_Event_Qtr}'\"),",
+						"     format: 'query') ~> T15OtherCore",
+						"source(output(",
+						"          T16_WorkerId as string,",
+						"          T16_EventType as string,",
+						"          T16_CharVal1 as string,",
+						"          T16_CharVal2 as string,",
+						"          T16_NumVal1 as double,",
+						"          T16_NumVal2 as double,",
+						"          T16_DtVal1 as date,",
+						"          T16_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T16_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T16_EventType,OtherCharVal11 T16_CharVal1,OtherCharVal2 T16_CharVal2,OtherNumVal1 as T16_NumVal1,OtherNumVal2 as T16_NumVal2,OtherDtVal1 as T16_DtVal1,OtherDtVal2 as T16_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T16_Event_Type}' and EventYear = '{$T16_Event_Year}' and EventQuarter = '{$T16_Event_Qtr}'\"),",
+						"     format: 'query') ~> T16OtherCore",
+						"source(output(",
+						"          T17_WorkerId as string,",
+						"          T17_EventType as string,",
+						"          T17_CharVal1 as string,",
+						"          T17_CharVal2 as string,",
+						"          T17_NumVal1 as double,",
+						"          T17_NumVal2 as double,",
+						"          T17_DtVal1 as date,",
+						"          T17_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T17_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T17_EventType,OtherCharVal11 T17_CharVal1,OtherCharVal2 T17_CharVal2,OtherNumVal1 as T17_NumVal1,OtherNumVal2 as T17_NumVal2,OtherDtVal1 as T17_DtVal1,OtherDtVal2 as T17_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T17_Event_Type}' and EventYear = '{$T17_Event_Year}' and EventQuarter = '{$T17_Event_Qtr}'\"),",
+						"     format: 'query') ~> T17OtherCore",
+						"source(output(",
+						"          T18_WorkerId as string,",
+						"          T18_EventType as string,",
+						"          T18_CharVal1 as string,",
+						"          T18_CharVal2 as string,",
+						"          T18_NumVal1 as double,",
+						"          T18_NumVal2 as double,",
+						"          T18_DtVal1 as date,",
+						"          T18_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T18_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T18_EventType,OtherCharVal11 T18_CharVal1,OtherCharVal2 T18_CharVal2,OtherNumVal1 as T18_NumVal1,OtherNumVal2 as T18_NumVal2,OtherDtVal1 as T18_DtVal1,OtherDtVal2 as T18_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T18_Event_Type}' and EventYear = '{$T18_Event_Year}' and EventQuarter = '{$T18_Event_Qtr}'\"),",
+						"     format: 'query') ~> T18OtherCore",
+						"source(output(",
+						"          T19_WorkerId as string,",
+						"          T19_EventType as string,",
+						"          T19_CharVal1 as string,",
+						"          T19_CharVal2 as string,",
+						"          T19_NumVal1 as double,",
+						"          T19_NumVal2 as double,",
+						"          T19_DtVal1 as date,",
+						"          T19_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T19_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T19_EventType,OtherCharVal11 T19_CharVal1,OtherCharVal2 T19_CharVal2,OtherNumVal1 as T19_NumVal1,OtherNumVal2 as T19_NumVal2,OtherDtVal1 as T19_DtVal1,OtherDtVal2 as T19_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T19_Event_Type}' and EventYear = '{$T19_Event_Year}' and EventQuarter = '{$T19_Event_Qtr}'\"),",
+						"     format: 'query') ~> T19OtherCore",
+						"source(output(",
+						"          T20_WorkerId as string,",
+						"          T20_EventType as string,",
+						"          T20_CharVal1 as string,",
+						"          T20_CharVal2 as string,",
+						"          T20_NumVal1 as double,",
+						"          T20_NumVal2 as double,",
+						"          T20_DtVal1 as date,",
+						"          T20_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T20_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T20_EventType,OtherCharVal11 T20_CharVal1,OtherCharVal2 T20_CharVal2,OtherNumVal1 as T20_NumVal1,OtherNumVal2 as T20_NumVal2,OtherDtVal1 as T20_DtVal1,OtherDtVal2 as T20_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T20_Event_Type}' and EventYear = '{$T20_Event_Year}' and EventQuarter = '{$T20_Event_Qtr}'\"),",
+						"     format: 'query') ~> T20OtherCore",
+						"source(output(",
+						"          T21_WorkerId as string,",
+						"          T21_EventType as string,",
+						"          T21_CharVal1 as string,",
+						"          T21_CharVal2 as string,",
+						"          T21_NumVal1 as double,",
+						"          T21_NumVal2 as double,",
+						"          T21_DtVal1 as date,",
+						"          T21_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T21_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T21_EventType,OtherCharVal11 T21_CharVal1,OtherCharVal2 T21_CharVal2,OtherNumVal1 as T21_NumVal1,OtherNumVal2 as T21_NumVal2,OtherDtVal1 as T21_DtVal1,OtherDtVal2 as T21_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T21_Event_Type}' and EventYear = '{$T21_Event_Year}' and EventQuarter = '{$T21_Event_Qtr}'\"),",
+						"     format: 'query') ~> T21OtherCore",
+						"source(output(",
+						"          T22_WorkerId as string,",
+						"          T22_EventType as string,",
+						"          T22_CharVal1 as string,",
+						"          T22_CharVal2 as string,",
+						"          T22_NumVal1 as double,",
+						"          T22_NumVal2 as double,",
+						"          T22_DtVal1 as date,",
+						"          T22_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T22_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T22_EventType,OtherCharVal11 T22_CharVal1,OtherCharVal2 T22_CharVal2,OtherNumVal1 as T22_NumVal1,OtherNumVal2 as T22_NumVal2,OtherDtVal1 as T22_DtVal1,OtherDtVal2 as T22_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T22_Event_Type}' and EventYear = '{$T22_Event_Year}' and EventQuarter = '{$T22_Event_Qtr}'\"),",
+						"     format: 'query') ~> T22OtherCore",
+						"source(output(",
+						"          T23_WorkerId as string,",
+						"          T23_EventType as string,",
+						"          T23_CharVal1 as string,",
+						"          T23_CharVal2 as string,",
+						"          T23_NumVal1 as double,",
+						"          T23_NumVal2 as double,",
+						"          T23_DtVal1 as date,",
+						"          T23_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T23_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T23_EventType,OtherCharVal11 T23_CharVal1,OtherCharVal2 T23_CharVal2,OtherNumVal1 as T23_NumVal1,OtherNumVal2 as T23_NumVal2,OtherDtVal1 as T23_DtVal1,OtherDtVal2 as T23_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T23_Event_Type}' and EventYear = '{$T23_Event_Year}' and EventQuarter = '{$T23_Event_Qtr}'\"),",
+						"     format: 'query') ~> T23OtherCore",
+						"source(output(",
+						"          T24_WorkerId as string,",
+						"          T24_EventType as string,",
+						"          T24_CharVal1 as string,",
+						"          T24_CharVal2 as string,",
+						"          T24_NumVal1 as double,",
+						"          T24_NumVal2 as double,",
+						"          T24_DtVal1 as date,",
+						"          T24_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T24_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T24_EventType,OtherCharVal11 T24_CharVal1,OtherCharVal2 T24_CharVal2,OtherNumVal1 as T24_NumVal1,OtherNumVal2 as T24_NumVal2,OtherDtVal1 as T24_DtVal1,OtherDtVal2 as T24_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T24_Event_Type}' and EventYear = '{$T24_Event_Year}' and EventQuarter = '{$T24_Event_Qtr}'\"),",
+						"     format: 'query') ~> T24OtherCore",
+						"source(output(",
+						"          T25_WorkerId as string,",
+						"          T25_EventType as string,",
+						"          T25_CharVal1 as string,",
+						"          T25_CharVal2 as string,",
+						"          T25_NumVal1 as double,",
+						"          T25_NumVal2 as double,",
+						"          T25_DtVal1 as date,",
+						"          T25_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T25_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T25_EventType,OtherCharVal11 T25_CharVal1,OtherCharVal2 T25_CharVal2,OtherNumVal1 as T25_NumVal1,OtherNumVal2 as T25_NumVal2,OtherDtVal1 as T25_DtVal1,OtherDtVal2 as T25_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T25_Event_Type}' and EventYear = '{$T25_Event_Year}' and EventQuarter = '{$T25_Event_Qtr}'\"),",
+						"     format: 'query') ~> T25OtherCore",
+						"source(output(",
+						"          T26_WorkerId as string,",
+						"          T26_EventType as string,",
+						"          T26_CharVal1 as string,",
+						"          T26_CharVal2 as string,",
+						"          T26_NumVal1 as double,",
+						"          T26_NumVal2 as double,",
+						"          T26_DtVal1 as date,",
+						"          T26_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T26_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T26_EventType,OtherCharVal11 T26_CharVal1,OtherCharVal2 T26_CharVal2,OtherNumVal1 as T26_NumVal1,OtherNumVal2 as T26_NumVal2,OtherDtVal1 as T26_DtVal1,OtherDtVal2 as T26_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T26_Event_Type}' and EventYear = '{$T26_Event_Year}' and EventQuarter = '{$T26_Event_Qtr}'\"),",
+						"     format: 'query') ~> T26OtherCore",
+						"source(output(",
+						"          T27_WorkerId as string,",
+						"          T27_EventType as string,",
+						"          T27_CharVal1 as string,",
+						"          T27_CharVal2 as string,",
+						"          T27_NumVal1 as double,",
+						"          T27_NumVal2 as double,",
+						"          T27_DtVal1 as date,",
+						"          T27_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T27_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T27_EventType,OtherCharVal11 T27_CharVal1,OtherCharVal2 T27_CharVal2,OtherNumVal1 as T27_NumVal1,OtherNumVal2 as T27_NumVal2,OtherDtVal1 as T27_DtVal1,OtherDtVal2 as T27_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T27_Event_Type}' and EventYear = '{$T27_Event_Year}' and EventQuarter = '{$T27_Event_Qtr}'\"),",
+						"     format: 'query') ~> T27OtherCore",
+						"source(output(",
+						"          T28_WorkerId as string,",
+						"          T28_EventType as string,",
+						"          T28_CharVal1 as string,",
+						"          T28_CharVal2 as string,",
+						"          T28_NumVal1 as double,",
+						"          T28_NumVal2 as double,",
+						"          T28_DtVal1 as date,",
+						"          T28_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T28_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T28_EventType,OtherCharVal11 T28_CharVal1,OtherCharVal2 T28_CharVal2,OtherNumVal1 as T28_NumVal1,OtherNumVal2 as T28_NumVal2,OtherDtVal1 as T28_DtVal1,OtherDtVal2 as T28_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T28_Event_Type}' and EventYear = '{$T28_Event_Year}' and EventQuarter = '{$T28_Event_Qtr}'\"),",
+						"     format: 'query') ~> T28OtherCore",
+						"source(output(",
+						"          T29_WorkerId as string,",
+						"          T29_EventType as string,",
+						"          T29_CharVal1 as string,",
+						"          T29_CharVal2 as string,",
+						"          T29_NumVal1 as double,",
+						"          T29_NumVal2 as double,",
+						"          T29_DtVal1 as date,",
+						"          T29_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T29_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T29_EventType,OtherCharVal11 T29_CharVal1,OtherCharVal2 T29_CharVal2,OtherNumVal1 as T29_NumVal1,OtherNumVal2 as T29_NumVal2,OtherDtVal1 as T29_DtVal1,OtherDtVal2 as T29_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T29_Event_Type}' and EventYear = '{$T29_Event_Year}' and EventQuarter = '{$T29_Event_Qtr}'\"),",
+						"     format: 'query') ~> T29OtherCore",
+						"source(output(",
+						"          T30_WorkerId as string,",
+						"          T30_EventType as string,",
+						"          T30_CharVal1 as string,",
+						"          T30_CharVal2 as string,",
+						"          T30_NumVal1 as double,",
+						"          T30_NumVal2 as double,",
+						"          T30_DtVal1 as date,",
+						"          T30_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T30_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T30_EventType,OtherCharVal11 T30_CharVal1,OtherCharVal2 T30_CharVal2,OtherNumVal1 as T30_NumVal1,OtherNumVal2 as T30_NumVal2,OtherDtVal1 as T30_DtVal1,OtherDtVal2 as T30_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T30_Event_Type}' and EventYear = '{$T30_Event_Year}' and EventQuarter = '{$T30_Event_Qtr}'\"),",
+						"     format: 'query') ~> T30OtherCore",
+						"source(output(",
+						"          T31_WorkerId as string,",
+						"          T31_EventType as string,",
+						"          T31_CharVal1 as string,",
+						"          T31_CharVal2 as string,",
+						"          T31_NumVal1 as double,",
+						"          T31_NumVal2 as double,",
+						"          T31_DtVal1 as date,",
+						"          T31_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T31_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T31_EventType,OtherCharVal11 T31_CharVal1,OtherCharVal2 T31_CharVal2,OtherNumVal1 as T31_NumVal1,OtherNumVal2 as T31_NumVal2,OtherDtVal1 as T31_DtVal1,OtherDtVal2 as T31_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T31_Event_Type}' and EventYear = '{$T31_Event_Year}' and EventQuarter = '{$T31_Event_Qtr}'\"),",
+						"     format: 'query') ~> T31OtherCore",
+						"source(output(",
+						"          T32_WorkerId as string,",
+						"          T32_EventType as string,",
+						"          T32_CharVal1 as string,",
+						"          T32_CharVal2 as string,",
+						"          T32_NumVal1 as double,",
+						"          T32_NumVal2 as double,",
+						"          T32_DtVal1 as date,",
+						"          T32_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T32_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T32_EventType,OtherCharVal11 T32_CharVal1,OtherCharVal2 T32_CharVal2,OtherNumVal1 as T32_NumVal1,OtherNumVal2 as T32_NumVal2,OtherDtVal1 as T32_DtVal1,OtherDtVal2 as T32_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T32_Event_Type}' and EventYear = '{$T32_Event_Year}' and EventQuarter = '{$T32_Event_Qtr}'\"),",
+						"     format: 'query') ~> T32OtherCore",
+						"source(output(",
+						"          T33_WorkerId as string,",
+						"          T33_EventType as string,",
+						"          T33_CharVal1 as string,",
+						"          T33_CharVal2 as string,",
+						"          T33_NumVal1 as double,",
+						"          T33_NumVal2 as double,",
+						"          T33_DtVal1 as date,",
+						"          T33_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T33_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T33_EventType,OtherCharVal11 T33_CharVal1,OtherCharVal2 T33_CharVal2,OtherNumVal1 as T33_NumVal1,OtherNumVal2 as T33_NumVal2,OtherDtVal1 as T33_DtVal1,OtherDtVal2 as T33_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T33_Event_Type}' and EventYear = '{$T33_Event_Year}' and EventQuarter = '{$T33_Event_Qtr}'\"),",
+						"     format: 'query') ~> T33OtherCore",
+						"source(output(",
+						"          T34_WorkerId as string,",
+						"          T34_EventType as string,",
+						"          T34_CharVal1 as string,",
+						"          T34_CharVal2 as string,",
+						"          T34_NumVal1 as double,",
+						"          T34_NumVal2 as double,",
+						"          T34_DtVal1 as date,",
+						"          T34_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T34_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T34_EventType,OtherCharVal11 T34_CharVal1,OtherCharVal2 T34_CharVal2,OtherNumVal1 as T34_NumVal1,OtherNumVal2 as T34_NumVal2,OtherDtVal1 as T34_DtVal1,OtherDtVal2 as T34_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T34_Event_Type}' and EventYear = '{$T34_Event_Year}' and EventQuarter = '{$T34_Event_Qtr}'\"),",
+						"     format: 'query') ~> T34OtherCore",
+						"source(output(",
+						"          T35_WorkerId as string,",
+						"          T35_EventType as string,",
+						"          T35_CharVal1 as string,",
+						"          T35_CharVal2 as string,",
+						"          T35_NumVal1 as double,",
+						"          T35_NumVal2 as double,",
+						"          T35_DtVal1 as date,",
+						"          T35_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T35_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T35_EventType,OtherCharVal11 T35_CharVal1,OtherCharVal2 T35_CharVal2,OtherNumVal1 as T35_NumVal1,OtherNumVal2 as T35_NumVal2,OtherDtVal1 as T35_DtVal1,OtherDtVal2 as T35_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T35_Event_Type}' and EventYear = '{$T35_Event_Year}' and EventQuarter = '{$T35_Event_Qtr}'\"),",
+						"     format: 'query') ~> T35OtherCore",
+						"source(output(",
+						"          T36_WorkerId as string,",
+						"          T36_EventType as string,",
+						"          T36_CharVal1 as string,",
+						"          T36_CharVal2 as string,",
+						"          T36_NumVal1 as double,",
+						"          T36_NumVal2 as double,",
+						"          T36_DtVal1 as date,",
+						"          T36_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T36_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T36_EventType,OtherCharVal11 T36_CharVal1,OtherCharVal2 T36_CharVal2,OtherNumVal1 as T36_NumVal1,OtherNumVal2 as T36_NumVal2,OtherDtVal1 as T36_DtVal1,OtherDtVal2 as T36_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T36_Event_Type}' and EventYear = '{$T36_Event_Year}' and EventQuarter = '{$T36_Event_Qtr}'\"),",
+						"     format: 'query') ~> T36OtherCore",
+						"source(output(",
+						"          T37_WorkerId as string,",
+						"          T37_EventType as string,",
+						"          T37_CharVal1 as string,",
+						"          T37_CharVal2 as string,",
+						"          T37_NumVal1 as double,",
+						"          T37_NumVal2 as double,",
+						"          T37_DtVal1 as date,",
+						"          T37_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T37_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T37_EventType,OtherCharVal11 T37_CharVal1,OtherCharVal2 T37_CharVal2,OtherNumVal1 as T37_NumVal1,OtherNumVal2 as T37_NumVal2,OtherDtVal1 as T37_DtVal1,OtherDtVal2 as T37_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T37_Event_Type}' and EventYear = '{$T37_Event_Year}' and EventQuarter = '{$T37_Event_Qtr}'\"),",
+						"     format: 'query') ~> T37OtherCore",
+						"source(output(",
+						"          T38_WorkerId as string,",
+						"          T38_EventType as string,",
+						"          T38_CharVal1 as string,",
+						"          T38_CharVal2 as string,",
+						"          T38_NumVal1 as double,",
+						"          T38_NumVal2 as double,",
+						"          T38_DtVal1 as date,",
+						"          T38_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T38_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T38_EventType,OtherCharVal11 T38_CharVal1,OtherCharVal2 T38_CharVal2,OtherNumVal1 as T38_NumVal1,OtherNumVal2 as T38_NumVal2,OtherDtVal1 as T38_DtVal1,OtherDtVal2 as T38_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T38_Event_Type}' and EventYear = '{$T38_Event_Year}' and EventQuarter = '{$T38_Event_Qtr}'\"),",
+						"     format: 'query') ~> T38OtherCore",
+						"source(output(",
+						"          T39_WorkerId as string,",
+						"          T39_EventType as string,",
+						"          T39_CharVal1 as string,",
+						"          T39_CharVal2 as string,",
+						"          T39_NumVal1 as double,",
+						"          T39_NumVal2 as double,",
+						"          T39_DtVal1 as date,",
+						"          T39_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T39_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T39_EventType,OtherCharVal11 T39_CharVal1,OtherCharVal2 T39_CharVal2,OtherNumVal1 as T39_NumVal1,OtherNumVal2 as T39_NumVal2,OtherDtVal1 as T39_DtVal1,OtherDtVal2 as T39_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T39_Event_Type}' and EventYear = '{$T39_Event_Year}' and EventQuarter = '{$T39_Event_Qtr}'\"),",
+						"     format: 'query') ~> T39OtherCore",
+						"source(output(",
+						"          T40_WorkerId as string,",
+						"          T40_EventType as string,",
+						"          T40_CharVal1 as string,",
+						"          T40_CharVal2 as string,",
+						"          T40_NumVal1 as double,",
+						"          T40_NumVal2 as double,",
+						"          T40_DtVal1 as date,",
+						"          T40_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T40_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T40_EventType,OtherCharVal11 T40_CharVal1,OtherCharVal2 T40_CharVal2,OtherNumVal1 as T40_NumVal1,OtherNumVal2 as T40_NumVal2,OtherDtVal1 as T40_DtVal1,OtherDtVal2 as T40_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T40_Event_Type}' and EventYear = '{$T40_Event_Year}' and EventQuarter = '{$T40_Event_Qtr}'\"),",
+						"     format: 'query') ~> T40OtherCore",
+						"source(output(",
+						"          T41_WorkerId as string,",
+						"          T41_EventType as string,",
+						"          T41_CharVal1 as string,",
+						"          T41_CharVal2 as string,",
+						"          T41_NumVal1 as double,",
+						"          T41_NumVal2 as double,",
+						"          T41_DtVal1 as date,",
+						"          T41_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T41_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T41_EventType,OtherCharVal11 T41_CharVal1,OtherCharVal2 T41_CharVal2,OtherNumVal1 as T41_NumVal1,OtherNumVal2 as T41_NumVal2,OtherDtVal1 as T41_DtVal1,OtherDtVal2 as T41_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T41_Event_Type}' and EventYear = '{$T41_Event_Year}' and EventQuarter = '{$T41_Event_Qtr}'\"),",
+						"     format: 'query') ~> T41OtherCore",
+						"source(output(",
+						"          T42_WorkerId as string,",
+						"          T42_EventType as string,",
+						"          T42_CharVal1 as string,",
+						"          T42_CharVal2 as string,",
+						"          T42_NumVal1 as double,",
+						"          T42_NumVal2 as double,",
+						"          T42_DtVal1 as date,",
+						"          T42_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T42_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T42_EventType,OtherCharVal11 T42_CharVal1,OtherCharVal2 T42_CharVal2,OtherNumVal1 as T42_NumVal1,OtherNumVal2 as T42_NumVal2,OtherDtVal1 as T42_DtVal1,OtherDtVal2 as T42_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T42_Event_Type}' and EventYear = '{$T42_Event_Year}' and EventQuarter = '{$T42_Event_Qtr}'\"),",
+						"     format: 'query') ~> T42OtherCore",
+						"source(output(",
+						"          T43_WorkerId as string,",
+						"          T43_EventType as string,",
+						"          T43_CharVal1 as string,",
+						"          T43_CharVal2 as string,",
+						"          T43_NumVal1 as double,",
+						"          T43_NumVal2 as double,",
+						"          T43_DtVal1 as date,",
+						"          T43_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T43_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T43_EventType,OtherCharVal11 T43_CharVal1,OtherCharVal2 T43_CharVal2,OtherNumVal1 as T43_NumVal1,OtherNumVal2 as T43_NumVal2,OtherDtVal1 as T43_DtVal1,OtherDtVal2 as T43_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T43_Event_Type}' and EventYear = '{$T43_Event_Year}' and EventQuarter = '{$T43_Event_Qtr}'\"),",
+						"     format: 'query') ~> T43OtherCore",
+						"source(output(",
+						"          T44_WorkerId as string,",
+						"          T44_EventType as string,",
+						"          T44_CharVal1 as string,",
+						"          T44_CharVal2 as string,",
+						"          T44_NumVal1 as double,",
+						"          T44_NumVal2 as double,",
+						"          T44_DtVal1 as date,",
+						"          T44_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T44_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T44_EventType,OtherCharVal11 T44_CharVal1,OtherCharVal2 T44_CharVal2,OtherNumVal1 as T44_NumVal1,OtherNumVal2 as T44_NumVal2,OtherDtVal1 as T44_DtVal1,OtherDtVal2 as T44_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T44_Event_Type}' and EventYear = '{$T44_Event_Year}' and EventQuarter = '{$T44_Event_Qtr}'\"),",
+						"     format: 'query') ~> T44OtherCore",
+						"source(output(",
+						"          T45_WorkerId as string,",
+						"          T45_EventType as string,",
+						"          T45_CharVal1 as string,",
+						"          T45_CharVal2 as string,",
+						"          T45_NumVal1 as double,",
+						"          T45_NumVal2 as double,",
+						"          T45_DtVal1 as date,",
+						"          T45_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T45_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T45_EventType,OtherCharVal11 T45_CharVal1,OtherCharVal2 T45_CharVal2,OtherNumVal1 as T45_NumVal1,OtherNumVal2 as T45_NumVal2,OtherDtVal1 as T45_DtVal1,OtherDtVal2 as T45_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T45_Event_Type}' and EventYear = '{$T45_Event_Year}' and EventQuarter = '{$T45_Event_Qtr}'\"),",
+						"     format: 'query') ~> T45OtherCore",
+						"source(output(",
+						"          T46_WorkerId as string,",
+						"          T46_EventType as string,",
+						"          T46_CharVal1 as string,",
+						"          T46_CharVal2 as string,",
+						"          T46_NumVal1 as double,",
+						"          T46_NumVal2 as double,",
+						"          T46_DtVal1 as date,",
+						"          T46_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T46_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T46_EventType,OtherCharVal11 T46_CharVal1,OtherCharVal2 T46_CharVal2,OtherNumVal1 as T46_NumVal1,OtherNumVal2 as T46_NumVal2,OtherDtVal1 as T46_DtVal1,OtherDtVal2 as T46_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T46_Event_Type}' and EventYear = '{$T46_Event_Year}' and EventQuarter = '{$T46_Event_Qtr}'\"),",
+						"     format: 'query') ~> T46OtherCore",
+						"source(output(",
+						"          T47_WorkerId as string,",
+						"          T47_EventType as string,",
+						"          T47_CharVal1 as string,",
+						"          T47_CharVal2 as string,",
+						"          T47_NumVal1 as double,",
+						"          T47_NumVal2 as double,",
+						"          T47_DtVal1 as date,",
+						"          T47_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T47_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T47_EventType,OtherCharVal11 T47_CharVal1,OtherCharVal2 T47_CharVal2,OtherNumVal1 as T47_NumVal1,OtherNumVal2 as T47_NumVal2,OtherDtVal1 as T47_DtVal1,OtherDtVal2 as T47_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T47_Event_Type}' and EventYear = '{$T47_Event_Year}' and EventQuarter = '{$T47_Event_Qtr}'\"),",
+						"     format: 'query') ~> T47OtherCore",
+						"source(output(",
+						"          T48_WorkerId as string,",
+						"          T48_EventType as string,",
+						"          T48_CharVal1 as string,",
+						"          T48_CharVal2 as string,",
+						"          T48_NumVal1 as double,",
+						"          T48_NumVal2 as double,",
+						"          T48_DtVal1 as date,",
+						"          T48_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T48_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T48_EventType,OtherCharVal11 T48_CharVal1,OtherCharVal2 T48_CharVal2,OtherNumVal1 as T48_NumVal1,OtherNumVal2 as T48_NumVal2,OtherDtVal1 as T48_DtVal1,OtherDtVal2 as T48_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T48_Event_Type}' and EventYear = '{$T48_Event_Year}' and EventQuarter = '{$T48_Event_Qtr}'\"),",
+						"     format: 'query') ~> T48OtherCore",
+						"source(output(",
+						"          T49_WorkerId as string,",
+						"          T49_EventType as string,",
+						"          T49_CharVal1 as string,",
+						"          T49_CharVal2 as string,",
+						"          T49_NumVal1 as double,",
+						"          T49_NumVal2 as double,",
+						"          T49_DtVal1 as date,",
+						"          T49_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T49_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T49_EventType,OtherCharVal11 T49_CharVal1,OtherCharVal2 T49_CharVal2,OtherNumVal1 as T49_NumVal1,OtherNumVal2 as T49_NumVal2,OtherDtVal1 as T49_DtVal1,OtherDtVal2 as T49_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T49_Event_Type}' and EventYear = '{$T49_Event_Year}' and EventQuarter = '{$T49_Event_Qtr}'\"),",
+						"     format: 'query') ~> T49OtherCore",
+						"source(output(",
+						"          T50_WorkerId as string,",
+						"          T50_EventType as string,",
+						"          T50_CharVal1 as string,",
+						"          T50_CharVal2 as string,",
+						"          T50_NumVal1 as double,",
+						"          T50_NumVal2 as double,",
+						"          T50_DtVal1 as date,",
+						"          T50_DtVal2 as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId as T50_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T50_EventType,OtherCharVal11 T50_CharVal1,OtherCharVal2 T50_CharVal2,OtherNumVal1 as T50_NumVal1,OtherNumVal2 as T50_NumVal2,OtherDtVal1 as T50_DtVal1,OtherDtVal2 as T50_DtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventType = '{$T50_Event_Type}' and EventYear = '{$T50_Event_Year}' and EventQuarter = '{$T50_Event_Qtr}'\"),",
+						"     format: 'query') ~> T50OtherCore",
+						"source(output(",
+						"          WorkerId as string,",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select WorkerId,ClientId,ClientEngagementDt from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> OtherCoreFullPop",
+						"OtherCoreFullPop, T1OtherCore join(WorkerId == T1_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT1",
+						"joinT1, T2OtherCore join(WorkerId == T2_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT2",
+						"joinT2, T3OtherCore join(WorkerId == T3_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT3",
+						"joinT3, T4OtherCore join(WorkerId == T4_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT4",
+						"joinT4, T5OtherCore join(WorkerId == T5_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT5",
+						"joinT5, T6OtherCore join(WorkerId == T6_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1, T7OtherCore join(WorkerId == T7_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT7",
+						"joinT7, T8OtherCore join(WorkerId == T8_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT8",
+						"joinT8, T9OtherCore join(WorkerId == T9_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT9",
+						"joinT9, T10OtherCore join(WorkerId == T10_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT10",
+						"joinT10, T11OtherCore join(WorkerId == T11_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT11",
+						"joinT11, T12OtherCore join(WorkerId == T12_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT12",
+						"joinT12, T13OtherCore join(WorkerId == T13_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT13",
+						"joinT13, T14OtherCore join(WorkerId == T14_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT14",
+						"joinT14, T15OtherCore join(WorkerId == T15_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT15",
+						"joinT15, T16OtherCore join(WorkerId == T16_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT16",
+						"joinT16, T17OtherCore join(WorkerId == T17_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT17",
+						"joinT17, T18OtherCore join(WorkerId == T18_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT18",
+						"joinT18, T19OtherCore join(WorkerId == T19_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT19",
+						"joinT19, T20OtherCore join(WorkerId == T20_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT20",
+						"joinT20, T21OtherCore join(WorkerId == T21_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT21",
+						"joinT21, T22OtherCore join(WorkerId == T22_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT22",
+						"joinT22, T23OtherCore join(WorkerId == T23_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT23",
+						"joinT23, T24OtherCore join(WorkerId == T24_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT24",
+						"joinT24, T25OtherCore join(WorkerId == T25_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT25",
+						"joinT25, T26OtherCore join(WorkerId == T26_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT26",
+						"joinT26, T27OtherCore join(WorkerId == T27_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT27",
+						"joinT27, T28OtherCore join(WorkerId == T28_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT28",
+						"joinT28, T29OtherCore join(WorkerId == T29_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT29",
+						"joinT29, T30OtherCore join(WorkerId == T30_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT30",
+						"joinT30, T31OtherCore join(WorkerId == T31_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT31",
+						"joinT31, T32OtherCore join(WorkerId == T32_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT32",
+						"joinT32, T33OtherCore join(WorkerId == T33_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT33",
+						"joinT33, T34OtherCore join(WorkerId == T34_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT34",
+						"joinT34, T35OtherCore join(WorkerId == T35_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT35",
+						"joinT35, T36OtherCore join(WorkerId == T36_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT36",
+						"joinT36, T37OtherCore join(WorkerId == T37_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT37",
+						"joinT37, T38OtherCore join(WorkerId == T38_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT38",
+						"joinT38, T39OtherCore join(WorkerId == T39_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT39",
+						"joinT39, T40OtherCore join(WorkerId == T40_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join40",
+						"join40, T41OtherCore join(WorkerId == T41_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT41",
+						"joinT41, T42OtherCore join(WorkerId == T42_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT42",
+						"joinT42, T43OtherCore join(WorkerId == T43_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT43",
+						"joinT43, T44OtherCore join(WorkerId == T44_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT44",
+						"joinT44, T45OtherCore join(WorkerId == T45_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT45",
+						"joinT45, T46OtherCore join(WorkerId == T46_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT46",
+						"joinT46, T47OtherCore join(WorkerId == T47_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT47",
+						"joinT47, T48OtherCore join(WorkerId == T48_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT48",
+						"joinT48, T49OtherCore join(WorkerId == T49_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT49",
+						"joinT49, T50OtherCore join(WorkerId == T50_WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinT50",
+						"joinT50 select(mapColumn(",
+						"          WorkerId,",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          T1_EventType,",
+						"          T1_CharVal1,",
+						"          T1_CharVal2,",
+						"          T1_NumVal1,",
+						"          T1_NumVal2,",
+						"          T1_DtVal1,",
+						"          T1_DtVal2,",
+						"          T2_EventType,",
+						"          T2_CharVal1,",
+						"          T2_CharVal2,",
+						"          T2_NumVal1,",
+						"          T2_NumVal2,",
+						"          T2_DtVal1,",
+						"          T2_DtVal2,",
+						"          T3_EventType,",
+						"          T3_CharVal1,",
+						"          T3_CharVal2,",
+						"          T3_NumVal1,",
+						"          T3_NumVal2,",
+						"          T3_DtVal1,",
+						"          T3_DtVal2,",
+						"          T4_EventType,",
+						"          T4_CharVal1,",
+						"          T4_CharVal2,",
+						"          T4_NumVal1,",
+						"          T4_NumVal2,",
+						"          T4_DtVal1,",
+						"          T4_DtVal2,",
+						"          T5_EventType,",
+						"          T5_CharVal1,",
+						"          T5_CharVal2,",
+						"          T5_NumVal1,",
+						"          T5_NumVal2,",
+						"          T5_DtVal1,",
+						"          T5_DtVal2,",
+						"          T6_EventType,",
+						"          T6_CharVal1,",
+						"          T6_CharVal2,",
+						"          T6_NumVal1,",
+						"          T6_NumVal2,",
+						"          T6_DtVal1,",
+						"          T6_DtVal2,",
+						"          T7_EventType,",
+						"          T7_CharVal1,",
+						"          T7_CharVal2,",
+						"          T7_NumVal1,",
+						"          T7_NumVal2,",
+						"          T7_DtVal1,",
+						"          T7_DtVal2,",
+						"          T8_EventType,",
+						"          T8_CharVal1,",
+						"          T8_CharVal2,",
+						"          T8_NumVal1,",
+						"          T8_NumVal2,",
+						"          T8_DtVal1,",
+						"          T8_DtVal2,",
+						"          T9_EventType,",
+						"          T9_CharVal1,",
+						"          T9_CharVal2,",
+						"          T9_NumVal1,",
+						"          T9_NumVal2,",
+						"          T9_DtVal1,",
+						"          T9_DtVal2,",
+						"          T10_EventType,",
+						"          T10_CharVal1,",
+						"          T10_CharVal2,",
+						"          T10_NumVal1,",
+						"          T10_NumVal2,",
+						"          T10_DtVal1,",
+						"          T10_DtVal2,",
+						"          T11_EventType,",
+						"          T11_CharVal1,",
+						"          T11_CharVal2,",
+						"          T11_NumVal1,",
+						"          T11_NumVal2,",
+						"          T11_DtVal1,",
+						"          T11_DtVal2,",
+						"          T12_EventType,",
+						"          T12_CharVal1,",
+						"          T12_CharVal2,",
+						"          T12_NumVal1,",
+						"          T12_NumVal2,",
+						"          T12_DtVal1,",
+						"          T12_DtVal2,",
+						"          T13_EventType,",
+						"          T13_CharVal1,",
+						"          T13_CharVal2,",
+						"          T13_NumVal1,",
+						"          T13_NumVal2,",
+						"          T13_DtVal1,",
+						"          T13_DtVal2,",
+						"          T14_EventType,",
+						"          T14_CharVal1,",
+						"          T14_CharVal2,",
+						"          T14_NumVal1,",
+						"          T14_NumVal2,",
+						"          T14_DtVal1,",
+						"          T14_DtVal2,",
+						"          T15_EventType,",
+						"          T15_CharVal1,",
+						"          T15_CharVal2,",
+						"          T15_NumVal1,",
+						"          T15_NumVal2,",
+						"          T15_DtVal1,",
+						"          T15_DtVal2,",
+						"          T16_EventType,",
+						"          T16_CharVal1,",
+						"          T16_CharVal2,",
+						"          T16_NumVal1,",
+						"          T16_NumVal2,",
+						"          T16_DtVal1,",
+						"          T16_DtVal2,",
+						"          T17_EventType,",
+						"          T17_CharVal1,",
+						"          T17_CharVal2,",
+						"          T17_NumVal1,",
+						"          T17_NumVal2,",
+						"          T17_DtVal1,",
+						"          T17_DtVal2,",
+						"          T18_EventType,",
+						"          T18_CharVal1,",
+						"          T18_CharVal2,",
+						"          T18_NumVal1,",
+						"          T18_NumVal2,",
+						"          T18_DtVal1,",
+						"          T18_DtVal2,",
+						"          T19_EventType,",
+						"          T19_CharVal1,",
+						"          T19_CharVal2,",
+						"          T19_NumVal1,",
+						"          T19_NumVal2,",
+						"          T19_DtVal1,",
+						"          T19_DtVal2,",
+						"          T20_EventType,",
+						"          T20_CharVal1,",
+						"          T20_CharVal2,",
+						"          T20_NumVal1,",
+						"          T20_NumVal2,",
+						"          T20_DtVal1,",
+						"          T20_DtVal2,",
+						"          T21_EventType,",
+						"          T21_CharVal1,",
+						"          T21_CharVal2,",
+						"          T21_NumVal1,",
+						"          T21_NumVal2,",
+						"          T21_DtVal1,",
+						"          T21_DtVal2,",
+						"          T22_EventType,",
+						"          T22_CharVal1,",
+						"          T22_CharVal2,",
+						"          T22_NumVal1,",
+						"          T22_NumVal2,",
+						"          T22_DtVal1,",
+						"          T22_DtVal2,",
+						"          T23_EventType,",
+						"          T23_CharVal1,",
+						"          T23_CharVal2,",
+						"          T23_NumVal1,",
+						"          T23_NumVal2,",
+						"          T23_DtVal1,",
+						"          T23_DtVal2,",
+						"          T24_EventType,",
+						"          T24_CharVal1,",
+						"          T24_CharVal2,",
+						"          T24_NumVal1,",
+						"          T24_NumVal2,",
+						"          T24_DtVal1,",
+						"          T24_DtVal2,",
+						"          T25_EventType,",
+						"          T25_CharVal1,",
+						"          T25_CharVal2,",
+						"          T25_NumVal1,",
+						"          T25_NumVal2,",
+						"          T25_DtVal1,",
+						"          T25_DtVal2,",
+						"          T26_EventType,",
+						"          T26_CharVal1,",
+						"          T26_CharVal2,",
+						"          T26_NumVal1,",
+						"          T26_NumVal2,",
+						"          T26_DtVal1,",
+						"          T26_DtVal2,",
+						"          T27_EventType,",
+						"          T27_CharVal1,",
+						"          T27_CharVal2,",
+						"          T27_NumVal1,",
+						"          T27_NumVal2,",
+						"          T27_DtVal1,",
+						"          T27_DtVal2,",
+						"          T28_EventType,",
+						"          T28_CharVal1,",
+						"          T28_CharVal2,",
+						"          T28_NumVal1,",
+						"          T28_NumVal2,",
+						"          T28_DtVal1,",
+						"          T28_DtVal2,",
+						"          T29_EventType,",
+						"          T29_CharVal1,",
+						"          T29_CharVal2,",
+						"          T29_NumVal1,",
+						"          T29_NumVal2,",
+						"          T29_DtVal1,",
+						"          T29_DtVal2,",
+						"          T30_EventType,",
+						"          T30_CharVal1,",
+						"          T30_CharVal2,",
+						"          T30_NumVal1,",
+						"          T30_NumVal2,",
+						"          T30_DtVal1,",
+						"          T30_DtVal2,",
+						"          T31_EventType,",
+						"          T31_CharVal1,",
+						"          T31_CharVal2,",
+						"          T31_NumVal1,",
+						"          T31_NumVal2,",
+						"          T31_DtVal1,",
+						"          T31_DtVal2,",
+						"          T32_EventType,",
+						"          T32_CharVal1,",
+						"          T32_CharVal2,",
+						"          T32_NumVal1,",
+						"          T32_NumVal2,",
+						"          T32_DtVal1,",
+						"          T32_DtVal2,",
+						"          T33_EventType,",
+						"          T33_CharVal1,",
+						"          T33_CharVal2,",
+						"          T33_NumVal1,",
+						"          T33_NumVal2,",
+						"          T33_DtVal1,",
+						"          T33_DtVal2,",
+						"          T34_EventType,",
+						"          T34_CharVal1,",
+						"          T34_CharVal2,",
+						"          T34_NumVal1,",
+						"          T34_NumVal2,",
+						"          T34_DtVal1,",
+						"          T34_DtVal2,",
+						"          T35_EventType,",
+						"          T35_CharVal1,",
+						"          T35_CharVal2,",
+						"          T35_NumVal1,",
+						"          T35_NumVal2,",
+						"          T35_DtVal1,",
+						"          T35_DtVal2,",
+						"          T36_EventType,",
+						"          T36_CharVal1,",
+						"          T36_CharVal2,",
+						"          T36_NumVal1,",
+						"          T36_NumVal2,",
+						"          T36_DtVal1,",
+						"          T36_DtVal2,",
+						"          T37_EventType,",
+						"          T37_CharVal1,",
+						"          T37_CharVal2,",
+						"          T37_NumVal1,",
+						"          T37_NumVal2,",
+						"          T37_DtVal1,",
+						"          T37_DtVal2,",
+						"          T38_EventType,",
+						"          T38_CharVal1,",
+						"          T38_CharVal2,",
+						"          T38_NumVal1,",
+						"          T38_NumVal2,",
+						"          T38_DtVal1,",
+						"          T38_DtVal2,",
+						"          T39_EventType,",
+						"          T39_CharVal1,",
+						"          T39_CharVal2,",
+						"          T39_NumVal1,",
+						"          T39_NumVal2,",
+						"          T39_DtVal1,",
+						"          T39_DtVal2,",
+						"          T40_EventType,",
+						"          T40_CharVal1,",
+						"          T40_CharVal2,",
+						"          T40_NumVal1,",
+						"          T40_NumVal2,",
+						"          T40_DtVal1,",
+						"          T40_DtVal2,",
+						"          T41_EventType,",
+						"          T41_CharVal1,",
+						"          T41_CharVal2,",
+						"          T41_NumVal1,",
+						"          T41_NumVal2,",
+						"          T41_DtVal1,",
+						"          T41_DtVal2,",
+						"          T42_EventType,",
+						"          T42_CharVal1,",
+						"          T42_CharVal2,",
+						"          T42_NumVal1,",
+						"          T42_NumVal2,",
+						"          T42_DtVal1,",
+						"          T42_DtVal2,",
+						"          T43_EventType,",
+						"          T43_CharVal1,",
+						"          T43_CharVal2,",
+						"          T43_NumVal1,",
+						"          T43_NumVal2,",
+						"          T43_DtVal1,",
+						"          T43_DtVal2,",
+						"          T44_EventType,",
+						"          T44_CharVal1,",
+						"          T44_CharVal2,",
+						"          T44_NumVal1,",
+						"          T44_NumVal2,",
+						"          T44_DtVal1,",
+						"          T44_DtVal2,",
+						"          T45_EventType,",
+						"          T45_CharVal1,",
+						"          T45_CharVal2,",
+						"          T45_NumVal1,",
+						"          T45_NumVal2,",
+						"          T45_DtVal1,",
+						"          T45_DtVal2,",
+						"          T46_EventType,",
+						"          T46_CharVal1,",
+						"          T46_CharVal2,",
+						"          T46_NumVal1,",
+						"          T46_NumVal2,",
+						"          T46_DtVal1,",
+						"          T46_DtVal2,",
+						"          T47_EventType,",
+						"          T47_CharVal1,",
+						"          T47_CharVal2,",
+						"          T47_NumVal1,",
+						"          T47_NumVal2,",
+						"          T47_DtVal1,",
+						"          T47_DtVal2,",
+						"          T48_EventType,",
+						"          T48_CharVal1,",
+						"          T48_CharVal2,",
+						"          T48_NumVal1,",
+						"          T48_NumVal2,",
+						"          T48_DtVal1,",
+						"          T48_DtVal2,",
+						"          T49_EventType,",
+						"          T49_CharVal1,",
+						"          T49_CharVal2,",
+						"          T49_NumVal1,",
+						"          T49_NumVal2,",
+						"          T49_DtVal1,",
+						"          T49_DtVal2,",
+						"          T50_EventType,",
+						"          T50_CharVal1,",
+						"          T50_CharVal2,",
+						"          T50_NumVal1,",
+						"          T50_NumVal2,",
+						"          T50_DtVal1,",
+						"          T50_DtVal2",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectCleanup",
+						"SelectCleanup sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
+						"     ),",
+						"     partitionFileNames:['trash.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/etalentOtherCoreFactTbl')]",
 				"[concat(variables('factoryId'), '/datasets/Source_FactTblFldr')]"
 			]
 		},
@@ -97222,6 +99667,76 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/etalentVeteranMapTbl')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Tmp_OtherCoreAnalysis')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Temp Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentTmp_OtherAnalysisTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Core"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentTmp_OtherAnalysisTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Id as integer,",
+						"          Type as string,",
+						"          Year as integer,",
+						"          Quarter as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[Tmp_OtherAnalysisTbl]\"),",
+						"     format: 'query') ~> Core",
+						"Core alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Id as integer,",
+						"          Type as string,",
+						"          Year as integer,",
+						"          Quarter as integer",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['Id','Type','Year','Quarter'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/etalentTmp_OtherAnalysisTbl')]"
 			]
 		},
 		{
