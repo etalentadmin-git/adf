@@ -27,6 +27,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "OtherCoreWorkers"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentTmp_OtherAnalysisTbl",
+						"type": "DatasetReference"
+					},
+					"name": "OtherCoreYear"
 				}
 			],
 			"sinks": [
@@ -793,10 +800,13 @@
 					"name": "joinT50"
 				},
 				{
-					"name": "select1"
+					"name": "CleanupJoinCollumns"
 				},
 				{
 					"name": "joinT8"
+				},
+				{
+					"name": "derivedColumn1"
 				}
 			],
 			"scriptLines": [
@@ -840,6 +850,14 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select WorkerId,ClientId,ClientEngagementDt from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> OtherCoreWorkers",
+				"source(output(",
+				"          Year as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select Year from [dbo].[Tmp_OtherAnalysisTbl] group by Year\"),",
+				"     format: 'query') ~> OtherCoreYear",
 				"AllOtherCore, TypeT1 join(Type == Type1,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
@@ -2598,13 +2616,14 @@
 				"          {T50 OtherDtVal2}",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
+				"     skipDuplicateMapOutputs: true) ~> CleanupJoinCollumns",
 				"joinT7, selectT8 join(WorkerId == {T8 WorkerId},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinT8",
-				"select1 sink(allowSchemaDrift: true,",
+				"CleanupJoinCollumns derive() ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          Column_1 as string,",
