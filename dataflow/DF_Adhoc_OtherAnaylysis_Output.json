@@ -12,7 +12,7 @@
 						"referenceName": "etalentOtherCoreFactTbl",
 						"type": "DatasetReference"
 					},
-					"name": "T1OtherCore"
+					"name": "AllOtherCore"
 				},
 				{
 					"dataset": {
@@ -26,7 +26,7 @@
 						"referenceName": "etalentTmp_OtherAnalysisTbl",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "AllOtherTblAnalysis"
 				}
 			],
 			"sinks": [
@@ -47,6 +47,39 @@
 				},
 				{
 					"name": "join1"
+				},
+				{
+					"name": "DerivedAddTypeId"
+				},
+				{
+					"name": "SelectAnalyisTypeOutput"
+				},
+				{
+					"name": "filterT1"
+				},
+				{
+					"name": "filterT2"
+				},
+				{
+					"name": "filterT3"
+				},
+				{
+					"name": "filterT4"
+				},
+				{
+					"name": "TypeT1"
+				},
+				{
+					"name": "TypeT2"
+				},
+				{
+					"name": "TypeT3"
+				},
+				{
+					"name": "TypeT4"
+				},
+				{
+					"name": "selectT1"
 				}
 			],
 			"scriptLines": [
@@ -55,20 +88,20 @@
 				"     Flow_Client_Dt as string",
 				"}",
 				"source(output(",
-				"          T1_WorkerId as string,",
-				"          T1_EventType as string,",
-				"          T1_CharVal1 as string,",
-				"          T1_CharVal2 as string,",
-				"          T1_NumVal1 as double,",
-				"          T1_NumVal2 as double,",
-				"          T1_DtVal1 as date,",
-				"          T1_DtVal2 as date",
+				"          WorkerId as string,",
+				"          Type as string,",
+				"          OtherCharVal1 as string,",
+				"          OtherCharVal2 as string,",
+				"          OtherNumVal1 as double,",
+				"          OtherNumVal2 as double,",
+				"          OtherDtVal1 as date,",
+				"          OtherDtVal2 as date",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select WorkerId as T1_WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as T1_EventType,OtherCharVal11 T1_CharVal1,OtherCharVal2 T1_CharVal2,OtherNumVal1 as T1_NumVal1,OtherNumVal2 as T1_NumVal2,OtherDtVal1 as T1_DtVal1,OtherDtVal2 as T1_DtVal2 From [dbo].[OtherCoreFactTbl] where where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'and concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) IN (Select concat([Year],'-','Q',[Quarter],' ',[Type]) from [dbo].[Tmp_OtherAnalysisTbl] where Id=1)\"\r\\n),",
-				"     format: 'query') ~> T1OtherCore",
+				"     query: (\"select WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as Type,OtherCharVal11 as OtherCharVal1,OtherCharVal2,OtherNumVal1,OtherNumVal2 ,OtherDtVal1 ,OtherDtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> AllOtherCore",
 				"source(output(",
 				"          WorkerId as string,",
 				"          ClientId as string,",
@@ -88,15 +121,15 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select * from [dbo].[Tmp_OtherAnalysisTbl] where Id=1\"),",
-				"     format: 'query') ~> source1",
-				"OtherCoreFullPop, T1OtherCore join(WorkerId == T1_WorkerId,",
+				"     query: (\"select * from [dbo].[Tmp_OtherAnalysisTbl]\"),",
+				"     format: 'query') ~> AllOtherTblAnalysis",
+				"OtherCoreFullPop, AllOtherCore join(OtherCoreFullPop@WorkerId == T1_WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinT1",
 				"joinT1 select(mapColumn(",
-				"          WorkerId,",
+				"          WorkerId = OtherCoreFullPop@WorkerId,",
 				"          ClientId,",
 				"          ClientEngagementDt,",
 				"          T1_EventType,",
@@ -109,12 +142,54 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectCleanup",
-				"T1OtherCore, source1 join(T1_EventType == Type",
-				"     && ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"AllOtherCore, TypeT1 join(Type == Type1,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1",
+				"AllOtherTblAnalysis derive({Type Id} = concat(concat(concat(concat(concat(toString(Year),'-'),'Q'),toString(Quarter)),' '),Type)) ~> DerivedAddTypeId",
+				"DerivedAddTypeId select(mapColumn(",
+				"          Id,",
+				"          Type = {Type Id}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectAnalyisTypeOutput",
+				"SelectAnalyisTypeOutput filter(Id==1) ~> filterT1",
+				"SelectAnalyisTypeOutput filter(Id==2) ~> filterT2",
+				"SelectAnalyisTypeOutput filter(Id==3) ~> filterT3",
+				"SelectAnalyisTypeOutput filter(Id==4) ~> filterT4",
+				"filterT1 select(mapColumn(",
+				"          Type1 = Type",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> TypeT1",
+				"filterT2 select(mapColumn(",
+				"          Type2 = Type",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> TypeT2",
+				"filterT3 select(mapColumn(",
+				"          Type3 = Type",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> TypeT3",
+				"filterT4 select(mapColumn(",
+				"          Type4 = Type",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> TypeT4",
+				"join1 select(mapColumn(",
+				"          WorkerId,",
+				"          Type,",
+				"          OtherCharVal1,",
+				"          OtherCharVal2,",
+				"          OtherNumVal1,",
+				"          OtherNumVal2,",
+				"          OtherDtVal1,",
+				"          OtherDtVal2",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectT1",
 				"SelectCleanup sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
