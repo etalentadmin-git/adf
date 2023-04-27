@@ -16,35 +16,14 @@
 				},
 				{
 					"dataset": {
-						"referenceName": "etalentOtherCoreFactTbl",
-						"type": "DatasetReference"
-					},
-					"name": "OtherCoreFullPop"
-				},
-				{
-					"dataset": {
 						"referenceName": "etalentTmp_OtherAnalysisTbl",
 						"type": "DatasetReference"
 					},
 					"name": "AllOtherTblAnalysis"
 				}
 			],
-			"sinks": [
-				{
-					"dataset": {
-						"referenceName": "Source_FactTblFldr",
-						"type": "DatasetReference"
-					},
-					"name": "sink1"
-				}
-			],
+			"sinks": [],
 			"transformations": [
-				{
-					"name": "joinT1"
-				},
-				{
-					"name": "SelectCleanup"
-				},
 				{
 					"name": "join1"
 				},
@@ -356,6 +335,60 @@
 				},
 				{
 					"name": "TypeT50"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "selectT2"
+				},
+				{
+					"name": "join3"
+				},
+				{
+					"name": "selectT3"
+				},
+				{
+					"name": "join4"
+				},
+				{
+					"name": "selectT4"
+				},
+				{
+					"name": "join5"
+				},
+				{
+					"name": "selectT5"
+				},
+				{
+					"name": "join6"
+				},
+				{
+					"name": "selectT6"
+				},
+				{
+					"name": "join7"
+				},
+				{
+					"name": "selectT7"
+				},
+				{
+					"name": "join8"
+				},
+				{
+					"name": "selectT8"
+				},
+				{
+					"name": "join9"
+				},
+				{
+					"name": "selectT9"
+				},
+				{
+					"name": "join10"
+				},
+				{
+					"name": "selectT10"
 				}
 			],
 			"scriptLines": [
@@ -379,16 +412,6 @@
 				"     query: (\"select WorkerId,concat([EventYear],'-','Q',[EventQuarter],' ',[EventType]) as Type,OtherCharVal11 as OtherCharVal1,OtherCharVal2,OtherNumVal1,OtherNumVal2 ,OtherDtVal1 ,OtherDtVal2 from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> AllOtherCore",
 				"source(output(",
-				"          WorkerId as string,",
-				"          ClientId as string,",
-				"          ClientEngagementDt as date",
-				"     ),",
-				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select WorkerId,ClientId,ClientEngagementDt from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-				"     format: 'query') ~> OtherCoreFullPop",
-				"source(output(",
 				"          Id as integer,",
 				"          Type as string,",
 				"          Year as integer,",
@@ -399,25 +422,6 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[Tmp_OtherAnalysisTbl]\"),",
 				"     format: 'query') ~> AllOtherTblAnalysis",
-				"OtherCoreFullPop, AllOtherCore join(OtherCoreFullPop@WorkerId == T1_WorkerId,",
-				"     joinType:'left',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinT1",
-				"joinT1 select(mapColumn(",
-				"          WorkerId = OtherCoreFullPop@WorkerId,",
-				"          ClientId,",
-				"          ClientEngagementDt,",
-				"          T1_EventType,",
-				"          T1_CharVal1,",
-				"          T1_CharVal2,",
-				"          T1_NumVal1,",
-				"          T1_NumVal2,",
-				"          T1_DtVal1,",
-				"          T1_DtVal2",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectCleanup",
 				"AllOtherCore, TypeT1 join(Type == Type1,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
@@ -455,14 +459,14 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> TypeT4",
 				"join1 select(mapColumn(",
-				"          WorkerId,",
-				"          Type,",
-				"          OtherCharVal1,",
-				"          OtherCharVal2,",
-				"          OtherNumVal1,",
-				"          OtherNumVal2,",
-				"          OtherDtVal1,",
-				"          OtherDtVal2",
+				"          {T1 WorkerId} = WorkerId,",
+				"          {T1 Type} = Type,",
+				"          {T1 OtherCharVal1} = OtherCharVal1,",
+				"          {T1 OtherCharVal2} = OtherCharVal2,",
+				"          {T1 OtherNumVal1} = OtherNumVal1,",
+				"          {T1 OtherNumVal2} = OtherNumVal2,",
+				"          {T1 OtherDtVal1} = OtherDtVal1,",
+				"          {T1 OtherDtVal2} = OtherDtVal2",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectT1",
@@ -742,42 +746,159 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> TypeT50",
-				"SelectCleanup sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     input(",
-				"          Column_1 as string,",
-				"          Column_2 as string,",
-				"          Column_3 as string,",
-				"          Column_4 as string,",
-				"          Column_5 as string,",
-				"          Column_6 as string,",
-				"          Column_7 as string,",
-				"          Column_8 as string,",
-				"          Column_9 as string,",
-				"          Column_10 as string,",
-				"          Column_11 as string,",
-				"          Column_12 as string,",
-				"          Column_13 as string,",
-				"          Column_14 as string,",
-				"          Column_15 as string,",
-				"          Column_16 as string,",
-				"          Column_17 as string,",
-				"          Column_18 as string,",
-				"          Column_19 as string,",
-				"          Column_20 as string,",
-				"          Column_21 as string,",
-				"          Column_22 as string,",
-				"          Column_23 as string,",
-				"          Column_24 as string,",
-				"          Column_25 as string,",
-				"          Column_26 as string,",
-				"          Column_27 as string,",
-				"          Column_28 as string",
+				"AllOtherCore, TypeT2 join(Type == Type2,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"join2 select(mapColumn(",
+				"          {T2 WorkerId} = WorkerId,",
+				"          {T2 Type} = Type,",
+				"          {T2 OtherCharVal1} = OtherCharVal1,",
+				"          {T2 OtherCharVal2} = OtherCharVal2,",
+				"          {T2 OtherNumVal1} = OtherNumVal1,",
+				"          {T2 OtherNumVal2} = OtherNumVal2,",
+				"          {T2 OtherDtVal1} = OtherDtVal1,",
+				"          {T2 OtherDtVal2} = OtherDtVal2",
 				"     ),",
-				"     partitionFileNames:['TestOtherAnalysisOutput.csv'],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> selectT2",
+				"AllOtherCore, TypeT3 join(Type == Type3,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join3",
+				"join3 select(mapColumn(",
+				"          {T3 WorkerId} = WorkerId,",
+				"          {T3 Type} = Type,",
+				"          {T3 OtherCharVal1} = OtherCharVal1,",
+				"          {T3 OtherCharVal2} = OtherCharVal2,",
+				"          {T3 OtherNumVal1} = OtherNumVal1,",
+				"          {T3 OtherNumVal2} = OtherNumVal2,",
+				"          {T3 OtherDtVal1} = OtherDtVal1,",
+				"          {T3 OtherDtVal2} = OtherDtVal2",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectT3",
+				"AllOtherCore, TypeT4 join(Type == Type4,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join4",
+				"join4 select(mapColumn(",
+				"          {T4 WorkerId} = WorkerId,",
+				"          {T4 Type} = Type,",
+				"          {T4 OtherCharVal1} = OtherCharVal1,",
+				"          {T4 OtherCharVal2} = OtherCharVal2,",
+				"          {T4 OtherNumVal1} = OtherNumVal1,",
+				"          {T4 OtherNumVal2} = OtherNumVal2,",
+				"          {T4 OtherDtVal1} = OtherDtVal1,",
+				"          {T4 OtherDtVal2} = OtherDtVal2",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectT4",
+				"AllOtherCore, TypeT5 join(Type == Type5,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join5",
+				"join5 select(mapColumn(",
+				"          {T5 WorkerId} = WorkerId,",
+				"          {T5 Type} = Type,",
+				"          {T5 OtherCharVal1} = OtherCharVal1,",
+				"          {T5 OtherCharVal2} = OtherCharVal2,",
+				"          {T5 OtherNumVal1} = OtherNumVal1,",
+				"          {T5 OtherNumVal2} = OtherNumVal2,",
+				"          {T5 OtherDtVal1} = OtherDtVal1,",
+				"          {T5 OtherDtVal2} = OtherDtVal2",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectT5",
+				"AllOtherCore, TypeT6 join(Type == Type6,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join6",
+				"join6 select(mapColumn(",
+				"          {T6 WorkerId} = WorkerId,",
+				"          {T6 Type} = Type,",
+				"          {T6 OtherCharVal1} = OtherCharVal1,",
+				"          {T6 OtherCharVal2} = OtherCharVal2,",
+				"          {T6 OtherNumVal1} = OtherNumVal1,",
+				"          {T6 OtherNumVal2} = OtherNumVal2,",
+				"          {T6 OtherDtVal1} = OtherDtVal1,",
+				"          {T6 OtherDtVal2} = OtherDtVal2",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectT6",
+				"AllOtherCore, TypeT7 join(Type == Type7,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join7",
+				"join7 select(mapColumn(",
+				"          {T7 WorkerId} = WorkerId,",
+				"          {T7 Type} = Type,",
+				"          {T7 OtherCharVal1} = OtherCharVal1,",
+				"          {T7 OtherCharVal2} = OtherCharVal2,",
+				"          {T7 OtherNumVal1} = OtherNumVal1,",
+				"          {T7 OtherNumVal2} = OtherNumVal2,",
+				"          {T7 OtherDtVal1} = OtherDtVal1,",
+				"          {T7 OtherDtVal2} = OtherDtVal2",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectT7",
+				"AllOtherCore, TypeT8 join(Type == Type8,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join8",
+				"join8 select(mapColumn(",
+				"          {T8 WorkerId} = WorkerId,",
+				"          {T8 Type} = Type,",
+				"          {T8 OtherCharVal1} = OtherCharVal1,",
+				"          {T8 OtherCharVal2} = OtherCharVal2,",
+				"          {T8 OtherNumVal1} = OtherNumVal1,",
+				"          {T8 OtherNumVal2} = OtherNumVal2,",
+				"          {T8 OtherDtVal1} = OtherDtVal1,",
+				"          {T8 OtherDtVal2} = OtherDtVal2",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectT8",
+				"AllOtherCore, TypeT9 join(Type == Type9,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join9",
+				"join9 select(mapColumn(",
+				"          {T9 WorkerId} = WorkerId,",
+				"          {T9 Type} = Type,",
+				"          {T9 OtherCharVal1} = OtherCharVal1,",
+				"          {T9 OtherCharVal2} = OtherCharVal2,",
+				"          {T9 OtherNumVal1} = OtherNumVal1,",
+				"          {T9 OtherNumVal2} = OtherNumVal2,",
+				"          {T9 OtherDtVal1} = OtherDtVal1,",
+				"          {T9 OtherDtVal2} = OtherDtVal2",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectT9",
+				"AllOtherCore, TypeT10 join(Type == Type10,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join10",
+				"join10 select(mapColumn(",
+				"          {T10 WorkerId} = WorkerId,",
+				"          {T10 Type} = Type,",
+				"          {T10 OtherCharVal1} = OtherCharVal1,",
+				"          {T10 OtherCharVal2} = OtherCharVal2,",
+				"          {T10 OtherNumVal1} = OtherNumVal1,",
+				"          {T10 OtherNumVal2} = OtherNumVal2,",
+				"          {T10 OtherDtVal1} = OtherDtVal1,",
+				"          {T10 OtherDtVal2} = OtherDtVal2",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectT10"
 			]
 		}
 	}
