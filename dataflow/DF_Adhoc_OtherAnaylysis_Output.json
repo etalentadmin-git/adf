@@ -20,6 +20,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "AllOtherTblAnalysis"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "OtherCoreWorkers"
 				}
 			],
 			"sinks": [],
@@ -629,6 +636,42 @@
 				},
 				{
 					"name": "selectT50"
+				},
+				{
+					"name": "joinT1"
+				},
+				{
+					"name": "joinT2"
+				},
+				{
+					"name": "joinT3"
+				},
+				{
+					"name": "joinT4"
+				},
+				{
+					"name": "joinT5"
+				},
+				{
+					"name": "joinT6"
+				},
+				{
+					"name": "joinT8"
+				},
+				{
+					"name": "joinT9"
+				},
+				{
+					"name": "joinT10"
+				},
+				{
+					"name": "joinT11"
+				},
+				{
+					"name": "joinT12"
+				},
+				{
+					"name": "join51"
 				}
 			],
 			"scriptLines": [
@@ -662,6 +705,16 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[Tmp_OtherAnalysisTbl]\"),",
 				"     format: 'query') ~> AllOtherTblAnalysis",
+				"source(output(",
+				"          WorkerId as string,",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select WorkerId,ClientId,ClientEngagementDt from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> OtherCoreWorkers",
 				"AllOtherCore, TypeT1 join(Type == Type1,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
@@ -1818,7 +1871,67 @@
 				"          {T50 OtherDtVal2} = OtherDtVal2",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> selectT50"
+				"     skipDuplicateMapOutputs: true) ~> selectT50",
+				"OtherCoreWorkers, selectT1 join(WorkerId == {T1 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT1",
+				"joinT1, selectT2 join(WorkerId == {T2 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT2",
+				"joinT2, selectT3 join(WorkerId == {T3 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT3",
+				"joinT3, selectT4 join(WorkerId == {T4 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT4",
+				"joinT4, selectT5 join(WorkerId == {T5 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT5",
+				"joinT5, selectT6 join(WorkerId == {T6 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT6",
+				"joinT6, selectT7 join(WorkerId == {T7 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT8",
+				"joinT8, selectT9 join(WorkerId == {T9 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT9",
+				"joinT9, selectT10 join(WorkerId == {T10 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT10",
+				"joinT10, selectT11 join(WorkerId == {T11 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT11",
+				"joinT11, selectT12 join(WorkerId == {T12 WorkerId},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinT12",
+				"joinT12 join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join51"
 			]
 		}
 	}
