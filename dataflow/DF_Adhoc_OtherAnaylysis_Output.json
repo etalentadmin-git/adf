@@ -807,6 +807,12 @@
 				},
 				{
 					"name": "derivedColumn1"
+				},
+				{
+					"name": "JoinOtherAnalysisYear"
+				},
+				{
+					"name": "OtherCoreAnalysisMaxYearOutput"
 				}
 			],
 			"scriptLines": [
@@ -856,7 +862,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select Year from [dbo].[Tmp_OtherAnalysisTbl] group by Year\"),",
+				"     query: (\"select max(Year) as Year from [dbo].[Tmp_OtherAnalysisTbl]\"),",
 				"     format: 'query') ~> OtherCoreYear",
 				"AllOtherCore, TypeT1 join(Type == Type1,",
 				"     joinType:'inner',",
@@ -2015,7 +2021,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectT50",
-				"OtherCoreWorkers, selectT1 join(WorkerId == {T1 WorkerId},",
+				"JoinOtherAnalysisYear, selectT1 join(WorkerId == {T1 WorkerId},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -2623,6 +2629,12 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinT8",
 				"CleanupJoinCollumns derive() ~> derivedColumn1",
+				"OtherCoreWorkers, OtherCoreAnalysisMaxYearOutput join(ClientId == {Client Id},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinOtherAnalysisYear",
+				"OtherCoreYear derive({Client Id} = $Flow_Client_Id) ~> OtherCoreAnalysisMaxYearOutput",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
