@@ -13,6 +13,151 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Output_Mapping_Location')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DF_Mapping_Location_Qtr",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Mapping_Location",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"AllCoreData": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"LocationMappingTbl": {},
+									"Requisitions": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"DatabaseCoreRecords": {},
+									"DatabaseReqRecords": {},
+									"OutputWorkingEthnicityMapping": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"OutputPrepEthnicityMapping": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Create Mapping Table Files"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-11T23:59:37Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Output_Mapping_Performance')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -3123,212 +3268,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-11T23:59:37Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/TEST_Append_FactTbl_Req_Qtr')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Full Load",
-						"description": "Load Quarter data into database.  **IMPORTANT ** A full load will delete all prior table activity.",
-						"type": "IfCondition",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@contains(pipeline().parameters.P_Full_Load_Y_or_N,'Y')",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Delete_Rec_FactTbl_Req",
-									"type": "ExecuteDataFlow",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataflow": {
-											"referenceName": "Delete_All_Rec_FactTbl_Req",
-											"type": "DataFlowReference",
-											"parameters": {
-												"Flow_Client_Id": {
-													"value": "'@{pipeline().parameters.P_Client_Id}'",
-													"type": "Expression"
-												},
-												"Flow_Client_Dt": {
-													"value": "'@{pipeline().parameters.P_Client_Dt}'",
-													"type": "Expression"
-												}
-											},
-											"datasetParameters": {
-												"Requisition": {},
-												"DeleteRecords": {}
-											}
-										},
-										"staging": {},
-										"compute": {
-											"coreCount": 8,
-											"computeType": "General"
-										},
-										"traceLevel": "Fine"
-									}
-								},
-								{
-									"name": "Append_FactTbl_Req_Qtr",
-									"type": "ExecuteDataFlow",
-									"dependsOn": [
-										{
-											"activity": "Delete_Rec_FactTbl_Req",
-											"dependencyConditions": [
-												"Completed"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataflow": {
-											"referenceName": "Append_FactTbl_Req",
-											"type": "DataFlowReference",
-											"parameters": {},
-											"datasetParameters": {
-												"Requisitions": {
-													"Source_Client_Fldr": {
-														"value": "@pipeline().parameters.P_Client_Id",
-														"type": "Expression"
-													},
-													"Source_Client_Date": {
-														"value": "@pipeline().parameters.P_Client_Dt",
-														"type": "Expression"
-													},
-													"Source_Client_Year": {
-														"value": "@pipeline().parameters.P_Client_Year",
-														"type": "Expression"
-													},
-													"Source_Client_Quarter": {
-														"value": "@pipeline().parameters.P_Client_Quarter",
-														"type": "Expression"
-													}
-												},
-												"AppendReqFact": {}
-											}
-										},
-										"staging": {},
-										"compute": {
-											"coreCount": 8,
-											"computeType": "General"
-										},
-										"traceLevel": "Fine"
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Delta Load",
-						"description": "Load Quarter data into database.  **IMPORTANT ** A full load will delete all prior table activity.",
-						"type": "IfCondition",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@contains(pipeline().parameters.P_Full_Load_Y_or_N,'N')",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Append_FactTbl_Req_Qtr_copy1",
-									"type": "ExecuteDataFlow",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataflow": {
-											"referenceName": "Append_FactTbl_Req",
-											"type": "DataFlowReference",
-											"parameters": {},
-											"datasetParameters": {
-												"Requisitions": {
-													"Source_Client_Fldr": {
-														"value": "@pipeline().parameters.P_Client_Id",
-														"type": "Expression"
-													},
-													"Source_Client_Date": {
-														"value": "@pipeline().parameters.P_Client_Dt",
-														"type": "Expression"
-													},
-													"Source_Client_Year": {
-														"value": "@pipeline().parameters.P_Client_Year",
-														"type": "Expression"
-													},
-													"Source_Client_Quarter": {
-														"value": "@pipeline().parameters.P_Client_Quarter",
-														"type": "Expression"
-													}
-												},
-												"AppendReqFact": {}
-											}
-										},
-										"staging": {},
-										"compute": {
-											"coreCount": 8,
-											"computeType": "General"
-										},
-										"traceLevel": "Fine"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Client_Year": {
-						"type": "string"
-					},
-					"P_Client_Quarter": {
-						"type": "string"
-					},
-					"P_Full_Load_Y_or_N": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Testing"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T16:53:04Z"
 			},
 			"dependsOn": []
 		}

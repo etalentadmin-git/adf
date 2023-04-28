@@ -13,76 +13,179 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"name": "[concat(parameters('factoryName'), '/TEST_Append_FactTbl_Req_Qtr')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "DF_Adhoc_OtherAnaylysis_Output",
-						"type": "ExecuteDataFlow",
+						"name": "Full Load",
+						"description": "Load Quarter data into database.  **IMPORTANT ** A full load will delete all prior table activity.",
+						"type": "IfCondition",
 						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
 						"userProperties": [],
 						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_Adhoc_OtherAnaylysis_Curr",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Full_Load_Y_or_N,'Y')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_Rec_FactTbl_Req",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
 									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Folder_Year": {
-										"value": "'@{pipeline().parameters.P_Folder_Year}'",
-										"type": "Expression"
-									},
-									"Flow_Folder_Quarter": {
-										"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
-										"type": "Expression"
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_All_Rec_FactTbl_Req",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"Requisition": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
 									}
 								},
-								"datasetParameters": {
-									"AllOtherCore": {},
-									"AllOtherTblAnalysis": {},
-									"OtherCoreWorkers": {},
-									"OtherCoreYear": {},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
+								{
+									"name": "Append_FactTbl_Req_Qtr",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [
+										{
+											"activity": "Delete_Rec_FactTbl_Req",
+											"dependencyConditions": [
+												"Completed"
+											]
 										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Append_FactTbl_Req",
+											"type": "DataFlowReference",
+											"parameters": {},
+											"datasetParameters": {
+												"Requisitions": {
+													"Source_Client_Fldr": {
+														"value": "@pipeline().parameters.P_Client_Id",
+														"type": "Expression"
+													},
+													"Source_Client_Date": {
+														"value": "@pipeline().parameters.P_Client_Dt",
+														"type": "Expression"
+													},
+													"Source_Client_Year": {
+														"value": "@pipeline().parameters.P_Client_Year",
+														"type": "Expression"
+													},
+													"Source_Client_Quarter": {
+														"value": "@pipeline().parameters.P_Client_Quarter",
+														"type": "Expression"
+													}
+												},
+												"AppendReqFact": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
 									}
 								}
+							]
+						}
+					},
+					{
+						"name": "Delta Load",
+						"description": "Load Quarter data into database.  **IMPORTANT ** A full load will delete all prior table activity.",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Full_Load_Y_or_N,'N')",
+								"type": "Expression"
 							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
+							"ifTrueActivities": [
+								{
+									"name": "Append_FactTbl_Req_Qtr_copy1",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Append_FactTbl_Req",
+											"type": "DataFlowReference",
+											"parameters": {},
+											"datasetParameters": {
+												"Requisitions": {
+													"Source_Client_Fldr": {
+														"value": "@pipeline().parameters.P_Client_Id",
+														"type": "Expression"
+													},
+													"Source_Client_Date": {
+														"value": "@pipeline().parameters.P_Client_Dt",
+														"type": "Expression"
+													},
+													"Source_Client_Year": {
+														"value": "@pipeline().parameters.P_Client_Year",
+														"type": "Expression"
+													},
+													"Source_Client_Quarter": {
+														"value": "@pipeline().parameters.P_Client_Quarter",
+														"type": "Expression"
+													}
+												},
+												"AppendReqFact": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
 						}
 					}
 				],
@@ -97,31 +200,21 @@
 					"P_Client_Dt": {
 						"type": "string"
 					},
-					"P_Folder_Year": {
+					"P_Client_Year": {
 						"type": "string"
 					},
-					"P_Folder_Quarter": {
+					"P_Client_Quarter": {
+						"type": "string"
+					},
+					"P_Full_Load_Y_or_N": {
 						"type": "string"
 					}
 				},
-				"variables": {
-					"tempCounter": {
-						"type": "String"
-					},
-					"Counter": {
-						"type": "String"
-					},
-					"T1_Type": {
-						"type": "String"
-					},
-					"T1_Year": {
-						"type": "String"
-					},
-					"T1_Quarter": {
-						"type": "String"
-					}
+				"folder": {
+					"name": "Client/Database/Testing"
 				},
-				"annotations": []
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T16:53:04Z"
 			},
 			"dependsOn": []
 		},
