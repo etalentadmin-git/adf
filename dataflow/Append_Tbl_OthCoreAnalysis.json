@@ -12,13 +12,34 @@
 						"referenceName": "Source_Template_Analysis_OtherTbl_Curr",
 						"type": "DatasetReference"
 					},
-					"name": "SourceTmpOtherCoreAnalysis"
+					"name": "SourceAnalysisRefOtherCoreCurr"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_Template_Analysis_OtherTbl_1P",
+						"type": "DatasetReference"
+					},
+					"name": "SourceAnalysisRefOtherCore1P"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_Template_Analysis_OtherTbl_2P",
+						"type": "DatasetReference"
+					},
+					"name": "SourceAnalysisRefOtherCore2P"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_Template_Analysis_OtherTbl_3P",
+						"type": "DatasetReference"
+					},
+					"name": "SourceAnalysisRefOtherCore3P"
 				}
 			],
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "etalentTmp_OtherAnalysisTbl",
+						"referenceName": "etalentOtherAnalysisTbl",
 						"type": "DatasetReference"
 					},
 					"name": "AppendOtherCoreAnalysisTmp"
@@ -30,11 +51,26 @@
 				},
 				{
 					"name": "alterRow2"
+				},
+				{
+					"name": "unionAllTimePeriods"
+				},
+				{
+					"name": "RemoveNullTypes"
+				},
+				{
+					"name": "SelectFinalOutput"
 				}
 			],
 			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Collection_Year as string,",
+				"     Flow_Collection_Quarter as string",
+				"}",
 				"source(output(",
-				"          Id as string,",
+				"          Id as integer,",
 				"          Type as string,",
 				"          Year as integer,",
 				"          Quarter as integer,",
@@ -42,33 +78,85 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> SourceTmpOtherCoreAnalysis",
-				"SourceTmpOtherCoreAnalysis derive(Type = iif(isNull(Type),'NA',Type),",
-				"          Year = iif(isNull(Year),0,Year),",
-				"          Quarter = iif(isNull(Quarter),0,Quarter)) ~> AssignDerivedColumns",
-				"AssignDerivedColumns alterRow(upsertIf(true())) ~> alterRow2",
-				"alterRow2 sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     input(",
+				"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCoreCurr",
+				"source(output(",
 				"          Id as integer,",
 				"          Type as string,",
 				"          Year as integer,",
-				"          Quarter as integer",
+				"          Quarter as integer,",
+				"          Notes as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCore1P",
+				"source(output(",
+				"          Id as integer,",
+				"          Type as string,",
+				"          Year as integer,",
+				"          Quarter as integer,",
+				"          Notes as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCore2P",
+				"source(output(",
+				"          Id as integer,",
+				"          Type as string,",
+				"          Year as integer,",
+				"          Quarter as integer,",
+				"          Notes as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCore3P",
+				"RemoveNullTypes derive(ClientId = $Flow_Client_Id,",
+				"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
+				"          DataCollectionYear = toInteger($Flow_Collection_Year),",
+				"          DataCollectionQuarter = toInteger($Flow_Collection_Quarter),",
+				"          Type = concat(concat(concat(concat(concat(toString(Year),'-'),'Q'),toString(Quarter)),' '),Type),",
+				"          LoadDt = currentDate()) ~> AssignDerivedColumns",
+				"SelectFinalOutput alterRow(upsertIf(true())) ~> alterRow2",
+				"SourceAnalysisRefOtherCoreCurr, SourceAnalysisRefOtherCore1P, SourceAnalysisRefOtherCore2P, SourceAnalysisRefOtherCore3P union(byName: true)~> unionAllTimePeriods",
+				"unionAllTimePeriods filter(Type!='N/A') ~> RemoveNullTypes",
+				"AssignDerivedColumns select(mapColumn(",
+				"          ClientId,",
+				"          ClientEngagementDt,",
+				"          DataCollectionYear,",
+				"          DataCollectionQuarter,",
+				"          Type,",
+				"          Notes,",
+				"          LoadDt",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectFinalOutput",
+				"alterRow2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          Type as string,",
+				"          DataCollectionYear as integer,",
+				"          DataCollectionQuarter as integer,",
+				"          Notes as string,",
+				"          LoadDt as date",
 				"     ),",
 				"     deletable:false,",
 				"     insertable:true,",
 				"     updateable:false,",
 				"     upsertable:true,",
-				"     keys:['Id','Type','Year','Quarter'],",
+				"     keys:['ClientId','ClientEngagementDt','DataCollectionYear','DataCollectionQuarter','Type'],",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
-				"          Id,",
+				"          ClientId,",
+				"          ClientEngagementDt,",
 				"          Type,",
-				"          Year,",
-				"          Quarter",
+				"          DataCollectionYear,",
+				"          DataCollectionQuarter,",
+				"          Notes,",
+				"          LoadDt",
 				"     )) ~> AppendOtherCoreAnalysisTmp"
 			]
 		}
