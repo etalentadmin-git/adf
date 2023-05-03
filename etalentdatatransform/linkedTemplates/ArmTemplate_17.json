@@ -13,6 +13,879 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_Duplicate')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Output Duplicate Review report.  Currently ties to the union csv in blob.",
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "CorePromotions"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_TalentData_File",
+								"type": "DatasetReference"
+							},
+							"name": "Talent"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_JobReq_File",
+								"type": "DatasetReference"
+							},
+							"name": "Requisitions"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_Applicant_File",
+								"type": "DatasetReference"
+							},
+							"name": "Applicants"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "CoreHeadcount"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "CoreTerminations"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "CoreHires"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_OtherCore_File",
+								"type": "DatasetReference"
+							},
+							"name": "Other"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_DivSlate_File",
+								"type": "DatasetReference"
+							},
+							"name": "DivSlates"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "EventDuplicatesReport"
+						}
+					],
+					"transformations": [
+						{
+							"name": "HeadcountRowCount"
+						},
+						{
+							"name": "HeadcountSumRowsForDups"
+						},
+						{
+							"name": "HctDuplicates"
+						},
+						{
+							"name": "TerminationsRowCount"
+						},
+						{
+							"name": "TerminationsSumRowsForDups"
+						},
+						{
+							"name": "TermDuplicates"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "HiresRowCount"
+						},
+						{
+							"name": "HiresSumRowsForDups"
+						},
+						{
+							"name": "HireDuplicates"
+						},
+						{
+							"name": "PromotionsRowCount"
+						},
+						{
+							"name": "PromotionsSumRowsForDups"
+						},
+						{
+							"name": "PromoDuplicates"
+						},
+						{
+							"name": "TalentRowCount"
+						},
+						{
+							"name": "TalentSumRowsForDups"
+						},
+						{
+							"name": "TalentDuplicates"
+						},
+						{
+							"name": "RequisitionsRowCount"
+						},
+						{
+							"name": "RequisitionsSumRowsForDups"
+						},
+						{
+							"name": "RequisitionDuplicates"
+						},
+						{
+							"name": "ApplicantRowCount"
+						},
+						{
+							"name": "ApplicantSumRowsForDups"
+						},
+						{
+							"name": "ApplicantDuplicates"
+						},
+						{
+							"name": "PromoFilterOutClientAliasHeaderRow"
+						},
+						{
+							"name": "HeadcountFilter"
+						},
+						{
+							"name": "TerminationFilter"
+						},
+						{
+							"name": "HiresFilter"
+						},
+						{
+							"name": "FinalSelect"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "sort1"
+						},
+						{
+							"name": "OtherRowCount"
+						},
+						{
+							"name": "OtherSumRowsForDups"
+						},
+						{
+							"name": "ConcatEventandEventType"
+						},
+						{
+							"name": "OtherDuplicates"
+						},
+						{
+							"name": "SlateRowCount"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "SlateSumRowsForDups"
+						},
+						{
+							"name": "SlateDuplicates"
+						},
+						{
+							"name": "RemoveNullOtherRows"
+						},
+						{
+							"name": "RemoveNullSlateRows"
+						},
+						{
+							"name": "RemoveNullPromoRows"
+						},
+						{
+							"name": "RemoveNullTalentRows"
+						},
+						{
+							"name": "RemoveNullReqRows"
+						},
+						{
+							"name": "RemoveNullApplicantRows"
+						},
+						{
+							"name": "RemoveNullHeadcountRows"
+						},
+						{
+							"name": "RemoveNullTermRows"
+						},
+						{
+							"name": "RemoveNullHireRows"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Client Engagement Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as string,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Status} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Family/Function} as string,",
+						"          {Years in Job} as string,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Family/Function} as string,",
+						"          {Original Hire Date} as string,",
+						"          {Current Hire Date} as string,",
+						"          {Years of Service} as string,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as string,",
+						"          {Last Promo Date} as string,",
+						"          {Rehire Indicator} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as string,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as string,",
+						"          EmpCount as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> CorePromotions",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Event Year} as string,",
+						"          {Event Date} as string,",
+						"          Event as string,",
+						"          {Event Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Performance Rating} as string,",
+						"          {Performance Rating Date} as string,",
+						"          {Talent Identifier (1)} as string,",
+						"          {Talent Identifier (2)} as string,",
+						"          {Talent Identifier (3)} as string,",
+						"          {Talent Identifier (4)} as string,",
+						"          {Talent Identifier (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Talent",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Client Engagement Type} as string,",
+						"          {Event Date} as string,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
+						"          EventId as string,",
+						"          Event as string,",
+						"          {Requisition ID} as string,",
+						"          {Requisition Type} as string,",
+						"          {Posting Date} as string,",
+						"          {Requisition Status} as string,",
+						"          {Number of Openings} as string,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Corporate Title} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          {Hiring Manager Worker ID} as string,",
+						"          {Primary Recruiter Worker ID} as string,",
+						"          {Requisition Other (1)} as string,",
+						"          {Requisition Other (2)} as string,",
+						"          {Requisition Other (3)} as string,",
+						"          {Requisition Other (4)} as string,",
+						"          {Requisition Other (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Requisitions",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Event Date} as string,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
+						"          Event as string,",
+						"          {Requisition ID} as string,",
+						"          {Applicant ID} as string,",
+						"          Source as string,",
+						"          {Applicant Type} as string,",
+						"          {Internal Worker ID} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Applicant Final Disposition} as string,",
+						"          {Applicant Step Before Final Disposition} as string,",
+						"          {Applicant Rejected Reason} as string,",
+						"          {Applicant Other (1)} as string,",
+						"          {Applicant Other (2)} as string,",
+						"          {Applicant Other (3)} as string,",
+						"          {Applicant Other (4)} as string,",
+						"          {Applicant Other (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Applicants",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Client Engagement Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as string,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Status} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Family/Function} as string,",
+						"          {Years in Job} as string,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Family/Function} as string,",
+						"          {Original Hire Date} as string,",
+						"          {Current Hire Date} as string,",
+						"          {Years of Service} as string,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as string,",
+						"          {Last Promo Date} as string,",
+						"          {Rehire Indicator} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as string,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as string,",
+						"          EmpCount as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> CoreHeadcount",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Client Engagement Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as string,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Status} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Family/Function} as string,",
+						"          {Years in Job} as string,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Family/Function} as string,",
+						"          {Original Hire Date} as string,",
+						"          {Current Hire Date} as string,",
+						"          {Years of Service} as string,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as string,",
+						"          {Last Promo Date} as string,",
+						"          {Rehire Indicator} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as string,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as string,",
+						"          EmpCount as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> CoreTerminations",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Client Engagement Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as string,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Status} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Family/Function} as string,",
+						"          {Years in Job} as string,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Family/Function} as string,",
+						"          {Original Hire Date} as string,",
+						"          {Current Hire Date} as string,",
+						"          {Years of Service} as string,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as string,",
+						"          {Last Promo Date} as string,",
+						"          {Rehire Indicator} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as string,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as string,",
+						"          EmpCount as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> CoreHires",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as string,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
+						"          {Event ID} as string,",
+						"          Event as string,",
+						"          {Event (Type)} as string,",
+						"          {Event (Desc)} as string,",
+						"          {Other (Char Value 1)} as string,",
+						"          {Other (Char Value 2)} as string,",
+						"          {Other (Num Value 1)} as string,",
+						"          {Other (Num Value 2)} as string,",
+						"          {Other (Date Value 1)} as string,",
+						"          {Other (Date Value 2)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Other",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Requisition ID} as string,",
+						"          {Event Year} as string,",
+						"          {Candidates StM} as string,",
+						"          {Internal Candidates StM} as string,",
+						"          {External Candidates StM} as string,",
+						"          {Candidates Hired} as string,",
+						"          {Internal Candidates Hired} as string,",
+						"          {External Candidates Hired} as string,",
+						"          {White Candidates StM} as string,",
+						"          {Internal White Candidates StM} as string,",
+						"          {External White Candidates StM} as string,",
+						"          {White Candidates Hired} as string,",
+						"          {Internal White Candidates Hired} as string,",
+						"          {External White Candidates Hired} as string,",
+						"          {Black Candidates StM} as string,",
+						"          {Internal Black Candidates StM} as string,",
+						"          {External Black Candidates StM} as string,",
+						"          {Black Candidates Hired} as string,",
+						"          {Internal Black Candidates Hired} as string,",
+						"          {External Black Candidates Hired} as string,",
+						"          {Latinx Candidates StM} as string,",
+						"          {Internal Latinx Candidates StM} as string,",
+						"          {External Latinx Candidates StM} as string,",
+						"          {Latinx Candidates Hired} as string,",
+						"          {Internal Latinx Candidates Hired} as string,",
+						"          {External Latinx Candidates Hired} as string,",
+						"          {Asian Candidates StM} as string,",
+						"          {Internal Asian Candidates StM} as string,",
+						"          {External Asian Candidates StM} as string,",
+						"          {Asian Candidates Hired} as string,",
+						"          {Internal Asian Candidates Hired} as string,",
+						"          {External Asian Candidates Hired} as string,",
+						"          {2+ Races Candidates StM} as string,",
+						"          {Internal 2+ Races Candidates StM} as string,",
+						"          {External 2+ Races Candidates StM} as string,",
+						"          {2+ Races Candidates Hired} as string,",
+						"          {Internal 2+ Races Candidates Hired} as string,",
+						"          {External 2+ Races Candidates Hired} as string,",
+						"          {Other Candidates StM} as string,",
+						"          {Internal Other Candidates StM} as string,",
+						"          {External Other Candidates StM} as string,",
+						"          {Other Candidates Hired} as string,",
+						"          {Internal Other Candidates Hired} as string,",
+						"          {External Other Candidates Hired} as string,",
+						"          {Male Candidates StM} as string,",
+						"          {Internal Male Candidates StM} as string,",
+						"          {External Male Candidates StM} as string,",
+						"          {Male Candidates Hired} as string,",
+						"          {Internal Male Candidates Hired} as string,",
+						"          {External Male Candidates Hired} as string,",
+						"          {Female Candidates StM} as string,",
+						"          {Internal Female Candidates StM} as string,",
+						"          {External Female Candidates StM} as string,",
+						"          {Female Candidates Hired} as string,",
+						"          {Internal Female Candidates Hired} as string,",
+						"          {External Female Candidates Hired} as string,",
+						"          {Other Gender Candidates StM} as string,",
+						"          {Internal Other Gender Candidates StM} as string,",
+						"          {External Other Gender Candidates StM} as string,",
+						"          {Other Gender Candidates Hired} as string,",
+						"          {Internal Other Gender Candidates Hired} as string,",
+						"          {External Other Gender Candidates Hired} as string,",
+						"          {PoC Candidates StM} as string,",
+						"          {Internal PoC Candidates StM} as string,",
+						"          {External PoC Candidates StM} as string,",
+						"          {PoC  Candidates Hired} as string,",
+						"          {Internal PoC  Candidates Hired} as string,",
+						"          {External PoC  Candidates Hired} as string,",
+						"          {Diverse Candidates StM} as string,",
+						"          {Internal Diverse Candidates StM} as string,",
+						"          {External Diverse Candidates StM} as string,",
+						"          {Diverse Candidates Hired} as string,",
+						"          {Internal Diverse Candidates Hired} as string,",
+						"          {External Diverse Candidates Hired} as string,",
+						"          {Female Not PoC Candidates StM} as string,",
+						"          {Internal Female Not PoC Candidates StM} as string,",
+						"          {External Female Not PoC Candidates StM} as string,",
+						"          {Female Not PoC Candidates Hired} as string,",
+						"          {Internal Female Not PoC Candidates Hired} as string,",
+						"          {External Female Not PoC Candidates Hired} as string,",
+						"          {Female PoC Candidates StM} as string,",
+						"          {Internal Female PoC Candidates StM} as string,",
+						"          {External Female PoC Candidates StM} as string,",
+						"          {Female PoC Candidates Hired} as string,",
+						"          {Internal Female PoC Candidates Hired} as string,",
+						"          {External Female PoC Candidates Hired} as string,",
+						"          {Not Female PoC Candidates StM} as string,",
+						"          {Internal Not Female PoC Candidates StM} as string,",
+						"          {External Not Female PoC Candidates StM} as string,",
+						"          {Not Female PoC Candidates Hired} as string,",
+						"          {Internal Not Female PoC Candidates Hired} as string,",
+						"          {External Not Female PoC Candidates Hired} as string,",
+						"          {Not Female Not PoC Candidates StM} as string,",
+						"          {Internal Not Female Not PoC Candidates StM} as string,",
+						"          {External Not Female Not PoC Candidates StM} as string,",
+						"          {Not Female Not PoC Candidates Hired} as string,",
+						"          {Internal Not Female Not PoC Candidates Hired} as string,",
+						"          {External Not Female Not PoC Candidates Hired} as string,",
+						"          {Diverse Slate} as string,",
+						"          {Internal Diverse Slate} as string,",
+						"          {External Diverse Slate} as string,",
+						"          {No Diverse Slate} as string,",
+						"          {Internal No Diverse Slate} as string,",
+						"          {External No Diverse Slate} as string,",
+						"          {Diverse Hired Slate} as string,",
+						"          {Internal Diverse Hired Slate} as string,",
+						"          {External Diverse Hired Slate} as string,",
+						"          {PoC Slate} as string,",
+						"          {Internal PoC Slate} as string,",
+						"          {External PoC Slate} as string,",
+						"          {No PoC Slate} as string,",
+						"          {Internal No PoC Slate} as string,",
+						"          {External No PoC Slate} as string,",
+						"          {PoC Hired Slate} as string,",
+						"          {Internal PoC Hired Slate} as string,",
+						"          {External PoC Hired Slate} as string,",
+						"          {White Slate} as string,",
+						"          {Internal White Slate} as string,",
+						"          {External White Slate} as string,",
+						"          {No White Slate} as string,",
+						"          {Internal No White Slate} as string,",
+						"          {External No White Slate} as string,",
+						"          {White Hired Slate} as string,",
+						"          {Internal White Hired Slate} as string,",
+						"          {External White Hired Slate} as string,",
+						"          {Black Slate} as string,",
+						"          {Internal Black Slate} as string,",
+						"          {External Black Slate} as string,",
+						"          {No Black Slate} as string,",
+						"          {Internal No Black Slate} as string,",
+						"          {External No Black Slate} as string,",
+						"          {Black Hired Slate} as string,",
+						"          {Internal Black Hired Slate} as string,",
+						"          {External Black Hired Slate} as string,",
+						"          {Latinx Slate} as string,",
+						"          {Internal Latinx Slate} as string,",
+						"          {External Latinx Slate} as string,",
+						"          {No Latinx Slate} as string,",
+						"          {Internal No Latinx Slate} as string,",
+						"          {External No Latinx Slate} as string,",
+						"          {Latinx Hired Slate} as string,",
+						"          {Internal Latinx Hired Slate} as string,",
+						"          {External Latinx Hired Slate} as string,",
+						"          {Asian Slate} as string,",
+						"          {Internal Asian Slate} as string,",
+						"          {External Asian Slate} as string,",
+						"          {No Asian Slate} as string,",
+						"          {Internal No Asian Slate} as string,",
+						"          {External No Asian Slate} as string,",
+						"          {Asian Hired Slate} as string,",
+						"          {Internal Asian Hired Slate} as string,",
+						"          {External Asian Hired Slate} as string,",
+						"          {2+ Races Slate} as string,",
+						"          {Internal 2+ Races Slate} as string,",
+						"          {External 2+ Races Slate} as string,",
+						"          {No 2+ Races Slate} as string,",
+						"          {Internal No 2+ Races Slate} as string,",
+						"          {External No 2+ Races Slate} as string,",
+						"          {2+ Races Hired Slate} as string,",
+						"          {Internal 2+ Races Hired Slate} as string,",
+						"          {External 2+ Races Hired Slate} as string,",
+						"          {Other Race Slate} as string,",
+						"          {Internal Other Race Slate} as string,",
+						"          {External Other Race Slate} as string,",
+						"          {No Other Race Slate} as string,",
+						"          {Internal No Other Race Slate} as string,",
+						"          {External No Other Race Slate} as string,",
+						"          {Other Race Hired Slate} as string,",
+						"          {Internal Other Race Hired Slate} as string,",
+						"          {External Other Race Hired Slate} as string,",
+						"          {Female Slate} as string,",
+						"          {Internal Female Slate} as string,",
+						"          {External Female Slate} as string,",
+						"          {No Female Slate} as string,",
+						"          {Internal No Female Slate} as string,",
+						"          {External No Female Slate} as string,",
+						"          {Female Hired Slate} as string,",
+						"          {Internal Female Hired Slate} as string,",
+						"          {External Female Hired Slate} as string,",
+						"          {Male Slate} as string,",
+						"          {Internal Male Slate} as string,",
+						"          {External Male Slate} as string,",
+						"          {No Male Slate} as string,",
+						"          {Internal No Male Slate} as string,",
+						"          {External No Male Slate} as string,",
+						"          {Male Hired Slate} as string,",
+						"          {Internal Male Hired Slate} as string,",
+						"          {External Male Hired Slate} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> DivSlates",
+						"HeadcountFilter aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Worker ID}),",
+						"     RowCount = count({Worker ID})) ~> HeadcountRowCount",
+						"HeadcountRowCount aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Record Id (Worker/Req/Applicant)} = {Worker ID}),",
+						"     DuplicateCount = sum(RowCount)) ~> HeadcountSumRowsForDups",
+						"RemoveNullHeadcountRows filter(DuplicateCount>1) ~> HctDuplicates",
+						"TerminationFilter aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Worker ID}),",
+						"     RowCount = count({Worker ID})) ~> TerminationsRowCount",
+						"TerminationsRowCount aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Record Id (Worker/Req/Applicant)} = {Worker ID}),",
+						"     DuplicateCount = sum(RowCount)) ~> TerminationsSumRowsForDups",
+						"RemoveNullTermRows filter(DuplicateCount>1) ~> TermDuplicates",
+						"HctDuplicates, TermDuplicates, HireDuplicates, PromoDuplicates, TalentDuplicates, RequisitionDuplicates, ApplicantDuplicates, OtherDuplicates, SlateDuplicates union(byName: true)~> union1",
+						"HiresFilter aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Worker ID}),",
+						"     RowCount = countAll({Worker ID})) ~> HiresRowCount",
+						"HiresRowCount aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Record Id (Worker/Req/Applicant)} = {Worker ID}),",
+						"     DuplicateCount = sum(RowCount)) ~> HiresSumRowsForDups",
+						"RemoveNullHireRows filter(DuplicateCount>1) ~> HireDuplicates",
+						"PromoFilterOutClientAliasHeaderRow aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Worker ID}),",
+						"     RowCount = count({Worker ID})) ~> PromotionsRowCount",
+						"PromotionsRowCount aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Record Id (Worker/Req/Applicant)} = {Worker ID}),",
+						"     DuplicateCount = sum(RowCount)) ~> PromotionsSumRowsForDups",
+						"RemoveNullPromoRows filter(DuplicateCount>1) ~> PromoDuplicates",
+						"Talent aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Worker ID}),",
+						"     RowCount = count({Worker ID})) ~> TalentRowCount",
+						"TalentRowCount aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Record Id (Worker/Req/Applicant)} = {Worker ID}),",
+						"     DuplicateCount = sum(RowCount)) ~> TalentSumRowsForDups",
+						"RemoveNullTalentRows filter(DuplicateCount>1) ~> TalentDuplicates",
+						"Requisitions aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Requisition ID}),",
+						"     RowCount = count({Requisition ID})) ~> RequisitionsRowCount",
+						"RequisitionsRowCount aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Record Id (Worker/Req/Applicant)} = {Requisition ID}),",
+						"     DuplicateCount = sum(RowCount)) ~> RequisitionsSumRowsForDups",
+						"RemoveNullReqRows filter(DuplicateCount>1) ~> RequisitionDuplicates",
+						"Applicants aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Applicant ID},",
+						"          {Requisition ID}),",
+						"     RowCount = count({Applicant ID})) ~> ApplicantRowCount",
+						"ApplicantRowCount aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Record Id (Worker/Req/Applicant)} = {Applicant ID},",
+						"          {Requisition ID}),",
+						"     DuplicateCount = sum(RowCount)) ~> ApplicantSumRowsForDups",
+						"RemoveNullApplicantRows filter(DuplicateCount>1) ~> ApplicantDuplicates",
+						"CorePromotions filter({Event Code}=='PRO') ~> PromoFilterOutClientAliasHeaderRow",
+						"CoreHeadcount filter({Event Code}=='HCT') ~> HeadcountFilter",
+						"CoreTerminations filter({Event Code}=='TER') ~> TerminationFilter",
+						"CoreHires filter({Event Code}=='HIR') ~> HiresFilter",
+						"derivedColumn1 select(mapColumn(",
+						"          Event,",
+						"          {Event Date},",
+						"          {Record Id (Worker/Req/Applicant)},",
+						"          DuplicateCount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelect",
+						"ApplicantSumRowsForDups derive({Record Id (Worker/Req/Applicant)} = toString({Record Id (Worker/Req/Applicant)})) ~> derivedColumn1",
+						"union1 sort(asc(Event, true)) ~> sort1",
+						"Other aggregate(groupBy(Event,",
+						"          {Event (Desc)},",
+						"          {Event (Type)},",
+						"          {Event Date},",
+						"          {Worker ID}),",
+						"     RowCount = countAll({Worker ID})) ~> OtherRowCount",
+						"ConcatEventandEventType aggregate(groupBy(Event,",
+						"          {Event Date},",
+						"          {Record Id (Worker/Req/Applicant)} = {Worker ID}),",
+						"     DuplicateCount = sum(RowCount)) ~> OtherSumRowsForDups",
+						"OtherRowCount derive(Event = concat(concat(concat(concat(Event,' '),{Event (Type)}),' '),{Event (Desc)})) ~> ConcatEventandEventType",
+						"RemoveNullOtherRows filter(DuplicateCount>1) ~> OtherDuplicates",
+						"derivedColumn2 aggregate(groupBy(Event,",
+						"          {Event Year},",
+						"          {Requisition ID}),",
+						"     RowCount = countAll({Requisition ID})) ~> SlateRowCount",
+						"DivSlates derive(Event = 'Slate') ~> derivedColumn2",
+						"SlateRowCount aggregate(groupBy(Event,",
+						"          {Event Date} = {Event Year},",
+						"          {Record Id (Worker/Req/Applicant)} = {Requisition ID}),",
+						"     DuplicateCount = sum(RowCount)) ~> SlateSumRowsForDups",
+						"RemoveNullSlateRows filter(DuplicateCount>1) ~> SlateDuplicates",
+						"OtherSumRowsForDups filter(!(isNull(Event))) ~> RemoveNullOtherRows",
+						"SlateSumRowsForDups filter(!(isNull(Event))) ~> RemoveNullSlateRows",
+						"PromotionsSumRowsForDups filter(!(isNull(Event))) ~> RemoveNullPromoRows",
+						"TalentSumRowsForDups filter(!(isNull(Event))) ~> RemoveNullTalentRows",
+						"RequisitionsSumRowsForDups filter(!(isNull(Event))) ~> RemoveNullReqRows",
+						"FinalSelect filter(!(isNull(Event))) ~> RemoveNullApplicantRows",
+						"HeadcountSumRowsForDups filter(!(isNull(Event))) ~> RemoveNullHeadcountRows",
+						"TerminationsSumRowsForDups filter(!(isNull(Event))) ~> RemoveNullTermRows",
+						"HiresSumRowsForDups filter(!(isNull(Event))) ~> RemoveNullHireRows",
+						"sort1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Duplicates Review Core.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> EventDuplicatesReport"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_Ethnicity')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -5283,984 +6156,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> OutputHireIDsNotInHeadcount"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_Review_WorkerId_HCT_Compare')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Audit Reports"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_AllCoreData_File",
-								"type": "DatasetReference"
-							},
-							"name": "Core"
-						},
-						{
-							"dataset": {
-								"referenceName": "etalentCoreFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "CoreDB"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_AuditFolder",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "filter1"
-						},
-						{
-							"name": "HCTFilter"
-						},
-						{
-							"name": "MaxYear"
-						},
-						{
-							"name": "JoinMax"
-						},
-						{
-							"name": "MaxYearMinus1"
-						},
-						{
-							"name": "MaxYearMinus2"
-						},
-						{
-							"name": "MaxYearMinus3"
-						},
-						{
-							"name": "MaxYearMinus4"
-						},
-						{
-							"name": "SelectWorkerAndYear"
-						},
-						{
-							"name": "TotalWorkersMaxYear"
-						},
-						{
-							"name": "JoinMaxMinus1"
-						},
-						{
-							"name": "TotalWorkersMaxYearMinus1"
-						},
-						{
-							"name": "JoinMaxMinus2"
-						},
-						{
-							"name": "TotalWorkersMaxYearMinus2"
-						},
-						{
-							"name": "JoinMaxMinus3"
-						},
-						{
-							"name": "TotalWorkersMaxYearMinus3"
-						},
-						{
-							"name": "JoinMaxMinus4"
-						},
-						{
-							"name": "TotalWorkersMaxYearMinus4"
-						},
-						{
-							"name": "JoinMaxMinus1forCompare"
-						},
-						{
-							"name": "selectMax"
-						},
-						{
-							"name": "selectMaxMinus1"
-						},
-						{
-							"name": "aggregate1"
-						},
-						{
-							"name": "JoinMaxMinus2forCompare"
-						},
-						{
-							"name": "aggregate2"
-						},
-						{
-							"name": "selectMaxMinus2"
-						},
-						{
-							"name": "JoinMaxMinus3forCompare"
-						},
-						{
-							"name": "aggregate3"
-						},
-						{
-							"name": "selectMaxMinus3"
-						},
-						{
-							"name": "JoinMaxMinus4forCompare"
-						},
-						{
-							"name": "selectMaxMinus4"
-						},
-						{
-							"name": "aggregate4"
-						},
-						{
-							"name": "JoinTotalMax"
-						},
-						{
-							"name": "FinalSelectMaxCompare"
-						},
-						{
-							"name": "JoinTotal1P"
-						},
-						{
-							"name": "FinalSelect1PCompare"
-						},
-						{
-							"name": "JoinTotal2P"
-						},
-						{
-							"name": "FinalSelect2PCompare"
-						},
-						{
-							"name": "JoinTotal3P"
-						},
-						{
-							"name": "FinalSelect3PCompare"
-						},
-						{
-							"name": "MaxYearMinus5"
-						},
-						{
-							"name": "JoinMaxMinus5"
-						},
-						{
-							"name": "selectMaxMinus5"
-						},
-						{
-							"name": "TotalWorkersMaxYearMinus5"
-						},
-						{
-							"name": "JoinMaxMinus5forCompare"
-						},
-						{
-							"name": "aggregate5"
-						},
-						{
-							"name": "JoinTotal4P"
-						},
-						{
-							"name": "FinalSelect4PCompare"
-						},
-						{
-							"name": "CalcMaxPercent"
-						},
-						{
-							"name": "Calc1PPercent"
-						},
-						{
-							"name": "Calc2PPercent"
-						},
-						{
-							"name": "Calc3PPercent"
-						},
-						{
-							"name": "Calc4PPercent"
-						},
-						{
-							"name": "union1"
-						},
-						{
-							"name": "TERFilter"
-						},
-						{
-							"name": "JoinFilterMaxTER"
-						},
-						{
-							"name": "JoinFilter1PTER"
-						},
-						{
-							"name": "JoinFilter2PTER"
-						},
-						{
-							"name": "JoinFilter3PTER"
-						},
-						{
-							"name": "JoinFilter4PTER"
-						},
-						{
-							"name": "SelectTERColumns"
-						},
-						{
-							"name": "MaxTERExist5PHC"
-						},
-						{
-							"name": "Terminations4PCount"
-						},
-						{
-							"name": "MaxTERExist4PHC"
-						},
-						{
-							"name": "Terminations3PCount"
-						},
-						{
-							"name": "MaxTERExist3PHC"
-						},
-						{
-							"name": "Terminations2PCount"
-						},
-						{
-							"name": "MaxTERExist2PHC"
-						},
-						{
-							"name": "Terminations1PCount"
-						},
-						{
-							"name": "MaxTERExist1PHC"
-						},
-						{
-							"name": "TerminationsMaxCount"
-						},
-						{
-							"name": "JoinMaxTERCount"
-						},
-						{
-							"name": "FinalSelect1P"
-						},
-						{
-							"name": "Join1PTERCount"
-						},
-						{
-							"name": "FinalSelect2P"
-						},
-						{
-							"name": "Join2PTERCount"
-						},
-						{
-							"name": "FinalSelect3P"
-						},
-						{
-							"name": "Join3PTERCount"
-						},
-						{
-							"name": "FinalSelect4P"
-						},
-						{
-							"name": "Join4PTERCount"
-						},
-						{
-							"name": "FinalSelect5P"
-						},
-						{
-							"name": "HIRFilter"
-						},
-						{
-							"name": "SelectHIRColumns"
-						},
-						{
-							"name": "JoinFilterMaxHIR"
-						},
-						{
-							"name": "HireMaxCount"
-						},
-						{
-							"name": "MaxHIRExistMaxHC"
-						},
-						{
-							"name": "JoinFilter1PHIR"
-						},
-						{
-							"name": "HIR1PExist1PHC"
-						},
-						{
-							"name": "Hire1PCount"
-						},
-						{
-							"name": "JoinFilter2PHIR"
-						},
-						{
-							"name": "HIR2PExist2PHC"
-						},
-						{
-							"name": "Hire2PCount"
-						},
-						{
-							"name": "JoinFilter3PHIR"
-						},
-						{
-							"name": "HIR3PExist3PHC"
-						},
-						{
-							"name": "Hire3PCount"
-						},
-						{
-							"name": "JoinFilter4PHIR"
-						},
-						{
-							"name": "HIR4PExist4PHC"
-						},
-						{
-							"name": "Hire4PCount"
-						},
-						{
-							"name": "Join4PHIRCount"
-						},
-						{
-							"name": "Join3PHIRCount"
-						},
-						{
-							"name": "Join2PHIRCount"
-						},
-						{
-							"name": "Join1PHIRCount"
-						},
-						{
-							"name": "JoinMaxHIRCount"
-						},
-						{
-							"name": "SelectCoreDBFields"
-						},
-						{
-							"name": "UnionWithCoreDB"
-						},
-						{
-							"name": "RemoveDupsCore"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Engagement Type} as string,",
-						"          {Worker ID} as string,",
-						"          {Event Date} as string,",
-						"          EventMonth as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Year} as integer,",
-						"          {Event Code} as string,",
-						"          {Event Type} as string,",
-						"          Event as string,",
-						"          {Event Reason} as string,",
-						"          {Worker Status} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Family/Function} as string,",
-						"          {Years in Job} as string,",
-						"          {Previous Job Title} as string,",
-						"          {Previous Job Family/Function} as string,",
-						"          {Original Hire Date} as string,",
-						"          {Current Hire Date} as string,",
-						"          {Years of Service} as string,",
-						"          {Years of Service Band} as string,",
-						"          {Years of Service Sort ID} as string,",
-						"          {Last Promo Date} as string,",
-						"          {Rehire Indicator} as string,",
-						"          {Corporate Title} as string,",
-						"          {Previous Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Legacy Organization} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as string,",
-						"          {Generation Desc} as string,",
-						"          {Generation Sort ID} as string,",
-						"          EmpCount as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Core",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
-						"          WorkerId as string,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Event as string,",
-						"          EventId as string,",
-						"          EventType as string,",
-						"          EventReason as string,",
-						"          WorkerStatus as string,",
-						"          WorkerType as string,",
-						"          JobTitle as string,",
-						"          JobFunction as string,",
-						"          YearsinJob as double,",
-						"          PrevJobTitle as string,",
-						"          PrevJobFunction as string,",
-						"          LastPromoDt as date,",
-						"          OrigHireDt as date,",
-						"          CurrHireDt as date,",
-						"          RehireInd as string,",
-						"          YearsofSrvc as double,",
-						"          YearsofSrvcBand as string,",
-						"          YearsofSrvcBandSortId as integer,",
-						"          CorpTitle as string,",
-						"          PrevCorpTitle as string,",
-						"          ManagerInd as string,",
-						"          DirectMgrWorkerId as string,",
-						"          WorkOfficeLoc as string,",
-						"          WorkOfficeCity as string,",
-						"          WorkOfficeState as string,",
-						"          WorkOfficeCountry as string,",
-						"          WorkStrategicLocInd as string,",
-						"          LegacyOrg as string,",
-						"          BusinessGrpLvl1 as string,",
-						"          BusinessGrpLvl2 as string,",
-						"          BusinessGrpLvl3 as string,",
-						"          BusinessGrpLvl4 as string,",
-						"          Race as string,",
-						"          HispanicLatinoOrigin as string,",
-						"          Gender as string,",
-						"          Veteran as string,",
-						"          LGTBQ as string,",
-						"          DisabilityInd as string,",
-						"          BirthYear as integer,",
-						"          Generation as string,",
-						"          GenerationSortId as integer,",
-						"          EmpCount as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-						"     format: 'query') ~> CoreDB",
-						"RemoveDupsCore filter({Event Code}=='HCT') ~> filter1",
-						"RemoveDupsCore filter({Event Code}=='HCT') ~> HCTFilter",
-						"filter1 aggregate({Event Year Last} = max({Event Year})) ~> MaxYear",
-						"SelectWorkerAndYear, MaxYear join({Event Year} == {Event Year Last},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMax",
-						"filter1 aggregate({Event Year -1} = max({Event Year})-1) ~> MaxYearMinus1",
-						"filter1 aggregate({Event Year -2} = max({Event Year})-2) ~> MaxYearMinus2",
-						"filter1 aggregate({Event Year -3} = max({Event Year})-3) ~> MaxYearMinus3",
-						"filter1 aggregate({Event Year -4} = max({Event Year})-4) ~> MaxYearMinus4",
-						"HCTFilter select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Worker ID},",
-						"          {Event Year}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectWorkerAndYear",
-						"JoinMax aggregate(groupBy({Event Year Last}),",
-						"     {Total Max} = count({Worker ID})) ~> TotalWorkersMaxYear",
-						"SelectWorkerAndYear, MaxYearMinus1 join({Event Year} == {Event Year -1},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMaxMinus1",
-						"JoinMaxMinus1 aggregate(groupBy({Event Year -1}),",
-						"     {Total Max -1} = count({Worker ID})) ~> TotalWorkersMaxYearMinus1",
-						"SelectWorkerAndYear, MaxYearMinus2 join({Event Year} == {Event Year -2},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMaxMinus2",
-						"JoinMaxMinus2 aggregate(groupBy({Event Year -2}),",
-						"     TotalWorkersMaxYearMinus2 = count({Worker ID})) ~> TotalWorkersMaxYearMinus2",
-						"SelectWorkerAndYear, MaxYearMinus3 join({Event Year} == {Event Year -3},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMaxMinus3",
-						"JoinMaxMinus3 aggregate(groupBy({Event Year -3}),",
-						"     TotalWorkersMaxYearMinus3 = count({Worker ID})) ~> TotalWorkersMaxYearMinus3",
-						"SelectWorkerAndYear, MaxYearMinus4 join({Event Year} == {Event Year -4},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMaxMinus4",
-						"JoinMaxMinus4 aggregate(groupBy({Event Year -4}),",
-						"     TotalWorkersMaxYearMinus4 = count({Worker ID})) ~> TotalWorkersMaxYearMinus4",
-						"selectMax, selectMaxMinus1 join({Max Worker ID} == {1P Worker ID},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMaxMinus1forCompare",
-						"JoinMax select(mapColumn(",
-						"          {Max Client ID} = {Client ID},",
-						"          {Max Client Engagement Date} = {Client Engagement Date},",
-						"          {Max Worker ID} = {Worker ID},",
-						"          {Max Event Year} = {Event Year},",
-						"          {Event Year Last}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> selectMax",
-						"JoinMaxMinus1 select(mapColumn(",
-						"          {1P Client ID} = {Client ID},",
-						"          {1P Client Engagement Date} = {Client Engagement Date},",
-						"          {1P Worker ID} = {Worker ID},",
-						"          {1P Event Year} = {Event Year},",
-						"          {Event Year -1}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> selectMaxMinus1",
-						"JoinMaxMinus1forCompare aggregate(groupBy({Client ID} = {Max Client ID},",
-						"          {Client Engagement Date} = {Max Client Engagement Date},",
-						"          {1P Event Year},",
-						"          {Max Event Year}),",
-						"     {Total 1P HCT in Latest HCT} = count({1P Worker ID})) ~> aggregate1",
-						"selectMaxMinus1, selectMaxMinus2 join({1P Worker ID} == {2P Worker ID},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMaxMinus2forCompare",
-						"JoinMaxMinus2forCompare aggregate(groupBy({Client ID} = {1P Client ID},",
-						"          {Client Engagement Date} = {1P Client Engagement Date},",
-						"          {2P Event Year},",
-						"          {1P Event Year}),",
-						"     {Total Max -2 in Max -1} = count({2P Worker ID})) ~> aggregate2",
-						"JoinMaxMinus2 select(mapColumn(",
-						"          {2P Client ID} = {Client ID},",
-						"          {2P Client Engagement Date} = {Client Engagement Date},",
-						"          {2P Worker ID} = {Worker ID},",
-						"          {2P Event Year} = {Event Year},",
-						"          {Event Year -2}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> selectMaxMinus2",
-						"selectMaxMinus2, selectMaxMinus3 join({2P Worker ID} == {3P Worker ID},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMaxMinus3forCompare",
-						"JoinMaxMinus3forCompare aggregate(groupBy({Client ID} = {2P Client ID},",
-						"          {Client Engagement Date} = {2P Client Engagement Date},",
-						"          {3P Event Year},",
-						"          {2P Event Year}),",
-						"     {Total Max -3 in Max -2} = count({3P Worker ID})) ~> aggregate3",
-						"JoinMaxMinus3 select(mapColumn(",
-						"          {3P Client ID} = {Client ID},",
-						"          {3P Client Engagement Date} = {Client Engagement Date},",
-						"          {3P Worker ID} = {Worker ID},",
-						"          {3P Event Year} = {Event Year},",
-						"          {Event Year -3}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> selectMaxMinus3",
-						"selectMaxMinus3, selectMaxMinus4 join({3P Worker ID} == {4P Worker ID},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMaxMinus4forCompare",
-						"JoinMaxMinus4 select(mapColumn(",
-						"          {4P Client ID} = {Client ID},",
-						"          {4P Client Engagement Date} = {Client Engagement Date},",
-						"          {4P Worker ID} = {Worker ID},",
-						"          {4P Event Year} = {Event Year},",
-						"          {Event Year -4}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> selectMaxMinus4",
-						"JoinMaxMinus4forCompare aggregate(groupBy({Client ID} = {3P Client ID},",
-						"          {Client Engagement Date} = {3P Client Engagement Date},",
-						"          {4P Event Year},",
-						"          {3P Event Year}),",
-						"     {Total Max -4 in Max -3} = count({4P Worker ID})) ~> aggregate4",
-						"aggregate1, TotalWorkersMaxYear join({Max Event Year} == {Event Year Last},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> JoinTotalMax",
-						"JoinTotalMax select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Prior Yr} = {1P Event Year},",
-						"          {Prior Yr HCT in Compare YR HCT} = {Total 1P HCT in Latest HCT},",
-						"          {Compare Yr} = {Event Year Last},",
-						"          {Compare Yr HCT} = {Total Max}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> FinalSelectMaxCompare",
-						"aggregate2, TotalWorkersMaxYearMinus1 join({1P Event Year} == {Event Year -1},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinTotal1P",
-						"JoinTotal1P select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Prior Yr} = {2P Event Year},",
-						"          {Prior Yr HCT in Compare YR HCT} = {Total Max -2 in Max -1},",
-						"          {Compare Yr} = {Event Year -1},",
-						"          {Compare Yr HCT} = {Total Max -1}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> FinalSelect1PCompare",
-						"aggregate3, TotalWorkersMaxYearMinus2 join({2P Event Year} == {Event Year -2},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinTotal2P",
-						"JoinTotal2P select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Prior Yr} = {3P Event Year},",
-						"          {Prior Yr HCT in Compare YR HCT} = {Total Max -3 in Max -2},",
-						"          {Compare Yr} = {Event Year -2},",
-						"          {Compare Yr HCT} = TotalWorkersMaxYearMinus2",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> FinalSelect2PCompare",
-						"aggregate4, TotalWorkersMaxYearMinus3 join({3P Event Year} == {Event Year -3},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinTotal3P",
-						"JoinTotal3P select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Prior Yr} = {4P Event Year},",
-						"          {Prior Yr HCT in Compare YR HCT} = {Total Max -4 in Max -3},",
-						"          {Compare Yr} = {Event Year -3},",
-						"          {Compare Yr HCT} = TotalWorkersMaxYearMinus3",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> FinalSelect3PCompare",
-						"filter1 aggregate({Event Year -5} = max({Event Year})-5) ~> MaxYearMinus5",
-						"SelectWorkerAndYear, MaxYearMinus5 join({Event Year} == {Event Year -5},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMaxMinus5",
-						"JoinMaxMinus5 select(mapColumn(",
-						"          {5P Client ID} = {Client ID},",
-						"          {5P Client Engagement Date} = {Client Engagement Date},",
-						"          {5P Worker ID} = {Worker ID},",
-						"          {5P Event Year} = {Event Year},",
-						"          {Event Year -5}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> selectMaxMinus5",
-						"JoinMaxMinus5 aggregate(TotalWorkersMaxYearMinus5 = count({Worker ID})) ~> TotalWorkersMaxYearMinus5",
-						"selectMaxMinus4, selectMaxMinus5 join({4P Worker ID} == {5P Worker ID},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinMaxMinus5forCompare",
-						"JoinMaxMinus5forCompare aggregate(groupBy({Client ID} = {4P Client ID},",
-						"          {Client Engagement Date} = {4P Client Engagement Date},",
-						"          {5P Event Year},",
-						"          {4P Event Year}),",
-						"     {Total Max -5 in Max -4} = count({4P Worker ID})) ~> aggregate5",
-						"aggregate5, TotalWorkersMaxYearMinus4 join({4P Event Year} == {Event Year -4},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinTotal4P",
-						"JoinTotal4P select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Prior Yr} = {5P Event Year},",
-						"          {Prior Yr HCT in Compare YR HCT} = {Total Max -5 in Max -4},",
-						"          {Compare Yr} = {Event Year -4},",
-						"          {Compare Yr HCT} = TotalWorkersMaxYearMinus4",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> FinalSelect4PCompare",
-						"FinalSelect1P derive({Match %} = round((({Prior Yr HCT in Compare Yr HCT}/{Compare Yr HCT})*100),1)) ~> CalcMaxPercent",
-						"FinalSelect2P derive({Match %} = round((({Prior Yr HCT in Compare Yr HCT}/{Compare Yr HCT})*100),1)) ~> Calc1PPercent",
-						"FinalSelect3P derive({Match %} = round((({Prior Yr HCT in Compare Yr HCT}/{Compare Yr HCT})*100),1)) ~> Calc2PPercent",
-						"FinalSelect4P derive({Match %} = round((({Prior Yr HCT in Compare Yr HCT}/{Compare Yr HCT})*100),1)) ~> Calc3PPercent",
-						"FinalSelect5P derive({Match %} = round((({Prior Yr HCT in Compare Yr HCT}/{Compare Yr HCT})*100),1)) ~> Calc4PPercent",
-						"Calc4PPercent, Calc3PPercent, Calc2PPercent, Calc1PPercent, CalcMaxPercent union(byName: true)~> union1",
-						"SelectTERColumns filter({Event Code}=='TER') ~> TERFilter",
-						"TERFilter, MaxYear join({Event Year} == {Event Year Last},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinFilterMaxTER",
-						"TERFilter, MaxYearMinus1 join({Event Year} == {Event Year -1},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinFilter1PTER",
-						"TERFilter, MaxYearMinus2 join({Event Year} == {Event Year -2},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinFilter2PTER",
-						"TERFilter, MaxYearMinus3 join({Event Year} == {Event Year -3},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinFilter3PTER",
-						"TERFilter, MaxYearMinus4 join({Event Year} == {Event Year -4},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinFilter4PTER",
-						"RemoveDupsCore select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Worker ID},",
-						"          {Event Year},",
-						"          {Event Code}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectTERColumns",
-						"JoinFilter4PTER, selectMaxMinus5 exists({Worker ID} == {5P Worker ID},",
-						"     negate:false,",
-						"     broadcast: 'both')~> MaxTERExist5PHC",
-						"MaxTERExist5PHC aggregate(groupBy({Termination Year} = {Event Year}),",
-						"     {Terms Not In Compare Yr HCT} = count({Worker ID})) ~> Terminations4PCount",
-						"JoinFilter3PTER, selectMaxMinus4 exists({Worker ID} == {4P Worker ID},",
-						"     negate:false,",
-						"     broadcast: 'both')~> MaxTERExist4PHC",
-						"MaxTERExist4PHC aggregate(groupBy({Termination Year} = {Event Year}),",
-						"     {Terms Not In Compare Yr HCT} = count({Worker ID})) ~> Terminations3PCount",
-						"JoinFilter2PTER, selectMaxMinus3 exists({Worker ID} == {3P Worker ID},",
-						"     negate:false,",
-						"     broadcast: 'both')~> MaxTERExist3PHC",
-						"MaxTERExist3PHC aggregate(groupBy({Termination Year} = {Event Year}),",
-						"     {Terms Not In Compare Yr HCT} = count({Worker ID})) ~> Terminations2PCount",
-						"JoinFilter1PTER, selectMaxMinus2 exists({Worker ID} == {2P Worker ID},",
-						"     negate:false,",
-						"     broadcast: 'both')~> MaxTERExist2PHC",
-						"MaxTERExist2PHC aggregate(groupBy({Termination Year} = {Event Year}),",
-						"     {Terms Not In Compare Yr HCT} = count({Worker ID})) ~> Terminations1PCount",
-						"JoinFilterMaxTER, selectMaxMinus1 exists({Worker ID} == {1P Worker ID},",
-						"     negate:false,",
-						"     broadcast: 'both')~> MaxTERExist1PHC",
-						"MaxTERExist1PHC aggregate(groupBy({Termination Year} = {Event Year}),",
-						"     {Terms Not In Compare Yr HCT} = count({Worker ID})) ~> TerminationsMaxCount",
-						"FinalSelectMaxCompare, TerminationsMaxCount join({Compare Yr} == {Termination Year},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> JoinMaxTERCount",
-						"JoinMaxHIRCount select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Prior Yr},",
-						"          {Prior Yr HCT in Compare Yr HCT} = {Prior Yr HCT in Compare YR HCT},",
-						"          {Termination Year},",
-						"          {Prior Yr HCT Terms Not In Compare Yr HCT} = {Terms Not In Compare Yr HCT},",
-						"          {Hire Year},",
-						"          {Hires in Compare HCT},",
-						"          {Compare Yr},",
-						"          {Compare Yr HCT}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> FinalSelect1P",
-						"FinalSelect1PCompare, Terminations1PCount join({Compare Yr} == {Termination Year},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> Join1PTERCount",
-						"Join1PHIRCount select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Prior Yr},",
-						"          {Prior Yr HCT in Compare Yr HCT} = {Prior Yr HCT in Compare YR HCT},",
-						"          {Termination Year},",
-						"          {Prior Yr HCT Terms Not In Compare Yr HCT} = {Terms Not In Compare Yr HCT},",
-						"          {Hire Year},",
-						"          {Hires in Compare HCT},",
-						"          {Compare Yr},",
-						"          {Compare Yr HCT}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> FinalSelect2P",
-						"FinalSelect2PCompare, Terminations2PCount join({Compare Yr} == {Termination Year},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> Join2PTERCount",
-						"Join2PHIRCount select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Prior Yr},",
-						"          {Prior Yr HCT in Compare Yr HCT} = {Prior Yr HCT in Compare YR HCT},",
-						"          {Termination Year},",
-						"          {Prior Yr HCT Terms Not In Compare Yr HCT} = {Terms Not In Compare Yr HCT},",
-						"          {Hire Year},",
-						"          {Hires in Compare HCT},",
-						"          {Compare Yr},",
-						"          {Compare Yr HCT}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> FinalSelect3P",
-						"FinalSelect3PCompare, Terminations3PCount join({Compare Yr} == {Termination Year},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> Join3PTERCount",
-						"Join3PHIRCount select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Prior Yr},",
-						"          {Prior Yr HCT in Compare Yr HCT} = {Prior Yr HCT in Compare YR HCT},",
-						"          {Termination Year},",
-						"          {Prior Yr HCT Terms Not In Compare Yr HCT} = {Terms Not In Compare Yr HCT},",
-						"          {Hire Year},",
-						"          {Hires in Compare HCT},",
-						"          {Compare Yr},",
-						"          {Compare Yr HCT}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> FinalSelect4P",
-						"FinalSelect4PCompare, Terminations4PCount join({Compare Yr} == {Termination Year},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> Join4PTERCount",
-						"Join4PHIRCount select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Prior Yr},",
-						"          {Prior Yr HCT in Compare Yr HCT} = {Prior Yr HCT in Compare YR HCT},",
-						"          {Termination Year},",
-						"          {Prior Yr HCT Terms Not In Compare Yr HCT} = {Terms Not In Compare Yr HCT},",
-						"          {Hire Year},",
-						"          {Hires in Compare HCT},",
-						"          {Compare Yr},",
-						"          {Compare Yr HCT}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> FinalSelect5P",
-						"SelectHIRColumns filter({Event Code}=='HIR') ~> HIRFilter",
-						"RemoveDupsCore select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Worker ID},",
-						"          {Event Year},",
-						"          {Event Code}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectHIRColumns",
-						"HIRFilter, MaxYear join({Event Year} == {Event Year Last},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> JoinFilterMaxHIR",
-						"MaxHIRExistMaxHC aggregate(groupBy({Hire Year} = {Event Year}),",
-						"     {Hires in Compare HCT} = count({Worker ID})) ~> HireMaxCount",
-						"JoinFilterMaxHIR, selectMax exists({Worker ID} == {Max Worker ID},",
-						"     negate:false,",
-						"     broadcast: 'auto')~> MaxHIRExistMaxHC",
-						"HIRFilter, MaxYearMinus1 join({Event Year} == {Event Year -1},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> JoinFilter1PHIR",
-						"JoinFilter1PHIR, selectMaxMinus1 exists({Worker ID} == {1P Worker ID},",
-						"     negate:false,",
-						"     broadcast: 'auto')~> HIR1PExist1PHC",
-						"HIR1PExist1PHC aggregate(groupBy({Hire Year} = {Event Year}),",
-						"     {Hires in Compare HCT} = count({Worker ID})) ~> Hire1PCount",
-						"HIRFilter, MaxYearMinus2 join({Event Year} == {Event Year -2},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> JoinFilter2PHIR",
-						"JoinFilter2PHIR, selectMaxMinus2 exists({Worker ID} == {2P Worker ID},",
-						"     negate:false,",
-						"     broadcast: 'auto')~> HIR2PExist2PHC",
-						"HIR2PExist2PHC aggregate(groupBy({Hire Year} = {Event Year}),",
-						"     {Hires in Compare HCT} = count({Worker ID})) ~> Hire2PCount",
-						"HIRFilter, MaxYearMinus3 join({Event Year} == {Event Year -3},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinFilter3PHIR",
-						"JoinFilter3PHIR, selectMaxMinus3 exists({Worker ID} == {3P Worker ID},",
-						"     negate:false,",
-						"     broadcast: 'auto')~> HIR3PExist3PHC",
-						"HIR3PExist3PHC aggregate(groupBy({Hire Year} = {Event Year}),",
-						"     {Hires in Compare HCT} = count({Worker ID})) ~> Hire3PCount",
-						"HIRFilter, MaxYearMinus4 join({Event Year} == {Event Year -4},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinFilter4PHIR",
-						"JoinFilter4PHIR, selectMaxMinus4 exists({Worker ID} == {4P Worker ID},",
-						"     negate:false,",
-						"     broadcast: 'auto')~> HIR4PExist4PHC",
-						"HIR4PExist4PHC aggregate(groupBy({Hire Year} = {Event Year}),",
-						"     {Hires in Compare HCT} = count({Worker ID})) ~> Hire4PCount",
-						"Join4PTERCount, Hire4PCount join({Compare Yr} == {Hire Year},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> Join4PHIRCount",
-						"Join3PTERCount, Hire3PCount join({Compare Yr} == {Hire Year},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> Join3PHIRCount",
-						"Join2PTERCount, Hire2PCount join({Compare Yr} == {Hire Year},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> Join2PHIRCount",
-						"Join1PTERCount, Hire1PCount join({Compare Yr} == {Hire Year},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> Join1PHIRCount",
-						"JoinMaxTERCount, HireMaxCount join({Compare Yr} == {Hire Year},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> JoinMaxHIRCount",
-						"CoreDB select(mapColumn(",
-						"          {Client ID} = ClientId,",
-						"          {Client Engagement Date} = ClientEngagementDt,",
-						"          {Worker ID} = WorkerId,",
-						"          {Event Year} = EventYear,",
-						"          {Event Code} = EventId",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectCoreDBFields",
-						"Core, SelectCoreDBFields union(byName: true)~> UnionWithCoreDB",
-						"UnionWithCoreDB aggregate(groupBy({Client Engagement Date},",
-						"          {Event Year},",
-						"          {Event Code},",
-						"          {Worker ID}),",
-						"     {Client ID} = max({Client ID})) ~> RemoveDupsCore",
-						"union1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Template - Worker IDs HCT Compare Over Time.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
 					]
 				}
 			},
