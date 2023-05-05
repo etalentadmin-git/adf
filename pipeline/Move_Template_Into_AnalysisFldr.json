@@ -1,0 +1,89 @@
+{
+	"name": "Move_Template_Into_AnalysisFldr",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy Analysis Template to Client Folder",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Source_Binary_AnalysisTemplate_TemplateAdminFldr",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Source_Binary_AnalysisFldr",
+						"type": "DatasetReference",
+						"parameters": {
+							"Source_Client_Fldr": {
+								"value": "@pipeline().parameters.P_Client_Id",
+								"type": "Expression"
+							},
+							"Source_Client_Date": {
+								"value": "@pipeline().parameters.P_Client_Dt",
+								"type": "Expression"
+							},
+							"Source_Client_Year": {
+								"value": "@pipeline().parameters.P_Folder_Year",
+								"type": "Expression"
+							},
+							"Source_Client_Quarter": {
+								"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"P_Client_Id": {
+				"type": "string"
+			},
+			"P_Client_Dt": {
+				"type": "string"
+			},
+			"P_Folder_Year": {
+				"type": "string"
+			},
+			"P_Folder_Quarter": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Client/Create Analysis Table Files"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-11T23:59:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

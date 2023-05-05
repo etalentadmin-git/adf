@@ -1,0 +1,77 @@
+{
+	"name": "Delete_All_Rec_OtherCoreAnalysisRef",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Delete Records/Analysis Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreAnalysisRefTbl",
+						"type": "DatasetReference"
+					},
+					"name": "OtherCoreAnalysisFactCurrTbl"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreAnalysisRefTbl",
+						"type": "DatasetReference"
+					},
+					"name": "DeleteCurrRecords"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Folder_Year as string,",
+				"     Flow_Folder_Quarter as string",
+				"}",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          Type as string,",
+				"          DataCollectionYear as integer,",
+				"          DataCollectionQuarter as integer,",
+				"          Notes as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[OtherCoreAnalysisRefTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and DataCollectionYear='{$Flow_Folder_Year}' and DataCollectionQuarter='{$Flow_Folder_Quarter}'\"),",
+				"     format: 'query') ~> OtherCoreAnalysisFactCurrTbl",
+				"OtherCoreAnalysisFactCurrTbl alterRow(deleteIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          Type as string,",
+				"          DataCollectionYear as integer,",
+				"          DataCollectionQuarter as integer,",
+				"          Notes as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:true,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     keys:['ClientId','ClientEngagementDt','DataCollectionYear','DataCollectionQuarter'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> DeleteCurrRecords"
+			]
+		}
+	}
+}

@@ -1,0 +1,97 @@
+{
+	"name": "1_Processing_OtherCoreAnalysisTemplatePrep",
+	"properties": {
+		"description": "Load all fact tables to the database once audit files have been reviewed and any remediation action taken.",
+		"activities": [
+			{
+				"name": "Output_AnalysisTemplatePrep_OtherCore",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Move_Template_Into_AnalysisFldr",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_AnalysisTemplatePrep_OtherCore",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Move_Template_Into_AnalysisFldr",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Move_Template_Into_AnalysisFldr",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"P_Client_Id": {
+				"type": "string"
+			},
+			"P_Client_Dt": {
+				"type": "string"
+			},
+			"P_Folder_Year": {
+				"type": "string"
+			},
+			"P_Folder_Quarter": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Client/Client Setup Routines/Analysis"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-12T15:58:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
