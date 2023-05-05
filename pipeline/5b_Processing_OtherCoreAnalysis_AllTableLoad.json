@@ -1,12 +1,19 @@
 {
-	"name": "5b_Processing_OtherCoreAnalysis_RefTableLoad",
+	"name": "5b_Processing_OtherCoreAnalysis_AllTableLoad",
 	"properties": {
 		"description": "Load the Other Analysis reference table once the template has been completed with all required events identified.",
 		"activities": [
 			{
 				"name": "Append_Tbl_OthCoreAnalysisRef",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Delete_All_Rec_OtherCoreAnalysisRef",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -421,6 +428,79 @@
 							"type": "Expression"
 						}
 					}
+				}
+			},
+			{
+				"name": "Delete_All_Rec_OtherCoreAnalysisRef",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Delete_All_Rec_OtherCoreAnalysis",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Delete_All_Rec_OtherCoreAnalysisRef",
+						"type": "DataFlowReference",
+						"parameters": {
+							"Flow_Client_Id": {
+								"value": "'@{pipeline().parameters.P_Client_Id}'",
+								"type": "Expression"
+							},
+							"Flow_Client_Dt": {
+								"value": "'@{pipeline().parameters.P_Client_Dt}'",
+								"type": "Expression"
+							},
+							"Flow_Folder_Year": {
+								"value": "'@{pipeline().parameters.P_Folder_Year}'",
+								"type": "Expression"
+							},
+							"Flow_Folder_Quarter": {
+								"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
+								"type": "Expression"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Delete_All_Rec_OtherCoreAnalysis",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Delete_All_Rec_OtherCoreAnalysis",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
 				}
 			}
 		],
