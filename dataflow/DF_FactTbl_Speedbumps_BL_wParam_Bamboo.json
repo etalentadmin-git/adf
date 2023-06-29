@@ -254,6 +254,9 @@
 				},
 				{
 					"name": "JoinTalentIdentifiers"
+				},
+				{
+					"name": "AdjustMgrELValueforSpeedbumpCalc"
 				}
 			],
 			"scriptLines": [
@@ -768,7 +771,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinP1Promo",
-				"Join3YrWorkerMgrCount derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y',\r",
+				"AdjustMgrELValueforSpeedbumpCalc derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y',\r",
 				"iif(TalentIdentifier1=='Group 1 (O-3)','Y',\r",
 				"iif(TalentIdentifier1=='Group 2 (O-2)','Y',\r",
 				"iif(TalentIdentifier1=='Group 3 (O-1)','Y',\r",
@@ -778,7 +781,7 @@
 				"          {Speedbump Worker Status} = 'Active',",
 				"          {Speedbump 1 Name} = 'Mgr Level',",
 				"          {Speedbump 1 Desc} = 'Assigned to a manager at their same level (non Exec)',",
-				"          {Speedbump 1 Flag} = iif($SB1_MgrLvl=='Y',iif(isNull({Mgr Worker ID}),'N',iif({Elloree Corporate Title Sort}==1,'N',iif(toInteger({Mgr CorpTitle})<=toInteger({CorpTitle}),'Y','N'))),'N'),",
+				"          {Speedbump 1 Flag} = iif($SB1_MgrLvl=='Y',iif(isNull({Mgr Worker ID}),'N',iif({Elloree Corporate Title Sort}==1,'N',iif(toInteger({Mgr CorpTitle})<=toInteger(CorpTitle),'Y','N'))),'N'),",
 				"          {Speedbump 2 Name} = 'Mgr Top Talent',",
 				"          {Speedbump 2 Desc} = 'Assigned to a manager who is not considered top talent (does not have a talent tag)',",
 				"          {Speedbump 2 Flag} = iif($SB2_MgrTalent=='Y',iif(isNull({Mgr Worker ID}),'N',iif({Mgr Curr Talent Tag}=='N/A','Y','N')),'N'),",
@@ -1028,6 +1031,8 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinTalentIdentifiers",
+				"Join3YrWorkerMgrCount derive(CorpTitle = iif(CorpTitle=='EL','13',CorpTitle),",
+				"          {Mgr CorpTitle} = iif({Mgr CorpTitle}=='EL','13',{Mgr CorpTitle})) ~> AdjustMgrELValueforSpeedbumpCalc",
 				"FilterOnlySpeedbumpPop sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
