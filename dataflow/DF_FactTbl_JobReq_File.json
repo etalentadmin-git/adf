@@ -9,7 +9,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "Source_Template_Req_Test",
+						"referenceName": "Source_Template_Req",
 						"type": "DatasetReference"
 					},
 					"name": "Requisitions"
@@ -143,7 +143,13 @@
 				"FilterOutClientHeaderRowAndColumn filter(not(isNull({Event Date})) && not(isNull({Requisition ID}))) ~> RemoveNullReqIDRows",
 				"RemoveNullReqIDRows derive(Event = 'Requisition',",
 				"          EventId = 'REQ') ~> tagEvent",
-				"AddParameters derive(EventMonth = month({Event Date})) ~> AddEventMonth",
+				"AddParameters derive(EventMonth = month({Event Date}),",
+				"          {Event Quarter} = iif(isNull({Event Quarter}),\r",
+				"iif(between(month({Event Date}),1,3),1,\r",
+				"iif(between(month({Event Date}),4,6),2,\r",
+				"iif(between(month({Event Date}),7,9),3,\r",
+				"iif(between(month({Event Date}),10,12),4,0)))),\r",
+				"{Event Quarter})) ~> AddEventMonth",
 				"SelectFinal aggregate(groupBy({Client ID},",
 				"          {Client Engagement Date},",
 				"          {Event Date},",
