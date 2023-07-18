@@ -2264,7 +2264,7 @@
 							"name": "RemoveNullWorkerIdRowsPRO"
 						},
 						{
-							"name": "derivedColumn1"
+							"name": "derivedEventMonthQtr"
 						},
 						{
 							"name": "RemoveDuplicates"
@@ -2461,7 +2461,7 @@
 						"iif({Years of Service}>=25,1, 10))))))))),",
 						"          {Client ID} = $Flow_Client_Id,",
 						"          {Client Engagement Date} = $Flow_Client_Dt) ~> AddDerived",
-						"derivedColumn1 select(mapColumn(",
+						"derivedEventMonthQtr select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Worker ID},",
@@ -2712,7 +2712,13 @@
 						"filter2 filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullWorkerIdRowsTER",
 						"filter3 filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullWorkerIdRowsHIR",
 						"filter4 filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullWorkerIdRowsPRO",
-						"ConvertNullsForKeyFields derive(EventMonth = month({Event Date})) ~> derivedColumn1",
+						"ConvertNullsForKeyFields derive(EventMonth = month({Event Date}),",
+						"          {Event Quarter} = iif(isNull({Event Quarter}),\r",
+						"iif(between(month({Event Date}),1,3),1,\r",
+						"iif(between(month({Event Date}),4,6),2,\r",
+						"iif(between(month({Event Date}),7,9),3,\r",
+						"iif(between(month({Event Date}),10,12),4,0)))),\r",
+						"{Event Quarter})) ~> derivedEventMonthQtr",
 						"select1 aggregate(groupBy({Client ID},",
 						"          {Client Engagement Date},",
 						"          EventMonth,",
@@ -3717,7 +3723,7 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "Source_Template_Req_Test",
+								"referenceName": "Source_Template_Req",
 								"type": "DatasetReference"
 							},
 							"name": "Requisitions"
@@ -3851,7 +3857,13 @@
 						"FilterOutClientHeaderRowAndColumn filter(not(isNull({Event Date})) && not(isNull({Requisition ID}))) ~> RemoveNullReqIDRows",
 						"RemoveNullReqIDRows derive(Event = 'Requisition',",
 						"          EventId = 'REQ') ~> tagEvent",
-						"AddParameters derive(EventMonth = month({Event Date})) ~> AddEventMonth",
+						"AddParameters derive(EventMonth = month({Event Date}),",
+						"          {Event Quarter} = iif(isNull({Event Quarter}),\r",
+						"iif(between(month({Event Date}),1,3),1,\r",
+						"iif(between(month({Event Date}),4,6),2,\r",
+						"iif(between(month({Event Date}),7,9),3,\r",
+						"iif(between(month({Event Date}),10,12),4,0)))),\r",
+						"{Event Quarter})) ~> AddEventMonth",
 						"SelectFinal aggregate(groupBy({Client ID},",
 						"          {Client Engagement Date},",
 						"          {Event Date},",
