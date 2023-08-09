@@ -13,6 +13,324 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Move_Template_Into_AnalysisFldr')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy Analysis Template to Client Folder",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_Binary_AnalysisTemplate_TemplateAdminFldr",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Source_Binary_AnalysisFldr",
+								"type": "DatasetReference",
+								"parameters": {
+									"Source_Client_Fldr": {
+										"value": "@pipeline().parameters.P_Client_Id",
+										"type": "Expression"
+									},
+									"Source_Client_Date": {
+										"value": "@pipeline().parameters.P_Client_Dt",
+										"type": "Expression"
+									},
+									"Source_Client_Year": {
+										"value": "@pipeline().parameters.P_Folder_Year",
+										"type": "Expression"
+									},
+									"Source_Client_Quarter": {
+										"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Create Analysis Table Files"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-11T23:59:37Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Move_Templates_Into_ClientFldr')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_Binary_CoreTemplate_ProcessingFldr",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Source_Binary_TemplatesFldr",
+								"type": "DatasetReference",
+								"parameters": {
+									"Source_Client_Fldr": {
+										"value": "@pipeline().parameters.P_Client_Id",
+										"type": "Expression"
+									},
+									"Source_Client_Date": {
+										"value": "@pipeline().parameters.P_Client_Dt",
+										"type": "Expression"
+									},
+									"Source_Client_Year": {
+										"value": "@pipeline().parameters.P_Folder_Year",
+										"type": "Expression"
+									},
+									"Source_Client_Quarter": {
+										"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "Copy data2",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_Binary_TalentAcqTemplate_ProcessingFldr",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Source_Binary_TemplatesFldr",
+								"type": "DatasetReference",
+								"parameters": {
+									"Source_Client_Fldr": {
+										"value": "@pipeline().parameters.P_Client_Id",
+										"type": "Expression"
+									},
+									"Source_Client_Date": {
+										"value": "@pipeline().parameters.P_Client_Dt",
+										"type": "Expression"
+									},
+									"Source_Client_Year": {
+										"value": "@pipeline().parameters.P_Folder_Year",
+										"type": "Expression"
+									},
+									"Source_Client_Quarter": {
+										"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "Copy data3",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_Binary_OtherTemplate_ProcessingFldr",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Source_Binary_TemplatesFldr",
+								"type": "DatasetReference",
+								"parameters": {
+									"Source_Client_Fldr": {
+										"value": "@pipeline().parameters.P_Client_Id",
+										"type": "Expression"
+									},
+									"Source_Client_Date": {
+										"value": "@pipeline().parameters.P_Client_Dt",
+										"type": "Expression"
+									},
+									"Source_Client_Year": {
+										"value": "@pipeline().parameters.P_Folder_Year",
+										"type": "Expression"
+									},
+									"Source_Client_Quarter": {
+										"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Create Fact Table Files"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-11T23:59:37Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_ApplStatus')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -4308,222 +4626,6 @@
 						"          Speedbump15Flag,",
 						"          LoadDt",
 						"     )) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_TalentData_File",
-								"type": "DatasetReference"
-							},
-							"name": "Talent"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentTalentFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendTalentMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Event Year} as short,",
-						"          {Event Date} as date 'yyyy-MM-dd',",
-						"          Event as string,",
-						"          {Event Type} as string,",
-						"          {Worker ID} as string,",
-						"          {Performance Rating} as string,",
-						"          {Performance Rating Date} as date 'yyyy-MM-dd',",
-						"          {Talent Identifier (1)} as string,",
-						"          {Talent Identifier (2)} as string,",
-						"          {Talent Identifier (3)} as string,",
-						"          {Talent Identifier (4)} as string,",
-						"          {Talent Identifier (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Talent",
-						"Talent alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Performance Rating}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          EventYear = {Event Year},",
-						"          EventDt = {Event Date},",
-						"          Event,",
-						"          EventType = {Event Type},",
-						"          WorkerId = {Worker ID},",
-						"          PerfRating = {Performance Rating},",
-						"          PerfRatingDt = {Performance Rating Date},",
-						"          TalentIdentifier1 = {Talent Identifier (1)},",
-						"          TalentIdentifier2 = {Talent Identifier (2)},",
-						"          TalentIdentifier3 = {Talent Identifier (3)},",
-						"          TalentIdentifier4 = {Talent Identifier (4)},",
-						"          TalentIdentifier5 = {Talent Identifier (5)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(Event = 'PER',",
-						"          LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          WorkerId as string,",
-						"          EventYear as integer,",
-						"          EventDt as date,",
-						"          Event as string,",
-						"          EventType as string,",
-						"          PerfRating as string,",
-						"          PerfRatingDt as date,",
-						"          TalentIdentifier1 as string,",
-						"          TalentIdentifier2 as string,",
-						"          TalentIdentifier3 as string,",
-						"          TalentIdentifier4 as string,",
-						"          TalentIdentifier5 as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','EventDt','PerfRating'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent_Hist')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentTalentFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "Talent"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentTalentFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendTalentMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_Hist_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          WorkerId as string,",
-						"          EventYear as integer,",
-						"          EventDt as date,",
-						"          Event as string,",
-						"          EventType as string,",
-						"          PerfRating as string,",
-						"          PerfRatingDt as date,",
-						"          TalentIdentifier1 as string,",
-						"          TalentIdentifier2 as string,",
-						"          TalentIdentifier3 as string,",
-						"          TalentIdentifier4 as string,",
-						"          TalentIdentifier5 as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> Talent",
-						"Talent alterRow(upsertIf(true())) ~> alterRow1",
-						"alterRow1 derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
-						"          LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          WorkerId as string,",
-						"          EventYear as integer,",
-						"          EventDt as date,",
-						"          Event as string,",
-						"          EventType as string,",
-						"          PerfRating as string,",
-						"          PerfRatingDt as date,",
-						"          TalentIdentifier1 as string,",
-						"          TalentIdentifier2 as string,",
-						"          TalentIdentifier3 as string,",
-						"          TalentIdentifier4 as string,",
-						"          TalentIdentifier5 as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','EventDt','PerfRating'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
 					]
 				}
 			},

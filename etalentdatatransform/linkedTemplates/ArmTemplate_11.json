@@ -13,6 +13,222 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_TalentData_File",
+								"type": "DatasetReference"
+							},
+							"name": "Talent"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentTalentFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendTalentMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Event Year} as short,",
+						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          Event as string,",
+						"          {Event Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Performance Rating} as string,",
+						"          {Performance Rating Date} as date 'yyyy-MM-dd',",
+						"          {Talent Identifier (1)} as string,",
+						"          {Talent Identifier (2)} as string,",
+						"          {Talent Identifier (3)} as string,",
+						"          {Talent Identifier (4)} as string,",
+						"          {Talent Identifier (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Talent",
+						"Talent alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Performance Rating}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date},",
+						"          EventYear = {Event Year},",
+						"          EventDt = {Event Date},",
+						"          Event,",
+						"          EventType = {Event Type},",
+						"          WorkerId = {Worker ID},",
+						"          PerfRating = {Performance Rating},",
+						"          PerfRatingDt = {Performance Rating Date},",
+						"          TalentIdentifier1 = {Talent Identifier (1)},",
+						"          TalentIdentifier2 = {Talent Identifier (2)},",
+						"          TalentIdentifier3 = {Talent Identifier (3)},",
+						"          TalentIdentifier4 = {Talent Identifier (4)},",
+						"          TalentIdentifier5 = {Talent Identifier (5)}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(Event = 'PER',",
+						"          LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventYear as integer,",
+						"          EventDt as date,",
+						"          Event as string,",
+						"          EventType as string,",
+						"          PerfRating as string,",
+						"          PerfRatingDt as date,",
+						"          TalentIdentifier1 as string,",
+						"          TalentIdentifier2 as string,",
+						"          TalentIdentifier3 as string,",
+						"          TalentIdentifier4 as string,",
+						"          TalentIdentifier5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventDt','PerfRating'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentTalentFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Talent"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentTalentFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendTalentMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventYear as integer,",
+						"          EventDt as date,",
+						"          Event as string,",
+						"          EventType as string,",
+						"          PerfRating as string,",
+						"          PerfRatingDt as date,",
+						"          TalentIdentifier1 as string,",
+						"          TalentIdentifier2 as string,",
+						"          TalentIdentifier3 as string,",
+						"          TalentIdentifier4 as string,",
+						"          TalentIdentifier5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Talent",
+						"Talent alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
+						"          LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventYear as integer,",
+						"          EventDt as date,",
+						"          Event as string,",
+						"          EventType as string,",
+						"          PerfRating as string,",
+						"          PerfRatingDt as date,",
+						"          TalentIdentifier1 as string,",
+						"          TalentIdentifier2 as string,",
+						"          TalentIdentifier3 as string,",
+						"          TalentIdentifier4 as string,",
+						"          TalentIdentifier5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventDt','PerfRating'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1802,267 +2018,6 @@
 						"          ElloreeLGTBQ,",
 						"          LoadDt",
 						"     )) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Location')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_Location",
-								"type": "DatasetReference"
-							},
-							"name": "Location"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentLocationMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendLocationMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Work Office Location} as string,",
-						"          {Client Work City} as string,",
-						"          {Client Work State} as string,",
-						"          {Client Work Country} as string,",
-						"          {Client Strategic Work Location Ind} as string,",
-						"          {Elloree Work Ofiice} as string,",
-						"          {Elloree Work City} as string,",
-						"          {Elloree Work State} as string,",
-						"          {Elloree Work Region} as string,",
-						"          {Elloree Work Country} as string,",
-						"          {Elloree Strategic Location} as string,",
-						"          {Elloree Location Sort Id} as string,",
-						"          {Suggested Elloree Work City} as string,",
-						"          {Suggested Elloree Work State} as string,",
-						"          {Suggested Elloree Work Country} as string,",
-						"          {Suggested Elloree Work Region} as string,",
-						"          {Suggested Elloree Strategic Location} as string,",
-						"          {Suggested Elloree Location Sort Id} as string,",
-						"          {Suggested Source} as string,",
-						"          {2017 Headcount} as string,",
-						"          {2018 Headcount} as string,",
-						"          {2018 Hire} as string,",
-						"          {2018 Promo} as string,",
-						"          {2018 Term} as string,",
-						"          {2019 Headcount} as string,",
-						"          {2019 Hire} as string,",
-						"          {2019 Promo} as string,",
-						"          {2019 Term} as string,",
-						"          {2020 Headcount} as string,",
-						"          {2020 Hire} as string,",
-						"          {2020 Promo} as string,",
-						"          {2020 Term} as string,",
-						"          {2021 Headcount} as string,",
-						"          {2021 Hire} as string,",
-						"          {2021 Promo} as string,",
-						"          {2021 Term} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Location",
-						"Location alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Elloree Work Region})),",
-						"     deleteIf(isNull({Elloree Work Country})),",
-						"     deleteIf(isNull({Elloree Work State})),",
-						"     deleteIf(isNull({Elloree Work City})),",
-						"     deleteIf(isNull({Elloree Work Ofiice})),",
-						"     deleteIf(isNull({Elloree Location Sort Id}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          ClientWorkOffice = {Client Work Office Location},",
-						"          ClientWorkCity = {Client Work City},",
-						"          ClientWorkState = {Client Work State},",
-						"          ClientWorkCountry = {Client Work Country},",
-						"          ClientStrategicLoc = {Client Strategic Work Location Ind},",
-						"          ElloreeWorkOfiice = {Elloree Work Ofiice},",
-						"          ElloreeWorkCity = {Elloree Work City},",
-						"          ElloreeWorkState = {Elloree Work State},",
-						"          ElloreeWorkCountry = {Elloree Work Country},",
-						"          ElloreeWorkRegion = {Elloree Work Region},",
-						"          ElloreeStrategicLoc = {Elloree Strategic Location},",
-						"          ElloreeLocSortId = {Elloree Location Sort Id}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientWorkOffice as string,",
-						"          ClientWorkCity as string,",
-						"          ClientWorkState as string,",
-						"          ClientWorkCountry as string,",
-						"          ClientStrategicLoc as string,",
-						"          ElloreeWorkOffice as string,",
-						"          ElloreeWorkCity as string,",
-						"          ElloreeWorkState as string,",
-						"          ElloreeWorkCountry as string,",
-						"          ElloreeWorkRegion as string,",
-						"          ElloreeStrategicLoc as string,",
-						"          ElloreeLocSortId as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientWorkOffice','ClientWorkCountry','ClientWorkState','ClientWorkCity','ClientStrategicLoc'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt,",
-						"          ClientWorkOffice,",
-						"          ClientWorkCity,",
-						"          ClientWorkState,",
-						"          ClientWorkCountry,",
-						"          ClientStrategicLoc,",
-						"          ElloreeWorkOffice = ElloreeWorkOfiice,",
-						"          ElloreeWorkCity,",
-						"          ElloreeWorkState,",
-						"          ElloreeWorkCountry,",
-						"          ElloreeWorkRegion,",
-						"          ElloreeStrategicLoc,",
-						"          ElloreeLocSortId,",
-						"          LoadDt",
-						"     )) ~> AppendLocationMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Location_Hist')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentLocationMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "Location"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentLocationMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendLocationMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_Hist_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientWorkOffice as string,",
-						"          ClientWorkCity as string,",
-						"          ClientWorkState as string,",
-						"          ClientWorkCountry as string,",
-						"          ClientStrategicLoc as string,",
-						"          ElloreeWorkOffice as string,",
-						"          ElloreeWorkCity as string,",
-						"          ElloreeWorkState as string,",
-						"          ElloreeWorkCountry as string,",
-						"          ElloreeWorkRegion as string,",
-						"          ElloreeStrategicLoc as string,",
-						"          ElloreeLocSortId as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[LocationMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> Location",
-						"Location alterRow(upsertIf(true())) ~> alterRow1",
-						"alterRow1 derive(LoadDt = currentDate(),",
-						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientWorkOffice as string,",
-						"          ClientWorkCity as string,",
-						"          ClientWorkState as string,",
-						"          ClientWorkCountry as string,",
-						"          ClientStrategicLoc as string,",
-						"          ElloreeWorkOffice as string,",
-						"          ElloreeWorkCity as string,",
-						"          ElloreeWorkState as string,",
-						"          ElloreeWorkCountry as string,",
-						"          ElloreeWorkRegion as string,",
-						"          ElloreeStrategicLoc as string,",
-						"          ElloreeLocSortId as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientWorkOffice','ClientWorkCountry','ClientWorkState','ClientWorkCity','ClientStrategicLoc'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendLocationMapping"
 					]
 				}
 			},

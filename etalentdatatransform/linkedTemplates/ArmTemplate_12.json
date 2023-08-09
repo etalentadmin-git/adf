@@ -13,6 +13,267 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Location')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_Location",
+								"type": "DatasetReference"
+							},
+							"name": "Location"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentLocationMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendLocationMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Work Office Location} as string,",
+						"          {Client Work City} as string,",
+						"          {Client Work State} as string,",
+						"          {Client Work Country} as string,",
+						"          {Client Strategic Work Location Ind} as string,",
+						"          {Elloree Work Ofiice} as string,",
+						"          {Elloree Work City} as string,",
+						"          {Elloree Work State} as string,",
+						"          {Elloree Work Region} as string,",
+						"          {Elloree Work Country} as string,",
+						"          {Elloree Strategic Location} as string,",
+						"          {Elloree Location Sort Id} as string,",
+						"          {Suggested Elloree Work City} as string,",
+						"          {Suggested Elloree Work State} as string,",
+						"          {Suggested Elloree Work Country} as string,",
+						"          {Suggested Elloree Work Region} as string,",
+						"          {Suggested Elloree Strategic Location} as string,",
+						"          {Suggested Elloree Location Sort Id} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount} as string,",
+						"          {2018 Headcount} as string,",
+						"          {2018 Hire} as string,",
+						"          {2018 Promo} as string,",
+						"          {2018 Term} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2019 Hire} as string,",
+						"          {2019 Promo} as string,",
+						"          {2019 Term} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promo} as string,",
+						"          {2020 Term} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promo} as string,",
+						"          {2021 Term} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Location",
+						"Location alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Elloree Work Region})),",
+						"     deleteIf(isNull({Elloree Work Country})),",
+						"     deleteIf(isNull({Elloree Work State})),",
+						"     deleteIf(isNull({Elloree Work City})),",
+						"     deleteIf(isNull({Elloree Work Ofiice})),",
+						"     deleteIf(isNull({Elloree Location Sort Id}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date},",
+						"          ClientWorkOffice = {Client Work Office Location},",
+						"          ClientWorkCity = {Client Work City},",
+						"          ClientWorkState = {Client Work State},",
+						"          ClientWorkCountry = {Client Work Country},",
+						"          ClientStrategicLoc = {Client Strategic Work Location Ind},",
+						"          ElloreeWorkOfiice = {Elloree Work Ofiice},",
+						"          ElloreeWorkCity = {Elloree Work City},",
+						"          ElloreeWorkState = {Elloree Work State},",
+						"          ElloreeWorkCountry = {Elloree Work Country},",
+						"          ElloreeWorkRegion = {Elloree Work Region},",
+						"          ElloreeStrategicLoc = {Elloree Strategic Location},",
+						"          ElloreeLocSortId = {Elloree Location Sort Id}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientWorkOffice as string,",
+						"          ClientWorkCity as string,",
+						"          ClientWorkState as string,",
+						"          ClientWorkCountry as string,",
+						"          ClientStrategicLoc as string,",
+						"          ElloreeWorkOffice as string,",
+						"          ElloreeWorkCity as string,",
+						"          ElloreeWorkState as string,",
+						"          ElloreeWorkCountry as string,",
+						"          ElloreeWorkRegion as string,",
+						"          ElloreeStrategicLoc as string,",
+						"          ElloreeLocSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientWorkOffice','ClientWorkCountry','ClientWorkState','ClientWorkCity','ClientStrategicLoc'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          ClientWorkOffice,",
+						"          ClientWorkCity,",
+						"          ClientWorkState,",
+						"          ClientWorkCountry,",
+						"          ClientStrategicLoc,",
+						"          ElloreeWorkOffice = ElloreeWorkOfiice,",
+						"          ElloreeWorkCity,",
+						"          ElloreeWorkState,",
+						"          ElloreeWorkCountry,",
+						"          ElloreeWorkRegion,",
+						"          ElloreeStrategicLoc,",
+						"          ElloreeLocSortId,",
+						"          LoadDt",
+						"     )) ~> AppendLocationMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Location_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentLocationMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Location"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentLocationMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendLocationMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientWorkOffice as string,",
+						"          ClientWorkCity as string,",
+						"          ClientWorkState as string,",
+						"          ClientWorkCountry as string,",
+						"          ClientStrategicLoc as string,",
+						"          ElloreeWorkOffice as string,",
+						"          ElloreeWorkCity as string,",
+						"          ElloreeWorkState as string,",
+						"          ElloreeWorkCountry as string,",
+						"          ElloreeWorkRegion as string,",
+						"          ElloreeStrategicLoc as string,",
+						"          ElloreeLocSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[LocationMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Location",
+						"Location alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientWorkOffice as string,",
+						"          ClientWorkCity as string,",
+						"          ClientWorkState as string,",
+						"          ClientWorkCountry as string,",
+						"          ClientStrategicLoc as string,",
+						"          ElloreeWorkOffice as string,",
+						"          ElloreeWorkCity as string,",
+						"          ElloreeWorkState as string,",
+						"          ElloreeWorkCountry as string,",
+						"          ElloreeWorkRegion as string,",
+						"          ElloreeStrategicLoc as string,",
+						"          ElloreeLocSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientWorkOffice','ClientWorkCountry','ClientWorkState','ClientWorkCity','ClientStrategicLoc'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendLocationMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_Mapping_PerformanceRating')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -7137,6 +7398,166 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_Tbl_USCensusSummary')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "External Data/US Census"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Template_US_Census",
+								"type": "DatasetReference"
+							},
+							"name": "USCensusSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentUSCensusSummaryTbl",
+								"type": "DatasetReference"
+							},
+							"name": "LoadUSCensusSummaryTable"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          Census_Year as string,",
+						"          Census_City as string,",
+						"          Census_State as string,",
+						"          Census_Country as string,",
+						"          Census_MSA as string,",
+						"          Census_Region as string,",
+						"          Census_Total as string,",
+						"          Census_Male as string,",
+						"          Census_Female as string,",
+						"          Census_White as string,",
+						"          Census_Black as string,",
+						"          Census_AmerIndAlaskaNat as string,",
+						"          Census_Asian as string,",
+						"          Census_NatHawaiianOtherPacIsl as string,",
+						"          Census_SomeOtherRace as string,",
+						"          Census_TwoPlusRaces as string,",
+						"          Census_Hispanic as string,",
+						"          Census_PoC as string,",
+						"          MSA_Total as string,",
+						"          MSA_Male as string,",
+						"          MSA_Female as string,",
+						"          MSA_White as string,",
+						"          MSA_Black as string,",
+						"          MSA_AmerIndAlaskaNat as string,",
+						"          MSA_Asian as string,",
+						"          MSA_NatHawaiianOtherPacIsl as string,",
+						"          MSA_SomeOtherRace as string,",
+						"          MSA_TwoPlusRaces as string,",
+						"          MSA_Hispanic as string,",
+						"          MSA_PoC as string,",
+						"          State_Total as string,",
+						"          State_Male as string,",
+						"          State_Female as string,",
+						"          State_White as string,",
+						"          State_Black as string,",
+						"          State_AmerIndAlaskaNat as string,",
+						"          State_Asian as string,",
+						"          State_NatHawaiianOtherPacIsl as string,",
+						"          State_SomeOtherRace as string,",
+						"          State_TwoPlusRaces as string,",
+						"          State_Hispanic as string,",
+						"          State_PofC as string,",
+						"          US_Total as string,",
+						"          US_Male as string,",
+						"          US_Female as string,",
+						"          US_White as string,",
+						"          US_Black as string,",
+						"          US_AmerIndAlaskaNat as string,",
+						"          US_Asian as string,",
+						"          US_NatHawaiianOtherPacIsl as string,",
+						"          US_SomeOtherRace as string,",
+						"          US_TwoPlusRaces as string,",
+						"          US_Hispanic as string,",
+						"          US_PofC as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> USCensusSource",
+						"USCensusSource sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Census_Year as integer,",
+						"          Census_City as string,",
+						"          Census_State as string,",
+						"          Census_Country as string,",
+						"          Census_MSA as string,",
+						"          Census_Region as string,",
+						"          Census_Total as integer,",
+						"          Census_Male as integer,",
+						"          Census_Female as integer,",
+						"          Census_White as integer,",
+						"          Census_Black as integer,",
+						"          Census_AmerIndAlaskaNat as integer,",
+						"          Census_Asian as integer,",
+						"          Census_NatHawaiianOtherPacIsl as integer,",
+						"          Census_SomeOtherRace as integer,",
+						"          Census_TwoPlusRaces as integer,",
+						"          Census_Hispanic as integer,",
+						"          Census_PoC as integer,",
+						"          MSA_Total as integer,",
+						"          MSA_Male as integer,",
+						"          MSA_Female as integer,",
+						"          MSA_White as integer,",
+						"          MSA_Black as integer,",
+						"          MSA_AmerIndAlaskaNat as integer,",
+						"          MSA_Asian as integer,",
+						"          MSA_NatHawaiianOtherPacIsl as integer,",
+						"          MSA_SomeOtherRace as integer,",
+						"          MSA_TwoPlusRaces as integer,",
+						"          MSA_Hispanic as integer,",
+						"          MSA_PoC as integer,",
+						"          State_Total as integer,",
+						"          State_Male as integer,",
+						"          State_Female as integer,",
+						"          State_White as integer,",
+						"          State_Black as integer,",
+						"          State_AmerIndAlaskaNat as integer,",
+						"          State_Asian as integer,",
+						"          State_NatHawaiianOtherPacIsl as integer,",
+						"          State_SomeOtherRace as integer,",
+						"          State_TwoPlusRaces as integer,",
+						"          State_Hispanic as integer,",
+						"          State_PofC as integer,",
+						"          US_Total as integer,",
+						"          US_Male as integer,",
+						"          US_Female as integer,",
+						"          US_White as integer,",
+						"          US_Black as integer,",
+						"          US_AmerIndAlaskaNat as integer,",
+						"          US_Asian as integer,",
+						"          US_NatHawaiianOtherPacIsl as integer,",
+						"          US_SomeOtherRace as integer,",
+						"          US_TwoPlusRaces as integer,",
+						"          US_Hispanic as integer,",
+						"          US_PofC as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> LoadUSCensusSummaryTable"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/BLS_AmerIndAlaskNat_Female')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -7338,321 +7759,6 @@
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['BLS_AmerIndAlaskNat_Male.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_AmerIndAlaskNat_Total')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_AmerIndAlaskNat_Total",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'American Indian or Alaska Native',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - American Indian or Alaska Native',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_AmerIndAlaskNat_Total.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Asian_Female')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Asian_Female",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Asian',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Asian, women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Asian_Female.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Asian_Female_Hisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Asian_Female_Hisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Asian',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Hispanic or Latino',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Asian, Hispanic, women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Asian_Female_Hisp.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink1"
