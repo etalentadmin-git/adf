@@ -7425,7 +7425,11 @@
 							"name": "LoadUSCensusSummaryTable"
 						}
 					],
-					"transformations": [],
+					"transformations": [
+						{
+							"name": "RemoveNull"
+						}
+					],
 					"scriptLines": [
 						"source(output(",
 						"          Census_Year as integer,",
@@ -7486,7 +7490,8 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> USCensusSource",
-						"USCensusSource sink(allowSchemaDrift: true,",
+						"USCensusSource filter(not(isNull(Census_Year))) ~> RemoveNull",
+						"RemoveNull sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          Census_Year as integer,",
