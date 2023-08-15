@@ -13,6 +13,80 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_Veteran')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentVeteranMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "VeteranMapTbl"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentVeteranMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientVeteran as string,",
+						"          ElloreeVeteran as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[VeteranMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> VeteranMapTbl",
+						"VeteranMapTbl alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientVeteran as string,",
+						"          ElloreeVeteran as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Delete_Tmp_OtherCoreAnalysis')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -3104,86 +3178,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Speedbumps')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_FactTbl_Speedbumps",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_FactTbl_Speedbumps",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"Speedbumps": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:44:11Z"
 			},
 			"dependsOn": []
 		}
