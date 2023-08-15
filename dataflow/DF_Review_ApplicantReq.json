@@ -1,0 +1,169 @@
+{
+	"name": "DF_Review_ApplicantReq",
+	"properties": {
+		"description": "This workflow outputs 1 file for review of ethnicity values across events and time periods.",
+		"folder": {
+			"name": "Client/Audit Reports"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_JobReq_File",
+						"type": "DatasetReference"
+					},
+					"name": "AllReqData"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_Applicant_File",
+						"type": "DatasetReference"
+					},
+					"name": "ApplicantData"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_AuditFolder",
+						"type": "DatasetReference"
+					},
+					"name": "OutputReqApplicantReview"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SortOnEvent"
+				},
+				{
+					"name": "AddApplicantCount"
+				},
+				{
+					"name": "SelectColumns"
+				},
+				{
+					"name": "ReqApplicantCount"
+				},
+				{
+					"name": "SelectReqInfo"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as string,",
+				"          {Client Engagement Type} as string,",
+				"          {Event Date} as string,",
+				"          EventMonth as string,",
+				"          {Event Quarter} as string,",
+				"          {Event Year} as string,",
+				"          EventId as string,",
+				"          Event as string,",
+				"          {Requisition ID} as string,",
+				"          {Requisition Type} as string,",
+				"          {Posting Date} as string,",
+				"          {Requisition Status} as string,",
+				"          {Number of Openings} as string,",
+				"          {Job Title} as string,",
+				"          {Job Function} as string,",
+				"          {Corporate Title} as string,",
+				"          {Work Office Location} as string,",
+				"          {Work Office City} as string,",
+				"          {Work Office State} as string,",
+				"          {Work Office Country} as string,",
+				"          {Strategic Work Location Ind} as string,",
+				"          {Business Group Level 1} as string,",
+				"          {Business Group Level 2} as string,",
+				"          {Business Group Level 3} as string,",
+				"          {Business Group Level 4} as string,",
+				"          {Hiring Manager Worker ID} as string,",
+				"          {Primary Recruiter Worker ID} as string,",
+				"          {Requisition Other (1)} as string,",
+				"          {Requisition Other (2)} as string,",
+				"          {Requisition Other (3)} as string,",
+				"          {Requisition Other (4)} as string,",
+				"          {Requisition Other (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> AllReqData",
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as string,",
+				"          {Event Date} as string,",
+				"          EventMonth as string,",
+				"          {Event Quarter} as string,",
+				"          {Event Year} as string,",
+				"          Event as string,",
+				"          {Requisition ID} as string,",
+				"          {Applicant ID} as string,",
+				"          Source as string,",
+				"          {Applicant Type} as string,",
+				"          {Internal Worker ID} as string,",
+				"          Race as string,",
+				"          {Hispanic or Latino Origin} as string,",
+				"          Gender as string,",
+				"          {Veteran Ind} as string,",
+				"          LGTBQ as string,",
+				"          {Disability Ind} as string,",
+				"          {Applicant Final Disposition} as string,",
+				"          {Applicant Step Before Final Disposition} as string,",
+				"          {Applicant Rejected Reason} as string,",
+				"          {Applicant Other (1)} as string,",
+				"          {Applicant Other (2)} as string,",
+				"          {Applicant Other (3)} as string,",
+				"          {Applicant Other (4)} as string,",
+				"          {Applicant Other (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ApplicantData",
+				"SelectColumns sort(asc({Requisition Status}, true),",
+				"     asc({Applicant Count}, true)) ~> SortOnEvent",
+				"SelectReqInfo, ReqApplicantCount join(SelectReqInfo@{Requisition ID} == ReqApplicantCount@{Requisition ID},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> AddApplicantCount",
+				"AddApplicantCount select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event Date},",
+				"          EventMonth,",
+				"          {Event Quarter},",
+				"          {Event Year},",
+				"          {Requisition ID} = SelectReqInfo@{Requisition ID},",
+				"          {Requisition Type},",
+				"          {Posting Date},",
+				"          {Requisition Status},",
+				"          {Applicant Count} = ApplicantCount",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectColumns",
+				"ApplicantData aggregate(groupBy({Requisition ID}),",
+				"     ApplicantCount = countAll({Applicant ID})) ~> ReqApplicantCount",
+				"AllReqData select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event Date},",
+				"          EventMonth,",
+				"          {Event Quarter},",
+				"          {Event Year},",
+				"          {Requisition ID},",
+				"          {Requisition Type},",
+				"          {Posting Date},",
+				"          {Requisition Status}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectReqInfo",
+				"SortOnEvent sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['Req Applicant Count Review - Location.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> OutputReqApplicantReview"
+			]
+		}
+	}
+}
