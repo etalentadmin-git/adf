@@ -1,0 +1,72 @@
+{
+	"name": "Output_Review_ReqApplicantCount",
+	"properties": {
+		"description": "Output Requisition applicant report to the audit folder for review.",
+		"activities": [
+			{
+				"name": "DF_Review_ApplicantReq",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DF_Review_ApplicantReq",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"AllReqData": {
+								"Source_Client_Fldr": "@pipeline().parameters.P_Client_Id",
+								"Source_Client_Date": "@pipeline().parameters.P_Client_Dt",
+								"Source_Client_Year": "@pipeline().parameters.P_Folder_Year",
+								"Source_Client_Quarter": "@concat('Q',pipeline().parameters.P_Folder_Quarter)"
+							},
+							"ApplicantData": {
+								"Source_Client_Fldr": "@pipeline().parameters.P_Client_Id",
+								"Source_Client_Date": "@pipeline().parameters.P_Client_Dt",
+								"Source_Client_Year": "@pipeline().parameters.P_Folder_Year",
+								"Source_Client_Quarter": "@concat('Q',pipeline().parameters.P_Folder_Quarter)"
+							},
+							"OutputReqApplicantReview": {
+								"Source_Client_Fldr": "@pipeline().parameters.P_Client_Id",
+								"Source_Client_Date": "@pipeline().parameters.P_Client_Dt",
+								"Source_Client_Year": "@pipeline().parameters.P_Folder_Year",
+								"Source_Client_Quarter": "@concat('Q',pipeline().parameters.P_Folder_Quarter)"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"P_Client_Id": {
+				"type": "string"
+			},
+			"P_Client_Dt": {
+				"type": "string"
+			},
+			"P_Folder_Year": {
+				"type": "string"
+			},
+			"P_Folder_Quarter": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Client/Create Audit Reports"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-11T23:59:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
