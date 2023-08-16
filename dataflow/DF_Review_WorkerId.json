@@ -270,7 +270,7 @@
 					"name": "SelectHistoricalHCTWorkerIDs"
 				},
 				{
-					"name": "UnionHistoricalWorderIDs"
+					"name": "SelectUnionHistoricalWorderIDs"
 				}
 			],
 			"scriptLines": [
@@ -530,12 +530,12 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectAllEmpIDsInHeadcount",
-				"SelectAllEmpIDsInTerminations, SelectAllEmpIDsInHeadcount exists(SelectAllEmpIDsInTerminations@{Worker ID} == SelectAllEmpIDsInHeadcount@{Worker ID},",
+				"SelectAllEmpIDsInTerminations, SelectUnionHistoricalWorderIDs exists(SelectAllEmpIDsInTerminations@{Worker ID} == SelectUnionHistoricalWorderIDs@{Worker ID},",
 				"     negate:true,",
 				"     broadcast: 'left')~> SelectTermIDsNotInHeadcount",
 				"SelectTermIDsNotInHeadcount aggregate(groupBy(Event),",
 				"     {Total Terminations Not in HCT} = count({Worker ID})) ~> AggregateTermIDsNotInHeadcount",
-				"UnionHistoricalWorderIDs aggregate(groupBy(Event),",
+				"SelectUnionHistoricalWorderIDs aggregate(groupBy(Event),",
 				"     {Total Count} = count({Worker ID})) ~> TotalIDsInHeadcount",
 				"AggregateTermIDsNotInHeadcount, TotalIDsInHeadcount union(byName: true)~> CombineHeadcountAndTermIDCounts",
 				"CombineHeadcountAndTermIDCounts derive({Event Check} = 'Terminations') ~> TagEventCheckForTerms",
@@ -549,7 +549,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectAllEmpIDsInPromotions",
-				"SelectAllEmpIDsInPromotions, SelectAllEmpIDsInHeadcount exists(SelectAllEmpIDsInPromotions@{Worker ID} == SelectAllEmpIDsInHeadcount@{Worker ID},",
+				"SelectAllEmpIDsInPromotions, SelectUnionHistoricalWorderIDs exists(SelectAllEmpIDsInPromotions@{Worker ID} == SelectUnionHistoricalWorderIDs@{Worker ID},",
 				"     negate:true,",
 				"     broadcast: 'left')~> SelectPromoIDsNotInHeadcount",
 				"SelectPromoIDsNotInHeadcount aggregate(groupBy(Event),",
@@ -568,7 +568,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectAllEmpIDsInTalent",
-				"SelectAllEmpIDsInTalent, SelectAllEmpIDsInHeadcount exists(SelectAllEmpIDsInTalent@{Worker ID} == SelectAllEmpIDsInHeadcount@{Worker ID},",
+				"SelectAllEmpIDsInTalent, SelectUnionHistoricalWorderIDs exists(SelectAllEmpIDsInTalent@{Worker ID} == SelectUnionHistoricalWorderIDs@{Worker ID},",
 				"     negate:true,",
 				"     broadcast: 'left')~> SelectTalentIDsNotInHeadcount",
 				"SelectTalentIDsNotInHeadcount aggregate(groupBy(Event),",
@@ -608,7 +608,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectAllEmpIDsInHires",
-				"SelectAllEmpIDsInHires, SelectAllEmpIDsInHeadcount exists(SelectAllEmpIDsInHires@{Worker ID} == SelectAllEmpIDsInHeadcount@{Worker ID},",
+				"SelectAllEmpIDsInHires, SelectUnionHistoricalWorderIDs exists(SelectAllEmpIDsInHires@{Worker ID} == SelectUnionHistoricalWorderIDs@{Worker ID},",
 				"     negate:true,",
 				"     broadcast: 'auto')~> SelectHireIDsNotInHeadcount",
 				"SelectHireIDsNotInHeadcount aggregate(groupBy(Event),",
@@ -806,7 +806,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectHistoricalHCTWorkerIDs",
-				"SelectAllEmpIDsInHeadcount, SelectHistoricalHCTWorkerIDs union(byName: true)~> UnionHistoricalWorderIDs",
+				"SelectAllEmpIDsInHeadcount, SelectHistoricalHCTWorkerIDs union(byName: true)~> SelectUnionHistoricalWorderIDs",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['Template - Worker ID Review Summary.csv'],",
