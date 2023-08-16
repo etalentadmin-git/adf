@@ -58,7 +58,22 @@
 					"name": "sort1"
 				},
 				{
-					"name": "AllHeadcountData"
+					"name": "GroupByWorkerIDfromDatabaseHCT"
+				},
+				{
+					"name": "GroupByWorkerIDfromTemplateHCT"
+				},
+				{
+					"name": "SelectHCTTemplateColumns"
+				},
+				{
+					"name": "SelectDatbaseHCTColumns"
+				},
+				{
+					"name": "SelectUnionTeplateAndDatabaseHCT"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
@@ -233,7 +248,7 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT'\"),",
 				"     format: 'query') ~> HeadcountDatabase",
-				"AllCoreData, AllHeadcountData exists(AllCoreData@{Direct Manager Worker ID} ==CoreForHCT@{Worker ID},",
+				"AllCoreData, SelectUnionTeplateAndDatabaseHCT exists({Direct Manager Worker ID}==SelectUnionTeplateAndDatabaseHCT@{Worker ID},",
 				"     negate:true,",
 				"     partitionBy('hash', 1),",
 				"     broadcast: 'left')~> IdentifyMgrsNotInHCT",
@@ -247,7 +262,23 @@
 				"IdentifyMgrsNotInHCT derive({Event and Year} = concat(toString(Event),concat(' ',{Event Year}))) ~> AddDerivedEventYearColumn",
 				"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
 				"pivotCountMgrsByEvent sort(asc({Direct Manager Worker ID}, true)) ~> sort1",
-				"CoreForHCT filter({Event Code}=='HCT') ~> AllHeadcountData",
+				"HeadcountDatabase aggregate(groupBy(WorkerId,",
+				"          Event),",
+				"     Count = count(ClientId)) ~> GroupByWorkerIDfromDatabaseHCT",
+				"filter1 aggregate(groupBy({Worker ID}),",
+				"     Count = count({Client ID})) ~> GroupByWorkerIDfromTemplateHCT",
+				"GroupByWorkerIDfromTemplateHCT select(mapColumn(",
+				"          {Worker ID}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectHCTTemplateColumns",
+				"GroupByWorkerIDfromDatabaseHCT select(mapColumn(",
+				"          {Worker ID} = WorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectDatbaseHCTColumns",
+				"SelectHCTTemplateColumns, SelectDatbaseHCTColumns union(byName: true)~> SelectUnionTeplateAndDatabaseHCT",
+				"CoreForHCT filter({Event Code}=='HCT') ~> filter1",
 				"sort1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['Template - Managers Not In HCT.csv'],",
