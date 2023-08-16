@@ -262,6 +262,15 @@
 				},
 				{
 					"name": "derivedColumn5"
+				},
+				{
+					"name": "GroupWorkerIDs"
+				},
+				{
+					"name": "SelectHistoricalHCTWorkerIDs"
+				},
+				{
+					"name": "UnionHistoricalWorderIDs"
 				}
 			],
 			"scriptLines": [
@@ -526,7 +535,7 @@
 				"     broadcast: 'left')~> SelectTermIDsNotInHeadcount",
 				"SelectTermIDsNotInHeadcount aggregate(groupBy(Event),",
 				"     {Total Terminations Not in HCT} = count({Worker ID})) ~> AggregateTermIDsNotInHeadcount",
-				"SelectAllEmpIDsInHeadcount aggregate(groupBy(Event),",
+				"UnionHistoricalWorderIDs aggregate(groupBy(Event),",
 				"     {Total Count} = count({Worker ID})) ~> TotalIDsInHeadcount",
 				"AggregateTermIDsNotInHeadcount, TotalIDsInHeadcount union(byName: true)~> CombineHeadcountAndTermIDCounts",
 				"CombineHeadcountAndTermIDCounts derive({Event Check} = 'Terminations') ~> TagEventCheckForTerms",
@@ -788,6 +797,16 @@
 				"filter3 derive(Event = 'Promotions') ~> derivedColumn3",
 				"filter4 derive(Event = 'Talent') ~> derivedColumn4",
 				"filter5 derive(Event = 'Hires') ~> derivedColumn5",
+				"HeadcountDatabase aggregate(groupBy(WorkerId,",
+				"          Event),",
+				"     Count = count(ClientId)) ~> GroupWorkerIDs",
+				"GroupWorkerIDs select(mapColumn(",
+				"          {Worker ID} = WorkerId,",
+				"          Event",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectHistoricalHCTWorkerIDs",
+				"SelectAllEmpIDsInHeadcount, SelectHistoricalHCTWorkerIDs union(byName: true)~> UnionHistoricalWorderIDs",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['Template - Worker ID Review Summary.csv'],",
