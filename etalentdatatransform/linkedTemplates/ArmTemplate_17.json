@@ -4174,6 +4174,13 @@
 								"type": "DatasetReference"
 							},
 							"name": "CoreForHCT"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "HeadcountDatabase"
 						}
 					],
 					"sinks": [
@@ -4204,10 +4211,29 @@
 							"name": "sort1"
 						},
 						{
-							"name": "AllHeadcountData"
+							"name": "GroupByWorkerIDfromDatabaseHCT"
+						},
+						{
+							"name": "GroupByWorkerIDfromTemplateHCT"
+						},
+						{
+							"name": "SelectHCTTemplateColumns"
+						},
+						{
+							"name": "SelectDatbaseHCTColumns"
+						},
+						{
+							"name": "SelectUnionTeplateAndDatabaseHCT"
+						},
+						{
+							"name": "filter1"
 						}
 					],
 					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as string,",
@@ -4318,7 +4344,64 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> CoreForHCT",
-						"AllCoreData, AllHeadcountData exists(AllCoreData@{Direct Manager Worker ID} ==CoreForHCT@{Worker ID},",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          EventType as string,",
+						"          EventReason as string,",
+						"          WorkerStatus as string,",
+						"          WorkerType as string,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          YearsinJob as double,",
+						"          PrevJobTitle as string,",
+						"          PrevJobFunction as string,",
+						"          LastPromoDt as date,",
+						"          OrigHireDt as date,",
+						"          CurrHireDt as date,",
+						"          RehireInd as string,",
+						"          YearsofSrvc as double,",
+						"          YearsofSrvcBand as string,",
+						"          YearsofSrvcBandSortId as integer,",
+						"          CorpTitle as string,",
+						"          PrevCorpTitle as string,",
+						"          ManagerInd as string,",
+						"          DirectMgrWorkerId as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          LegacyOrg as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          Race as string,",
+						"          HispanicLatinoOrigin as string,",
+						"          Gender as string,",
+						"          Veteran as string,",
+						"          LGTBQ as string,",
+						"          DisabilityInd as string,",
+						"          BirthYear as integer,",
+						"          Generation as string,",
+						"          GenerationSortId as integer,",
+						"          EmpCount as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT'\"),",
+						"     format: 'query') ~> HeadcountDatabase",
+						"AllCoreData, SelectUnionTeplateAndDatabaseHCT exists({Direct Manager Worker ID}==SelectUnionTeplateAndDatabaseHCT@{Worker ID},",
 						"     negate:true,",
 						"     partitionBy('hash', 1),",
 						"     broadcast: 'left')~> IdentifyMgrsNotInHCT",
@@ -4332,7 +4415,23 @@
 						"IdentifyMgrsNotInHCT derive({Event and Year} = concat(toString(Event),concat(' ',{Event Year}))) ~> AddDerivedEventYearColumn",
 						"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
 						"pivotCountMgrsByEvent sort(asc({Direct Manager Worker ID}, true)) ~> sort1",
-						"CoreForHCT filter({Event Code}=='HCT') ~> AllHeadcountData",
+						"HeadcountDatabase aggregate(groupBy(WorkerId,",
+						"          Event),",
+						"     Count = count(ClientId)) ~> GroupByWorkerIDfromDatabaseHCT",
+						"filter1 aggregate(groupBy({Worker ID}),",
+						"     Count = count({Client ID})) ~> GroupByWorkerIDfromTemplateHCT",
+						"GroupByWorkerIDfromTemplateHCT select(mapColumn(",
+						"          {Worker ID}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectHCTTemplateColumns",
+						"GroupByWorkerIDfromDatabaseHCT select(mapColumn(",
+						"          {Worker ID} = WorkerId",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectDatbaseHCTColumns",
+						"SelectHCTTemplateColumns, SelectDatbaseHCTColumns union(byName: true)~> SelectUnionTeplateAndDatabaseHCT",
+						"CoreForHCT filter({Event Code}=='HCT') ~> filter1",
 						"sort1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['Template - Managers Not In HCT.csv'],",
