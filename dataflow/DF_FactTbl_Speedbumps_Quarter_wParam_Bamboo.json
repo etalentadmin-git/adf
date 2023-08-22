@@ -99,6 +99,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "OutputSpeedbumpsFactTbl"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_FactTblFldr",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
 				}
 			],
 			"transformations": [
@@ -338,6 +345,9 @@
 				},
 				{
 					"name": "JoinTalentIdentifiers"
+				},
+				{
+					"name": "derivedColumn2"
 				}
 			],
 			"scriptLines": [
@@ -920,6 +930,7 @@
 				"          {Event Quarter} = EventQuarter,",
 				"          {Event Year} = CoreHCT@EventYear,",
 				"          {Years of Service} = YearsofSrvc,",
+				"          CorpTitle,",
 				"          {Elloree Corporate Title} = ElloreeCorpTitle,",
 				"          {Elloree Corporate Title Sort} = ElloreeCorpTitleSortId,",
 				"          {Curr Talent Tag} = {Emp Perf Rating Curr Talent Tag},",
@@ -959,6 +970,7 @@
 				"SelectCoreForMgrPopulation select(mapColumn(",
 				"          {Mgr Worker ID} = {Worker ID},",
 				"          {Mgr Years of Service} = {Years of Service},",
+				"          {Mgr CorpTitle} = CorpTitle,",
 				"          {Mgr Elloree Corporate Title} = {Elloree Corporate Title},",
 				"          {Mgr Elloree Corporate Title Sort} = {Elloree Corporate Title Sort},",
 				"          {Mgr Curr Talent Tag} = {Curr Talent Tag}",
@@ -1027,7 +1039,7 @@
 				"          {Speedbump Worker Status} = 'Active',",
 				"          {Speedbump 1 Name} = 'Mgr Level',",
 				"          {Speedbump 1 Desc} = 'Assigned to a manager at their same level (non Exec)',",
-				"          {Speedbump 1 Flag} = iif($SB1_MgrLvl=='Y',iif(isNull({Mgr Worker ID}),'N',iif({Elloree Corporate Title}=='Executive','N',iif({Mgr Elloree Corporate Title Sort}>={Elloree Corporate Title Sort},'Y','N'))),'N/A'),",
+				"          {Speedbump 1 Flag} = iif($SB1_MgrLvl=='Y',iif(isNull({Mgr Worker ID}),'N',iif({Elloree Corporate Title Sort}==1,'N',iif(toInteger({Mgr CorpTitle})<=toInteger(CorpTitle),'Y','N'))),'N'),",
 				"          {Speedbump 2 Name} = 'Mgr Top Talent',",
 				"          {Speedbump 2 Desc} = 'Assigned to a manager who is not considered top talent (does not have a talent tag)',",
 				"          {Speedbump 2 Flag} = iif($SB2_MgrTalent=='Y',iif(isNull({Mgr Worker ID}),'N',iif({Mgr Curr Talent Tag}=='N/A','Y','N')),'N/A'),",
@@ -1654,6 +1666,10 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinTalentIdentifiers",
+				"SelectFinalQtrOutput derive({Baseline Year} = $SB_BL_Year,",
+				"          {Baseline Quarter} = $SB_BL_Quarter,",
+				"          {Target Folder Year} = $SB_Target_Year,",
+				"          {Target Folder Quarter} = $SB_Target_Quarter) ~> derivedColumn2",
 				"SelectFinalQtrOutput sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -1689,7 +1705,43 @@
 				"     partitionFileNames:['SpeedbumpsFactTbl.csv'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> OutputSpeedbumpsFactTbl"
+				"     partitionBy('hash', 1)) ~> OutputSpeedbumpsFactTbl",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string,",
+				"          Column_3 as string,",
+				"          Column_4 as string,",
+				"          Column_5 as string,",
+				"          Column_6 as string,",
+				"          Column_7 as string,",
+				"          Column_8 as string,",
+				"          Column_9 as string,",
+				"          Column_10 as string,",
+				"          Column_11 as string,",
+				"          Column_12 as string,",
+				"          Column_13 as string,",
+				"          Column_14 as string,",
+				"          Column_15 as string,",
+				"          Column_16 as string,",
+				"          Column_17 as string,",
+				"          Column_18 as string,",
+				"          Column_19 as string,",
+				"          Column_20 as string,",
+				"          Column_21 as string,",
+				"          Column_22 as string,",
+				"          Column_23 as string,",
+				"          Column_24 as string,",
+				"          Column_25 as string,",
+				"          Column_26 as string,",
+				"          Column_27 as string,",
+				"          Column_28 as string",
+				"     ),",
+				"     partitionFileNames:['SpeedbumpsFactTbl_TEST.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
