@@ -6486,6 +6486,9 @@
 						},
 						{
 							"name": "JoinTalentIdentifiers"
+						},
+						{
+							"name": "SetNullTalentTagAsNA"
 						}
 					],
 					"scriptLines": [
@@ -7105,7 +7108,7 @@
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> join2",
-						"SelectCoreForMgrPopulation select(mapColumn(",
+						"SetNullTalentTagAsNA select(mapColumn(",
 						"          {Mgr Worker ID} = {Worker ID},",
 						"          {Mgr Years of Service} = {Years of Service},",
 						"          {Mgr CorpTitle} = CorpTitle,",
@@ -7392,7 +7395,7 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectEmpTalentTag",
 						"CoreHCT, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID},",
-						"     joinType:'inner',",
+						"     joinType:'left',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> JoinPerformance",
@@ -7805,6 +7808,7 @@
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> JoinTalentIdentifiers",
+						"SelectCoreForMgrPopulation derive({Curr Talent Tag} = iif(isNull({Curr Talent Tag}),'N/A',{Curr Talent Tag})) ~> SetNullTalentTagAsNA",
 						"SelectFinalQtrOutput sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
