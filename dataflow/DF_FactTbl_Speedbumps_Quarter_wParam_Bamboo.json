@@ -338,6 +338,12 @@
 				},
 				{
 					"name": "JoinTalentIdentifiers"
+				},
+				{
+					"name": "SetNullTalentTagAsNA"
+				},
+				{
+					"name": "filter4"
 				}
 			],
 			"scriptLines": [
@@ -957,7 +963,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join2",
-				"SelectCoreForMgrPopulation select(mapColumn(",
+				"SetNullTalentTagAsNA select(mapColumn(",
 				"          {Mgr Worker ID} = {Worker ID},",
 				"          {Mgr Years of Service} = {Years of Service},",
 				"          {Mgr CorpTitle} = CorpTitle,",
@@ -1025,7 +1031,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinP1Promo",
-				"Join3YrWorkerMgrCount derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y','N'),",
+				"filter4 derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y','N'),",
 				"          {Speedbump Worker Status} = 'Active',",
 				"          {Speedbump 1 Name} = 'Mgr Level',",
 				"          {Speedbump 1 Desc} = 'Assigned to a manager at their same level (non Exec)',",
@@ -1244,7 +1250,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectEmpTalentTag",
 				"CoreHCT, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID},",
-				"     joinType:'inner',",
+				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinPerformance",
@@ -1657,6 +1663,8 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinTalentIdentifiers",
+				"SelectCoreForMgrPopulation derive({Curr Talent Tag} = iif(isNull({Curr Talent Tag}),'N/A',{Curr Talent Tag})) ~> SetNullTalentTagAsNA",
+				"Join3YrWorkerMgrCount filter({Worker ID}=='10179') ~> filter4",
 				"SelectFinalQtrOutput sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
