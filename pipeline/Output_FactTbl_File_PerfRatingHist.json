@@ -206,6 +206,117 @@
 					},
 					"traceLevel": "Fine"
 				}
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "DF_FactTbl_PerfRatingHist_Final_File",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@contains(pipeline().parameters.P_Replace_Curr_With_P1_Y_N, 'Y')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "DF_FactTbl_PerfRatingHist_Update_Curr_Prior",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_FactTbl_PerfRatingHist_Update_Curr_Prior",
+									"type": "DataFlowReference",
+									"parameters": {
+										"Flow_Client_Id": {
+											"value": "'@{pipeline().parameters.P_Client_Id}'",
+											"type": "Expression"
+										},
+										"Flow_Client_Dt": {
+											"value": "'@{pipeline().parameters.P_Client_Dt}'",
+											"type": "Expression"
+										},
+										"Flow_Client_Year": {
+											"value": "'@{pipeline().parameters.P_Folder_Year}'",
+											"type": "Expression"
+										}
+									},
+									"datasetParameters": {
+										"PerformanceHistory": {
+											"Source_Client_Fldr": {
+												"value": "@pipeline().parameters.P_Client_Id",
+												"type": "Expression"
+											},
+											"Source_Client_Date": {
+												"value": "@pipeline().parameters.P_Client_Dt",
+												"type": "Expression"
+											},
+											"Source_Client_Year": {
+												"value": "@pipeline().parameters.P_Folder_Year",
+												"type": "Expression"
+											}
+										},
+										"source1": {
+											"Source_Client_Fldr": {
+												"value": "@pipeline().parameters.P_Client_Id",
+												"type": "Expression"
+											},
+											"Source_Client_Date": {
+												"value": "@pipeline().parameters.P_Client_Dt",
+												"type": "Expression"
+											},
+											"Source_Client_Year": {
+												"value": "@pipeline().parameters.P_Folder_Year",
+												"type": "Expression"
+											},
+											"Source_Client_Quarter": {
+												"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+												"type": "Expression"
+											}
+										},
+										"OutputHistoricalPerfRatingFctTbl": {
+											"Source_Client_Fldr": {
+												"value": "@pipeline().parameters.P_Client_Id",
+												"type": "Expression"
+											},
+											"Source_Client_Date": {
+												"value": "@pipeline().parameters.P_Client_Dt",
+												"type": "Expression"
+											},
+											"Source_Client_Year": {
+												"value": "@pipeline().parameters.P_Folder_Year",
+												"type": "Expression"
+											},
+											"Source_Client_Quarter": {
+												"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						}
+					]
+				}
 			}
 		],
 		"parameters": {
@@ -219,6 +330,9 @@
 				"type": "string"
 			},
 			"P_Folder_Quarter": {
+				"type": "string"
+			},
+			"P_Replace_Curr_With_P1_Y_N": {
 				"type": "string"
 			}
 		},
