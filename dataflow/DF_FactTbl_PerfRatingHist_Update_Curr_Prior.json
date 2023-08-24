@@ -33,21 +33,6 @@
 			],
 			"transformations": [
 				{
-					"name": "SelectCoreValues"
-				},
-				{
-					"name": "JoinEventYrMinus2"
-				},
-				{
-					"name": "SumEmpCountFor3Yr"
-				},
-				{
-					"name": "union1"
-				},
-				{
-					"name": "RemoveDups"
-				},
-				{
 					"name": "filterCurrentEventYear"
 				},
 				{
@@ -146,31 +131,6 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> source1",
-				"RemoveDups select(mapColumn(",
-				"          {Client ID},",
-				"          {Client Engagement Date},",
-				"          {Worker ID},",
-				"          {Event Year},",
-				"          {Event Code},",
-				"          EmpCount",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectCoreValues",
-				"SelectCoreValues join({Event Year} >= {Event Year -2},",
-				"     joinType:'inner',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'both')~> JoinEventYrMinus2",
-				"JoinEventYrMinus2 aggregate(groupBy({Worker ID 3Yr Count} = {Worker ID}),",
-				"     {3 Yr TotalEmpCount} = sum(EmpCount)) ~> SumEmpCountFor3Yr",
-				" union(byName: true)~> union1",
-				"union1 aggregate(groupBy({Client ID},",
-				"          {Client Engagement Date},",
-				"          {Worker ID},",
-				"          {Event Year},",
-				"          {Event Code},",
-				"          EmpCount),",
-				"     RowCount = count({Worker ID})) ~> RemoveDups",
 				"PerformanceHistory filter({Event Year}==(toShort($Flow_Client_Year)-1)) ~> filterCurrentEventYear",
 				"filterCurrentEventYear derive({Event Year} = toShort($Flow_Client_Year)) ~> SetEventYeartoCurrentYear",
 				"PerformanceHistory filter({Event Year}!=toShort($Flow_Client_Year)) ~> filterAllExcludingCurrentEventYear",
