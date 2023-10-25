@@ -18,7 +18,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "Source_Mapping_Job",
+						"referenceName": "etalentJobMapTbl",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -53,7 +53,8 @@
 				"alterRow1 select(mapColumn(",
 				"          ClientJobFunction = {Client Job Function},",
 				"          ClientJobTitle = {Client Job Title},",
-				"          ElloreeJobFunction = {Elloree Job Function}",
+				"          ElloreeJobFunction = {Elloree Job Function},",
+				"          ClientId = {Client ID}",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
@@ -61,14 +62,21 @@
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
-				"          {Client ID} as string,",
-				"          {Client Job Function} as string,",
-				"          {Client Job Title} as string,",
-				"          {Elloree Job Function} as string",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientGender as string,",
+				"          ElloreeGender as string,",
+				"          LoadDt as date",
 				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientJobFunction','ClientJobTitle'],",
+				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     format: 'table') ~> sink1"
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}
