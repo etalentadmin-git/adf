@@ -1,0 +1,95 @@
+{
+	"name": "Append_Mapping_TRASH",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_TRASH",
+						"type": "DatasetReference"
+					},
+					"name": "Gender"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentJobMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Dt} as date,",
+				"          {Client Job Function} as string,",
+				"          {Client Job Title} as string,",
+				"          {Elloree Job Function} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Gender",
+				"Gender alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Engagement Dt})),",
+				"     deleteIf(isNull({Client Job Function})),",
+				"     deleteIf(isNull({Client Job Title})),",
+				"     deleteIf(isNull({Elloree Job Function}))) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          JobTitle = {Client Job Title},",
+				"          JobFunction = {Client Job Function},",
+				"          ClientId = {Client ID},",
+				"          ClientEngagementDt = {Client Engagement Dt},",
+				"          ElloreeJobFunction = {Elloree Job Function}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          JobTitle as string,",
+				"          JobFunction as string,",
+				"          ElloreeJobFunction as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','JobTitle','JobFunction'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ClientId,",
+				"          ClientEngagementDt,",
+				"          JobTitle,",
+				"          JobFunction,",
+				"          ElloreeJobFunction,",
+				"          LoadDt",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
