@@ -33,6 +33,9 @@
 				},
 				{
 					"name": "derivedColumn1"
+				},
+				{
+					"name": "aggregate1"
 				}
 			],
 			"scriptLines": [
@@ -46,7 +49,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> source1",
-				"source1 alterRow(upsertIf(true()),",
+				"aggregate1 alterRow(upsertIf(true()),",
 				"     deleteIf(isNull({Client ID})),",
 				"     deleteIf(isNull({Client Engagement Dt})),",
 				"     deleteIf(isNull({Client Job Function})),",
@@ -62,6 +65,12 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
 				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"source1 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Dt},",
+				"          {Client Job Function},",
+				"          {Client Job Title},",
+				"          {Elloree Job Function}),",
+				"     RecordCount = count({Client ID})) ~> aggregate1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
