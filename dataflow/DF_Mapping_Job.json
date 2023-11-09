@@ -35,6 +35,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "DatabaseCoreRecords"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentCorpTitleMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "CorpTitleMapping"
 				}
 			],
 			"sinks": [
@@ -173,6 +180,9 @@
 				},
 				{
 					"name": "SelectBasedOnMostRecentClientEngagment"
+				},
+				{
+					"name": "selectCorpTitleMap"
 				}
 			],
 			"scriptLines": [
@@ -244,6 +254,17 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select ClientId, ClientEngagementDt, WorkerId, EventYear, Event, CorpTitle, PrevCorpTitle, JobTitle, PrevJobTitle, JobFunction, PrevJobFunction from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> DatabaseCoreRecords",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientCorpTitle as string,",
+				"          ElloreeCorpTitle as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select ClientId, ClientEngagementDt, ClientCorpTitle, ElloreeCorpTitle from [dbo].[CorpTitleMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> CorpTitleMapping",
 				"derivedColumn4 pivot(groupBy({Client ID},",
 				"          {Client Engagement Date},",
 				"          {Client Corporate Title},",
@@ -540,6 +561,12 @@
 				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
 				"     negate:false,",
 				"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
+				"CorpTitleMapping select(mapColumn(",
+				"          {Mapping ClientCorpTitle} = ClientCorpTitle,",
+				"          {Mapping ElloreeCorpTitle} = ElloreeCorpTitle",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectCorpTitleMap",
 				"SortOnJobFunction sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
