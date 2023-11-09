@@ -61,7 +61,7 @@
 					"name": "SortOnEvent"
 				},
 				{
-					"name": "SortOnCorpTitle"
+					"name": "SortOnJobFunction"
 				},
 				{
 					"name": "SelectUniqueOtherClientValues"
@@ -286,12 +286,10 @@
 				"derivedColumn4 pivot(groupBy({Client ID},",
 				"          {Client Engagement Date},",
 				"          {Client Corporate Title},",
-				"          {Elloree Corporate Title},",
-				"          {Client Elloree Corporate Title},",
-				"          {Elloree Corporate Title Sort},",
-				"          {Suggested Elloree Corporate Title} = {Suggested Elloree Job Function},",
-				"          {Suggested Client Elloree Corporate Title},",
-				"          {Suggested Elloree Corporate Title Sort},",
+				"          {Client Job Title},",
+				"          {Client Job Function},",
+				"          {Elloree Job Function},",
+				"          {Suggested Elloree Job Function},",
 				"          {Suggested Source}),",
 				"     pivotBy({Event and Year}),",
 				"     {} = count({Worker ID}),",
@@ -299,7 +297,7 @@
 				"     lateral: false,",
 				"     partitionBy('hash', 1)) ~> CreatePivotCorpTitleEventTime",
 				"derivedColumn5 sort(asc({Event Year}, true)) ~> SortOnEvent",
-				"CreatePivotCorpTitleEventTime sort(asc({Client Corporate Title}, true)) ~> SortOnCorpTitle",
+				"CreatePivotCorpTitleEventTime sort(asc({Client Job Function}, true)) ~> SortOnJobFunction",
 				"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 				"          {Unique ClientCorpTitle} = ClientCorpTitle,",
 				"          {Unique ClientJobTitle} = ClientJobTitle,",
@@ -420,7 +418,7 @@
 				"select8 derive({Suggested Source} = iif(isNull({Suggested Source}),{Unique ClientId},{Suggested Source}),",
 				"          {Suggested Elloree Job Function} = iif(isNull({Suggested Source}),{Unique ElloreeJobFunction},{Suggested Elloree Job Function}),",
 				"          {Job Function (Current or Previous)} = 'Prev Function') ~> derivedColumn3",
-				"select11, derivedColumn2 exists(select11@{Client Corporate Title} == select6@{Client Corporate Title},",
+				"select11, derivedColumn2 exists(select11@{Client Corporate Title} == select6@{Client Corporate Title} && select11@{Client Job Title}==select6@{Client Job Title} && select11@{Client Job Function} == select6@{Client Job Function},",
 				"     negate:true,",
 				"     broadcast: 'both')~> PullCorpTitleValuesNotInCurrTitleField",
 				"derivedColumn2, PullCorpTitleValuesNotInCurrTitleField union(byName: true)~> UnionCurrAndPrevCorpTitleRows",
@@ -581,7 +579,7 @@
 				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
 				"     negate:false,",
 				"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
-				"SortOnCorpTitle sink(allowSchemaDrift: true,",
+				"SortOnJobFunction sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          Column_1 as string,",
@@ -617,7 +615,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     partitionBy('hash', 1)) ~> OutputMappingToPrepFldr",
-				"SortOnCorpTitle sink(allowSchemaDrift: true,",
+				"SortOnJobFunction sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          Column_1 as string,",
