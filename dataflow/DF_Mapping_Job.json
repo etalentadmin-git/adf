@@ -183,6 +183,12 @@
 				},
 				{
 					"name": "selectCorpTitleMap"
+				},
+				{
+					"name": "JoinCorpTitleMap"
+				},
+				{
+					"name": "select12"
 				}
 			],
 			"scriptLines": [
@@ -267,7 +273,7 @@
 				"     format: 'query') ~> CorpTitleMapping",
 				"derivedColumn4 pivot(groupBy({Client ID},",
 				"          {Client Engagement Date},",
-				"          {Client Corporate Title},",
+				"          {Elloree Corporate Title},",
 				"          {Client Job Title},",
 				"          {Client Job Function},",
 				"          {Elloree Job Function},",
@@ -404,7 +410,7 @@
 				"     negate:true,",
 				"     broadcast: 'both')~> PullCorpTitleValuesNotInCurrTitleField",
 				"derivedColumn2, PullCorpTitleValuesNotInCurrTitleField union(byName: true)~> UnionCurrAndPrevCorpTitleRows",
-				"UnionCurrAndPrevCorpTitleRows derive({Event and Year} = concat({Event and Year},concat(' ',{Job Function (Current or Previous)}))) ~> derivedColumn4",
+				"select12 derive({Event and Year} = concat({Event and Year},concat(' ',{Job Function (Current or Previous)}))) ~> derivedColumn4",
 				"Requisitions select(mapColumn(",
 				"          {Client ID} = ClientId,",
 				"          {Client Engagement Date} = ClientEngagementDt,",
@@ -567,6 +573,31 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectCorpTitleMap",
+				"UnionCurrAndPrevCorpTitleRows, selectCorpTitleMap join({Client Corporate Title} == {Mapping ClientCorpTitle},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinCorpTitleMap",
+				"JoinCorpTitleMap select(mapColumn(",
+				"          {Elloree Corporate Title} = {Mapping ElloreeCorpTitle},",
+				"          {Client Job Title},",
+				"          {Client Job Function},",
+				"          {Elloree Job Function},",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event and Year},",
+				"          {Suggested Source},",
+				"          {Suggested Elloree Job Function},",
+				"          {Worker ID},",
+				"          {Unique ClientId},",
+				"          {Unique ClientCorporateTitle},",
+				"          {Unique ClientJobTitle},",
+				"          {Unique ClientJobFunction},",
+				"          {Unique ElloreeJobFunction},",
+				"          {Job Function (Current or Previous)}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select12",
 				"SortOnJobFunction sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
