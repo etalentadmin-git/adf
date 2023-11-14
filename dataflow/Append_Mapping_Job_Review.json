@@ -1,5 +1,5 @@
 {
-	"name": "Append_Mapping_TRASH_BACKUP",
+	"name": "Append_Mapping_Job_Review",
 	"properties": {
 		"folder": {
 			"name": "Client/Database/Load Mapping Tables"
@@ -39,7 +39,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "etalentJobMapTbl",
+						"referenceName": "etalentJobMapReviewTbl",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -50,7 +50,7 @@
 					"name": "alterRow1"
 				},
 				{
-					"name": "derivedColumn1"
+					"name": "AddLoadDt"
 				},
 				{
 					"name": "SelectCorpTitleMapping"
@@ -59,28 +59,28 @@
 					"name": "JoinCorpTitle"
 				},
 				{
-					"name": "aggregate2"
+					"name": "CollapseForUniqueRows"
 				},
 				{
-					"name": "aggregate3"
+					"name": "CollapseForUniqueReqRows"
 				},
 				{
 					"name": "FInalJobReqSelect"
 				},
 				{
-					"name": "union1"
+					"name": "UnionJobReqTbl"
 				},
 				{
-					"name": "select2"
+					"name": "selectCoreTableFields"
 				},
 				{
 					"name": "FinalClientTableSelections"
 				},
 				{
-					"name": "join2"
+					"name": "SelectOnlyValidCorpTitleJobCombinations"
 				},
 				{
-					"name": "select3"
+					"name": "SelectFinalFields"
 				}
 			],
 			"scriptLines": [
@@ -154,7 +154,6 @@
 				"source(output(",
 				"          ClientId as string,",
 				"          ClientEngagementDt as date,",
-				"          ClientEngagementType as string,",
 				"          WorkerId as string,",
 				"          EventDt as date,",
 				"          EventMonth as integer,",
@@ -207,11 +206,11 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> CoreDB",
+				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> CoreDB",
 				"source(output(",
 				"          ClientId as string,",
 				"          ClientEngagementDt as date,",
-				"          ClientEngagementType as string,",
 				"          EventDt as date,",
 				"          EventMonth as integer,",
 				"          EventQuarter as integer,",
@@ -247,14 +246,15 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> ReqDB",
-				"select3 alterRow(upsertIf(true()),",
+				"     query: (\"select * from [dbo].[TAReqTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> ReqDB",
+				"SelectFinalFields alterRow(upsertIf(true()),",
 				"     deleteIf(isNull(ClientId)),",
 				"     deleteIf(isNull(ClientEngagementDt)),",
 				"     deleteIf(isNull(JobFunction)),",
 				"     deleteIf(isNull(JobTitle)),",
 				"     deleteIf(isNull(ElloreeJobFunction))) ~> alterRow1",
-				"alterRow1 derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"alterRow1 derive(LoadDt = currentDate()) ~> AddLoadDt",
 				"CorpTitleMappingTable select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
@@ -270,19 +270,19 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinCorpTitle",
-				"union1 aggregate(groupBy(ClientId,",
+				"UnionJobReqTbl aggregate(groupBy(ClientId,",
 				"          ClientEngagementDt,",
 				"          CorpTitle,",
 				"          JobTitle,",
 				"          JobFunction),",
-				"     ClientIdForQuery = max(ClientId)) ~> aggregate2",
+				"     ClientIdForQuery = max(ClientId)) ~> CollapseForUniqueRows",
 				"ReqDB aggregate(groupBy(ClientId,",
 				"          ClientEngagementDt,",
 				"          CorpTitle,",
 				"          JobTitle,",
 				"          JobFunction),",
-				"     ClientIdForQuery = max(ClientId)) ~> aggregate3",
-				"aggregate3 select(mapColumn(",
+				"     ClientIdForQuery = max(ClientId)) ~> CollapseForUniqueReqRows",
+				"CollapseForUniqueReqRows select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
 				"          CorpTitle,",
@@ -291,7 +291,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> FInalJobReqSelect",
-				"select2, FInalJobReqSelect union(byName: true)~> union1",
+				"selectCoreTableFields, FInalJobReqSelect union(byName: true)~> UnionJobReqTbl",
 				"CoreDB select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
@@ -300,8 +300,8 @@
 				"          JobFunction",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select2",
-				"aggregate2 select(mapColumn(",
+				"     skipDuplicateMapOutputs: true) ~> selectCoreTableFields",
+				"CollapseForUniqueRows select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
 				"          CorpTitle,",
@@ -319,18 +319,18 @@
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join2",
-				"join2 select(mapColumn(",
+				"     broadcast: 'auto')~> SelectOnlyValidCorpTitleJobCombinations",
+				"SelectOnlyValidCorpTitleJobCombinations select(mapColumn(",
 				"          ClientId = {Client ID},",
 				"          ClientEngagementDt = {Client Engagement Date},",
 				"          CorpTitle = ClientCorpTitle,",
-				"          JobFunction = {Job Function},",
-				"          JobTitle = {Job Title},",
+				"          JobFunction = {Client Job Function},",
+				"          JobTitle = {Client Job Title},",
 				"          ElloreeJobFunction = {Elloree Job Function}",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select3",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectFinalFields",
+				"AddLoadDt sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          ClientId as string,",
