@@ -42,7 +42,7 @@
 						"referenceName": "etalentJobMapReviewTbl",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "LoadJobMappingtoJobMappingReviewTbl"
 				}
 			],
 			"transformations": [
@@ -81,6 +81,9 @@
 				},
 				{
 					"name": "SelectFinalFields"
+				},
+				{
+					"name": "CollapseRows"
 				}
 			],
 			"scriptLines": [
@@ -320,7 +323,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> SelectOnlyValidCorpTitleJobCombinations",
-				"SelectOnlyValidCorpTitleJobCombinations select(mapColumn(",
+				"CollapseRows select(mapColumn(",
 				"          ClientId = {Client ID},",
 				"          ClientEngagementDt = {Client Engagement Date},",
 				"          CorpTitle = ClientCorpTitle,",
@@ -330,6 +333,12 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectFinalFields",
+				"SelectOnlyValidCorpTitleJobCombinations aggregate(groupBy({Client Engagement Date},",
+				"          ClientCorpTitle,",
+				"          {Client Job Function},",
+				"          {Client Job Title},",
+				"          {Elloree Job Function}),",
+				"     {Client ID} = max({Client ID})) ~> CollapseRows",
 				"AddLoadDt sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -358,7 +367,7 @@
 				"          ClientJobFunction = JobFunction,",
 				"          ElloreeJobFunction,",
 				"          LoadDt",
-				"     )) ~> sink1"
+				"     )) ~> LoadJobMappingtoJobMappingReviewTbl"
 			]
 		}
 	}
