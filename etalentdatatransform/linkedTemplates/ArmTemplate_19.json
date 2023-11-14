@@ -13,6 +13,134 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Delete_All_Rec_FactTbl_ApplicantStatus')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables/All Records"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplStatusFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "ApplicantStatus"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplStatusFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ApplId as string,",
+						"          ReqId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Applicants as integer,",
+						"          WhiteAppl as integer,",
+						"          BlackAppl as integer,",
+						"          LatinxAppl as integer,",
+						"          AsianAppl as integer,",
+						"          TwoorMoreAppl as integer,",
+						"          OtherAppl as integer,",
+						"          DNSIDAppl as integer,",
+						"          PoCAppl as integer,",
+						"          FemaleAppl as integer,",
+						"          MaleAppl as integer,",
+						"          OtherGenderAppl as integer,",
+						"          DNSIDGenderAppl as integer,",
+						"          DiverseAppl as integer,",
+						"          ApplRejected as integer,",
+						"          ApplWithdrew as integer,",
+						"          Candidates as integer,",
+						"          CandRejectedHR as integer,",
+						"          CandStM as integer,",
+						"          CandRejectedHM as integer,",
+						"          CandInterviewed as integer,",
+						"          CandHired as integer,",
+						"          CandWithdrew as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TAApplStatusFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> ApplicantStatus",
+						"ApplicantStatus alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ApplId as string,",
+						"          ReqId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Applicants as integer,",
+						"          WhiteAppl as integer,",
+						"          BlackAppl as integer,",
+						"          LatinxAppl as integer,",
+						"          AsianAppl as integer,",
+						"          TwoorMoreAppl as integer,",
+						"          OtherAppl as integer,",
+						"          DNSIDAppl as integer,",
+						"          PoCAppl as integer,",
+						"          FemaleAppl as integer,",
+						"          MaleAppl as integer,",
+						"          OtherGenderAppl as integer,",
+						"          DNSIDGenderAppl as integer,",
+						"          DiverseAppl as integer,",
+						"          ApplRejected as integer,",
+						"          ApplWithdrew as integer,",
+						"          Candidates as integer,",
+						"          CandRejectedHR as integer,",
+						"          CandStM as integer,",
+						"          CandRejectedHM as integer,",
+						"          CandInterviewed as integer,",
+						"          CandHired as integer,",
+						"          CandWithdrew as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Delete_All_Rec_FactTbl_Client')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -5470,80 +5598,6 @@
 						"          ClientElloreeCorpTitle as string,",
 						"          ElloreeCorpTitle as string,",
 						"          ElloreeCorpTitleSortId as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:true,",
-						"     insertable:false,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     keys:['ClientId','ClientEngagementDt'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_Disability')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Delete Records/Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentDisabilityMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "DisabilityMap"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentDisabilityMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "DeleteRecords"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientDisabilityInd as string,",
-						"          ElloreeDisabilityInd as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[DisabilityMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-						"     format: 'query') ~> DisabilityMap",
-						"DisabilityMap alterRow(deleteIf(true())) ~> alterRow1",
-						"alterRow1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientDisabilityInd as string,",
-						"          ElloreeDisabilityInd as string,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:true,",
