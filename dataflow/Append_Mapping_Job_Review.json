@@ -1,5 +1,5 @@
 {
-	"name": "Append_Mapping_TRASH_BACKUP",
+	"name": "Append_Mapping_Job_Review",
 	"properties": {
 		"folder": {
 			"name": "Client/Database/Load Mapping Tables"
@@ -9,17 +9,17 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "Source_Mapping_TRASH",
+						"referenceName": "Source_Mapping_Job",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "JobFunctionMappingFile"
 				},
 				{
 					"dataset": {
 						"referenceName": "etalentCorpTitleMapTbl",
 						"type": "DatasetReference"
 					},
-					"name": "source2"
+					"name": "CorpTitleMappingTable"
 				},
 				{
 					"dataset": {
@@ -39,7 +39,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "etalentJobMapTbl",
+						"referenceName": "etalentJobMapReviewTbl",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -50,51 +50,93 @@
 					"name": "alterRow1"
 				},
 				{
-					"name": "derivedColumn1"
+					"name": "AddLoadDt"
 				},
 				{
-					"name": "select1"
+					"name": "SelectCorpTitleMapping"
 				},
 				{
-					"name": "join1"
+					"name": "JoinCorpTitle"
 				},
 				{
-					"name": "aggregate2"
+					"name": "CollapseForUniqueRows"
 				},
 				{
-					"name": "aggregate3"
+					"name": "CollapseForUniqueReqRows"
 				},
 				{
 					"name": "FInalJobReqSelect"
 				},
 				{
-					"name": "union1"
+					"name": "UnionJobReqTbl"
 				},
 				{
-					"name": "select2"
+					"name": "selectCoreTableFields"
 				},
 				{
 					"name": "FinalClientTableSelections"
 				},
 				{
-					"name": "join2"
+					"name": "SelectOnlyValidCorpTitleJobCombinations"
 				},
 				{
-					"name": "select3"
+					"name": "SelectFinalFields"
 				}
 			],
 			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
 				"source(output(",
 				"          {Client ID} as string,",
 				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-				"          {Elloree Corp Title} as string,",
-				"          {Job Function} as string,",
-				"          {Job Title} as string,",
-				"          {Elloree Job Function} as string",
+				"          {Elloree Corporate Title} as string,",
+				"          {Client Job Title} as string,",
+				"          {Client Job Function} as string,",
+				"          {Elloree Job Function} as string,",
+				"          {Suggested Elloree Job Function} as string,",
+				"          {Suggested Source} as string,",
+				"          {2020 Headcount Curr Function} as string,",
+				"          {2020 Headcount Prev Function} as string,",
+				"          {2020 Hire Curr Function} as string,",
+				"          {2020 Hire Prev Function} as string,",
+				"          {2020 Promotion Curr Function} as string,",
+				"          {2020 Promotion Prev Function} as string,",
+				"          {2020 Termination Curr Function} as string,",
+				"          {2020 Termination Prev Function} as string,",
+				"          {2021 Headcount Curr Function} as string,",
+				"          {2021 Headcount Prev Function} as string,",
+				"          {2021 Hire Curr Function} as string,",
+				"          {2021 Hire Prev Function} as string,",
+				"          {2021 Promotion Curr Function} as string,",
+				"          {2021 Promotion Prev Function} as string,",
+				"          {2021 Termination Curr Function} as string,",
+				"          {2021 Termination Prev Function} as string,",
+				"          {2022 Headcount Curr Function} as string,",
+				"          {2022 Headcount Prev Function} as string,",
+				"          {2022 Hire Curr Function} as string,",
+				"          {2022 Hire Prev Function} as string,",
+				"          {2022 Promotion Curr Function} as string,",
+				"          {2022 Promotion Prev Function} as string,",
+				"          {2022 Requisition Curr Function} as string,",
+				"          {2022 Requisition Prev Function} as string,",
+				"          {2022 Termination Curr Function} as string,",
+				"          {2022 Termination Prev Function} as string,",
+				"          {2023 Headcount Curr Function} as string,",
+				"          {2023 Headcount Prev Function} as string,",
+				"          {2023 Hire Curr Function} as string,",
+				"          {2023 Hire Prev Function} as string,",
+				"          {2023 Promotion Curr Function} as string,",
+				"          {2023 Promotion Prev Function} as string,",
+				"          {2023 Requisition Curr Function} as string,",
+				"          {2023 Requisition Prev Function} as string,",
+				"          {2023 Termination Curr Function} as string,",
+				"          {2023 Termination Prev Function} as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> source1",
+				"     ignoreNoFilesFound: false) ~> JobFunctionMappingFile",
 				"source(output(",
 				"          ClientId as string,",
 				"          ClientEngagementDt as date,",
@@ -107,11 +149,11 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> source2",
+				"     query: (\"select * from [dbo].[CorpTitleMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> CorpTitleMappingTable",
 				"source(output(",
 				"          ClientId as string,",
 				"          ClientEngagementDt as date,",
-				"          ClientEngagementType as string,",
 				"          WorkerId as string,",
 				"          EventDt as date,",
 				"          EventMonth as integer,",
@@ -164,11 +206,11 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> CoreDB",
+				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> CoreDB",
 				"source(output(",
 				"          ClientId as string,",
 				"          ClientEngagementDt as date,",
-				"          ClientEngagementType as string,",
 				"          EventDt as date,",
 				"          EventMonth as integer,",
 				"          EventQuarter as integer,",
@@ -204,42 +246,43 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> ReqDB",
-				"select3 alterRow(upsertIf(true()),",
+				"     query: (\"select * from [dbo].[TAReqTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> ReqDB",
+				"SelectFinalFields alterRow(upsertIf(true()),",
 				"     deleteIf(isNull(ClientId)),",
 				"     deleteIf(isNull(ClientEngagementDt)),",
 				"     deleteIf(isNull(JobFunction)),",
 				"     deleteIf(isNull(JobTitle)),",
 				"     deleteIf(isNull(ElloreeJobFunction))) ~> alterRow1",
-				"alterRow1 derive(LoadDt = currentDate()) ~> derivedColumn1",
-				"source2 select(mapColumn(",
+				"alterRow1 derive(LoadDt = currentDate()) ~> AddLoadDt",
+				"CorpTitleMappingTable select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
 				"          ClientCorpTitle,",
 				"          ElloreeCorpTitle",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
-				"source1, select1 join({Client ID} == ClientId",
+				"     skipDuplicateMapOutputs: true) ~> SelectCorpTitleMapping",
+				"JobFunctionMappingFile, SelectCorpTitleMapping join({Client ID} == ClientId",
 				"     && {Client Engagement Date} == ClientEngagementDt",
-				"     && {Elloree Corp Title} == ElloreeCorpTitle,",
+				"     && {Elloree Corporate Title} == ElloreeCorpTitle,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1",
-				"union1 aggregate(groupBy(ClientId,",
+				"     broadcast: 'auto')~> JoinCorpTitle",
+				"UnionJobReqTbl aggregate(groupBy(ClientId,",
 				"          ClientEngagementDt,",
 				"          CorpTitle,",
 				"          JobTitle,",
 				"          JobFunction),",
-				"     ClientIdForQuery = max(ClientId)) ~> aggregate2",
+				"     ClientIdForQuery = max(ClientId)) ~> CollapseForUniqueRows",
 				"ReqDB aggregate(groupBy(ClientId,",
 				"          ClientEngagementDt,",
 				"          CorpTitle,",
 				"          JobTitle,",
 				"          JobFunction),",
-				"     ClientIdForQuery = max(ClientId)) ~> aggregate3",
-				"aggregate3 select(mapColumn(",
+				"     ClientIdForQuery = max(ClientId)) ~> CollapseForUniqueReqRows",
+				"CollapseForUniqueReqRows select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
 				"          CorpTitle,",
@@ -248,7 +291,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> FInalJobReqSelect",
-				"select2, FInalJobReqSelect union(byName: true)~> union1",
+				"selectCoreTableFields, FInalJobReqSelect union(byName: true)~> UnionJobReqTbl",
 				"CoreDB select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
@@ -257,8 +300,8 @@
 				"          JobFunction",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select2",
-				"aggregate2 select(mapColumn(",
+				"     skipDuplicateMapOutputs: true) ~> selectCoreTableFields",
+				"CollapseForUniqueRows select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
 				"          CorpTitle,",
@@ -268,26 +311,26 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> FinalClientTableSelections",
-				"join1, FinalClientTableSelections join({Client ID} == FinalClientTableSelections@ClientId",
+				"JoinCorpTitle, FinalClientTableSelections join({Client ID} == FinalClientTableSelections@ClientId",
 				"     && {Client Engagement Date} == FinalClientTableSelections@ClientEngagementDt",
 				"     && ClientCorpTitle == CorpTitle",
-				"     && {Job Title} == JobTitle",
-				"     && {Job Function} == JobFunction,",
+				"     && {Client Job Title} == JobTitle",
+				"     && {Client Job Function} == JobFunction,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join2",
-				"join2 select(mapColumn(",
+				"     broadcast: 'auto')~> SelectOnlyValidCorpTitleJobCombinations",
+				"SelectOnlyValidCorpTitleJobCombinations select(mapColumn(",
 				"          ClientId = {Client ID},",
 				"          ClientEngagementDt = {Client Engagement Date},",
 				"          CorpTitle = ClientCorpTitle,",
-				"          JobFunction = {Job Function},",
-				"          JobTitle = {Job Title},",
+				"          JobFunction = {Client Job Function},",
+				"          JobTitle = {Client Job Title},",
 				"          ElloreeJobFunction = {Elloree Job Function}",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select3",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectFinalFields",
+				"AddLoadDt sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          ClientId as string,",
