@@ -84,6 +84,9 @@
 				},
 				{
 					"name": "CollapseRows"
+				},
+				{
+					"name": "derivedColumn2"
 				}
 			],
 			"scriptLines": [
@@ -333,12 +336,15 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectFinalFields",
-				"SelectOnlyValidCorpTitleJobCombinations aggregate(groupBy({Client Engagement Date},",
+				"derivedColumn2 aggregate(groupBy({Client Engagement Date},",
 				"          ClientCorpTitle,",
 				"          {Client Job Function},",
 				"          {Client Job Title},",
 				"          {Elloree Job Function}),",
 				"     {Client ID} = max({Client ID})) ~> CollapseRows",
+				"SelectOnlyValidCorpTitleJobCombinations derive({Client Job Title} = trim({Client Job Title}),",
+				"          {Client Job Function} = trim({Client Job Function}),",
+				"          ClientCorpTitle = trim(ClientCorpTitle)) ~> derivedColumn2",
 				"AddLoadDt sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
