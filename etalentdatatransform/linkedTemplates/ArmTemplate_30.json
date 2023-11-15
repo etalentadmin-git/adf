@@ -13,6 +13,224 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_CorpTitle')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_Mapping_CorpTitle",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_Mapping_CorpTitle",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_CorpTitle",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"CorpTitle": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendCorpTitleMappingToDB": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete_Rec_Mapping_CorpTitle",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_Mapping_CorpTitle",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:19:43Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Disability')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_Mapping_Disability",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_Mapping_Disability",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_Disability",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Disability": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete_Rec_Mapping_Disability",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_Mapping_Disability",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:19:43Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Ethnicity')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -4308,584 +4526,6 @@
 				"lastPublishTime": "2023-01-12T20:31:37Z"
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_All')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_ApplicantFlow",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_ApplicantFlow",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_BusHierarchy",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_ApplicantFlow",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_BusHierarchy",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_CorpTitle",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_BusHierarchy",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_CorpTitle",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Disability",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_CorpTitle",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Disability",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Ethnicity",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_Disability",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Ethnicity",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Event",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_Ethnicity",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Event",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Gender",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_Event",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Gender",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_LGTBQ",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_Gender",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_LGTBQ",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Location",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_LGTBQ",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Location",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_PerformanceRating",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_Location",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_PerformanceRating",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_ReqStatus",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_PerformanceRating",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_ReqStatus",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_ReqType",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_ReqStatus",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_ReqType",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Veteran",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_ReqType",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Veteran",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:19:43Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_Ethnicity')]",
-				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_Event')]",
-				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_Gender')]",
-				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_LGTBQ')]",
-				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_Location')]",
-				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_PerformanceRating')]",
-				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_ReqStatus')]",
-				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_ReqType')]",
-				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_Veteran')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Update_All')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "BLS_Update_All_Set1",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "BLS_Update_All_Set1",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "BLS_Update_All_Set2",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "BLS_Update_All_Set2",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"annotations": [],
-				"lastPublishTime": "2022-12-14T00:01:06Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/BLS_Update_All_Set1')]",
-				"[concat(variables('factoryId'), '/pipelines/BLS_Update_All_Set2')]"
-			]
 		}
 	]
 }
