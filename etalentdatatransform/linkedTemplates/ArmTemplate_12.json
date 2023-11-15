@@ -809,7 +809,7 @@
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "etalentJobMapReviewTbl",
+								"referenceName": "Source_MappingWorkingFldr",
 								"type": "DatasetReference"
 							},
 							"name": "sink1"
@@ -863,9 +863,16 @@
 						},
 						{
 							"name": "JoinBusTitle"
+						},
+						{
+							"name": "filter1"
 						}
 					],
 					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
@@ -1118,27 +1125,44 @@
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> JoinBusTitle",
-						"AddLoadDt sink(allowSchemaDrift: true,",
+						"AddLoadDt filter(ClientJobTitle == 'Casa Sauza Financial Analyst') ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientBusGrpLvl1 as string,",
-						"          ClientCorpTitle as string,",
-						"          ClientJobTitle as string,",
-						"          ClientJobFunction as string,",
-						"          ElloreeJobFunction as string,",
-						"          LoadDt as date",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
 						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientBusGrpLvl1','ClientCorpTitle','ClientJobTitle','ClientJobFunction'],",
-						"     format: 'table',",
+						"     partitionFileNames:['test_mapping_ouptut.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     partitionBy('hash', 1),",
+						"     format: 'table') ~> sink1"
 					]
 				}
 			},

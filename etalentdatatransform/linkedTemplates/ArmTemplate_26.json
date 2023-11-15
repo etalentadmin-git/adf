@@ -711,14 +711,40 @@
 							"dataflow": {
 								"referenceName": "Append_Mapping_Job_Review_Temp",
 								"type": "DataFlowReference",
-								"parameters": {},
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
 								"datasetParameters": {
 									"JobFunctionMappingFile": {},
 									"CorpTitleMappingTable": {},
 									"CoreDB": {},
 									"ReqDB": {},
 									"BusLvlMapping": {},
-									"sink1": {}
+									"sink1": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									}
 								}
 							},
 							"staging": {},
@@ -732,6 +758,20 @@
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
 				},
 				"folder": {
 					"name": "Client"
