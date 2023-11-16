@@ -42,6 +42,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "CorpTitleMapping"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentBusHierarchyMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "BusHierMapping"
 				}
 			],
 			"sinks": [
@@ -90,9 +97,6 @@
 				},
 				{
 					"name": "select6"
-				},
-				{
-					"name": "UnionCurrAndPrevCorpTitleRows"
 				},
 				{
 					"name": "derivedColumn4"
@@ -165,6 +169,12 @@
 				},
 				{
 					"name": "select12"
+				},
+				{
+					"name": "selectBusMap"
+				},
+				{
+					"name": "JoinBusGrpMap"
 				}
 			],
 			"scriptLines": [
@@ -245,8 +255,21 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select ClientId, ClientEngagementDt, ClientCorpTitle, ElloreeCorpTitle from [dbo].[CorpTitleMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> CorpTitleMapping",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientBusGrpLvl1 as string,",
+				"          ElloreeBusGrpLvl1 as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select ClientId, ClientEngagementDt, ClientBusGrpLvl1, ElloreeBusGrpLvl1 from [dbo].[BusinessMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> BusHierMapping",
 				"derivedColumn4 pivot(groupBy({Client ID},",
 				"          {Client Engagement Date},",
+				"          ElloreeBusGrpLvl1,",
+				"          {Client BusinessGrpLvl1},",
 				"          {Elloree Corporate Title},",
 				"          {Client Job Title},",
 				"          {Client Job Function},",
@@ -334,7 +357,6 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select6",
-				"derivedColumn2, SortOnEvent union(byName: true)~> UnionCurrAndPrevCorpTitleRows",
 				"select12 derive({Event and Year} = concat({Event and Year},concat(' ',{Job Function (Current or Previous)}))) ~> derivedColumn4",
 				"Requisitions select(mapColumn(",
 				"          {Client ID} = ClientId,",
@@ -482,13 +504,15 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectCorpTitleMap",
-				"UnionCurrAndPrevCorpTitleRows, selectCorpTitleMap join({Client Corporate Title} == {Mapping ClientCorpTitle},",
+				"derivedColumn2, selectCorpTitleMap join({Client Corporate Title} == {Mapping ClientCorpTitle},",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinCorpTitleMap",
-				"JoinCorpTitleMap select(mapColumn(",
+				"JoinBusGrpMap select(mapColumn(",
 				"          {Elloree Corporate Title} = {Mapping ElloreeCorpTitle},",
+				"          ElloreeBusGrpLvl1 = {Mapping ElloreeBusGrpLvl1},",
+				"          {Client BusinessGrpLvl1},",
 				"          {Client Job Title},",
 				"          {Client Job Function},",
 				"          {Elloree Job Function},",
@@ -507,6 +531,17 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select12",
+				"BusHierMapping select(mapColumn(",
+				"          {Mapping ClientBusGrpLvl1} = ClientBusGrpLvl1,",
+				"          {Mapping ElloreeBusGrpLvl1} = ElloreeBusGrpLvl1",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectBusMap",
+				"JoinCorpTitleMap, selectBusMap join({Client BusinessGrpLvl1} == {Mapping ClientBusGrpLvl1},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinBusGrpMap",
 				"SortOnJobFunction sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
