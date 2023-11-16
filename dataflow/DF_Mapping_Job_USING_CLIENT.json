@@ -104,9 +104,6 @@
 					"name": "JoinCoreAndReqRecords"
 				},
 				{
-					"name": "RemoveDups"
-				},
-				{
 					"name": "derivedColumn5"
 				},
 				{
@@ -161,7 +158,10 @@
 					"name": "selectBusMap"
 				},
 				{
-					"name": "JoinBusGrpMap"
+					"name": "aggregate4"
+				},
+				{
+					"name": "LookupLOBMapping"
 				}
 			],
 			"scriptLines": [
@@ -356,16 +356,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select10",
 				"select10, SelectJobColumnsFromReq union(byName: true)~> JoinCoreAndReqRecords",
-				"JoinCoreAndReqRecords aggregate(groupBy({Client Engagement Date},",
-				"          {Event Year},",
-				"          Event,",
-				"          BusinessGrpLvl1,",
-				"          {Corporate Title},",
-				"          {Job Title},",
-				"          {Job Function},",
-				"          RecordID),",
-				"     {Client ID} = max({Client ID})) ~> RemoveDups",
-				"RemoveDups derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
+				"JoinCoreAndReqRecords derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
 				"          {Elloree Job Function} = '') ~> derivedColumn5",
 				"SelectUniqueOtherClientValues aggregate(groupBy({Count Unique ClientBusGrpLvl1} = {Unique ClientBusGrpLvl1},",
 				"          {Count Unique ClientCorpTitle} = {Unique ClientCorpTitle},",
@@ -457,7 +448,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinCorpTitleMap",
-				"JoinBusGrpMap select(mapColumn(",
+				"LookupLOBMapping select(mapColumn(",
 				"          {Elloree Corporate Title} = {Mapping ElloreeCorpTitle},",
 				"          ElloreeBusGrpLvl1 = {Mapping ElloreeBusGrpLvl1},",
 				"          {Client BusinessGrpLvl1},",
@@ -479,17 +470,19 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select12",
-				"BusHierMapping select(mapColumn(",
+				"aggregate4 select(mapColumn(",
 				"          {Mapping ClientBusGrpLvl1} = ClientBusGrpLvl1,",
 				"          {Mapping ElloreeBusGrpLvl1} = ElloreeBusGrpLvl1",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectBusMap",
-				"JoinCorpTitleMap, selectBusMap join({Client BusinessGrpLvl1} == {Mapping ClientBusGrpLvl1},",
-				"     joinType:'inner',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> JoinBusGrpMap",
+				"BusHierMapping aggregate(groupBy(ClientBusGrpLvl1,",
+				"          ElloreeBusGrpLvl1),",
+				"     ClientId = max(ClientId)) ~> aggregate4",
+				"JoinCorpTitleMap, selectBusMap lookup({Client BusinessGrpLvl1} == {Mapping ClientBusGrpLvl1},",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupLOBMapping",
 				"SortOnJobFunction sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
