@@ -13,6 +13,323 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_Template_Column_TA')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_ColumnMapping_Requisition",
+								"type": "DatasetReference"
+							},
+							"name": "RequisitionColumnMapping"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Req",
+								"type": "DatasetReference"
+							},
+							"name": "Requisitions"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_ColumnMapping_Applicant",
+								"type": "DatasetReference"
+							},
+							"name": "ApplicanrColumnMapping"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Template_JobApplicants",
+								"type": "DatasetReference"
+							},
+							"name": "Applicants"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "ReqRemoveClientRefColumn"
+						},
+						{
+							"name": "AddReqDerivedColumnForAggGrouping"
+						},
+						{
+							"name": "UnpivotToTransposeReqColumnNames"
+						},
+						{
+							"name": "SelectUniqueReqColumnRows"
+						},
+						{
+							"name": "SelectOnlyReqColumnNameField"
+						},
+						{
+							"name": "ReqColumnJoinToMapping"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "SelectReqSummary"
+						},
+						{
+							"name": "sort1"
+						},
+						{
+							"name": "AppliantRemoveClientRefColumn"
+						},
+						{
+							"name": "AddApplicantsDerivedColumnForAggGrouping"
+						},
+						{
+							"name": "UnpivotToTransposeApplColumnNames"
+						},
+						{
+							"name": "SelectUniqueApplColumnRows"
+						},
+						{
+							"name": "SelectOnlyApplColumnNameField"
+						},
+						{
+							"name": "ApplColumnJoinToMapping"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "SelectApplSummary"
+						},
+						{
+							"name": "sort2"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "sort3"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Sort Id} as integer,",
+						"          {Column Name} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> RequisitionColumnMapping",
+						"source(output(",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {Event Year} as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Date} as string,",
+						"          {Requisition ID} as string,",
+						"          {Requisition Type} as string,",
+						"          {Posting Date} as string,",
+						"          {Requisition Status} as string,",
+						"          {Number of Openings} as string,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Corporate Title} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          {Hiring Manager Worker ID} as string,",
+						"          {Primary Recruiter Worker ID} as string,",
+						"          {Requisition Other (1)} as string,",
+						"          {Requisition Other (2)} as string,",
+						"          {Requisition Other (3)} as string,",
+						"          {Requisition Other (4)} as string,",
+						"          {Requisition Other (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Requisitions",
+						"source(output(",
+						"          {Sort Id} as integer,",
+						"          {Column Name} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> ApplicanrColumnMapping",
+						"source(output(",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {Event Year} as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Date} as string,",
+						"          {Requisition ID} as string,",
+						"          {Applicant ID} as string,",
+						"          Source as string,",
+						"          {Applicant Type} as string,",
+						"          {Internal Worker ID} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Applicant Final Disposition} as string,",
+						"          {Applicant Step Before Final Disposition} as string,",
+						"          {Applicant Rejected Reason} as string,",
+						"          {Applicant Other (1)} as string,",
+						"          {Applicant Other (2)} as string,",
+						"          {Applicant Other (3)} as string,",
+						"          {Applicant Other (4)} as string,",
+						"          {Applicant Other (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Applicants",
+						"Requisitions select(mapColumn(",
+						"          {Event Year},",
+						"          {Event Quarter},",
+						"          {Event Date},",
+						"          {Requisition ID},",
+						"          {Requisition Type},",
+						"          {Posting Date},",
+						"          {Requisition Status},",
+						"          {Number of Openings},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Corporate Title},",
+						"          {Work Office Location},",
+						"          {Work Office City},",
+						"          {Work Office State},",
+						"          {Work Office Country},",
+						"          {Strategic Work Location Ind},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          {Hiring Manager Worker ID},",
+						"          {Primary Recruiter Worker ID},",
+						"          {Requisition Other (1)},",
+						"          {Requisition Other (2)},",
+						"          {Requisition Other (3)},",
+						"          {Requisition Other (4)},",
+						"          {Requisition Other (5)}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> ReqRemoveClientRefColumn",
+						"ReqRemoveClientRefColumn derive({Event Sheet} = 'Requisitions') ~> AddReqDerivedColumnForAggGrouping",
+						"AddReqDerivedColumnForAggGrouping unpivot(output(",
+						"          Column as string,",
+						"          Value as string",
+						"     ),",
+						"     ungroupBy({Event Sheet}),",
+						"     lateral: true,",
+						"     ignoreNullPivots: false) ~> UnpivotToTransposeReqColumnNames",
+						"UnpivotToTransposeReqColumnNames aggregate(groupBy({Column Name} = Column),",
+						"     each(match(name!='Event'), $$ = first($$))) ~> SelectUniqueReqColumnRows",
+						"SelectUniqueReqColumnRows select(mapColumn(",
+						"          {Client Column} = {Column Name}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectOnlyReqColumnNameField",
+						"SelectOnlyReqColumnNameField, RequisitionColumnMapping join({Client Column} == {Column Name},",
+						"     joinType:'outer',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> ReqColumnJoinToMapping",
+						"ReqColumnJoinToMapping derive({Event Template} = 'Requisitions') ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          {Event Template},",
+						"          {Column Name},",
+						"          {Client Column},",
+						"          {Sort Id}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectReqSummary",
+						"SelectReqSummary sort(asc({Sort Id}, true)) ~> sort1",
+						"Applicants select(mapColumn(",
+						"          {Event Year},",
+						"          {Event Quarter},",
+						"          {Event Date},",
+						"          {Requisition ID},",
+						"          {Applicant ID},",
+						"          Source,",
+						"          {Applicant Type},",
+						"          {Internal Worker ID},",
+						"          Race,",
+						"          {Hispanic or Latino Origin},",
+						"          Gender,",
+						"          {Veteran Ind},",
+						"          LGTBQ,",
+						"          {Disability Ind},",
+						"          {Applicant Final Disposition},",
+						"          {Applicant Step Before Final Disposition},",
+						"          {Applicant Rejected Reason},",
+						"          {Applicant Other (1)},",
+						"          {Applicant Other (2)},",
+						"          {Applicant Other (3)},",
+						"          {Applicant Other (4)},",
+						"          {Applicant Other (5)}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AppliantRemoveClientRefColumn",
+						"AppliantRemoveClientRefColumn derive({Event Sheet} = 'Applicants') ~> AddApplicantsDerivedColumnForAggGrouping",
+						"AddApplicantsDerivedColumnForAggGrouping unpivot(output(",
+						"          Column as string,",
+						"          Value as string",
+						"     ),",
+						"     ungroupBy({Event Sheet}),",
+						"     lateral: true,",
+						"     ignoreNullPivots: false) ~> UnpivotToTransposeApplColumnNames",
+						"UnpivotToTransposeApplColumnNames aggregate(groupBy({Column Name} = Column),",
+						"     each(match(name!='Event'), $$ = first($$))) ~> SelectUniqueApplColumnRows",
+						"SelectUniqueApplColumnRows select(mapColumn(",
+						"          {Client Column} = {Column Name}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectOnlyApplColumnNameField",
+						"SelectOnlyApplColumnNameField, ApplicanrColumnMapping join({Client Column} == {Column Name},",
+						"     joinType:'outer',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> ApplColumnJoinToMapping",
+						"ApplColumnJoinToMapping derive({Event Template} = 'Applicants') ~> derivedColumn2",
+						"derivedColumn2 select(mapColumn(",
+						"          {Client Column},",
+						"          {Sort Id},",
+						"          {Column Name},",
+						"          {Event Template}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectApplSummary",
+						"SelectApplSummary sort(asc({Sort Id}, true)) ~> sort2",
+						"sort1, sort2 union(byName: true)~> union1",
+						"union1 sort(asc({Event Template}, true)) ~> sort3",
+						"sort3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Column Review TA.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_WorkerId')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -7363,109 +7680,6 @@
 						"          Generation as string,",
 						"          GenerationSortId as integer,",
 						"          EmpCount as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:true,",
-						"     insertable:false,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     keys:['ClientId','ClientEngagementDt'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_Qtr_Rec_FactTbl_OtherCore')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Delete Records/Fact Tables/Quarter Records"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentOtherCoreFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "OtherCoreFactTbl"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentOtherCoreFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "DeleteRecords"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_Year as string,",
-						"     Flow_Quarter as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          WorkerId as string,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Event as string,",
-						"          EventId as string,",
-						"          EventDesc as string,",
-						"          EventType as string,",
-						"          OtherCharVal11 as string,",
-						"          OtherCharVal2 as string,",
-						"          OtherNumVal1 as double,",
-						"          OtherNumVal2 as double,",
-						"          OtherDtVal1 as date,",
-						"          OtherDtVal2 as date,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventYear = '{$Flow_Year}' and EventQuarter = '{$Flow_Quarter}'\"),",
-						"     format: 'query') ~> OtherCoreFactTbl",
-						"OtherCoreFactTbl alterRow(deleteIf(true())) ~> alterRow1",
-						"alterRow1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
-						"          WorkerId as string,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Event as string,",
-						"          EventId as string,",
-						"          EventDesc as string,",
-						"          EventType as string,",
-						"          OtherCharVal11 as string,",
-						"          OtherCharVal2 as string,",
-						"          OtherNumVal1 as double,",
-						"          OtherNumVal2 as double,",
-						"          OtherDtVal1 as date,",
-						"          OtherDtVal2 as date,",
 						"          LoadDt as date",
 						"     ),",
 						"     deletable:true,",

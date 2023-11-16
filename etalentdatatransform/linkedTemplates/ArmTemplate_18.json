@@ -13,6 +13,382 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_BusHierarchyCheck')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "AllCoreData1",
+							"description": "Import all Core data.  Workflow will output orphan hierarchy based on records that do not match the current headcount hierarchy."
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "AllCoreData2",
+							"description": "Import all core data.  Workflow will output orphan and current hierarchy along with record counts"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "CoreForHCT"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputOrphanHierarchy"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OuputOrphanAndCurrHrchyCounts"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputWorkerHierarchyDetail"
+						}
+					],
+					"transformations": [
+						{
+							"name": "MaxEventDt"
+						},
+						{
+							"name": "CurrentHCTEvent",
+							"description": "Join on max HCT event date in order to pull only the Current headcount records"
+						},
+						{
+							"name": "UniqueHierarchyRecords",
+							"description": "Select unique hierarchy for current headcount records."
+						},
+						{
+							"name": "SelectUniqueHierarchyCurrHCT",
+							"description": "Select key and hierarchy fields."
+						},
+						{
+							"name": "UniqueHierarchyAllEvents"
+						},
+						{
+							"name": "SelectUniqueHierarchyFields"
+						},
+						{
+							"name": "SelectCoreWithNoCurrentHierarchy"
+						},
+						{
+							"name": "PullRecordsWithOrphans",
+							"description": "Pull only records that do not have a hierarchy that matches a current hierarchy "
+						},
+						{
+							"name": "UniqueWorkerWithOrphanHrchy",
+							"description": "Pull unique worker ID and LOB lvl1 and LOB lvl 2 records."
+						},
+						{
+							"name": "SelectUniqueWorkerIDsWithOrphanHierarchy"
+						},
+						{
+							"name": "PullCurrentHierarchyIfExists",
+							"description": "Join orphan workers ID's with current HCT worker ID's to pull in Current hierarchy if present."
+						},
+						{
+							"name": "SelectWorkerIDandHierarcy",
+							"description": "Select worker ID and hierarchy fields"
+						},
+						{
+							"name": "CreateWorkerCountsbyHierarchy",
+							"description": "Create counts for unique orphan and current hierarchy records"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "derivedColumn3"
+						},
+						{
+							"name": "HCTFilter"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          EventMonth as integer,",
+						"          {Event Quarter} as integer,",
+						"          {Event Year} as short,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Status} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Family/Function} as string,",
+						"          {Years in Job} as double,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Family/Function} as string,",
+						"          {Original Hire Date} as date 'yyyy-MM-dd',",
+						"          {Current Hire Date} as date 'yyyy-MM-dd',",
+						"          {Years of Service} as double,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as integer,",
+						"          {Last Promo Date} as date 'yyyy-MM-dd',",
+						"          {Rehire Indicator} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as short,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as integer,",
+						"          EmpCount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AllCoreData1",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          EventMonth as integer,",
+						"          {Event Quarter} as integer,",
+						"          {Event Year} as short,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Status} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Family/Function} as string,",
+						"          {Years in Job} as double,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Family/Function} as string,",
+						"          {Original Hire Date} as date 'yyyy-MM-dd',",
+						"          {Current Hire Date} as date 'yyyy-MM-dd',",
+						"          {Years of Service} as double,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as integer,",
+						"          {Last Promo Date} as date 'yyyy-MM-dd',",
+						"          {Rehire Indicator} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as short,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as integer,",
+						"          EmpCount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AllCoreData2",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          EventMonth as integer,",
+						"          {Event Quarter} as integer,",
+						"          {Event Year} as short,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Status} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Family/Function} as string,",
+						"          {Years in Job} as double,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Family/Function} as string,",
+						"          {Original Hire Date} as date 'yyyy-MM-dd',",
+						"          {Current Hire Date} as date 'yyyy-MM-dd',",
+						"          {Years of Service} as double,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as integer,",
+						"          {Last Promo Date} as date 'yyyy-MM-dd',",
+						"          {Rehire Indicator} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as short,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as integer,",
+						"          EmpCount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> CoreForHCT",
+						"HCTFilter aggregate(groupBy(EventUnique = Event),",
+						"     MaxEventDate = max({Event Date})) ~> MaxEventDt",
+						"derivedColumn3, MaxEventDt join({Event Date} == MaxEventDate,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> CurrentHCTEvent",
+						"CurrentHCTEvent aggregate(groupBy({HierarchyKey Unique} = HierarchyKey),",
+						"     each(match(name!='HierarchyKey'), $$ = first($$))) ~> UniqueHierarchyRecords",
+						"UniqueHierarchyRecords select(mapColumn(",
+						"          {HierarchyKey Unique HCT} = {HierarchyKey Unique},",
+						"          {Business Group Level 1 HCT} = {Business Group Level 1},",
+						"          {Business Group Level 2 HCT} = {Business Group Level 2}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectUniqueHierarchyCurrHCT",
+						"derivedColumn1 aggregate(groupBy({HierarchyKey Unique} = HierarchyKey),",
+						"     each(match(name!='HierarchyKey'), $$ = first($$))) ~> UniqueHierarchyAllEvents",
+						"UniqueHierarchyAllEvents select(mapColumn(",
+						"          {HierarchyKey Unique ALL} = {HierarchyKey Unique},",
+						"          {Business Group Level 1 ALL} = {Business Group Level 1},",
+						"          {Business Group Level 2 ALL} = {Business Group Level 2}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectUniqueHierarchyFields",
+						"SelectUniqueHierarchyFields, SelectUniqueHierarchyCurrHCT exists({HierarchyKey Unique ALL} == {HierarchyKey Unique HCT},",
+						"     negate:true,",
+						"     broadcast: 'auto')~> SelectCoreWithNoCurrentHierarchy",
+						"derivedColumn2, SelectCoreWithNoCurrentHierarchy join(HierarchyKey == {HierarchyKey Unique ALL},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> PullRecordsWithOrphans",
+						"PullRecordsWithOrphans aggregate(groupBy({Worker ID unique} = {Worker ID},",
+						"          {Business Group Level 1 Unique} = {Business Group Level 1},",
+						"          {Business Group Level 2 Unique} = {Business Group Level 2}),",
+						"     each(match(name!='Worker ID'), $$ = first($$)),",
+						"     partitionBy('hash', 1)) ~> UniqueWorkerWithOrphanHrchy",
+						"UniqueWorkerWithOrphanHrchy select(mapColumn(",
+						"          {Worker ID unique},",
+						"          {Business Group Level 1 Unique},",
+						"          {Business Group Level 2 Unique}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectUniqueWorkerIDsWithOrphanHierarchy",
+						"SelectUniqueWorkerIDsWithOrphanHierarchy, CurrentHCTEvent join({Worker ID unique} == {Worker ID},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> PullCurrentHierarchyIfExists",
+						"PullCurrentHierarchyIfExists select(mapColumn(",
+						"          {Worker ID unique},",
+						"          {Business Group Level 1 Orphan} = {Business Group Level 1 Unique},",
+						"          {Business Group Level 2 Orphan} = {Business Group Level 2 Unique},",
+						"          {Business Group Level 1 Current HCT} = {Business Group Level 1},",
+						"          {Business Group Level 2 Current HCT} = {Business Group Level 2}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectWorkerIDandHierarcy",
+						"SelectWorkerIDandHierarcy aggregate(groupBy({Business Group Level 1 Orph} = {Business Group Level 1 Orphan},",
+						"          {Business Group Level 2 Orph} = {Business Group Level 2 Orphan},",
+						"          {Business Group Level 1 Curr HCT} = {Business Group Level 1 Current HCT},",
+						"          {Business Group Level 2 Curr HCT} = {Business Group Level 2 Current HCT}),",
+						"     WorkerCount = count({Worker ID unique})) ~> CreateWorkerCountsbyHierarchy",
+						"AllCoreData1 derive(HierarchyKey = concat({Business Group Level 1},{Business Group Level 2})) ~> derivedColumn1",
+						"AllCoreData2 derive(HierarchyKey = concat({Business Group Level 1}, {Business Group Level 2})) ~> derivedColumn2",
+						"HCTFilter derive(HierarchyKey = concat({Business Group Level 1},{Business Group Level 2})) ~> derivedColumn3",
+						"CoreForHCT filter({Event Code}=='HCT') ~> HCTFilter",
+						"SelectCoreWithNoCurrentHierarchy sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Dimension Review - Hierarchy Orphans.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputOrphanHierarchy",
+						"CreateWorkerCountsbyHierarchy sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Dimension Review - Hierarchy Orphans All Levels.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OuputOrphanAndCurrHrchyCounts",
+						"SelectWorkerIDandHierarcy sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Dimension Review - Hierarchy Orphan Worker Detail.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputWorkerHierarchyDetail"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_CorpTitle')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -5416,323 +5792,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> OutputColumnSummaryReview"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_Review_Template_Column_TA')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Audit Reports"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_ColumnMapping_Requisition",
-								"type": "DatasetReference"
-							},
-							"name": "RequisitionColumnMapping"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_Req",
-								"type": "DatasetReference"
-							},
-							"name": "Requisitions"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_ColumnMapping_Applicant",
-								"type": "DatasetReference"
-							},
-							"name": "ApplicanrColumnMapping"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_JobApplicants",
-								"type": "DatasetReference"
-							},
-							"name": "Applicants"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_AuditFolder",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "ReqRemoveClientRefColumn"
-						},
-						{
-							"name": "AddReqDerivedColumnForAggGrouping"
-						},
-						{
-							"name": "UnpivotToTransposeReqColumnNames"
-						},
-						{
-							"name": "SelectUniqueReqColumnRows"
-						},
-						{
-							"name": "SelectOnlyReqColumnNameField"
-						},
-						{
-							"name": "ReqColumnJoinToMapping"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "SelectReqSummary"
-						},
-						{
-							"name": "sort1"
-						},
-						{
-							"name": "AppliantRemoveClientRefColumn"
-						},
-						{
-							"name": "AddApplicantsDerivedColumnForAggGrouping"
-						},
-						{
-							"name": "UnpivotToTransposeApplColumnNames"
-						},
-						{
-							"name": "SelectUniqueApplColumnRows"
-						},
-						{
-							"name": "SelectOnlyApplColumnNameField"
-						},
-						{
-							"name": "ApplColumnJoinToMapping"
-						},
-						{
-							"name": "derivedColumn2"
-						},
-						{
-							"name": "SelectApplSummary"
-						},
-						{
-							"name": "sort2"
-						},
-						{
-							"name": "union1"
-						},
-						{
-							"name": "sort3"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Sort Id} as integer,",
-						"          {Column Name} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> RequisitionColumnMapping",
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Event Year} as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Date} as string,",
-						"          {Requisition ID} as string,",
-						"          {Requisition Type} as string,",
-						"          {Posting Date} as string,",
-						"          {Requisition Status} as string,",
-						"          {Number of Openings} as string,",
-						"          {Job Title} as string,",
-						"          {Job Function} as string,",
-						"          {Corporate Title} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work Office City} as string,",
-						"          {Work Office State} as string,",
-						"          {Work Office Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          {Hiring Manager Worker ID} as string,",
-						"          {Primary Recruiter Worker ID} as string,",
-						"          {Requisition Other (1)} as string,",
-						"          {Requisition Other (2)} as string,",
-						"          {Requisition Other (3)} as string,",
-						"          {Requisition Other (4)} as string,",
-						"          {Requisition Other (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Requisitions",
-						"source(output(",
-						"          {Sort Id} as integer,",
-						"          {Column Name} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> ApplicanrColumnMapping",
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Event Year} as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Date} as string,",
-						"          {Requisition ID} as string,",
-						"          {Applicant ID} as string,",
-						"          Source as string,",
-						"          {Applicant Type} as string,",
-						"          {Internal Worker ID} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Applicant Final Disposition} as string,",
-						"          {Applicant Step Before Final Disposition} as string,",
-						"          {Applicant Rejected Reason} as string,",
-						"          {Applicant Other (1)} as string,",
-						"          {Applicant Other (2)} as string,",
-						"          {Applicant Other (3)} as string,",
-						"          {Applicant Other (4)} as string,",
-						"          {Applicant Other (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Applicants",
-						"Requisitions select(mapColumn(",
-						"          {Event Year},",
-						"          {Event Quarter},",
-						"          {Event Date},",
-						"          {Requisition ID},",
-						"          {Requisition Type},",
-						"          {Posting Date},",
-						"          {Requisition Status},",
-						"          {Number of Openings},",
-						"          {Job Title},",
-						"          {Job Function},",
-						"          {Corporate Title},",
-						"          {Work Office Location},",
-						"          {Work Office City},",
-						"          {Work Office State},",
-						"          {Work Office Country},",
-						"          {Strategic Work Location Ind},",
-						"          {Business Group Level 1},",
-						"          {Business Group Level 2},",
-						"          {Business Group Level 3},",
-						"          {Business Group Level 4},",
-						"          {Hiring Manager Worker ID},",
-						"          {Primary Recruiter Worker ID},",
-						"          {Requisition Other (1)},",
-						"          {Requisition Other (2)},",
-						"          {Requisition Other (3)},",
-						"          {Requisition Other (4)},",
-						"          {Requisition Other (5)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> ReqRemoveClientRefColumn",
-						"ReqRemoveClientRefColumn derive({Event Sheet} = 'Requisitions') ~> AddReqDerivedColumnForAggGrouping",
-						"AddReqDerivedColumnForAggGrouping unpivot(output(",
-						"          Column as string,",
-						"          Value as string",
-						"     ),",
-						"     ungroupBy({Event Sheet}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> UnpivotToTransposeReqColumnNames",
-						"UnpivotToTransposeReqColumnNames aggregate(groupBy({Column Name} = Column),",
-						"     each(match(name!='Event'), $$ = first($$))) ~> SelectUniqueReqColumnRows",
-						"SelectUniqueReqColumnRows select(mapColumn(",
-						"          {Client Column} = {Column Name}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectOnlyReqColumnNameField",
-						"SelectOnlyReqColumnNameField, RequisitionColumnMapping join({Client Column} == {Column Name},",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> ReqColumnJoinToMapping",
-						"ReqColumnJoinToMapping derive({Event Template} = 'Requisitions') ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          {Event Template},",
-						"          {Column Name},",
-						"          {Client Column},",
-						"          {Sort Id}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectReqSummary",
-						"SelectReqSummary sort(asc({Sort Id}, true)) ~> sort1",
-						"Applicants select(mapColumn(",
-						"          {Event Year},",
-						"          {Event Quarter},",
-						"          {Event Date},",
-						"          {Requisition ID},",
-						"          {Applicant ID},",
-						"          Source,",
-						"          {Applicant Type},",
-						"          {Internal Worker ID},",
-						"          Race,",
-						"          {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          {Veteran Ind},",
-						"          LGTBQ,",
-						"          {Disability Ind},",
-						"          {Applicant Final Disposition},",
-						"          {Applicant Step Before Final Disposition},",
-						"          {Applicant Rejected Reason},",
-						"          {Applicant Other (1)},",
-						"          {Applicant Other (2)},",
-						"          {Applicant Other (3)},",
-						"          {Applicant Other (4)},",
-						"          {Applicant Other (5)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AppliantRemoveClientRefColumn",
-						"AppliantRemoveClientRefColumn derive({Event Sheet} = 'Applicants') ~> AddApplicantsDerivedColumnForAggGrouping",
-						"AddApplicantsDerivedColumnForAggGrouping unpivot(output(",
-						"          Column as string,",
-						"          Value as string",
-						"     ),",
-						"     ungroupBy({Event Sheet}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> UnpivotToTransposeApplColumnNames",
-						"UnpivotToTransposeApplColumnNames aggregate(groupBy({Column Name} = Column),",
-						"     each(match(name!='Event'), $$ = first($$))) ~> SelectUniqueApplColumnRows",
-						"SelectUniqueApplColumnRows select(mapColumn(",
-						"          {Client Column} = {Column Name}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectOnlyApplColumnNameField",
-						"SelectOnlyApplColumnNameField, ApplicanrColumnMapping join({Client Column} == {Column Name},",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> ApplColumnJoinToMapping",
-						"ApplColumnJoinToMapping derive({Event Template} = 'Applicants') ~> derivedColumn2",
-						"derivedColumn2 select(mapColumn(",
-						"          {Client Column},",
-						"          {Sort Id},",
-						"          {Column Name},",
-						"          {Event Template}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectApplSummary",
-						"SelectApplSummary sort(asc({Sort Id}, true)) ~> sort2",
-						"sort1, sort2 union(byName: true)~> union1",
-						"union1 sort(asc({Event Template}, true)) ~> sort3",
-						"sort3 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Template - Column Review TA.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
 					]
 				}
 			},
