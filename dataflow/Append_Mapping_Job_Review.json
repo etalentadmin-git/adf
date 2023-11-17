@@ -42,21 +42,12 @@
 						"referenceName": "etalentJobMapReviewTbl",
 						"type": "DatasetReference"
 					},
-					"name": "LoadJobMappingtoJobMappingReviewTbl"
+					"name": "sink1"
 				}
 			],
 			"transformations": [
 				{
-					"name": "alterRow1"
-				},
-				{
-					"name": "AddLoadDt"
-				},
-				{
 					"name": "SelectCorpTitleMapping"
-				},
-				{
-					"name": "JoinCorpTitle"
 				},
 				{
 					"name": "CollapseForUniqueRows"
@@ -66,18 +57,6 @@
 				},
 				{
 					"name": "FinalClientTableSelections"
-				},
-				{
-					"name": "SelectOnlyValidCorpTitleJobCombinations"
-				},
-				{
-					"name": "SelectFinalFields"
-				},
-				{
-					"name": "CollapseRows"
-				},
-				{
-					"name": "derivedColumn2"
 				},
 				{
 					"name": "RemoveDuplicatesForBusLvl1"
@@ -105,6 +84,12 @@
 				},
 				{
 					"name": "RemoveNullMapping"
+				},
+				{
+					"name": "alterRow2"
+				},
+				{
+					"name": "derivedColumn3"
 				}
 			],
 			"scriptLines": [
@@ -210,13 +195,6 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> BusHierarchyMapping",
-				"SelectFinalFields alterRow(upsertIf(true()),",
-				"     deleteIf(isNull(ClientId)),",
-				"     deleteIf(isNull(ClientEngagementDt)),",
-				"     deleteIf(isNull(JobFunction)),",
-				"     deleteIf(isNull(JobTitle)),",
-				"     deleteIf(isNull(ElloreeJobFunction))) ~> alterRow1",
-				"alterRow1 derive(LoadDt = currentDate()) ~> AddLoadDt",
 				"CorpTitleMappingTable select(mapColumn(",
 				"          {CorpTitle Map ClientId} = ClientId,",
 				"          {CorpTitle Map ClientEngagementDt} = ClientEngagementDt,",
@@ -225,13 +203,6 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectCorpTitleMapping",
-				"JobFunctionMappingFile, SelectCorpTitleMapping join({Client ID} == {CorpTitle Map ClientId}",
-				"     && {Client Engagement Date} == {CorpTitle Map ClientEngagementDt}",
-				"     && {Elloree Corporate Title} == {CorpTitle Map ElloreeCorpTitle},",
-				"     joinType:'left',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> JoinCorpTitle",
 				"SelectMappingOutput aggregate(groupBy(ClientEngagementDt,",
 				"          ClientBusGrpLvl1,",
 				"          ClientCorpTitle,",
@@ -261,34 +232,6 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> FinalClientTableSelections",
-				"JoinCorpTitle, FinalClientTableSelections join({Client ID} == ClientId",
-				"     && {Client Engagement Date} == ClientEngagementDt",
-				"     && {CorpTitle Map ClientCorpTitle} == CorpTitle",
-				"     && {Client Job Title} == JobTitle",
-				"     && {Client Job Function} == JobFunction,",
-				"     joinType:'inner',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> SelectOnlyValidCorpTitleJobCombinations",
-				"CollapseRows select(mapColumn(",
-				"          ClientId = {Client ID},",
-				"          ClientEngagementDt = {Client Engagement Date},",
-				"          CorpTitle = ClientCorpTitle,",
-				"          JobFunction = {Client Job Function},",
-				"          JobTitle = {Client Job Title},",
-				"          ElloreeJobFunction = {Elloree Job Function}",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectFinalFields",
-				"derivedColumn2 aggregate(groupBy({Client Engagement Date},",
-				"          ClientCorpTitle,",
-				"          {Client Job Function},",
-				"          {Client Job Title},",
-				"          {Elloree Job Function}),",
-				"     {Client ID} = max({Client ID})) ~> CollapseRows",
-				"SelectOnlyValidCorpTitleJobCombinations derive({Client Job Title} = trim({Client Job Title}),",
-				"          {Client Job Function} = trim({Client Job Function}),",
-				"          ClientCorpTitle = trim({CorpTitle Map ClientCorpTitle})) ~> derivedColumn2",
 				"BusHierarchyMapping aggregate(groupBy({Bus Map ClientId} = ClientId,",
 				"          {Bus Map ClientEngagementDt} = ClientEngagementDt,",
 				"          {Bus Map ClientBusGrpLvl1} = ClientBusGrpLvl1,",
@@ -348,7 +291,16 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectMappingOutput",
 				"FinalClientTableSelections filter(!isNull(ElloreeJobFunction)) ~> RemoveNullMapping",
-				"AddLoadDt sink(allowSchemaDrift: true,",
+				"RemoveNullMapping alterRow(upsertIf(true()),",
+				"     deleteIf(isNull(ClientId)),",
+				"     deleteIf(isNull(ClientEngagementDt)),",
+				"     deleteIf(isNull(ClientBusGrpLvl1)),",
+				"     deleteIf(isNull(ClientCorpTitle)),",
+				"     deleteIf(isNull(ClientJobTitle)),",
+				"     deleteIf(isNull(ClientJobFunction)),",
+				"     deleteIf(isNull(ElloreeJobFunction))) ~> alterRow2",
+				"alterRow2 derive(LoadDt = currentDate()) ~> derivedColumn3",
+				"derivedColumn3 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          ClientId as string,",
@@ -364,20 +316,11 @@
 				"     insertable:true,",
 				"     updateable:false,",
 				"     upsertable:true,",
-				"     keys:['ClientId','ClientEngagementDt','ClientJobTitle','ClientJobFunction','ClientCorpTitle'],",
+				"     keys:['ClientId','ClientEngagementDt','ClientBusGrpLvl1','ClientCorpTitle','ClientJobTitle','ClientJobFunction'],",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError',",
-				"     mapColumn(",
-				"          ClientId,",
-				"          ClientEngagementDt,",
-				"          ClientCorpTitle = CorpTitle,",
-				"          ClientJobTitle = JobTitle,",
-				"          ClientJobFunction = JobFunction,",
-				"          ElloreeJobFunction,",
-				"          LoadDt",
-				"     )) ~> LoadJobMappingtoJobMappingReviewTbl"
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}
