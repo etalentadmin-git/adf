@@ -4042,7 +4042,7 @@
 						"          EmpCount),",
 						"     RowCount = count({Worker ID})) ~> RemoveDuplicates",
 						"CalcServiceforNulls derive({Job Title} = replace({Job Title},\"–\",\"-\")) ~> ReplaceSpecCharHyphen",
-						"ReplaceSpecCharHyphen derive({Job Title} = replace({Job Title},\"’\",\"-\")) ~> ReplaceSpecialCharApostrophe",
+						"ReplaceSpecCharHyphen derive({Job Title} = replace({Job Title},\"’\",\"'\")) ~> ReplaceSpecialCharApostrophe",
 						"ReplaceSpecialCharApostrophe derive({Job Title} = replace({Job Title},\"ó\",\"o\")) ~> ReplaceSpecialCharacterAccent",
 						"ReplaceSpecialCharacterAccent derive({Job Title} = replace({Job Title},\"�\",\"-\")) ~> ReplaceCharacterUnknown",
 						"RemoveDuplicates sink(allowSchemaDrift: true,",
@@ -5186,7 +5186,7 @@
 						"          {Requisition Other (5)}),",
 						"     RowCount = count({Requisition ID})) ~> RemoveDupRowsandAddRowCount",
 						"tagEvent derive({Job Title} = replace({Job Title},\"–\",\"-\")) ~> ReplaceSpecCharHyphen",
-						"ReplaceSpecCharHyphen derive({Job Title} = replace({Job Title},\"’\",\"-\")) ~> ReplaceSpecialCharApostrophe",
+						"ReplaceSpecCharHyphen derive({Job Title} = replace({Job Title},\"’\",\"'\")) ~> ReplaceSpecialCharApostrophe",
 						"ReplaceSpecialCharApostrophe derive({Job Title} = replace({Job Title},\"ó\",\"o\")) ~> ReplaceSpecialCharacterAccent",
 						"ReplaceSpecialCharacterAccent derive({Job Title} = replace({Job Title},\"�\",\"-\")) ~> derivedColumn1",
 						"RemoveDupRowsandAddRowCount sink(allowSchemaDrift: true,",
@@ -5295,6 +5295,18 @@
 						},
 						{
 							"name": "tagEvent"
+						},
+						{
+							"name": "ReplaceSpecCharHyphen"
+						},
+						{
+							"name": "ReplaceSpecialCharApostrophe"
+						},
+						{
+							"name": "ReplaceSpecialCharacterAccent"
+						},
+						{
+							"name": "ReplaceCharacterUnknown"
 						}
 					],
 					"scriptLines": [
@@ -5409,7 +5421,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectFinal",
-						"tagEvent derive({Client ID} = $Flow_Client_Id,",
+						"ReplaceCharacterUnknown derive({Client ID} = $Flow_Client_Id,",
 						"          {Client Engagement Date} = $Flow_Client_Dt) ~> AddParameters",
 						"AddParameters derive(Event = iif(isNull(Event),'N/A',Event),",
 						"          {Requisition Type} = iif(isNull({Requisition Type}),'N/A',{Requisition Type}),",
@@ -5495,6 +5507,10 @@
 						"FilterOutClientHeaderRowAndColumn filter(not(isNull({Event Date})) && not(isNull({Requisition ID}))) ~> RemoveNullReqID",
 						"RemoveNullReqID derive(Event = 'Requisition',",
 						"          EventId = 'REQ') ~> tagEvent",
+						"tagEvent derive({Job Title} = replace({Job Title},\"–\",\"-\")) ~> ReplaceSpecCharHyphen",
+						"ReplaceSpecCharHyphen derive({Job Title} = replace({Job Title},\"’\",\"'\")) ~> ReplaceSpecialCharApostrophe",
+						"ReplaceSpecialCharApostrophe derive({Job Title} = replace({Job Title},\"ó\",\"o\")) ~> ReplaceSpecialCharacterAccent",
+						"ReplaceSpecialCharacterAccent derive({Job Title} = replace({Job Title},\"�\",\"-\")) ~> ReplaceCharacterUnknown",
 						"SelectOutput sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
