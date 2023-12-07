@@ -62,12 +62,6 @@
 					"name": "RemoveDuplicatesForBusLvl1"
 				},
 				{
-					"name": "FilterforInscopeClients"
-				},
-				{
-					"name": "FilterForHCT"
-				},
-				{
 					"name": "LookupCorpTitle"
 				},
 				{
@@ -93,6 +87,10 @@
 				}
 			],
 			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
 				"source(output(",
 				"          {Client ID} as string,",
 				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
@@ -173,7 +171,8 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> CoreDB",
+				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> CoreDB",
 				"source(output(",
 				"          ClientId as string,",
 				"          ClientEngagementDt as date,",
@@ -206,7 +205,7 @@
 				"          ClientJobFunction,",
 				"          ElloreeJobFunction),",
 				"     ClientId = max(ClientId)) ~> CollapseForUniqueRows",
-				"FilterForHCT select(mapColumn(",
+				"CoreDB select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
 				"          WorkerId,",
@@ -233,14 +232,6 @@
 				"          {Bus Map ClientBusGrpLvl1} = ClientBusGrpLvl1,",
 				"          {Bus Map ElloreeBusGrpLvl1} = ElloreeBusGrpLvl1),",
 				"     CountLOB = count(ClientBusGrpLvl1)) ~> RemoveDuplicatesForBusLvl1",
-				"CoreDB filter((ClientId=='Bamboo' && ClientEngagementDt == toDate('12/31/2022','MM/dd/yyyy')) ||\r",
-				"(ClientId=='Dogwood' && ClientEngagementDt == toDate('8/31/2022','MM/dd/yyyy')) ||\r",
-				"(ClientId=='Evergreen' && ClientEngagementDt == toDate('12/31/2022','MM/dd/yyyy')) ||\r",
-				"(ClientId=='Mulberry' && ClientEngagementDt == toDate('9/30/2020','MM/dd/yyyy')) ||\r",
-				"(ClientId=='Nutmeg' && ClientEngagementDt == toDate('6/30/2020','MM/dd/yyyy')) ||\r",
-				"(ClientId=='Viburnum' && ClientEngagementDt == toDate('3/31/2020','MM/dd/yyyy')) ||\r",
-				"(ClientId=='Willow' && ClientEngagementDt == toDate('1/31/2022','MM/dd/yyyy'))) ~> FilterforInscopeClients",
-				"FilterforInscopeClients filter(EventId == 'HCT') ~> FilterForHCT",
 				"selectCoreTableFields, SelectCorpTitleMapping lookup(ClientId == {CorpTitle Map ClientId}",
 				"     && ClientEngagementDt == {CorpTitle Map ClientEngagementDt}",
 				"     && CorpTitle == {CorpTitle Map ClientCorpTitle},",
