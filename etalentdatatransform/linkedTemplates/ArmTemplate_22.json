@@ -13,6 +13,131 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_YearRef",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Delete_All_Rec_FactTbl_YearRef",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_YearRef",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"YearRef": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendYearRef": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete_All_Rec_FactTbl_YearRef",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_All_Rec_FactTbl_YearRef",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"YearRefTbl": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T20:31:36Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef_Hist')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -585,71 +710,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-12T14:43:28Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Job_Review')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_Job_Review",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_Job_Review",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"JobFunctionMappingFile": {},
-									"CorpTitleMappingTable": {},
-									"CoreDB": {},
-									"BusHierarchyMapping": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:19:43Z"
 			},
 			"dependsOn": []
 		},
