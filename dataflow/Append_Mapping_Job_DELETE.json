@@ -1,0 +1,85 @@
+{
+	"name": "Append_Mapping_Job",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_Job",
+						"type": "DatasetReference"
+					},
+					"name": "Job"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentJobMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Job Function} as string,",
+				"          {Client Job Title} as string,",
+				"          {Elloree Job Function} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Job",
+				"Job alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Job Function})),",
+				"     deleteIf(isNull({Client Job Title})),",
+				"     deleteIf(isNull({Elloree Job Function}))) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          ClientJobFunction = {Client Job Function},",
+				"          ClientJobTitle = {Client Job Title},",
+				"          ElloreeJobFunction = {Elloree Job Function},",
+				"          ClientId = {Client ID}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientCorpTitle as string,",
+				"          ClientJobTitle as string,",
+				"          ClientJobFunction as string,",
+				"          ElloreeJobFunction as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientJobFunction','ClientJobTitle'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}
