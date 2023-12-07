@@ -61,6 +61,18 @@
 				},
 				{
 					"name": "tagEvent"
+				},
+				{
+					"name": "ReplaceSpecCharHyphen"
+				},
+				{
+					"name": "ReplaceSpecialCharApostrophe"
+				},
+				{
+					"name": "ReplaceSpecialCharacterAccent"
+				},
+				{
+					"name": "ReplaceCharacterUnknown"
 				}
 			],
 			"scriptLines": [
@@ -153,7 +165,7 @@
 				"          {Posting Date},",
 				"          {Requisition Status},",
 				"          {Number of Openings},",
-				"          {Job Title},",
+				"          {Job Title} = JobReqAppendFile@{Job Title},",
 				"          {Job Function},",
 				"          {Corporate Title},",
 				"          {Work Office Location},",
@@ -175,7 +187,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectFinal",
-				"tagEvent derive({Client ID} = $Flow_Client_Id,",
+				"ReplaceCharacterUnknown derive({Client ID} = $Flow_Client_Id,",
 				"          {Client Engagement Date} = $Flow_Client_Dt) ~> AddParameters",
 				"AddParameters derive(Event = iif(isNull(Event),'N/A',Event),",
 				"          {Requisition Type} = iif(isNull({Requisition Type}),'N/A',{Requisition Type}),",
@@ -261,6 +273,10 @@
 				"FilterOutClientHeaderRowAndColumn filter(not(isNull({Event Date})) && not(isNull({Requisition ID}))) ~> RemoveNullReqID",
 				"RemoveNullReqID derive(Event = 'Requisition',",
 				"          EventId = 'REQ') ~> tagEvent",
+				"tagEvent derive({Job Title} = replace({Job Title},\"–\",\"-\")) ~> ReplaceSpecCharHyphen",
+				"ReplaceSpecCharHyphen derive({Job Title} = replace({Job Title},\"’\",\"'\")) ~> ReplaceSpecialCharApostrophe",
+				"ReplaceSpecialCharApostrophe derive({Job Title} = replace({Job Title},\"ó\",\"o\")) ~> ReplaceSpecialCharacterAccent",
+				"ReplaceSpecialCharacterAccent derive({Job Title} = replace({Job Title},\"�\",\"-\")) ~> ReplaceCharacterUnknown",
 				"SelectOutput sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
