@@ -1,5 +1,5 @@
 {
-	"name": "DF_Mapping_Job_NOT_USING_CLIENT",
+	"name": "DF_Mapping_Job_NOT_USING_CLIENT_HCT_DELETE",
 	"properties": {
 		"description": "This workflow outputs 1 file for review of ethnicity values across events and time periods.",
 		"folder": {
@@ -21,13 +21,6 @@
 						"type": "DatasetReference"
 					},
 					"name": "JobMappingTableClient"
-				},
-				{
-					"dataset": {
-						"referenceName": "etalentReqFactTbl",
-						"type": "DatasetReference"
-					},
-					"name": "Requisitions"
 				},
 				{
 					"dataset": {
@@ -95,13 +88,7 @@
 					"name": "derivedColumn4"
 				},
 				{
-					"name": "SelectJobColumnsFromReq"
-				},
-				{
 					"name": "select10"
-				},
-				{
-					"name": "JoinCoreAndReqRecords"
 				},
 				{
 					"name": "derivedColumn5"
@@ -162,6 +149,9 @@
 				},
 				{
 					"name": "LookupLOBMapping"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
@@ -199,22 +189,6 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> JobMappingTableClient",
-				"source(output(",
-				"          ClientId as string,",
-				"          ClientEngagementDt as date,",
-				"          BusinessGrpLvl1 as string,",
-				"          CorpTitle as string,",
-				"          JobTitle as string,",
-				"          JobFunction as string,",
-				"          EventYear as integer,",
-				"          Event as string,",
-				"          ReqId as string",
-				"     ),",
-				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select ClientId, ClientEngagementDt, BusinessGrpLvl1, CorpTitle, JobTitle, JobFunction, EventYear, Event, ReqId from [dbo].[TAReqTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-				"     format: 'query') ~> Requisitions",
 				"source(output(",
 				"          ClientId as string,",
 				"          ClientEngagementDt as date,",
@@ -328,20 +302,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select6",
 				"select12 derive({Event and Year} = concat({Event and Year},concat(' ',{Job Function (Current or Previous)}))) ~> derivedColumn4",
-				"Requisitions select(mapColumn(",
-				"          {Client ID} = ClientId,",
-				"          {Client Engagement Date} = ClientEngagementDt,",
-				"          BusinessGrpLvl1,",
-				"          {Corporate Title} = CorpTitle,",
-				"          {Job Title} = JobTitle,",
-				"          {Job Function} = JobFunction,",
-				"          {Event Year} = EventYear,",
-				"          Event,",
-				"          RecordID = ReqId",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectJobColumnsFromReq",
-				"AllCoreData select(mapColumn(",
+				"filter1 select(mapColumn(",
 				"          {Client ID} = ClientId,",
 				"          {Client Engagement Date} = ClientEngagementDt,",
 				"          {Event Year} = EventYear,",
@@ -354,8 +315,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select10",
-				"select10, SelectJobColumnsFromReq union(byName: true)~> JoinCoreAndReqRecords",
-				"JoinCoreAndReqRecords derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
+				"select10 derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
 				"          {Elloree Job Function} = '') ~> derivedColumn5",
 				"SelectUniqueOtherClientValues aggregate(groupBy({Count Unique ClientBusGrpLvl1} = {Unique ClientBusGrpLvl1},",
 				"          {Count Unique ClientCorpTitle} = {Unique ClientCorpTitle},",
@@ -481,6 +441,7 @@
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> LookupLOBMapping",
+				"AllCoreData filter(Event == 'Headcount') ~> filter1",
 				"SortOnJobFunction sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",

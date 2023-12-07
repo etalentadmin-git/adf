@@ -1,5 +1,5 @@
 {
-	"name": "Append_Mapping_Job_Review_Temp_copy1",
+	"name": "Append_Mapping_Job_Review_Temp_DELETE",
 	"properties": {
 		"folder": {
 			"name": "Client/Database/Load Mapping Tables"
@@ -9,7 +9,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "Source_Mapping_Job_Temp",
+						"referenceName": "Source_Mapping_Job_Temp_DELETE",
 						"type": "DatasetReference"
 					},
 					"name": "JobFunctionMappingFile"
@@ -49,10 +49,13 @@
 						"referenceName": "Source_MappingWorkingFldr",
 						"type": "DatasetReference"
 					},
-					"name": "sink2"
+					"name": "sink1"
 				}
 			],
 			"transformations": [
+				{
+					"name": "alterRow1"
+				},
 				{
 					"name": "AddLoadDt"
 				},
@@ -97,6 +100,9 @@
 				},
 				{
 					"name": "JoinBusTitle"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
@@ -241,7 +247,15 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> BusLvlMapping",
-				"SelectFinalFields derive(LoadDt = currentDate()) ~> AddLoadDt",
+				"SelectFinalFields alterRow(upsertIf(true()),",
+				"     deleteIf(isNull(ClientId)),",
+				"     deleteIf(isNull(ClientEngagementDt)),",
+				"     deleteIf(isNull(ClientBusGrpLvl1)),",
+				"     deleteIf(isNull(ClientCorpTitle)),",
+				"     deleteIf(isNull(ClientJobFunction)),",
+				"     deleteIf(isNull(ClientJobTitle)),",
+				"     deleteIf(isNull(ElloreeJobFunction))) ~> alterRow1",
+				"alterRow1 derive(LoadDt = currentDate()) ~> AddLoadDt",
 				"CorpTitleMappingTable select(mapColumn(",
 				"          ClientId,",
 				"          ClientEngagementDt,",
@@ -348,7 +362,8 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinBusTitle",
-				"AddLoadDt sink(allowSchemaDrift: true,",
+				"AddLoadDt filter(ClientJobTitle == 'Casa Sauza Financial Analyst') ~> filter1",
+				"filter1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          Column_1 as string,",
@@ -383,7 +398,8 @@
 				"     partitionFileNames:['test_mapping_ouptut.csv'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> sink2"
+				"     partitionBy('hash', 1),",
+				"     format: 'table') ~> sink1"
 			]
 		}
 	}
