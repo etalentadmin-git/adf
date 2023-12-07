@@ -118,6 +118,18 @@
 				},
 				{
 					"name": "RemoveDuplicates"
+				},
+				{
+					"name": "ReplaceSpecCharHyphen"
+				},
+				{
+					"name": "ReplaceSpecialCharApostrophe"
+				},
+				{
+					"name": "ReplaceSpecialCharacterAccent"
+				},
+				{
+					"name": "ReplaceCharacterUnknown"
 				}
 			],
 			"scriptLines": [
@@ -285,7 +297,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> Promotions",
 				"TagHeadcountEvent, TagHireEvent, TagTerminationEvent, TagPromotionEvent union(byName: true)~> MergeEvents",
-				"CalcServiceforNulls derive(EmpCount = 1,",
+				"ReplaceCharacterUnknown derive(EmpCount = 1,",
 				"          {Generation Desc} = iif(not(isNull({Birth Year})), iif({Birth Year}<1946,'Pre-Boomer (<1946)', iif(between({Birth Year},1946,1964),'Boomer (1946-1964)', \r",
 				"iif(between({Birth Year}, 1965, 1978),'Gen X (1965-1978)', \r",
 				"iif(between({Birth Year},1979,1996),'Gen Y (1979-1996)', \r",
@@ -619,6 +631,15 @@
 				"          {Generation Sort ID},",
 				"          EmpCount),",
 				"     RowCount = count({Worker ID})) ~> RemoveDuplicates",
+				"CalcServiceforNulls derive({Job Title} = replace({Job Title},\"–\",\"-\")\r",
+				") ~> ReplaceSpecCharHyphen",
+				"ReplaceSpecCharHyphen derive({Job Title} = replace({Job Title},\"’\",\"-\")\r",
+				"\r",
+				") ~> ReplaceSpecialCharApostrophe",
+				"ReplaceSpecialCharApostrophe derive({Job Title} = replace({Job Title},\"ó\",\"o\")\r",
+				") ~> ReplaceSpecialCharacterAccent",
+				"ReplaceSpecialCharacterAccent derive({Job Title} = replace({Job Title},\"�\",\"-\")\r",
+				") ~> ReplaceCharacterUnknown",
 				"RemoveDuplicates sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",

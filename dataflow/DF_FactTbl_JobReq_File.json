@@ -32,7 +32,7 @@
 					"name": "SelectFinal"
 				},
 				{
-					"name": "AddParameters"
+					"name": "AddClientInfo"
 				},
 				{
 					"name": "ConvertNullsForKeyFields"
@@ -48,6 +48,18 @@
 				},
 				{
 					"name": "RemoveDupRowsandAddRowCount"
+				},
+				{
+					"name": "ReplaceSpecCharHyphen"
+				},
+				{
+					"name": "ReplaceSpecialCharApostrophe"
+				},
+				{
+					"name": "ReplaceSpecialCharacterAccent"
+				},
+				{
+					"name": "derivedColumn1"
 				}
 			],
 			"scriptLines": [
@@ -125,8 +137,8 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectFinal",
-				"tagEvent derive({Client ID} = $Flow_Client_Id,",
-				"          {Client Engagement Date} = $Flow_Client_Dt) ~> AddParameters",
+				"derivedColumn1 derive({Client ID} = $Flow_Client_Id,",
+				"          {Client Engagement Date} = $Flow_Client_Dt) ~> AddClientInfo",
 				"AddEventMonth derive(Event = iif(isNull(Event),'N/A',Event),",
 				"          {Requisition Type} = iif(isNull({Requisition Type}),'N/A',{Requisition Type}),",
 				"          {Requisition Status} = iif(isNull({Requisition Status}),'N/A',{Requisition Status}),",
@@ -143,7 +155,7 @@
 				"FilterOutClientHeaderRowAndColumn filter(not(isNull({Event Date})) && not(isNull({Requisition ID}))) ~> RemoveNullReqIDRows",
 				"RemoveNullReqIDRows derive(Event = 'Requisition',",
 				"          EventId = 'REQ') ~> tagEvent",
-				"AddParameters derive(EventMonth = month({Event Date}),",
+				"AddClientInfo derive(EventMonth = month({Event Date}),",
 				"          {Event Quarter} = iif(isNull({Event Quarter}),\r",
 				"iif(between(month({Event Date}),1,3),1,\r",
 				"iif(between(month({Event Date}),4,6),2,\r",
@@ -183,6 +195,10 @@
 				"          {Requisition Other (4)},",
 				"          {Requisition Other (5)}),",
 				"     RowCount = count({Requisition ID})) ~> RemoveDupRowsandAddRowCount",
+				"tagEvent derive({Job Title} = replace({Job Title},\"–\",\"-\")) ~> ReplaceSpecCharHyphen",
+				"ReplaceSpecCharHyphen derive({Job Title} = replace({Job Title},\"’\",\"-\")) ~> ReplaceSpecialCharApostrophe",
+				"ReplaceSpecialCharApostrophe derive({Job Title} = replace({Job Title},\"ó\",\"o\")) ~> ReplaceSpecialCharacterAccent",
+				"ReplaceSpecialCharacterAccent derive({Job Title} = replace({Job Title},\"�\",\"-\")) ~> derivedColumn1",
 				"RemoveDupRowsandAddRowCount sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
