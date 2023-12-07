@@ -3,9 +3,16 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Append_Mapping_Job_Review",
+				"name": "Append_Mapping_Job",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Delete_Rec_Mapping_Job",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -41,6 +48,29 @@
 						"computeType": "General"
 					},
 					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Delete_Rec_Mapping_Job",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Delete_Rec_Mapping_Job",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						}
+					}
 				}
 			}
 		],
