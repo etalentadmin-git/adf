@@ -13,6 +13,257 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_BusHierarchy')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "This workflow outputs 2 files for hierarchy review.  The 1st file shows record counts by Business Org Level 1 and the second file shows counts by level 1 and level 2.  Output has placeholder columns for mapping.",
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "AllCoreData"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_BusHierarchy",
+								"type": "DatasetReference"
+							},
+							"name": "BusinessMapping"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "BSOutputAllHierarchy"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "BSOutputLOBlvl1Hierarchy"
+						}
+					],
+					"transformations": [
+						{
+							"name": "pivot1"
+						},
+						{
+							"name": "pivot2"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "sort3"
+						},
+						{
+							"name": "sort4"
+						},
+						{
+							"name": "join1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "sort5"
+						},
+						{
+							"name": "sort6"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          EventMonth as integer,",
+						"          {Event Quarter} as integer,",
+						"          {Event Year} as short,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Status} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Family/Function} as string,",
+						"          {Years in Job} as double,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Family/Function} as string,",
+						"          {Original Hire Date} as date 'yyyy-MM-dd',",
+						"          {Current Hire Date} as date 'yyyy-MM-dd',",
+						"          {Years of Service} as double,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as integer,",
+						"          {Last Promo Date} as date 'yyyy-MM-dd',",
+						"          {Rehire Indicator} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as short,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as integer,",
+						"          EmpCount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AllCoreData",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Business Group Level 1} as string,",
+						"          {Client Business Group Level 2} as string,",
+						"          {Client Business Group Level 3} as string,",
+						"          {Client Business Group Level 4} as string,",
+						"          {Elloree Business Group Level 1} as string,",
+						"          {Elloree Business Group Level 2} as string,",
+						"          {Elloree Business Group Level 3} as string,",
+						"          {Elloree Business Group Level 4} as string,",
+						"          {Suggested Elloree Business Group Level 1} as string,",
+						"          {Suggested Elloree Business Group Level 2} as string,",
+						"          {Suggested Elloree Business Group Level 3} as string,",
+						"          {Suggested Elloree Business Group Level 4} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount} as string,",
+						"          {2018 Headcount} as string,",
+						"          {2018 Hire} as string,",
+						"          {2018 Promo} as string,",
+						"          {2018 Term} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2019 Hire} as string,",
+						"          {2019 Promo} as string,",
+						"          {2019 Term} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promo} as string,",
+						"          {2020 Term} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promo} as string,",
+						"          {2021 Term} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BusinessMapping",
+						"sort4 pivot(groupBy({Business Group Level 1},",
+						"          {Elloree Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Elloree Business Group Level 2}),",
+						"     pivotBy({Event Quarter and Year}),",
+						"     {} = count({Worker ID}),",
+						"     columnNaming: '$N$V',",
+						"     lateral: true,",
+						"     partitionBy('hash', 1)) ~> pivot1",
+						"sort3 pivot(groupBy({Business Group Level 1},",
+						"          {Elloree Business Group Level 1}),",
+						"     pivotBy({Event Quarter and Year}),",
+						"     {} = count({Worker ID}),",
+						"     columnNaming: '$N$V',",
+						"     lateral: true,",
+						"     partitionBy('hash', 1)) ~> pivot2",
+						"select1 derive({Event Quarter and Year} = concat(concat(toString(Event),concat(' Q',toString({Event Quarter}))),concat(' ',toString({Event Year}))),",
+						"     partitionBy('hash', 1)) ~> derivedColumn1",
+						"derivedColumn1 sort(asc({Event Quarter and Year}, true),",
+						"     partitionBy('hash', 1)) ~> sort3",
+						"derivedColumn1 sort(asc({Event Quarter and Year}, true)) ~> sort4",
+						"AllCoreData, BusinessMapping join({Business Group Level 1} == {Client Business Group Level 1}",
+						"     && {Business Group Level 2} == {Client Business Group Level 2},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 select(mapColumn(",
+						"          {Event Year},",
+						"          {Event Quarter},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Event Type},",
+						"          {Worker ID},",
+						"          {Worker Type},",
+						"          {Job Title},",
+						"          {Job Family/Function},",
+						"          {Corporate Title},",
+						"          {Manager Indicator},",
+						"          {Direct Manager Worker ID},",
+						"          {Legacy Organization},",
+						"          {Work Office Location},",
+						"          {Work City},",
+						"          {Work State},",
+						"          {Original Hire Date},",
+						"          {Current Hire Date},",
+						"          {Rehire Indicator},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          Race,",
+						"          {Hispanic or Latino Origin},",
+						"          Gender,",
+						"          {Birth Year},",
+						"          {Previous Job Title},",
+						"          {Previous Job Family/Function},",
+						"          {Previous Corporate Title},",
+						"          {Years of Service},",
+						"          {Years in Job},",
+						"          {Worker Status},",
+						"          {Event Reason},",
+						"          EmpCount,",
+						"          {Elloree Business Group Level 1},",
+						"          {Elloree Business Group Level 2}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"pivot1 sort(asc({Elloree Business Group Level 1}, true),",
+						"     asc({Elloree Business Group Level 2}, true)) ~> sort5",
+						"pivot2 sort(asc({Elloree Business Group Level 1}, true)) ~> sort6",
+						"sort5 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Dimension Review - Hierarchy All Levels.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> BSOutputAllHierarchy",
+						"sort6 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Dimension Review - Hierarchy Lvl 1.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> BSOutputLOBlvl1Hierarchy"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_BusHierarchyCheck')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -5015,783 +5266,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> OutputPeerformanceReview"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_Review_Template_Column_Core')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Audit Reports"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Template_Headcount",
-								"type": "DatasetReference"
-							},
-							"name": "Headcount"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_Terminations",
-								"type": "DatasetReference"
-							},
-							"name": "Terminations"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_Promotions",
-								"type": "DatasetReference"
-							},
-							"name": "Promotions"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_Hires",
-								"type": "DatasetReference"
-							},
-							"name": "Hires"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_TalentAssessment",
-								"type": "DatasetReference"
-							},
-							"name": "TalentAssessment"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_ColumnMapping_Headcount",
-								"type": "DatasetReference"
-							},
-							"name": "HeadcountColumnMapping"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_ColumnMapping_Hires",
-								"type": "DatasetReference"
-							},
-							"name": "HiresColumnMapping"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_ColumnMapping_Terminations",
-								"type": "DatasetReference"
-							},
-							"name": "TerminationsColumnMapping"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_ColumnMapping_Promotions",
-								"type": "DatasetReference"
-							},
-							"name": "PromotionsColumnMapping"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_TalentAssessmentColumnMapping",
-								"type": "DatasetReference"
-							},
-							"name": "TalentAssessmentColumnMapping"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_AuditFolder",
-								"type": "DatasetReference"
-							},
-							"name": "OutputColumnSummaryReview"
-						}
-					],
-					"transformations": [
-						{
-							"name": "UnpivotToTransposeHCTColumnNames"
-						},
-						{
-							"name": "SelectOnlyHCTColumnNameField"
-						},
-						{
-							"name": "SelectUniqueHCTColumnRows"
-						},
-						{
-							"name": "UnpivotToTransposeTermColumnNames"
-						},
-						{
-							"name": "SelectUniqueTermColumnRows"
-						},
-						{
-							"name": "SelectOnlyTermColumnNameField"
-						},
-						{
-							"name": "UnpivotToTransposePromoColumnNames"
-						},
-						{
-							"name": "SelectUniquePromoColumnRows"
-						},
-						{
-							"name": "SelectOnlyPromoColumnNameField"
-						},
-						{
-							"name": "UnpivotToTransposeHireColumnNames"
-						},
-						{
-							"name": "SelectUniqueHireColumnRows"
-						},
-						{
-							"name": "SelectOnlyHireColumnNameField"
-						},
-						{
-							"name": "UnpivotToTransposeTalentAssessmentColumnNames"
-						},
-						{
-							"name": "SelectUniqueTalentAssessmentColumnRows"
-						},
-						{
-							"name": "SelectOnlyTalentAssessmentColumnNameField"
-						},
-						{
-							"name": "HeadcountColumnJoinToMapping"
-						},
-						{
-							"name": "HiresColumnJoinToMapping"
-						},
-						{
-							"name": "TerminationsColumnJoinToMapping"
-						},
-						{
-							"name": "PromotionsColumnJoinToMapping"
-						},
-						{
-							"name": "TalentAssessmentColumnJoinToMapping"
-						},
-						{
-							"name": "AddHCTColumnDescription"
-						},
-						{
-							"name": "AddTermColumnDescription"
-						},
-						{
-							"name": "AddPromoColumnDescription"
-						},
-						{
-							"name": "AddHireColumnDescription"
-						},
-						{
-							"name": "AddTalentAssessmentColumnDescription"
-						},
-						{
-							"name": "AddHCTDerivedColumnForAggGrouping"
-						},
-						{
-							"name": "AddTermDerivedColumnForAggGrouping"
-						},
-						{
-							"name": "AddPromoDerivedColumnForAggGrouping"
-						},
-						{
-							"name": "AddHireDerivedColumnForAggGrouping"
-						},
-						{
-							"name": "AddTalentAssessmentDerivedColumnForAggGrouping"
-						},
-						{
-							"name": "SelectHeadcountSummary"
-						},
-						{
-							"name": "SelectTerminationSummary"
-						},
-						{
-							"name": "SelectPromotionSummary"
-						},
-						{
-							"name": "SelectHireSummary"
-						},
-						{
-							"name": "SelectTalentAssessmentSummary"
-						},
-						{
-							"name": "UnionAllEventColumnSummaries"
-						},
-						{
-							"name": "SortEvents"
-						},
-						{
-							"name": "HeadcountRemoveClientRefColumn"
-						},
-						{
-							"name": "TerminationsRemoveClientRefColumn"
-						},
-						{
-							"name": "PromotionsRemoveClientRefColumn"
-						},
-						{
-							"name": "HiresRemoveClientRefColumn"
-						},
-						{
-							"name": "TalentRemoveClientRefColumn"
-						},
-						{
-							"name": "sort1"
-						},
-						{
-							"name": "sort2"
-						},
-						{
-							"name": "sort3"
-						},
-						{
-							"name": "sort4"
-						},
-						{
-							"name": "sort6"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Event Year} as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Date} as string,",
-						"          {Worker ID} as string,",
-						"          {Worker Status} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Family/Function} as string,",
-						"          {Years in Job} as string,",
-						"          {Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Legacy Organization} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Original Hire Date} as string,",
-						"          {Current Hire Date} as string,",
-						"          {Years of Service} as string,",
-						"          {Last Promo Date} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as string,",
-						"          {Generation Desc} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Headcount",
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Event Year} as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Date} as string,",
-						"          {Event Type} as string,",
-						"          {Event Reason} as string,",
-						"          {Worker ID} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Family/Function} as string,",
-						"          {Years in Job} as string,",
-						"          {Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Original Hire Date} as string,",
-						"          {Current Hire Date} as string,",
-						"          {Years of Service} as string,",
-						"          {Last Promo Date} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as string,",
-						"          {Generation Desc} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Terminations",
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Event Year} as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Date} as string,",
-						"          {Event Type} as string,",
-						"          {Worker ID} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Family/Function} as string,",
-						"          {Corporate Title} as string,",
-						"          {Previous Job Title} as string,",
-						"          {Previous Job Family/Function} as string,",
-						"          {Previous Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Original Hire Date} as string,",
-						"          {Current Hire Date} as string,",
-						"          {Years of Service} as string,",
-						"          {Years in Job} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as string,",
-						"          {Generation Desc} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Promotions",
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Event Year} as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Date} as string,",
-						"          {Event Type} as string,",
-						"          {Worker ID} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Family/Function} as string,",
-						"          {Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Legacy Organization} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Original Hire Date} as string,",
-						"          {Current Hire Date} as string,",
-						"          {Rehire Indicator} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as string,",
-						"          {Generation Desc} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Hires",
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Event Year} as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Date} as string,",
-						"          {Event Type} as string,",
-						"          {Worker ID} as string,",
-						"          {Performance Rating} as string,",
-						"          {Performance Rating Date} as string,",
-						"          {Top Performer} as string,",
-						"          {Talent Identifier (1)} as string,",
-						"          {Talent Identifier (2)} as string,",
-						"          {Talent Identifier (3)} as string,",
-						"          {Talent Identifier (4)} as string,",
-						"          {Talent Identifier (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> TalentAssessment",
-						"source(output(",
-						"          {Sort Id} as integer,",
-						"          {Column Name} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> HeadcountColumnMapping",
-						"source(output(",
-						"          {Sort Id} as integer,",
-						"          {Column Name} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> HiresColumnMapping",
-						"source(output(",
-						"          {Sort Id} as integer,",
-						"          {Column Name} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> TerminationsColumnMapping",
-						"source(output(",
-						"          {Sort Id} as integer,",
-						"          {Column Name} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> PromotionsColumnMapping",
-						"source(output(",
-						"          {Sort Id} as integer,",
-						"          {Column Name} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> TalentAssessmentColumnMapping",
-						"AddHCTDerivedColumnForAggGrouping unpivot(output(",
-						"          Column as string,",
-						"          Value as string",
-						"     ),",
-						"     ungroupBy({Event Sheet}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> UnpivotToTransposeHCTColumnNames",
-						"SelectUniqueHCTColumnRows select(mapColumn(",
-						"          {Client Column} = {Column Name}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectOnlyHCTColumnNameField",
-						"UnpivotToTransposeHCTColumnNames aggregate(groupBy({Column Name} = Column),",
-						"     {Total Count} = count(Column)) ~> SelectUniqueHCTColumnRows",
-						"AddTermDerivedColumnForAggGrouping unpivot(output(",
-						"          Column as string,",
-						"          Value as string",
-						"     ),",
-						"     ungroupBy({Event Sheet}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> UnpivotToTransposeTermColumnNames",
-						"UnpivotToTransposeTermColumnNames aggregate(groupBy({Column Name} = Column),",
-						"     {Total Count} = count(Column)) ~> SelectUniqueTermColumnRows",
-						"SelectUniqueTermColumnRows select(mapColumn(",
-						"          {Client Column} = {Column Name}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectOnlyTermColumnNameField",
-						"AddPromoDerivedColumnForAggGrouping unpivot(output(",
-						"          Column as string,",
-						"          Value as string",
-						"     ),",
-						"     ungroupBy({Event Sheet}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> UnpivotToTransposePromoColumnNames",
-						"UnpivotToTransposePromoColumnNames aggregate(groupBy({Column Name} = Column),",
-						"     each(match(name!='Event'), $$ = first($$))) ~> SelectUniquePromoColumnRows",
-						"SelectUniquePromoColumnRows select(mapColumn(",
-						"          {Client Column} = {Column Name}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectOnlyPromoColumnNameField",
-						"AddHireDerivedColumnForAggGrouping unpivot(output(",
-						"          Column as string,",
-						"          Value as string",
-						"     ),",
-						"     ungroupBy({Event Sheet}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> UnpivotToTransposeHireColumnNames",
-						"UnpivotToTransposeHireColumnNames aggregate(groupBy({Column Name} = Column),",
-						"     each(match(name!='Event'), $$ = first($$))) ~> SelectUniqueHireColumnRows",
-						"SelectUniqueHireColumnRows select(mapColumn(",
-						"          {Client Column} = {Column Name}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectOnlyHireColumnNameField",
-						"AddTalentAssessmentDerivedColumnForAggGrouping unpivot(output(",
-						"          Column as string,",
-						"          Value as string",
-						"     ),",
-						"     ungroupBy({Event Sheet}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> UnpivotToTransposeTalentAssessmentColumnNames",
-						"UnpivotToTransposeTalentAssessmentColumnNames aggregate(groupBy({Column Name} = Column),",
-						"     each(match(name!='Event'), $$ = first($$))) ~> SelectUniqueTalentAssessmentColumnRows",
-						"SelectUniqueTalentAssessmentColumnRows select(mapColumn(",
-						"          {Client Column} = {Column Name}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectOnlyTalentAssessmentColumnNameField",
-						"SelectOnlyHCTColumnNameField, HeadcountColumnMapping join({Client Column} == {Column Name},",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> HeadcountColumnJoinToMapping",
-						"SelectOnlyHireColumnNameField, HiresColumnMapping join({Client Column} == {Column Name},",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> HiresColumnJoinToMapping",
-						"SelectOnlyTermColumnNameField, TerminationsColumnMapping join({Client Column} == {Column Name},",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> TerminationsColumnJoinToMapping",
-						"SelectOnlyPromoColumnNameField, PromotionsColumnMapping join({Client Column} == {Column Name},",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> PromotionsColumnJoinToMapping",
-						"SelectOnlyTalentAssessmentColumnNameField, TalentAssessmentColumnMapping join({Client Column} == {Column Name},",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> TalentAssessmentColumnJoinToMapping",
-						"HeadcountColumnJoinToMapping derive({Event Template} = 'Headcount') ~> AddHCTColumnDescription",
-						"TerminationsColumnJoinToMapping derive({Event Template} = 'Terminations') ~> AddTermColumnDescription",
-						"PromotionsColumnJoinToMapping derive({Event Template} = 'Promotions') ~> AddPromoColumnDescription",
-						"HiresColumnJoinToMapping derive({Event Template} = 'Hires') ~> AddHireColumnDescription",
-						"TalentAssessmentColumnJoinToMapping derive({Event Template} = 'Talent Assessment') ~> AddTalentAssessmentColumnDescription",
-						"HeadcountRemoveClientRefColumn derive({Event Sheet} = 'Headcount') ~> AddHCTDerivedColumnForAggGrouping",
-						"TerminationsRemoveClientRefColumn derive({Event Sheet} = 'Terminations') ~> AddTermDerivedColumnForAggGrouping",
-						"PromotionsRemoveClientRefColumn derive({Event Sheet} = 'Promotions') ~> AddPromoDerivedColumnForAggGrouping",
-						"HiresRemoveClientRefColumn derive({Event Sheet} = 'Hires') ~> AddHireDerivedColumnForAggGrouping",
-						"TalentRemoveClientRefColumn derive({Event Sheet} = 'Talent Assessment') ~> AddTalentAssessmentDerivedColumnForAggGrouping",
-						"sort6 select(mapColumn(",
-						"          {Event Template},",
-						"          {Column Name},",
-						"          {Client Column},",
-						"          {Sort Id}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectHeadcountSummary",
-						"sort1 select(mapColumn(",
-						"          {Event Template},",
-						"          {Column Name},",
-						"          {Client Column},",
-						"          {Sort Id}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectTerminationSummary",
-						"sort2 select(mapColumn(",
-						"          {Event Template},",
-						"          {Column Name},",
-						"          {Client Column},",
-						"          {Sort Id}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectPromotionSummary",
-						"sort3 select(mapColumn(",
-						"          {Event Template},",
-						"          {Column Name},",
-						"          {Client Column},",
-						"          {Sort Id}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectHireSummary",
-						"sort4 select(mapColumn(",
-						"          {Event Template},",
-						"          {Column Name},",
-						"          {Client Column},",
-						"          {Sort Id}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectTalentAssessmentSummary",
-						"SelectHeadcountSummary, SelectTerminationSummary, SelectPromotionSummary, SelectHireSummary, SelectTalentAssessmentSummary union(byName: true)~> UnionAllEventColumnSummaries",
-						"UnionAllEventColumnSummaries sort(asc({Event Template}, true)) ~> SortEvents",
-						"Headcount select(mapColumn(",
-						"          {Event Year},",
-						"          {Event Quarter},",
-						"          {Event Date},",
-						"          {Worker ID},",
-						"          {Worker Status},",
-						"          {Worker Type},",
-						"          {Job Title},",
-						"          {Job Family/Function},",
-						"          {Years in Job},",
-						"          {Corporate Title},",
-						"          {Manager Indicator},",
-						"          {Direct Manager Worker ID},",
-						"          {Legacy Organization},",
-						"          {Work Office Location},",
-						"          {Work City},",
-						"          {Work State},",
-						"          {Work Country},",
-						"          {Strategic Work Location Ind},",
-						"          {Original Hire Date},",
-						"          {Current Hire Date},",
-						"          {Years of Service},",
-						"          {Business Group Level 1},",
-						"          {Business Group Level 2},",
-						"          {Business Group Level 3},",
-						"          {Business Group Level 4},",
-						"          Race,",
-						"          {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          {Veteran Ind},",
-						"          LGTBQ,",
-						"          {Disability Ind},",
-						"          {Birth Year},",
-						"          {Generation Desc}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> HeadcountRemoveClientRefColumn",
-						"Terminations select(mapColumn(",
-						"          {Event Year},",
-						"          {Event Quarter},",
-						"          {Event Date},",
-						"          {Event Type},",
-						"          {Event Reason},",
-						"          {Worker ID},",
-						"          {Worker Type},",
-						"          {Job Title},",
-						"          {Job Family/Function},",
-						"          {Years in Job},",
-						"          {Corporate Title},",
-						"          {Manager Indicator},",
-						"          {Direct Manager Worker ID},",
-						"          {Work Office Location},",
-						"          {Work City},",
-						"          {Work State},",
-						"          {Work Country},",
-						"          {Strategic Work Location Ind},",
-						"          {Original Hire Date},",
-						"          {Current Hire Date},",
-						"          {Years of Service},",
-						"          {Business Group Level 1},",
-						"          {Business Group Level 2},",
-						"          {Business Group Level 3},",
-						"          {Business Group Level 4},",
-						"          Race,",
-						"          {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          {Veteran Ind},",
-						"          LGTBQ,",
-						"          {Disability Ind},",
-						"          {Birth Year},",
-						"          {Generation Desc}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> TerminationsRemoveClientRefColumn",
-						"Promotions select(mapColumn(",
-						"          {Event Year},",
-						"          {Event Quarter},",
-						"          {Event Date},",
-						"          {Event Type},",
-						"          {Worker ID},",
-						"          {Worker Type},",
-						"          {Job Title},",
-						"          {Job Family/Function},",
-						"          {Corporate Title},",
-						"          {Previous Job Title},",
-						"          {Previous Job Family/Function},",
-						"          {Previous Corporate Title},",
-						"          {Manager Indicator},",
-						"          {Direct Manager Worker ID},",
-						"          {Work Office Location},",
-						"          {Work City},",
-						"          {Work State},",
-						"          {Work Country},",
-						"          {Strategic Work Location Ind},",
-						"          {Original Hire Date},",
-						"          {Current Hire Date},",
-						"          {Years of Service},",
-						"          {Years in Job},",
-						"          {Business Group Level 1},",
-						"          {Business Group Level 2},",
-						"          {Business Group Level 3},",
-						"          {Business Group Level 4},",
-						"          Race,",
-						"          {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          {Veteran Ind},",
-						"          LGTBQ,",
-						"          {Disability Ind},",
-						"          {Birth Year},",
-						"          {Generation Desc}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> PromotionsRemoveClientRefColumn",
-						"Hires select(mapColumn(",
-						"          {Event Year},",
-						"          {Event Quarter},",
-						"          {Event Date},",
-						"          {Event Type},",
-						"          {Worker ID},",
-						"          {Worker Type},",
-						"          {Job Title},",
-						"          {Job Family/Function},",
-						"          {Corporate Title},",
-						"          {Manager Indicator},",
-						"          {Direct Manager Worker ID},",
-						"          {Legacy Organization},",
-						"          {Work Office Location},",
-						"          {Work City},",
-						"          {Work State},",
-						"          {Work Country},",
-						"          {Strategic Work Location Ind},",
-						"          {Original Hire Date},",
-						"          {Current Hire Date},",
-						"          {Rehire Indicator},",
-						"          {Business Group Level 1},",
-						"          {Business Group Level 2},",
-						"          {Business Group Level 3},",
-						"          {Business Group Level 4},",
-						"          Race,",
-						"          {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          {Veteran Ind},",
-						"          LGTBQ,",
-						"          {Disability Ind},",
-						"          {Birth Year},",
-						"          {Generation Desc}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> HiresRemoveClientRefColumn",
-						"TalentAssessment select(mapColumn(",
-						"          {Event Year},",
-						"          {Event Quarter},",
-						"          {Event Date},",
-						"          {Event Type},",
-						"          {Worker ID},",
-						"          {Performance Rating},",
-						"          {Performance Rating Date},",
-						"          {Top Performer},",
-						"          {Talent Identifier (1)},",
-						"          {Talent Identifier (2)},",
-						"          {Talent Identifier (3)},",
-						"          {Talent Identifier (4)},",
-						"          {Talent Identifier (5)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> TalentRemoveClientRefColumn",
-						"AddTermColumnDescription sort(asc({Sort Id}, true)) ~> sort1",
-						"AddPromoColumnDescription sort(asc({Sort Id}, true)) ~> sort2",
-						"AddHireColumnDescription sort(asc({Sort Id}, true)) ~> sort3",
-						"AddTalentAssessmentColumnDescription sort(asc({Sort Id}, true)) ~> sort4",
-						"AddHCTColumnDescription sort(asc({Sort Id}, true)) ~> sort6",
-						"SortEvents sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Template - Column Review Core.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> OutputColumnSummaryReview"
 					]
 				}
 			},
