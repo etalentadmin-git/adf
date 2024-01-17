@@ -1732,6 +1732,9 @@
 						},
 						{
 							"name": "select1"
+						},
+						{
+							"name": "PullOnlyQuarterData"
 						}
 					],
 					"scriptLines": [
@@ -1770,9 +1773,9 @@
 						"          EthnicOrigin = 'Hispanic or Latino',",
 						"          Gender = 'Female',",
 						"          SeriesDesc = '(unadj) Civilian Labor Force - Other Hispanic or Latino, women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
+						"          Quarter = iif(period=='M03',1,iif(period=='M06',2,iif(period=='M09',3,iif(period=='M12',4,0)))),",
 						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
+						"PullOnlyQuarterData select(mapColumn(",
 						"          Source,",
 						"          SourceId = seriesID,",
 						"          Desc = SeriesDesc,",
@@ -1786,6 +1789,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select1",
+						"derivedColumn1 filter(Quarter==1 || Quarter==2 || Quarter==3 || Quarter==4) ~> PullOnlyQuarterData",
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['BLS_Other_Female_Hisp.csv'],",
@@ -1837,6 +1841,9 @@
 						},
 						{
 							"name": "select1"
+						},
+						{
+							"name": "PullOnlyQuarterData"
 						}
 					],
 					"scriptLines": [
@@ -1875,9 +1882,9 @@
 						"          EthnicOrigin = 'Hispanic or Latino',",
 						"          Gender = 'Male',",
 						"          SeriesDesc = '(unadj) Civilian Labor Force - Other Hispanic or Latino, men',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
+						"          Quarter = iif(period=='M03',1,iif(period=='M06',2,iif(period=='M09',3,iif(period=='M12',4,0)))),",
 						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
+						"PullOnlyQuarterData select(mapColumn(",
 						"          Source,",
 						"          SourceId = seriesID,",
 						"          Desc = SeriesDesc,",
@@ -1891,6 +1898,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select1",
+						"derivedColumn1 filter(Quarter==1 || Quarter==2 || Quarter==3 || Quarter==4) ~> PullOnlyQuarterData",
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['BLS_Other_Male_Hisp.csv'],",
@@ -1944,7 +1952,7 @@
 							"name": "select1"
 						},
 						{
-							"name": "filter1"
+							"name": "PullOnlyQuarterData"
 						}
 					],
 					"scriptLines": [
@@ -1985,7 +1993,7 @@
 						"          SeriesDesc = '(unadj) Civilian Labor Force - Other Hispanic or Latino',",
 						"          Quarter = iif(period=='M03',1,iif(period=='M06',2,iif(period=='M09',3,iif(period=='M12',4,0)))),",
 						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"filter1 select(mapColumn(",
+						"PullOnlyQuarterData select(mapColumn(",
 						"          Source,",
 						"          SourceId = seriesID,",
 						"          Desc = SeriesDesc,",
@@ -1999,7 +2007,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select1",
-						"derivedColumn1 filter(Quarter==1 || Quarter==2 || Quarter==3 || Quarter==4) ~> filter1",
+						"derivedColumn1 filter(Quarter==1 || Quarter==2 || Quarter==3 || Quarter==4) ~> PullOnlyQuarterData",
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['BLS_Other_Total_Hisp.csv'],",
