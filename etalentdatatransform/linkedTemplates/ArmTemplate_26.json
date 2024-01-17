@@ -13,6 +13,72 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_ApplFlow')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_Mapping_ApplFlow",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_Rec_Mapping_ApplFlow",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"ApplicantFlowMap": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Mapping"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:28Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_BusHierarchy')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1268,22 +1334,15 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Load_USCensusSummaryTbl')]",
+			"name": "[concat(parameters('factoryName'), '/Load_BLSTbl_TEST')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Append_Tbl_USCensusSummary",
+						"name": "FullLoad_BLSTbl_TEST",
 						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DeleteAllHistory",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
+						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -1294,150 +1353,56 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "Append_Tbl_USCensusSummary",
+								"referenceName": "FullLoad_BLSTbl_TEST",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"USCensusSource": {},
-									"LoadUSCensusSummaryTable": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DeleteAllHistory",
-						"type": "IfCondition",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Delete_All_CensusSummaryTbl",
-									"type": "ExecuteDataFlow",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataflow": {
-											"referenceName": "Delete_All_CensusSummaryTbl",
-											"type": "DataFlowReference",
-											"parameters": {},
-											"datasetParameters": {
-												"USCensusSummary": {},
-												"DeleteRecords": {}
-											}
-										},
-										"staging": {},
-										"compute": {
-											"coreCount": 8,
-											"computeType": "General"
-										},
-										"traceLevel": "Fine"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Delete_History_No_All": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "External Data/US Census"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_Adhc_Evergreen_OtherCore')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Merge all core events into one file.",
-				"activities": [
-					{
-						"name": "DF_Adhoc_OtherFact_Evergreen",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_Adhoc_OtherFact_Evergreen",
-								"type": "DataFlowReference",
-								"parameters": {
-									"SB_BL_Year": {
-										"value": "'@{pipeline().parameters.P_Folder_Year}'",
-										"type": "Expression"
-									},
-									"SB_BL_Quarter": {
-										"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"PerfRatingHistory": {},
-									"CoreYear": {},
-									"LevelMapForEmp": {},
-									"Talent": {},
-									"OtherCore": {},
-									"CoreForSupplement": {},
-									"EthnicityMap": {},
-									"GenderMap": {},
-									"OutPutFactTable": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
+									"AmerIndAlaskNatFemale": {},
+									"AmerIndAlaskNatMale": {},
+									"AmerIndAlaskNatTotal": {},
+									"AsianFemale": {},
+									"AsianMale": {},
+									"AsianTotal": {},
+									"BlackFemale": {},
+									"BlackMale": {},
+									"BlackTotal": {},
+									"Female": {},
+									"LatinxFemale": {},
+									"LatinxMale": {},
+									"LatinxTotal": {},
+									"Male": {},
+									"NatHawPacIslFemale": {},
+									"NatHawPacIslMale": {},
+									"NatHawPacIslTotal": {},
+									"Total": {},
+									"TwoOrMoreFemale": {},
+									"TwoOrMoreMale": {},
+									"TwoOrMoreTotal": {},
+									"WhiteFemale": {},
+									"WhiteMale": {},
+									"WhiteTotal": {},
+									"AsianFemaleHisp": {},
+									"AsianFemaleNonHisp": {},
+									"AsianMaleHisp": {},
+									"AsianMaleNonHisp": {},
+									"AsianTotalHisp": {},
+									"AsianTotalNonHisp": {},
+									"BlackFemaleHisp": {},
+									"BlackFemaleNonHisp": {},
+									"BlackMaleHisp": {},
+									"BlackMaleNonHisp": {},
+									"BlackTotalHisp": {},
+									"BlackTotalNonHisp": {},
+									"OtherFemaleHisp": {},
+									"OtherMaleHisp": {},
+									"OtherTotalHisp": {},
+									"WhiteFemaleHisp": {},
+									"WhiteFemaleNonHisp": {},
+									"WhiteMaleHisp": {},
+									"WhiteMaleNonHisp": {},
+									"WhiteTotalHisp": {},
+									"WhiteTotalNonHisp": {},
+									"FullLoadBLSTable": {}
 								}
 							},
 							"staging": {},
@@ -1452,25 +1417,11 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
 				"folder": {
-					"name": "Client/Client Adhoc"
+					"name": "External Data/BLS"
 				},
 				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:37Z"
+				"lastPublishTime": "2022-12-14T00:01:06Z"
 			},
 			"dependsOn": []
 		}
