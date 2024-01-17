@@ -356,6 +356,30 @@
 				},
 				{
 					"name": "CalculateLatestTimeValue"
+				},
+				{
+					"name": "GetMaxIDMaleHisp"
+				},
+				{
+					"name": "JoinInMaxTimeIDMaleHisp"
+				},
+				{
+					"name": "CalculateLatestTimeValueOtherMaleHisp"
+				},
+				{
+					"name": "OtherMaleHispFinal"
+				},
+				{
+					"name": "GetMaxIDFemaleHisp"
+				},
+				{
+					"name": "JoinInMaxTimeIDFemaleHisp"
+				},
+				{
+					"name": "CalculateLatestTimeValueOtherFemaleHisp"
+				},
+				{
+					"name": "OtherFemaleHispFinal"
 				}
 			],
 			"scriptLines": [
@@ -1050,7 +1074,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"AmerIndAlaskNatFemale, AmerIndAlaskNatMale, AmerIndAlaskNatTotal, AsianFemale, AsianMale, AsianTotal, BlackFemale, BlackMale, BlackTotal, Female, LatinxFemale, LatinxMale, LatinxTotal, Male, NatHawPacIslFemale, NatHawPacIslMale, NatHawPacIslTotal, Total, TwoOrMoreFemale, TwoOrMoreMale, TwoOrMoreTotal, WhiteFemale, WhiteMale, WhiteTotal, AsianFemaleHisp, AsianFemaleNonHisp, AsianMaleHisp, AsianMaleNonHisp, AsianTotalHisp, AsianTotalNonHisp, BlackFemaleHisp, BlackFemaleNonHisp, BlackMaleHisp, BlackMaleNonHisp, BlackTotalHisp, BlackTotalNonHisp, OtherFemaleHisp, OtherMaleHisp, OtherTotalHispFinal, WhiteFemaleHisp, WhiteFemaleNonHisp, WhiteMaleHisp, WhiteMaleNonHisp, WhiteTotalHisp, WhiteTotalNonHisp union(byName: true)~> union1",
+				"AmerIndAlaskNatFemale, AmerIndAlaskNatMale, AmerIndAlaskNatTotal, AsianFemale, AsianMale, AsianTotal, BlackFemale, BlackMale, BlackTotal, Female, LatinxFemale, LatinxMale, LatinxTotal, Male, NatHawPacIslFemale, NatHawPacIslMale, NatHawPacIslTotal, Total, TwoOrMoreFemale, TwoOrMoreMale, TwoOrMoreTotal, WhiteFemale, WhiteMale, WhiteTotal, AsianFemaleHisp, AsianFemaleNonHisp, AsianMaleHisp, AsianMaleNonHisp, AsianTotalHisp, AsianTotalNonHisp, BlackFemaleHisp, BlackFemaleNonHisp, BlackMaleHisp, BlackMaleNonHisp, BlackTotalHisp, BlackTotalNonHisp, OtherFemaleHispFinal, OtherMaleHispFinal, OtherTotalHispFinal, WhiteFemaleHisp, WhiteFemaleNonHisp, WhiteMaleHisp, WhiteMaleNonHisp, WhiteTotalHisp, WhiteTotalNonHisp union(byName: true)~> union1",
 				"derivedColumn1 aggregate(groupBy(Source,",
 				"          SourceId,",
 				"          Desc,",
@@ -1085,6 +1109,50 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinInMaxTimeID",
 				"JoinInMaxTimeID derive(Latest = iif(MaxTimePeriod==(Year+Quarter),'TRUE','')) ~> CalculateLatestTimeValue",
+				"OtherMaleHisp aggregate(groupBy(MAXSourceId = SourceId),",
+				"     MaxTimePeriod = max(Year+Quarter)) ~> GetMaxIDMaleHisp",
+				"OtherMaleHisp, GetMaxIDMaleHisp join(SourceId == MAXSourceId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinInMaxTimeIDMaleHisp",
+				"JoinInMaxTimeIDMaleHisp derive(Latest = iif(MaxTimePeriod==(Year+Quarter),'TRUE','')) ~> CalculateLatestTimeValueOtherMaleHisp",
+				"CalculateLatestTimeValueOtherMaleHisp select(mapColumn(",
+				"          Source,",
+				"          SourceId,",
+				"          Desc,",
+				"          Year,",
+				"          Quarter,",
+				"          Latest,",
+				"          EthnicOrigin,",
+				"          Race,",
+				"          Gender,",
+				"          Headcount",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> OtherMaleHispFinal",
+				"OtherFemaleHisp aggregate(groupBy(MAXSourceId = SourceId),",
+				"     MaxTimePeriod = max(Year+Quarter)) ~> GetMaxIDFemaleHisp",
+				"OtherFemaleHisp, GetMaxIDFemaleHisp join(SourceId == MAXSourceId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinInMaxTimeIDFemaleHisp",
+				"JoinInMaxTimeIDFemaleHisp derive(Latest = iif(MaxTimePeriod==(Year+Quarter),'TRUE','')) ~> CalculateLatestTimeValueOtherFemaleHisp",
+				"CalculateLatestTimeValueOtherFemaleHisp select(mapColumn(",
+				"          Source,",
+				"          SourceId,",
+				"          Desc,",
+				"          Year,",
+				"          Quarter,",
+				"          Latest,",
+				"          EthnicOrigin,",
+				"          Race,",
+				"          Gender,",
+				"          Headcount",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> OtherFemaleHispFinal",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
