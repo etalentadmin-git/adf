@@ -2164,6 +2164,9 @@
 						},
 						{
 							"name": "union1"
+						},
+						{
+							"name": "RemoveDuplicates"
 						}
 					],
 					"scriptLines": [
@@ -2843,7 +2846,7 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> WhiteTotalNonHisp",
 						"union1 derive(LastRefreshDt = currentTimestamp()) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
+						"RemoveDuplicates select(mapColumn(",
 						"          LastRefreshDt,",
 						"          Source,",
 						"          SourceId,",
@@ -2859,6 +2862,18 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select1",
 						"AmerIndAlaskNatFemale, AmerIndAlaskNatMale, AmerIndAlaskNatTotal, AsianFemale, AsianMale, AsianTotal, BlackFemale, BlackMale, BlackTotal, Female, LatinxFemale, LatinxMale, LatinxTotal, Male, NatHawPacIslFemale, NatHawPacIslMale, NatHawPacIslTotal, Total, TwoOrMoreFemale, TwoOrMoreMale, TwoOrMoreTotal, WhiteFemale, WhiteMale, WhiteTotal, AsianFemaleHisp, AsianFemaleNonHisp, AsianMaleHisp, AsianMaleNonHisp, AsianTotalHisp, AsianTotalNonHisp, BlackFemaleHisp, BlackFemaleNonHisp, BlackMaleHisp, BlackMaleNonHisp, BlackTotalHisp, BlackTotalNonHisp, OtherFemaleHisp, OtherMaleHisp, OtherTotalHisp, WhiteFemaleHisp, WhiteFemaleNonHisp, WhiteMaleHisp, WhiteMaleNonHisp, WhiteTotalHisp, WhiteTotalNonHisp union(byName: true)~> union1",
+						"derivedColumn1 aggregate(groupBy(Source,",
+						"          SourceId,",
+						"          Desc,",
+						"          Year,",
+						"          Quarter,",
+						"          Latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount,",
+						"          LastRefreshDt),",
+						"     RowCount = count(SourceId)) ~> RemoveDuplicates",
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
