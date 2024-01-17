@@ -13,163 +13,6 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Tbl_Client')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_AllCoreData_File",
-								"type": "DatasetReference"
-							},
-							"name": "SourceCore"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentClientTbl",
-								"type": "DatasetReference"
-							},
-							"name": "LoadClientInfo"
-						}
-					],
-					"transformations": [
-						{
-							"name": "RemoveNull"
-						},
-						{
-							"name": "GroupClientInfo"
-						},
-						{
-							"name": "AssignDerivedColumns"
-						},
-						{
-							"name": "SelectFinalOutput"
-						},
-						{
-							"name": "alterRow2"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_EngagementType as string,",
-						"     Flow_Client_Desc as string,",
-						"     Flow_Client_Sector as string",
-						"}",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Engagement Type} as string,",
-						"          {Worker ID} as string,",
-						"          {Event Date} as string,",
-						"          EventMonth as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Year} as string,",
-						"          {Event Code} as string,",
-						"          {Event Type} as string,",
-						"          Event as string,",
-						"          {Event Reason} as string,",
-						"          {Worker Status} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Family/Function} as string,",
-						"          {Years in Job} as string,",
-						"          {Previous Job Title} as string,",
-						"          {Previous Job Family/Function} as string,",
-						"          {Original Hire Date} as string,",
-						"          {Current Hire Date} as string,",
-						"          {Years of Service} as string,",
-						"          {Years of Service Band} as string,",
-						"          {Years of Service Sort ID} as string,",
-						"          {Last Promo Date} as string,",
-						"          {Rehire Indicator} as string,",
-						"          {Corporate Title} as string,",
-						"          {Previous Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Legacy Organization} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as string,",
-						"          {Generation Desc} as string,",
-						"          {Generation Sort ID} as string,",
-						"          EmpCount as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> SourceCore",
-						"SourceCore filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNull",
-						"RemoveNull aggregate(groupBy({Client Engagement Date}),",
-						"     ClientId = max({Client ID})) ~> GroupClientInfo",
-						"GroupClientInfo derive(ClientDesc = $Flow_Client_Desc,",
-						"          ClientEngagementType = $Flow_Client_EngagementType,",
-						"          ClientSector = $Flow_Client_Sector,",
-						"          LoadDt = currentDate()) ~> AssignDerivedColumns",
-						"alterRow2 select(mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          ClientEngagementType,",
-						"          ClientSector,",
-						"          ClientDesc,",
-						"          LoadDt",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectFinalOutput",
-						"AssignDerivedColumns alterRow(upsertIf(true())) ~> alterRow2",
-						"SelectFinalOutput sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
-						"          ClientSector as string,",
-						"          ClientDesc as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientEngagementType'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt,",
-						"          ClientEngagementType,",
-						"          ClientSector,",
-						"          ClientDesc,",
-						"          LoadDt",
-						"     ),",
-						"     partitionBy('hash', 1)) ~> LoadClientInfo"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Append_Tbl_Client_Hist')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -7916,6 +7759,111 @@
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['BLS_Asian_Total_NonHisp.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLS_Black_Female')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Json_BLS_Black_Female",
+								"type": "DatasetReference"
+							},
+							"name": "BLSJsonSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_BLS_Output",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flatten3"
+						},
+						{
+							"name": "flatten4"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          status as string,",
+						"          responseTime as integer,",
+						"          message as string[],",
+						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
+						"BLSJsonSource foldDown(unroll(Results.series),",
+						"     mapColumn(",
+						"          status,",
+						"          responseTime,",
+						"          message,",
+						"          seriesID = Results.series.seriesID,",
+						"          data = Results.series.data",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten3",
+						"flatten3 foldDown(unroll(data),",
+						"     mapColumn(",
+						"          seriesID,",
+						"          year = data.year,",
+						"          period = data.period,",
+						"          latest = data.latest,",
+						"          value = data.value",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten4",
+						"flatten4 derive(Race = 'Black',",
+						"          Source = 'BLS',",
+						"          EthnicOrigin = 'All',",
+						"          Gender = 'Female',",
+						"          SeriesDesc = '(unadj) Civilian Labor Force Level - Black or African American Women',",
+						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
+						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          Source,",
+						"          SourceId = seriesID,",
+						"          Desc = SeriesDesc,",
+						"          Year = year,",
+						"          Quarter,",
+						"          Latest = latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['BLS_Black_Female.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink1"
