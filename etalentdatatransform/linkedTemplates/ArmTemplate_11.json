@@ -13,6 +13,217 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Req')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_JobReq_File",
+								"type": "DatasetReference"
+							},
+							"name": "Requisitions"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentReqFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendReqFact"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "addLoadDt"
+						},
+						{
+							"name": "RestrictFieldColumnLength"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Type} as string,",
+						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          EventMonth as integer,",
+						"          {Event Quarter} as integer,",
+						"          {Event Year} as short,",
+						"          EventId as string,",
+						"          Event as string,",
+						"          {Requisition ID} as string,",
+						"          {Requisition Type} as string,",
+						"          {Posting Date} as date 'yyyy-MM-dd',",
+						"          {Requisition Status} as string,",
+						"          {Number of Openings} as integer,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Corporate Title} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          {Hiring Manager Worker ID} as string,",
+						"          {Primary Recruiter Worker ID} as string,",
+						"          {Requisition Other (1)} as string,",
+						"          {Requisition Other (2)} as string,",
+						"          {Requisition Other (3)} as string,",
+						"          {Requisition Other (4)} as string,",
+						"          {Requisition Other (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Requisitions",
+						"Requisitions alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull(Event)),",
+						"     deleteIf(isNull({Requisition ID}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date},",
+						"          EventDt = {Event Date},",
+						"          EventQuarter = {Event Quarter},",
+						"          EventMonth,",
+						"          EventYear = {Event Year},",
+						"          Event,",
+						"          EventId,",
+						"          ReqId = {Requisition ID},",
+						"          ReqType = {Requisition Type},",
+						"          PostingDt = {Posting Date},",
+						"          ReqStatus = {Requisition Status},",
+						"          NumberofOpenings = {Number of Openings},",
+						"          JobTitle = {Job Title},",
+						"          JobFunction = {Job Function},",
+						"          CorpTitle = {Corporate Title},",
+						"          WorkOfficeLoc = {Work Office Location},",
+						"          WorkOfficeCity = {Work Office City},",
+						"          WorkOfficeState = {Work Office State},",
+						"          WorkOfficeCountry = {Work Office Country},",
+						"          WorkStrategicLocInd = {Strategic Work Location Ind},",
+						"          BusinessGrpLvl1 = {Business Group Level 1},",
+						"          BusinessGrpLvl2 = {Business Group Level 2},",
+						"          BusinessGrpLvl3 = {Business Group Level 3},",
+						"          BusinessGrpLvl4 = {Business Group Level 4},",
+						"          HiringMgrWorkerId = {Hiring Manager Worker ID},",
+						"          PrimaryRecruiterWorkerId = {Primary Recruiter Worker ID},",
+						"          ReqOther1 = {Requisition Other (1)},",
+						"          ReqOther2 = {Requisition Other (2)},",
+						"          ReqOther3 = {Requisition Other (3)},",
+						"          ReqOther4 = {Requisition Other (4)},",
+						"          ReqOther5 = {Requisition Other (5)}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> addLoadDt",
+						"addLoadDt derive(JobTitle = left(JobTitle,100)) ~> RestrictFieldColumnLength",
+						"RestrictFieldColumnLength sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientEngagementType as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          ReqId as string,",
+						"          ReqType as string,",
+						"          PostingDt as date,",
+						"          ReqStatus as string,",
+						"          NumberofOpenings as integer,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          CorpTitle as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          HiringMgrWorkerId as string,",
+						"          PrimaryRecruiterWorkerId as string,",
+						"          ReqOther1 as string,",
+						"          ReqOther2 as string,",
+						"          ReqOther3 as string,",
+						"          ReqOther4 as string,",
+						"          ReqOther5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventDt','EventId','ReqId'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          EventDt,",
+						"          EventMonth,",
+						"          EventQuarter,",
+						"          EventYear,",
+						"          Event,",
+						"          EventId,",
+						"          ReqId,",
+						"          ReqType,",
+						"          PostingDt,",
+						"          ReqStatus,",
+						"          NumberofOpenings,",
+						"          JobTitle,",
+						"          JobFunction,",
+						"          CorpTitle,",
+						"          WorkOfficeLoc,",
+						"          WorkOfficeCity,",
+						"          WorkOfficeState,",
+						"          WorkOfficeCountry,",
+						"          WorkStrategicLocInd,",
+						"          BusinessGrpLvl1,",
+						"          BusinessGrpLvl2,",
+						"          BusinessGrpLvl3,",
+						"          BusinessGrpLvl4,",
+						"          HiringMgrWorkerId,",
+						"          PrimaryRecruiterWorkerId,",
+						"          ReqOther1,",
+						"          ReqOther2,",
+						"          ReqOther3,",
+						"          ReqOther4,",
+						"          ReqOther5,",
+						"          LoadDt",
+						"     )) ~> AppendReqFact"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Req_Hist')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -2271,128 +2482,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError') ~> AppendEthnicityMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Event')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_Event",
-								"type": "DatasetReference"
-							},
-							"name": "Event"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentEventMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendEventMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Event} as string,",
-						"          {Client Event Type} as string,",
-						"          {Client Event Reason} as string,",
-						"          {Elloree Event} as string,",
-						"          {Elloree Event Type} as string,",
-						"          {Elloree Event Reason} as string,",
-						"          {Elloree Termination Reason} as string,",
-						"          {Suggested Elloree Event} as string,",
-						"          {Suggested Elloree Event Type} as string,",
-						"          {Suggested Elloree Event Reason} as string,",
-						"          {Suggested Elloree Termination Reason} as string,",
-						"          {Suggested Source} as string,",
-						"          {2019 Headcount} as string,",
-						"          {2020 Headcount} as string,",
-						"          {2020 Hire} as string,",
-						"          {2020 Promo} as string,",
-						"          {2020 Term} as string,",
-						"          {2021 Headcount} as string,",
-						"          {2021 Hire} as string,",
-						"          {2021 Promo} as string,",
-						"          {2021 Term} as string,",
-						"          {2022 Headcount} as string,",
-						"          {2022 Hire} as string,",
-						"          {2022 Promo} as string,",
-						"          {2022 Term} as string,",
-						"          {2023 Promo} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Event",
-						"Event alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Elloree Event})),",
-						"     deleteIf(isNull({Elloree Event Type})),",
-						"     deleteIf(isNull({Elloree Event Reason})),",
-						"     deleteIf(isNull({Elloree Termination Reason}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          ClientEvent = {Client Event},",
-						"          ElloreeEvent = {Elloree Event},",
-						"          ClientEventType = {Client Event Type},",
-						"          ElloreeEventType = {Elloree Event Type},",
-						"          ClientEventReason = {Client Event Reason},",
-						"          ElloreeEventReason = {Elloree Event Reason},",
-						"          ElloreeTermReason = {Elloree Termination Reason}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEvent as string,",
-						"          ClientEventType as string,",
-						"          ClientEventReason as string,",
-						"          ElloreeEvent as string,",
-						"          ElloreeEventType as string,",
-						"          ElloreeEventReason as string,",
-						"          ElloreeTermReason as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientEvent','ClientEventType','ClientEventReason'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendEventMapping"
 					]
 				}
 			},

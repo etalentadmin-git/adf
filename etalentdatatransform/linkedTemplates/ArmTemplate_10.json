@@ -768,6 +768,71 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/BLS_Other_Total_Hisp_DELETE_TEST')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_BLS_Site",
+								"type": "DatasetReference",
+								"parameters": {
+									"SeriesId": "https://api.bls.gov/publicAPI/v2/timeseries/data/LNU01083441"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json_BLS_Other_Total_Hisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-14T00:01:06Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Move_Template_Into_AnalysisFldr')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -4319,217 +4384,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Req')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_JobReq_File",
-								"type": "DatasetReference"
-							},
-							"name": "Requisitions"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentReqFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendReqFact"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "addLoadDt"
-						},
-						{
-							"name": "RestrictFieldColumnLength"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Engagement Type} as string,",
-						"          {Event Date} as date 'yyyy-MM-dd',",
-						"          EventMonth as integer,",
-						"          {Event Quarter} as integer,",
-						"          {Event Year} as short,",
-						"          EventId as string,",
-						"          Event as string,",
-						"          {Requisition ID} as string,",
-						"          {Requisition Type} as string,",
-						"          {Posting Date} as date 'yyyy-MM-dd',",
-						"          {Requisition Status} as string,",
-						"          {Number of Openings} as integer,",
-						"          {Job Title} as string,",
-						"          {Job Function} as string,",
-						"          {Corporate Title} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work Office City} as string,",
-						"          {Work Office State} as string,",
-						"          {Work Office Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          {Hiring Manager Worker ID} as string,",
-						"          {Primary Recruiter Worker ID} as string,",
-						"          {Requisition Other (1)} as string,",
-						"          {Requisition Other (2)} as string,",
-						"          {Requisition Other (3)} as string,",
-						"          {Requisition Other (4)} as string,",
-						"          {Requisition Other (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Requisitions",
-						"Requisitions alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull(Event)),",
-						"     deleteIf(isNull({Requisition ID}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          EventDt = {Event Date},",
-						"          EventQuarter = {Event Quarter},",
-						"          EventMonth,",
-						"          EventYear = {Event Year},",
-						"          Event,",
-						"          EventId,",
-						"          ReqId = {Requisition ID},",
-						"          ReqType = {Requisition Type},",
-						"          PostingDt = {Posting Date},",
-						"          ReqStatus = {Requisition Status},",
-						"          NumberofOpenings = {Number of Openings},",
-						"          JobTitle = {Job Title},",
-						"          JobFunction = {Job Function},",
-						"          CorpTitle = {Corporate Title},",
-						"          WorkOfficeLoc = {Work Office Location},",
-						"          WorkOfficeCity = {Work Office City},",
-						"          WorkOfficeState = {Work Office State},",
-						"          WorkOfficeCountry = {Work Office Country},",
-						"          WorkStrategicLocInd = {Strategic Work Location Ind},",
-						"          BusinessGrpLvl1 = {Business Group Level 1},",
-						"          BusinessGrpLvl2 = {Business Group Level 2},",
-						"          BusinessGrpLvl3 = {Business Group Level 3},",
-						"          BusinessGrpLvl4 = {Business Group Level 4},",
-						"          HiringMgrWorkerId = {Hiring Manager Worker ID},",
-						"          PrimaryRecruiterWorkerId = {Primary Recruiter Worker ID},",
-						"          ReqOther1 = {Requisition Other (1)},",
-						"          ReqOther2 = {Requisition Other (2)},",
-						"          ReqOther3 = {Requisition Other (3)},",
-						"          ReqOther4 = {Requisition Other (4)},",
-						"          ReqOther5 = {Requisition Other (5)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> addLoadDt",
-						"addLoadDt derive(JobTitle = left(JobTitle,100)) ~> RestrictFieldColumnLength",
-						"RestrictFieldColumnLength sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Event as string,",
-						"          EventId as string,",
-						"          ReqId as string,",
-						"          ReqType as string,",
-						"          PostingDt as date,",
-						"          ReqStatus as string,",
-						"          NumberofOpenings as integer,",
-						"          JobTitle as string,",
-						"          JobFunction as string,",
-						"          CorpTitle as string,",
-						"          WorkOfficeLoc as string,",
-						"          WorkOfficeCity as string,",
-						"          WorkOfficeState as string,",
-						"          WorkOfficeCountry as string,",
-						"          WorkStrategicLocInd as string,",
-						"          BusinessGrpLvl1 as string,",
-						"          BusinessGrpLvl2 as string,",
-						"          BusinessGrpLvl3 as string,",
-						"          BusinessGrpLvl4 as string,",
-						"          HiringMgrWorkerId as string,",
-						"          PrimaryRecruiterWorkerId as string,",
-						"          ReqOther1 as string,",
-						"          ReqOther2 as string,",
-						"          ReqOther3 as string,",
-						"          ReqOther4 as string,",
-						"          ReqOther5 as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','EventDt','EventId','ReqId'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt,",
-						"          EventDt,",
-						"          EventMonth,",
-						"          EventQuarter,",
-						"          EventYear,",
-						"          Event,",
-						"          EventId,",
-						"          ReqId,",
-						"          ReqType,",
-						"          PostingDt,",
-						"          ReqStatus,",
-						"          NumberofOpenings,",
-						"          JobTitle,",
-						"          JobFunction,",
-						"          CorpTitle,",
-						"          WorkOfficeLoc,",
-						"          WorkOfficeCity,",
-						"          WorkOfficeState,",
-						"          WorkOfficeCountry,",
-						"          WorkStrategicLocInd,",
-						"          BusinessGrpLvl1,",
-						"          BusinessGrpLvl2,",
-						"          BusinessGrpLvl3,",
-						"          BusinessGrpLvl4,",
-						"          HiringMgrWorkerId,",
-						"          PrimaryRecruiterWorkerId,",
-						"          ReqOther1,",
-						"          ReqOther2,",
-						"          ReqOther3,",
-						"          ReqOther4,",
-						"          ReqOther5,",
-						"          LoadDt",
-						"     )) ~> AppendReqFact"
 					]
 				}
 			},
