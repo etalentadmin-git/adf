@@ -380,6 +380,9 @@
 				},
 				{
 					"name": "OtherFemaleHispFinal"
+				},
+				{
+					"name": "RemoveNullRows"
 				}
 			],
 			"scriptLines": [
@@ -1059,7 +1062,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> WhiteTotalNonHisp",
 				"union1 derive(LastRefreshDt = currentTimestamp()) ~> derivedColumn1",
-				"RemoveDuplicates select(mapColumn(",
+				"RemoveNullRows select(mapColumn(",
 				"          LastRefreshDt,",
 				"          Source,",
 				"          SourceId,",
@@ -1153,6 +1156,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> OtherFemaleHispFinal",
+				"RemoveDuplicates filter(!isNull(SourceId)) ~> RemoveNullRows",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
