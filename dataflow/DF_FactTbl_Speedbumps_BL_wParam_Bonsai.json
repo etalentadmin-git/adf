@@ -69,6 +69,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "Talent"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "CoreWorkerIDandEventYr"
 				}
 			],
 			"sinks": [
@@ -251,6 +258,36 @@
 				},
 				{
 					"name": "JoinTalentIdentifiers"
+				},
+				{
+					"name": "Workers1P"
+				},
+				{
+					"name": "selectWorkers1P"
+				},
+				{
+					"name": "Workers2P"
+				},
+				{
+					"name": "selectWorkers2P"
+				},
+				{
+					"name": "Workers3P"
+				},
+				{
+					"name": "selectWorkers3P"
+				},
+				{
+					"name": "WorkersIn1Pand2P"
+				},
+				{
+					"name": "WorkersIn1Pand2Pand3P"
+				},
+				{
+					"name": "WorkersTenure3Yrs"
+				},
+				{
+					"name": "Join3YrWorkerFlag"
 				}
 			],
 			"scriptLines": [
@@ -634,6 +671,15 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> Talent",
+				"source(output(",
+				"          WorkerId as string,",
+				"          EventYear as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select WorkerId, EventYear from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT' group by WorkerId, EventYear\"),",
+				"     format: 'query') ~> CoreWorkerIDandEventYr",
 				"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
 				"     joinType:'inner',",
@@ -763,7 +809,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinP1Promo",
-				"Join3YrWorkerMgrCount derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y','N'),",
+				"Join3YrWorkerFlag derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y',iif({3YrWorker}=='Y','Y (Non Top Talent)','N')),",
 				"          {Speedbump Worker Status} = 'Active',",
 				"          {Speedbump 1 Name} = 'Mgr Level',",
 				"          {Speedbump 1 Desc} = 'Assigned to a manager at their same level (non Exec)',",
@@ -1025,6 +1071,48 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinTalentIdentifiers",
+				"CoreWorkerIDandEventYr, Select1PYear join(EventYear == Max1PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Workers1P",
+				"Workers1P select(mapColumn(",
+				"          WorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectWorkers1P",
+				"CoreWorkerIDandEventYr, Select2PYear join(EventYear == Max2PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Workers2P",
+				"Workers2P select(mapColumn(",
+				"          WorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectWorkers2P",
+				"CoreWorkerIDandEventYr, Select3PYear join(EventYear == Max3PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Workers3P",
+				"Workers3P select(mapColumn(",
+				"          WorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectWorkers3P",
+				"selectWorkers1P, selectWorkers2P exists(selectWorkers1P@WorkerId == selectWorkers2P@WorkerId,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> WorkersIn1Pand2P",
+				"WorkersIn1Pand2P, selectWorkers3P exists(selectWorkers1P@WorkerId == selectWorkers3P@WorkerId,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> WorkersIn1Pand2Pand3P",
+				"WorkersIn1Pand2Pand3P derive({3YrWorker} = \"Y\") ~> WorkersTenure3Yrs",
+				"Join3YrWorkerMgrCount, WorkersTenure3Yrs join({Worker ID} == WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Join3YrWorkerFlag",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
