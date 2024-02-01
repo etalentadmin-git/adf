@@ -272,22 +272,19 @@
 					"name": "selectWorkers2P"
 				},
 				{
-					"name": "Workers3P"
-				},
-				{
-					"name": "selectWorkers3P"
-				},
-				{
 					"name": "WorkersIn1Pand2P"
-				},
-				{
-					"name": "WorkersIn1Pand2Pand3P"
 				},
 				{
 					"name": "WorkersTenure3Yrs"
 				},
 				{
 					"name": "Join3YrWorkerFlag"
+				},
+				{
+					"name": "WorkersIn1Pand2PandCurr"
+				},
+				{
+					"name": "WorkersCurr"
 				}
 			],
 			"scriptLines": [
@@ -914,7 +911,7 @@
 				"     broadcast: 'both')~> Join5OrMoreApplied",
 				"AggApplicantData derive({Applicant Five or More} = iif({Count Req}>=5,'Y','N')) ~> Select5orMoreAppliedApplicant",
 				"CalcSpeedBumps select(mapColumn(",
-				"          {Client ID},",
+				"          {Client ID} = SelectCoreForMgrPopulation@{Client ID},",
 				"          {Client Engagement Date},",
 				"          {Event Quarter} = EventQuarter,",
 				"          {Event Year},",
@@ -1111,28 +1108,23 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectWorkers2P",
-				"CoreWorkerIDandEventYr, Select3PYear join(EventYear == Max3PYear,",
-				"     joinType:'inner',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> Workers3P",
-				"Workers3P select(mapColumn(",
-				"          WorkerId",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> selectWorkers3P",
 				"selectWorkers1P, selectWorkers2P exists(selectWorkers1P@WorkerId == selectWorkers2P@WorkerId,",
 				"     negate:false,",
-				"     broadcast: 'auto')~> WorkersIn1Pand2P",
-				"WorkersIn1Pand2P, selectWorkers3P exists(selectWorkers1P@WorkerId == selectWorkers3P@WorkerId,",
-				"     negate:false,",
-				"     broadcast: 'auto')~> WorkersIn1Pand2Pand3P",
-				"WorkersIn1Pand2Pand3P derive({3YrWorker} = \"Y\") ~> WorkersTenure3Yrs",
+				"     broadcast: 'both')~> WorkersIn1Pand2P",
+				"WorkersIn1Pand2PandCurr derive({3YrWorker} = \"Y\") ~> WorkersTenure3Yrs",
 				"Join3YrWorkerMgrCount, WorkersTenure3Yrs join({Worker ID} == WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> Join3YrWorkerFlag",
+				"WorkersCurr, WorkersIn1Pand2P exists(CoreWorkerIDandEventYr@WorkerId == selectWorkers1P@WorkerId,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> WorkersIn1Pand2PandCurr",
+				"CoreWorkerIDandEventYr, SelectCurrYear join(EventYear == MaxCurrYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> WorkersCurr",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
