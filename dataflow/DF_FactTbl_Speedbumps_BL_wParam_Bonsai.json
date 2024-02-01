@@ -69,6 +69,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "Talent"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "CoreWorkerIDandEventYr"
 				}
 			],
 			"sinks": [
@@ -251,6 +258,33 @@
 				},
 				{
 					"name": "JoinTalentIdentifiers"
+				},
+				{
+					"name": "Workers1P"
+				},
+				{
+					"name": "selectWorkers1P"
+				},
+				{
+					"name": "Workers2P"
+				},
+				{
+					"name": "selectWorkers2P"
+				},
+				{
+					"name": "WorkersIn1Pand2P"
+				},
+				{
+					"name": "WorkersTenure3Yrs"
+				},
+				{
+					"name": "Join3YrWorkerFlag"
+				},
+				{
+					"name": "WorkersIn1Pand2PandCurr"
+				},
+				{
+					"name": "WorkersCurr"
 				}
 			],
 			"scriptLines": [
@@ -634,6 +668,15 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> Talent",
+				"source(output(",
+				"          WorkerId as string,",
+				"          EventYear as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select WorkerId, EventYear from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT' group by WorkerId, EventYear\"),",
+				"     format: 'query') ~> CoreWorkerIDandEventYr",
 				"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
 				"     joinType:'inner',",
@@ -652,9 +695,13 @@
 				"          EventQuarter,",
 				"          {Event Year} = EventYear,",
 				"          {Years of Service} = YearsofSrvc,",
+				"          LegacyOrg,",
 				"          {Elloree Corporate Title} = ElloreeCorpTitle,",
 				"          {Elloree Corporate Title Sort} = ElloreeCorpTitleSortId,",
 				"          {Curr Talent Tag} = {Emp Perf Rating Curr Talent Tag},",
+				"          {Curr Top Talent Ind} = {Emp Perf Rating Curr Top Talent Ind},",
+				"          {P1 Top Talent Ind} = {Emp Perf Rating P1 Top Talent Ind},",
+				"          {P2 Top Talent Ind} = {Emp Perf Rating P2 Top Talent Ind},",
 				"          ManagerInd,",
 				"          {Direct Manager Worker ID} = DirectMgrWorkerId,",
 				"          CoreLastPromoDt = LastPromoDt,",
@@ -682,7 +729,10 @@
 				"PerfRatingHistory select(mapColumn(",
 				"          {Emp Perf Rating Worker ID} = WorkerId,",
 				"          {Emp Perf Rating Event Year} = EventYear,",
-				"          {Emp Perf Rating Curr Talent Tag} = CurrTalentTag",
+				"          {Emp Perf Rating Curr Talent Tag} = CurrTalentTag,",
+				"          {Emp Perf Rating Curr Top Talent Ind} = CurrTopTalentInd,",
+				"          {Emp Perf Rating P1 Top Talent Ind} = P1TopTalentInd,",
+				"          {Emp Perf Rating P2 Top Talent Ind} = P2TopTalentInd",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectEmpTalentTag",
@@ -701,7 +751,8 @@
 				"          {Mgr Years of Service} = {Years of Service},",
 				"          {Mgr Elloree Corporate Title} = {Elloree Corporate Title},",
 				"          {Mgr Elloree Corporate Title Sort} = {Elloree Corporate Title Sort},",
-				"          {Mgr Curr Talent Tag} = {Curr Talent Tag}",
+				"          {Mgr Curr Talent Tag} = {Curr Talent Tag},",
+				"          {Mgr LegacyOrg} = LegacyOrg",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectMgrData",
@@ -763,7 +814,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinP1Promo",
-				"Join3YrWorkerMgrCount derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y','N'),",
+				"Join3YrWorkerFlag derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y',iif({3YrWorker}=='Y','Y','N')),",
 				"          {Speedbump Worker Status} = 'Active',",
 				"          {Speedbump 1 Name} = 'Mgr Level',",
 				"          {Speedbump 1 Desc} = 'Assigned to a manager at their same level (non Exec)',",
@@ -807,9 +858,22 @@
 				"iif(TalentIdentifier1=='6','Y',\r",
 				"iif(isNull(TalentIdentifier1),'Y','N')))),\r",
 				"'N'),",
-				"          {Speedbump 10 Name} = 'Speedbump 10',",
-				"          {Speedbump 10 Desc} = 'N/A',",
-				"          {Speedbump 10 Flag} = 'N/A',",
+				"          {Speedbump 10 Name} = 'Flight Risk',",
+				"          {Speedbump 10 Desc} = '(Flight Risk Info) 3 of 4 criteria met. (1)No promo in last 3 yrs. (2)Yrs of Svc more than Mgr (orig. hire dt.). (3)Wkr or Mgr was acq. (4)Top perf. in 2021, 2022 not 2023',",
+				"          {Speedbump 10 Flag} = iif($SB10_Placeholder=='Y',iif((iif(isNull({Mgr Worker ID}),0,iif({Years of Service}>={Mgr Years of Service},1,0))\r",
+				"+\r",
+				"iif({Years of Service}>=5,\r",
+				"iif({Elloree Corporate Title Sort}==1, 0,\r",
+				"iif({Elloree Corporate Title Sort}==2, 0,\r",
+				"iif({Curr Promo}=='Y',0,\r",
+				"iif({P1 Promo}=='Y',0,\r",
+				"iif({P2 Promo}=='Y',0,\r",
+				"iif(isNull(CoreLastPromoDt),1,\r",
+				"iif(year(CoreLastPromoDt)>=toInteger($SB_BL_Year)-2,0,1))))))),0)\r",
+				"+\r",
+				"iif((iif(isNull(LegacyOrg),0,iif(LegacyOrg=='Non-Merger',0,iif(LegacyOrg=='N/A',0,1))))+(iif(isNull({Mgr LegacyOrg}),0,iif({Mgr LegacyOrg}=='Non-Merger',0,iif({Mgr LegacyOrg}=='N/A',0,1))))>0,1,0)\r",
+				"+\r",
+				"iif({Curr Top Talent Ind}=='Y',0,iif({P1 Top Talent Ind}=='Y',iif({P2 Top Talent Ind}=='Y',1,0),0)))>=3,'Flight Risk','Non-Flight Risk'),'N'),",
 				"          {Speedbump 11 Name} = 'Speedbump 11',",
 				"          {Speedbump 11 Desc} = 'N/A',",
 				"          {Speedbump 11 Flag} = 'N/A',",
@@ -848,7 +912,7 @@
 				"     broadcast: 'both')~> Join5OrMoreApplied",
 				"AggApplicantData derive({Applicant Five or More} = iif({Count Req}>=5,'Y','N')) ~> Select5orMoreAppliedApplicant",
 				"CalcSpeedBumps select(mapColumn(",
-				"          {Client ID},",
+				"          {Client ID} = SelectCoreForMgrPopulation@{Client ID},",
 				"          {Client Engagement Date},",
 				"          {Event Quarter} = EventQuarter,",
 				"          {Event Year},",
@@ -1025,6 +1089,43 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinTalentIdentifiers",
+				"CoreWorkerIDandEventYr, Select1PYear join(EventYear == Max1PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Workers1P",
+				"Workers1P select(mapColumn(",
+				"          WorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectWorkers1P",
+				"CoreWorkerIDandEventYr, Select2PYear join(EventYear == Max2PYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Workers2P",
+				"Workers2P select(mapColumn(",
+				"          WorkerId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectWorkers2P",
+				"selectWorkers1P, selectWorkers2P exists(selectWorkers1P@WorkerId == selectWorkers2P@WorkerId,",
+				"     negate:false,",
+				"     broadcast: 'both')~> WorkersIn1Pand2P",
+				"WorkersIn1Pand2PandCurr derive({3YrWorker} = \"Y\") ~> WorkersTenure3Yrs",
+				"Join3YrWorkerMgrCount, WorkersTenure3Yrs join({Worker ID} == WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Join3YrWorkerFlag",
+				"WorkersCurr, WorkersIn1Pand2P exists(CoreWorkerIDandEventYr@WorkerId == selectWorkers1P@WorkerId,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> WorkersIn1Pand2PandCurr",
+				"CoreWorkerIDandEventYr, SelectCurrYear join(EventYear == MaxCurrYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> WorkersCurr",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
