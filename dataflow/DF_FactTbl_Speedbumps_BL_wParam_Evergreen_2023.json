@@ -329,9 +329,6 @@
 					"name": "joinSpeedbump11"
 				},
 				{
-					"name": "joinSpeedbump12"
-				},
-				{
 					"name": "CleanupJoinFields"
 				},
 				{
@@ -345,15 +342,6 @@
 				},
 				{
 					"name": "SelectSurveyValues"
-				},
-				{
-					"name": "joinSurveyGoals"
-				},
-				{
-					"name": "joinSurveyValues"
-				},
-				{
-					"name": "SpecialCalcForFlightRisk"
 				}
 			],
 			"scriptLines": [
@@ -926,9 +914,9 @@
 				"          {Speedbump 9 Name} = 'Employee Belonging',",
 				"          {Speedbump 9 Desc} = 'Employees with an average score below 84.7 when asked about being themselves and belomging at the company',",
 				"          {Speedbump 9 Flag} = iif($SB9_Placeholder=='Y',iif(not(isNull(BelongSpeedbump9)),BelongSpeedbump9,'N'),'N'),",
-				"          {Speedbump 10 Name} = 'Employee Growth',",
+				"          {Speedbump 10 Name} = 'Skills Development',",
 				"          {Speedbump 10 Desc} = 'Employees with an average score below 81.2 when asked about opportunities to learn and develop their skillset at the company',",
-				"          {Speedbump 10 Flag} = iif($SB10_Placeholder=='Y',iif(not(isNull(GrowthSpeedbump10)),GrowthSpeedbump10,'N'),'N'),",
+				"          {Speedbump 10 Flag} = iif($SB10_Placeholder=='Y',iif(not(isNull(DevelopmentSpeedbump10)),DevelopmentSpeedbump10,'N'),'N'),",
 				"          {Speedbump 11 Name} = 'Mgr Supp., Fdbck, Conv',",
 				"          {Speedbump 11 Desc} = 'Employees with an avg. score below 82.5 when asked about their Manager prioritizing their wellbeing, providing feedback and having quarterly conversations.',",
 				"          {Speedbump 11 Flag} = iif($SB11_Placeholder=='Y',iif(not(isNull(MgrFBkConvoSpeedbump11)),MgrFBkConvoSpeedbump11,'N'),'N'),",
@@ -966,7 +954,7 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'both')~> Join5OrMoreApplied",
 				"AggApplicantData derive({Applicant Five or More} = iif({Count Req}>=5,'Y','N')) ~> Select5orMoreAppliedApplicant",
-				"SpecialCalcForFlightRisk select(mapColumn(",
+				"CalcSpeedBumps select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Event Quarter} = EventQuarter,",
@@ -1167,7 +1155,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump9",
-				"OtherCore filter(EventType=='Engagement Survey - Growth_Devt') ~> FilterEngagementSurveyGrowth",
+				"OtherCore filter(EventType=='Engagement Survey - Skills_Development') ~> FilterEngagementSurveyGrowth",
 				"FilterEngagementSurveyGrowth aggregate(groupBy(WorkerId),",
 				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
 				"          SumSurveyValues = sum(OtherNumVal1),",
@@ -1200,7 +1188,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump12",
-				"joinSurveyValues, SelectSpeedbump8 join({Worker ID} == SelectSpeedbump8@WorkerId,",
+				"Join3YrWorkerMgrCount, SelectSpeedbump8 join({Worker ID} == WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1220,12 +1208,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinSpeedbump11",
-				"joinSpeedbump11, SelectSpeedbump12 join({Worker ID} == SelectSpeedbump12@WorkerId,",
-				"     joinType:'left',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinSpeedbump12",
-				"joinSpeedbump12 select(mapColumn(",
+				"joinSpeedbump11 select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Worker ID},",
@@ -1263,12 +1246,8 @@
 				"          ManagerCount,",
 				"          eSatSpeedbump8,",
 				"          BelongSpeedbump9,",
-				"          GrowthSpeedbump10,",
-				"          MgrFBkConvoSpeedbump11,",
-				"          PotentialSpeedbump12,",
-				"          {Goals Survey Val},",
-				"          {Potential Survey Val},",
-				"          {Values Survey Val}",
+				"          DevelopmentSpeedbump10 = GrowthSpeedbump10,",
+				"          MgrFBkConvoSpeedbump11",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
@@ -1290,27 +1269,6 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSurveyValues",
-				"Join3YrWorkerMgrCount, SelectSurveyGoals join({Worker ID} == WorkerId,",
-				"     joinType:'left',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinSurveyGoals",
-				"joinSurveyGoals, SelectSurveyValues join({Worker ID} == SelectSurveyValues@WorkerId,",
-				"     joinType:'left',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinSurveyValues",
-				"CalcSpeedBumps derive({Speedbump 14 Name} = 'Flight Risk',",
-				"          {Speedbump 14 Desc} = 'Flight Risk based on Level, Tenure, Promo, Emp. Satisfaction and Belonging.',",
-				"          {Speedbump 14 Flag} = iif($SB14_Placeholder=='Y',iif((iif(({Elloree Corporate Title Sort}==1 && {Years of Service}<=5.9) \r",
-				"|| ({Elloree Corporate Title Sort}==2 && {Years of Service}<=6.2)\r",
-				"|| ({Elloree Corporate Title Sort}==3 && {Years of Service}<=4.4)\r",
-				"|| ({Elloree Corporate Title Sort}==4 && {Years of Service}<=3.7)\r",
-				"|| ({Elloree Corporate Title Sort}==5 && {Years of Service}<=3.6),1,0)+\r",
-				"iif({Speedbump 4 Flag}=='Y',1,0)+\r",
-				"iif({Speedbump 8 Flag}=='Y',1,0)+\r",
-				"iif({Speedbump 9 Flag}=='Y',1,0)+\r",
-				"iif({Speedbump 13 Flag}=='Y',1,0))>=3,'Y','N'),'N')) ~> SpecialCalcForFlightRisk",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
