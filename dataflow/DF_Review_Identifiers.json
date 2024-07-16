@@ -34,52 +34,24 @@
 					"name": "SelectUniqueLvl1"
 				},
 				{
-					"name": "join1"
+					"name": "JoinIdentifiertoLevel1Business"
 				},
 				{
 					"name": "derivedColumn1"
 				},
 				{
 					"name": "derivedColumn2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
 				"source(output(",
-				"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-				"          {Event Year} as string,",
-				"          {Event Quarter} as string,",
-				"          {Event Date} as string,",
-				"          {Worker ID} as string,",
-				"          {Worker Status} as string,",
-				"          {Worker Type} as string,",
-				"          {Job Title} as string,",
-				"          {Job Family/Function} as string,",
-				"          {Years in Job} as string,",
-				"          {Corporate Title} as string,",
-				"          {Manager Indicator} as string,",
-				"          {Direct Manager Worker ID} as string,",
-				"          {Legacy Organization} as string,",
-				"          {Work Office Location} as string,",
-				"          {Work City} as string,",
-				"          {Work State} as string,",
-				"          {Work Country} as string,",
-				"          {Strategic Work Location Ind} as string,",
-				"          {Original Hire Date} as string,",
-				"          {Current Hire Date} as string,",
-				"          {Years of Service} as string,",
-				"          {Last Promo Date} as string,",
-				"          {Business Group Level 1} as string,",
-				"          {Business Group Level 2} as string,",
-				"          {Business Group Level 3} as string,",
-				"          {Business Group Level 4} as string,",
-				"          Race as string,",
-				"          {Hispanic or Latino Origin} as string,",
-				"          Gender as string,",
-				"          {Veteran Ind} as string,",
-				"          LGTBQ as string,",
-				"          {Disability Ind} as string,",
-				"          {Birth Year} as string,",
-				"          {Generation Desc} as string",
+				"          TagIdentifier as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
@@ -162,9 +134,11 @@
 				"     joinType:'outer',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1",
-				"Identifiers derive(IdentifierKey = 1) ~> derivedColumn1",
-				"aggregate1 derive(IdentifierKey = 1) ~> derivedColumn2"
+				"     broadcast: 'auto')~> JoinIdentifiertoLevel1Business",
+				"filter1 derive(IdentifierKey = 1) ~> derivedColumn1",
+				"aggregate1 derive(IdentifierKey = 1) ~> derivedColumn2",
+				"JoinIdentifiertoLevel1Business derive(IdentifierFlag = iif(like({Business Group Level 1},'%' + TagIdentifier + '%'), \"Y\", \"N\")) ~> derivedColumn3",
+				"Identifiers filter(TagIdentifier=='NBME') ~> filter1"
 			]
 		}
 	}
