@@ -1,0 +1,171 @@
+{
+	"name": "DF_Review_Identifiers",
+	"properties": {
+		"folder": {
+			"name": "Client/Audit Reports"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Audit_Identifier",
+						"type": "DatasetReference"
+					},
+					"name": "Identifiers"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_AllCoreData_File",
+						"type": "DatasetReference"
+					},
+					"name": "CoreFactTblTemplate"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "SelectUniqueLvl1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+				"          {Event Year} as string,",
+				"          {Event Quarter} as string,",
+				"          {Event Date} as string,",
+				"          {Worker ID} as string,",
+				"          {Worker Status} as string,",
+				"          {Worker Type} as string,",
+				"          {Job Title} as string,",
+				"          {Job Family/Function} as string,",
+				"          {Years in Job} as string,",
+				"          {Corporate Title} as string,",
+				"          {Manager Indicator} as string,",
+				"          {Direct Manager Worker ID} as string,",
+				"          {Legacy Organization} as string,",
+				"          {Work Office Location} as string,",
+				"          {Work City} as string,",
+				"          {Work State} as string,",
+				"          {Work Country} as string,",
+				"          {Strategic Work Location Ind} as string,",
+				"          {Original Hire Date} as string,",
+				"          {Current Hire Date} as string,",
+				"          {Years of Service} as string,",
+				"          {Last Promo Date} as string,",
+				"          {Business Group Level 1} as string,",
+				"          {Business Group Level 2} as string,",
+				"          {Business Group Level 3} as string,",
+				"          {Business Group Level 4} as string,",
+				"          Race as string,",
+				"          {Hispanic or Latino Origin} as string,",
+				"          Gender as string,",
+				"          {Veteran Ind} as string,",
+				"          LGTBQ as string,",
+				"          {Disability Ind} as string,",
+				"          {Birth Year} as string,",
+				"          {Generation Desc} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Identifiers",
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as string,",
+				"          {Client Engagement Type} as string,",
+				"          {Worker ID} as string,",
+				"          {Event Date} as string,",
+				"          EventMonth as string,",
+				"          {Event Quarter} as string,",
+				"          {Event Year} as string,",
+				"          {Event Code} as string,",
+				"          {Event Type} as string,",
+				"          Event as string,",
+				"          {Event Reason} as string,",
+				"          {Worker Status} as string,",
+				"          {Worker Type} as string,",
+				"          {Job Title} as string,",
+				"          {Job Family/Function} as string,",
+				"          {Years in Job} as string,",
+				"          {Previous Job Title} as string,",
+				"          {Previous Job Family/Function} as string,",
+				"          {Original Hire Date} as string,",
+				"          {Current Hire Date} as string,",
+				"          {Years of Service} as string,",
+				"          {Years of Service Band} as string,",
+				"          {Years of Service Sort ID} as string,",
+				"          {Last Promo Date} as string,",
+				"          {Rehire Indicator} as string,",
+				"          {Corporate Title} as string,",
+				"          {Previous Corporate Title} as string,",
+				"          {Manager Indicator} as string,",
+				"          {Direct Manager Worker ID} as string,",
+				"          {Work Office Location} as string,",
+				"          {Work City} as string,",
+				"          {Work State} as string,",
+				"          {Work Country} as string,",
+				"          {Strategic Work Location Ind} as string,",
+				"          {Legacy Organization} as string,",
+				"          {Business Group Level 1} as string,",
+				"          {Business Group Level 2} as string,",
+				"          {Business Group Level 3} as string,",
+				"          {Business Group Level 4} as string,",
+				"          Race as string,",
+				"          {Hispanic or Latino Origin} as string,",
+				"          Gender as string,",
+				"          {Veteran Ind} as string,",
+				"          LGTBQ as string,",
+				"          {Disability Ind} as string,",
+				"          {Birth Year} as string,",
+				"          {Generation Desc} as string,",
+				"          {Generation Sort ID} as string,",
+				"          EmpCount as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> CoreFactTblTemplate",
+				"CoreFactTblTemplate select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 1}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 1}),",
+				"     {Reccord Count} = count({Client ID})) ~> aggregate1",
+				"derivedColumn2 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 1},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectUniqueLvl1",
+				"derivedColumn1, SelectUniqueLvl1 join(derivedColumn1@IdentifierKey == SelectUniqueLvl1@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"Identifiers derive(IdentifierKey = 1) ~> derivedColumn1",
+				"aggregate1 derive(IdentifierKey = 1) ~> derivedColumn2"
+			]
+		}
+	}
+}
