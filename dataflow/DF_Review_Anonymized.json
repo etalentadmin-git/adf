@@ -71,6 +71,27 @@
 				},
 				{
 					"name": "select3"
+				},
+				{
+					"name": "selectBusLvl3"
+				},
+				{
+					"name": "aggregate3"
+				},
+				{
+					"name": "derivedColumn6"
+				},
+				{
+					"name": "selectUniqueLvl3"
+				},
+				{
+					"name": "JoinIdentifiertoLevel3Business"
+				},
+				{
+					"name": "derivedColumn7"
+				},
+				{
+					"name": "select4"
 				}
 			],
 			"scriptLines": [
@@ -206,7 +227,42 @@
 				"          IdentifierFlag",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select3"
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"CoreFactTblTemplate select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 3}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectBusLvl3",
+				"selectBusLvl3 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 3}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate3",
+				"aggregate3 derive(IdentifierKey = 1) ~> derivedColumn6",
+				"derivedColumn6 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 3},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueLvl3",
+				"derivedColumn1, selectUniqueLvl3 join(derivedColumn1@IdentifierKey == selectUniqueLvl3@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoLevel3Business",
+				"JoinIdentifiertoLevel3Business derive(IdentifierFlag = iif(like({Business Group Level 3},'%' + TagIdentifier + '%'), \"Y\", \"N\")) ~> derivedColumn7",
+				"derivedColumn7 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          TagIdentifier,",
+				"          {Business Group Level 3},",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select4"
 			]
 		}
 	}
