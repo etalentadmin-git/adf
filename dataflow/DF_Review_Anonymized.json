@@ -25,7 +25,7 @@
 			"sinks": [],
 			"transformations": [
 				{
-					"name": "select1"
+					"name": "selectBusLvl1"
 				},
 				{
 					"name": "aggregate1"
@@ -50,6 +50,27 @@
 				},
 				{
 					"name": "select2"
+				},
+				{
+					"name": "selectBusLvl2"
+				},
+				{
+					"name": "aggregate2"
+				},
+				{
+					"name": "derivedColumn4"
+				},
+				{
+					"name": "selectUniqueLvl2"
+				},
+				{
+					"name": "JoinIdentifiertoLevel2Business"
+				},
+				{
+					"name": "derivedColumn5"
+				},
+				{
+					"name": "select3"
 				}
 			],
 			"scriptLines": [
@@ -120,8 +141,8 @@
 				"          {Business Group Level 1}",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 aggregate(groupBy({Client ID},",
+				"     skipDuplicateMapOutputs: true) ~> selectBusLvl1",
+				"selectBusLvl1 aggregate(groupBy({Client ID},",
 				"          {Client Engagement Date},",
 				"          {Business Group Level 1}),",
 				"     {Reccord Count} = count({Client ID})) ~> aggregate1",
@@ -150,7 +171,42 @@
 				"          IdentifierFlag",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select2"
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"CoreFactTblTemplate select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 2}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectBusLvl2",
+				"selectBusLvl2 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 2}),",
+				"     {Reccord Count} = count({Client ID})) ~> aggregate2",
+				"aggregate2 derive(IdentifierKey = 1) ~> derivedColumn4",
+				"derivedColumn4 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 2},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueLvl2",
+				"derivedColumn1, selectUniqueLvl2 join(derivedColumn1@IdentifierKey == selectUniqueLvl2@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoLevel2Business",
+				"JoinIdentifiertoLevel2Business derive(IdentifierFlag = iif(like({Business Group Level 2},'%' + TagIdentifier + '%'), \"Y\", \"N\")) ~> derivedColumn5",
+				"derivedColumn5 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          TagIdentifier,",
+				"          {Business Group Level 2},",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3"
 			]
 		}
 	}
