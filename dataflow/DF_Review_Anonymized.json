@@ -22,7 +22,15 @@
 					"name": "CoreFactTblTemplate"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_AuditFolder",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "selectBusLvl1"
@@ -31,7 +39,7 @@
 					"name": "aggregate1"
 				},
 				{
-					"name": "SelectUniqueLvl1"
+					"name": "SelectUniqueBusLvl1"
 				},
 				{
 					"name": "JoinIdentifiertoLevel1Business"
@@ -58,7 +66,7 @@
 					"name": "derivedColumn4"
 				},
 				{
-					"name": "selectUniqueLvl2"
+					"name": "selectUniqueBusLvl2"
 				},
 				{
 					"name": "JoinIdentifiertoLevel2Business"
@@ -79,7 +87,7 @@
 					"name": "derivedColumn6"
 				},
 				{
-					"name": "selectUniqueLvl3"
+					"name": "selectUniqueBusLvl3"
 				},
 				{
 					"name": "JoinIdentifiertoLevel3Business"
@@ -100,7 +108,7 @@
 					"name": "derivedColumn8"
 				},
 				{
-					"name": "selectUniqueLvl4"
+					"name": "selectUniqueBusLvl4"
 				},
 				{
 					"name": "JoinIdentifiertoLevel4Business"
@@ -125,6 +133,30 @@
 				},
 				{
 					"name": "union1"
+				},
+				{
+					"name": "selectJobTitle"
+				},
+				{
+					"name": "aggregate5"
+				},
+				{
+					"name": "derivedColumn10"
+				},
+				{
+					"name": "selectUniqueJobTitle"
+				},
+				{
+					"name": "JoinIdentifiertoJobTitle"
+				},
+				{
+					"name": "derivedColumn11"
+				},
+				{
+					"name": "select6"
+				},
+				{
+					"name": "filterJobTitleFlaggedY"
 				}
 			],
 			"scriptLines": [
@@ -207,8 +239,8 @@
 				"          IdentifierKey",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectUniqueLvl1",
-				"derivedColumn1, SelectUniqueLvl1 join(derivedColumn1@IdentifierKey == SelectUniqueLvl1@IdentifierKey,",
+				"     skipDuplicateMapOutputs: true) ~> SelectUniqueBusLvl1",
+				"derivedColumn1, SelectUniqueBusLvl1 join(derivedColumn1@IdentifierKey == SelectUniqueBusLvl1@IdentifierKey,",
 				"     joinType:'outer',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -246,8 +278,8 @@
 				"          IdentifierKey",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> selectUniqueLvl2",
-				"derivedColumn1, selectUniqueLvl2 join(derivedColumn1@IdentifierKey == selectUniqueLvl2@IdentifierKey,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueBusLvl2",
+				"derivedColumn1, selectUniqueBusLvl2 join(derivedColumn1@IdentifierKey == selectUniqueBusLvl2@IdentifierKey,",
 				"     joinType:'outer',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -283,8 +315,8 @@
 				"          IdentifierKey",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> selectUniqueLvl3",
-				"derivedColumn1, selectUniqueLvl3 join(derivedColumn1@IdentifierKey == selectUniqueLvl3@IdentifierKey,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueBusLvl3",
+				"derivedColumn1, selectUniqueBusLvl3 join(derivedColumn1@IdentifierKey == selectUniqueBusLvl3@IdentifierKey,",
 				"     joinType:'outer',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -320,8 +352,8 @@
 				"          IdentifierKey",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> selectUniqueLvl4",
-				"derivedColumn1, selectUniqueLvl4 join(derivedColumn1@IdentifierKey == selectUniqueLvl4@IdentifierKey,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueBusLvl4",
+				"derivedColumn1, selectUniqueBusLvl4 join(derivedColumn1@IdentifierKey == selectUniqueBusLvl4@IdentifierKey,",
 				"     joinType:'outer',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -342,7 +374,51 @@
 				"select5 filter(IdentifierFlag=='Y') ~> filterBusinessLvl4FlaggedY",
 				"select3 filter(IdentifierFlag=='Y') ~> filterBusinessLvl2FlaggedY",
 				"select2 filter(IdentifierFlag=='Y') ~> filterBusinessLvl1FlaggedY",
-				"filterBusinessLvl1FlaggedY, filterBusinessLvl2FlaggedY, filterBusinessLvl3FlaggedY, filterBusinessLvl4FlaggedY union(byName: true)~> union1"
+				"filterBusinessLvl1FlaggedY, filterBusinessLvl2FlaggedY, filterBusinessLvl3FlaggedY, filterBusinessLvl4FlaggedY, filterJobTitleFlaggedY union(byName: true)~> union1",
+				"CoreFactTblTemplate select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Job Title}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectJobTitle",
+				"selectJobTitle aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Job Title}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate5",
+				"aggregate5 derive(IdentifierKey = 1) ~> derivedColumn10",
+				"derivedColumn10 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Job Title},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueJobTitle",
+				"derivedColumn1, selectUniqueJobTitle join(derivedColumn1@IdentifierKey == selectUniqueJobTitle@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoJobTitle",
+				"JoinIdentifiertoJobTitle derive(IdentifierFlag = iif(instr({Job Title},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Job Title},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = 'Job Title') ~> derivedColumn11",
+				"derivedColumn11 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Field,",
+				"          {Field Value} = {Job Title},",
+				"          TagIdentifier,",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select6",
+				"select6 filter(IdentifierFlag=='Y') ~> filterJobTitleFlaggedY",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['AnonymizationReview.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
