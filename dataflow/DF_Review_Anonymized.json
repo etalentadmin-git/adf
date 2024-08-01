@@ -181,6 +181,54 @@
 				},
 				{
 					"name": "filterPrevJobTitleFlaggedY"
+				},
+				{
+					"name": "selectJobFamilyFunction"
+				},
+				{
+					"name": "aggregate7"
+				},
+				{
+					"name": "derivedColumn14"
+				},
+				{
+					"name": "selectUniqueJobFamilyFunction"
+				},
+				{
+					"name": "JoinIdentifiertoJobFamilyFunction"
+				},
+				{
+					"name": "derivedColumn15"
+				},
+				{
+					"name": "select8"
+				},
+				{
+					"name": "filterJobFamilyFunctionFlaggedY"
+				},
+				{
+					"name": "selectJPrevJobFamilyFunction"
+				},
+				{
+					"name": "aggregate8"
+				},
+				{
+					"name": "derivedColumn16"
+				},
+				{
+					"name": "selectUniquePrevJobFamilyFunction"
+				},
+				{
+					"name": "JoinIdentifiertoPrevJobFamilyFunction"
+				},
+				{
+					"name": "derivedColumn17"
+				},
+				{
+					"name": "select9"
+				},
+				{
+					"name": "filterPrevJobFamilyFunctionFlaggedY"
 				}
 			],
 			"scriptLines": [
@@ -398,7 +446,7 @@
 				"select5 filter(IdentifierFlag=='Y') ~> filterBusinessLvl4FlaggedY",
 				"select3 filter(IdentifierFlag=='Y') ~> filterBusinessLvl2FlaggedY",
 				"select2 filter(IdentifierFlag=='Y') ~> filterBusinessLvl1FlaggedY",
-				"filterBusinessLvl1FlaggedY, filterBusinessLvl2FlaggedY, filterBusinessLvl3FlaggedY, filterBusinessLvl4FlaggedY, filterJobTitleFlaggedY, filterPrevJobTitleFlaggedY union(byName: true)~> union1",
+				"filterBusinessLvl1FlaggedY, filterBusinessLvl2FlaggedY, filterBusinessLvl3FlaggedY, filterBusinessLvl4FlaggedY, filterJobTitleFlaggedY, filterPrevJobTitleFlaggedY, filterJobFamilyFunctionFlaggedY, filterPrevJobFamilyFunctionFlaggedY union(byName: true)~> union1",
 				"CoreFactTblTemplate select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
@@ -475,6 +523,82 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select7",
 				"select7 filter(IdentifierFlag=='Y') ~> filterPrevJobTitleFlaggedY",
+				"CoreFactTblTemplate select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Job Family/Function}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectJobFamilyFunction",
+				"selectJobFamilyFunction aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Job Family/Function}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate7",
+				"aggregate7 derive(IdentifierKey = 1) ~> derivedColumn14",
+				"derivedColumn14 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Job Family/Function},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueJobFamilyFunction",
+				"derivedColumn1, selectUniqueJobFamilyFunction join(derivedColumn1@IdentifierKey == selectUniqueJobFamilyFunction@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoJobFamilyFunction",
+				"JoinIdentifiertoJobFamilyFunction derive(IdentifierFlag = iif(instr({Job Family/Function},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Job Family/Function},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = 'Job Family/Function') ~> derivedColumn15",
+				"derivedColumn15 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Field,",
+				"          {Field Value} = {Job Family/Function},",
+				"          TagIdentifier,",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select8",
+				"select8 filter(IdentifierFlag=='Y') ~> filterJobFamilyFunctionFlaggedY",
+				"CoreFactTblTemplate select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Previous Job Family/Function}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectJPrevJobFamilyFunction",
+				"selectJPrevJobFamilyFunction aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Previous Job Family/Function}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate8",
+				"aggregate8 derive(IdentifierKey = 1) ~> derivedColumn16",
+				"derivedColumn16 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Previous Job Family/Function},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniquePrevJobFamilyFunction",
+				"derivedColumn1, selectUniquePrevJobFamilyFunction join(derivedColumn1@IdentifierKey == selectUniquePrevJobFamilyFunction@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoPrevJobFamilyFunction",
+				"JoinIdentifiertoPrevJobFamilyFunction derive(IdentifierFlag = iif(instr({Previous Job Family/Function},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Previous Job Family/Function},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = 'Prev Job Family/Function') ~> derivedColumn17",
+				"derivedColumn17 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Field,",
+				"          {Field Value} = {Previous Job Family/Function},",
+				"          TagIdentifier,",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select9",
+				"select9 filter(IdentifierFlag=='Y') ~> filterPrevJobFamilyFunctionFlaggedY",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
