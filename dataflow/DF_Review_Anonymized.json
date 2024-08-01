@@ -157,6 +157,30 @@
 				},
 				{
 					"name": "filterJobTitleFlaggedY"
+				},
+				{
+					"name": "selectPrevJobTitle"
+				},
+				{
+					"name": "aggregate6"
+				},
+				{
+					"name": "derivedColumn12"
+				},
+				{
+					"name": "selectUniquePrevJobTitle"
+				},
+				{
+					"name": "JoinIdentifiertoPrevJobTitle"
+				},
+				{
+					"name": "derivedColumn13"
+				},
+				{
+					"name": "select7"
+				},
+				{
+					"name": "filterPrevJobTitleFlaggedY"
 				}
 			],
 			"scriptLines": [
@@ -374,7 +398,7 @@
 				"select5 filter(IdentifierFlag=='Y') ~> filterBusinessLvl4FlaggedY",
 				"select3 filter(IdentifierFlag=='Y') ~> filterBusinessLvl2FlaggedY",
 				"select2 filter(IdentifierFlag=='Y') ~> filterBusinessLvl1FlaggedY",
-				"filterBusinessLvl1FlaggedY, filterBusinessLvl2FlaggedY, filterBusinessLvl3FlaggedY, filterBusinessLvl4FlaggedY, filterJobTitleFlaggedY union(byName: true)~> union1",
+				"filterBusinessLvl1FlaggedY, filterBusinessLvl2FlaggedY, filterBusinessLvl3FlaggedY, filterBusinessLvl4FlaggedY, filterJobTitleFlaggedY, filterPrevJobTitleFlaggedY union(byName: true)~> union1",
 				"CoreFactTblTemplate select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
@@ -413,6 +437,44 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select6",
 				"select6 filter(IdentifierFlag=='Y') ~> filterJobTitleFlaggedY",
+				"CoreFactTblTemplate select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Previous Job Title}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectPrevJobTitle",
+				"selectPrevJobTitle aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Previous Job Title}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate6",
+				"aggregate6 derive(IdentifierKey = 1) ~> derivedColumn12",
+				"derivedColumn12 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Previous Job Title},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniquePrevJobTitle",
+				"derivedColumn1, selectUniquePrevJobTitle join(derivedColumn1@IdentifierKey == selectUniquePrevJobTitle@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoPrevJobTitle",
+				"JoinIdentifiertoPrevJobTitle derive(IdentifierFlag = iif(instr({Previous Job Title},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Previous Job Title},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = 'Prev Job Title') ~> derivedColumn13",
+				"derivedColumn13 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Field,",
+				"          {Field Value} = {Previous Job Title},",
+				"          TagIdentifier,",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select7",
+				"select7 filter(IdentifierFlag=='Y') ~> filterPrevJobTitleFlaggedY",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
