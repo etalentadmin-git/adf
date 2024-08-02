@@ -248,6 +248,54 @@
 				},
 				{
 					"name": "selectUniqueReqJobTitle"
+				},
+				{
+					"name": "selectReqBusLvl1"
+				},
+				{
+					"name": "aggregate10"
+				},
+				{
+					"name": "derivedColumn19"
+				},
+				{
+					"name": "selectUniqueReqBusLvl1"
+				},
+				{
+					"name": "selectReqBusLvl2"
+				},
+				{
+					"name": "aggregate11"
+				},
+				{
+					"name": "derivedColumn20"
+				},
+				{
+					"name": "selectUniqueReqBusLvl2"
+				},
+				{
+					"name": "selectReqBusLvl3"
+				},
+				{
+					"name": "aggregate12"
+				},
+				{
+					"name": "derivedColumn21"
+				},
+				{
+					"name": "selectUniqueReqBusLvl3"
+				},
+				{
+					"name": "selectReqBusLvl4"
+				},
+				{
+					"name": "aggregate13"
+				},
+				{
+					"name": "derivedColumn22"
+				},
+				{
+					"name": "selectUniqueReqBusLvl4"
 				}
 			],
 			"scriptLines": [
@@ -702,6 +750,94 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectUniqueReqJobTitle",
+				"ReqFactTbl select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 1}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectReqBusLvl1",
+				"selectReqBusLvl1 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 1}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate10",
+				"aggregate10 derive(IdentifierKey = 1,",
+				"          Table = 'Requisitions') ~> derivedColumn19",
+				"derivedColumn19 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          {Business Group Level 1},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueReqBusLvl1",
+				"ReqFactTbl select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 2}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectReqBusLvl2",
+				"selectReqBusLvl2 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 2}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate11",
+				"aggregate11 derive(IdentifierKey = 1,",
+				"          Table = 'Requisitions') ~> derivedColumn20",
+				"derivedColumn20 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          {Business Group Level 2},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueReqBusLvl2",
+				"ReqFactTbl select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 3}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectReqBusLvl3",
+				"selectReqBusLvl3 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 3}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate12",
+				"aggregate12 derive(IdentifierKey = 1,",
+				"          Table = 'Requisitions') ~> derivedColumn21",
+				"derivedColumn21 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          {Business Group Level 3},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueReqBusLvl3",
+				"ReqFactTbl select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 4}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectReqBusLvl4",
+				"selectReqBusLvl4 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Business Group Level 4}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate13",
+				"aggregate13 derive(IdentifierKey = 1,",
+				"          Table = 'Requisitions') ~> derivedColumn22",
+				"derivedColumn22 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          {Business Group Level 4},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueReqBusLvl4",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
