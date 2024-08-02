@@ -20,6 +20,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "CoreFactTblTemplate"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_JobReq_File",
+						"type": "DatasetReference"
+					},
+					"name": "ReqFactTbl"
 				}
 			],
 			"sinks": [
@@ -207,7 +214,7 @@
 					"name": "filterJobFamilyFunctionFlaggedY"
 				},
 				{
-					"name": "selectJPrevJobFamilyFunction"
+					"name": "selectPrevJobFamilyFunction"
 				},
 				{
 					"name": "aggregate8"
@@ -229,6 +236,18 @@
 				},
 				{
 					"name": "filterPrevJobFamilyFunctionFlaggedY"
+				},
+				{
+					"name": "selectReqJobTitle"
+				},
+				{
+					"name": "aggregate9"
+				},
+				{
+					"name": "derivedColumn18"
+				},
+				{
+					"name": "selectUniqueReqJobTitle"
 				}
 			],
 			"scriptLines": [
@@ -293,6 +312,44 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> CoreFactTblTemplate",
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as string,",
+				"          {Client Engagement Type} as string,",
+				"          {Event Date} as string,",
+				"          EventMonth as string,",
+				"          {Event Quarter} as string,",
+				"          {Event Year} as string,",
+				"          EventId as string,",
+				"          Event as string,",
+				"          {Requisition ID} as string,",
+				"          {Requisition Type} as string,",
+				"          {Posting Date} as string,",
+				"          {Requisition Status} as string,",
+				"          {Number of Openings} as string,",
+				"          {Job Title} as string,",
+				"          {Job Function} as string,",
+				"          {Corporate Title} as string,",
+				"          {Work Office Location} as string,",
+				"          {Work Office City} as string,",
+				"          {Work Office State} as string,",
+				"          {Work Office Country} as string,",
+				"          {Strategic Work Location Ind} as string,",
+				"          {Business Group Level 1} as string,",
+				"          {Business Group Level 2} as string,",
+				"          {Business Group Level 3} as string,",
+				"          {Business Group Level 4} as string,",
+				"          {Hiring Manager Worker ID} as string,",
+				"          {Primary Recruiter Worker ID} as string,",
+				"          {Requisition Other (1)} as string,",
+				"          {Requisition Other (2)} as string,",
+				"          {Requisition Other (3)} as string,",
+				"          {Requisition Other (4)} as string,",
+				"          {Requisition Other (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ReqFactTbl",
 				"CoreFactTblTemplate select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
@@ -567,8 +624,8 @@
 				"          {Previous Job Family/Function}",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> selectJPrevJobFamilyFunction",
-				"selectJPrevJobFamilyFunction aggregate(groupBy({Client ID},",
+				"     skipDuplicateMapOutputs: true) ~> selectPrevJobFamilyFunction",
+				"selectPrevJobFamilyFunction aggregate(groupBy({Client ID},",
 				"          {Client Engagement Date},",
 				"          {Previous Job Family/Function}),",
 				"     {Record Count} = count({Client ID})) ~> aggregate8",
@@ -599,6 +656,26 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select9",
 				"select9 filter(IdentifierFlag=='Y') ~> filterPrevJobFamilyFunctionFlaggedY",
+				"ReqFactTbl select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Job Title}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectReqJobTitle",
+				"selectReqJobTitle aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Job Title}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate9",
+				"aggregate9 derive(IdentifierKey = 1) ~> derivedColumn18",
+				"derivedColumn18 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Job Title},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueReqJobTitle",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
