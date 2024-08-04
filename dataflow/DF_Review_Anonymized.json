@@ -296,6 +296,12 @@
 				},
 				{
 					"name": "selectUniqueReqBusLvl4"
+				},
+				{
+					"name": "JoinIdentifiertoReqJobTitle"
+				},
+				{
+					"name": "derivedColumn23"
 				}
 			],
 			"scriptLines": [
@@ -838,6 +844,13 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectUniqueReqBusLvl4",
+				"derivedColumn1, selectUniqueReqJobTitle join(derivedColumn1@IdentifierKey == selectUniqueReqJobTitle@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoReqJobTitle",
+				"JoinIdentifiertoReqJobTitle derive(IdentifierFlag = iif(instr({Job Title},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Job Title},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = 'Job Title') ~> derivedColumn23",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
