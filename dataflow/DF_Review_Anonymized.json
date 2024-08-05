@@ -311,6 +311,15 @@
 				},
 				{
 					"name": "JoinIdentifiertoReqBusLvl1"
+				},
+				{
+					"name": "derivedColumn24"
+				},
+				{
+					"name": "select11"
+				},
+				{
+					"name": "filterBusLvl1ReqFlaggedY"
 				}
 			],
 			"scriptLines": [
@@ -578,7 +587,7 @@
 				"select5 filter(IdentifierFlag=='Y') ~> filterBusinessLvl4FlaggedY",
 				"select3 filter(IdentifierFlag=='Y') ~> filterBusinessLvl2FlaggedY",
 				"select2 filter(IdentifierFlag=='Y') ~> filterBusinessLvl1FlaggedY",
-				"filterBusinessLvl1FlaggedY, filterBusinessLvl2FlaggedY, filterBusinessLvl3FlaggedY, filterBusinessLvl4FlaggedY, filterJobTitleFlaggedY, filterPrevJobTitleFlaggedY, filterJobFamilyFunctionFlaggedY, filterPrevJobFamilyFunctionFlaggedY, filterJobTitleReqFlaggedY union(byName: true)~> union1",
+				"filterBusinessLvl1FlaggedY, filterBusinessLvl2FlaggedY, filterBusinessLvl3FlaggedY, filterBusinessLvl4FlaggedY, filterJobTitleFlaggedY, filterPrevJobTitleFlaggedY, filterJobFamilyFunctionFlaggedY, filterPrevJobFamilyFunctionFlaggedY, filterJobTitleReqFlaggedY, filterBusLvl1ReqFlaggedY union(byName: true)~> union1",
 				"CoreFactTblTemplate select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
@@ -877,6 +886,20 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinIdentifiertoReqBusLvl1",
+				"JoinIdentifiertoReqBusLvl1 derive(IdentifierFlag = iif(instr({Business Group Level 1},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Business Group Level 1},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = \"Business Group Level 1\") ~> derivedColumn24",
+				"derivedColumn24 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          Field,",
+				"          {Field Value} = {Business Group Level 1},",
+				"          TagIdentifier,",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select11",
+				"select11 filter(IdentifierFlag=='Y') ~> filterBusLvl1ReqFlaggedY",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
