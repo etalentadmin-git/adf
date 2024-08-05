@@ -332,6 +332,30 @@
 				},
 				{
 					"name": "filterBusLvl2ReqFlaggedY"
+				},
+				{
+					"name": "JoinIdentifiertoReqBusLvl3"
+				},
+				{
+					"name": "derivedColumn26"
+				},
+				{
+					"name": "select13"
+				},
+				{
+					"name": "filterBusLvl3ReqFlaggedY"
+				},
+				{
+					"name": "JoinIdentifiertoReqBusLvl4"
+				},
+				{
+					"name": "derivedColumn27"
+				},
+				{
+					"name": "select14"
+				},
+				{
+					"name": "filterBusLvl4ReqFlaggedY"
 				}
 			],
 			"scriptLines": [
@@ -913,7 +937,7 @@
 				"     skipDuplicateMapOutputs: true) ~> select11",
 				"select11 filter(IdentifierFlag=='Y') ~> filterBusLvl1ReqFlaggedY",
 				"derivedColumn1, selectUniqueReqBusLvl2 join(derivedColumn1@IdentifierKey == selectUniqueReqBusLvl2@IdentifierKey,",
-				"     joinType:'inner',",
+				"     joinType:'outer',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinIdentifiertoReqBusLvl2",
@@ -931,6 +955,44 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select12",
 				"select12 filter(IdentifierFlag=='Y') ~> filterBusLvl2ReqFlaggedY",
+				"derivedColumn1, selectUniqueReqBusLvl3 join(derivedColumn1@IdentifierKey == selectUniqueReqBusLvl3@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoReqBusLvl3",
+				"JoinIdentifiertoReqBusLvl3 derive(IdentifierFlag = iif(instr({Business Group Level 3},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Business Group Level 3},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = \"Business Group Level 3\") ~> derivedColumn26",
+				"derivedColumn26 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          Field,",
+				"          {Field Value} = {Business Group Level 3},",
+				"          TagIdentifier,",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select13",
+				"select13 filter(IdentifierFlag=='Y') ~> filterBusLvl3ReqFlaggedY",
+				"derivedColumn1, selectUniqueReqBusLvl4 join(derivedColumn1@IdentifierKey == selectUniqueReqBusLvl4@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoReqBusLvl4",
+				"JoinIdentifiertoReqBusLvl4 derive(IdentifierFlag = iif(instr({Business Group Level 4},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Business Group Level 4},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = \"Business Group Level 4\") ~> derivedColumn27",
+				"derivedColumn27 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          Field,",
+				"          {Field Value} = {Business Group Level 4},",
+				"          TagIdentifier,",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select14",
+				"select14 filter(IdentifierFlag=='Y') ~> filterBusLvl4ReqFlaggedY",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
