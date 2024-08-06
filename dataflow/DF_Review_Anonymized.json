@@ -426,6 +426,18 @@
 				},
 				{
 					"name": "filterOtherFactEventTypeFlaggedY"
+				},
+				{
+					"name": "JoinIdentifiertoUniqueOtherFactEventDesc"
+				},
+				{
+					"name": "derivedColumn33"
+				},
+				{
+					"name": "select17"
+				},
+				{
+					"name": "filterOtherFactEventDescFlaggedY"
 				}
 			],
 			"scriptLines": [
@@ -1202,6 +1214,25 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select16",
 				"select16 filter(IdentifierFlag=='Y') ~> filterOtherFactEventTypeFlaggedY",
+				"derivedColumn1, selectUniqueOtherFactEventDesc join(derivedColumn1@IdentifierKey == selectUniqueOtherFactEventDesc@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoUniqueOtherFactEventDesc",
+				"JoinIdentifiertoUniqueOtherFactEventDesc derive(IdentifierFlag = iif(instr({Event (Desc)},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Event (Desc)},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = \"Event Desc\") ~> derivedColumn33",
+				"derivedColumn33 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          Field,",
+				"          {Field Value} = {Event (Desc)},",
+				"          TagIdentifier,",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select17",
+				"select17 filter(IdentifierFlag=='Y') ~> filterOtherFactEventDescFlaggedY",
 				"select15 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
