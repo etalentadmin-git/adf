@@ -402,6 +402,18 @@
 				},
 				{
 					"name": "selectUniqueOtherFactOtherChar1"
+				},
+				{
+					"name": "selectOtherFactOtherChar2"
+				},
+				{
+					"name": "aggregate17"
+				},
+				{
+					"name": "derivedColumn31"
+				},
+				{
+					"name": "selectUniqueOtherFactOtherChar2"
 				}
 			],
 			"scriptLines": [
@@ -1137,6 +1149,28 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectUniqueOtherFactOtherChar1",
+				"OtherCoreTbl select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Other (Char Value 2)}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectOtherFactOtherChar2",
+				"selectOtherFactOtherChar2 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Other (Char Value 2)}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate17",
+				"aggregate17 derive(IdentifierKey = 1,",
+				"          Table = 'Other Core') ~> derivedColumn31",
+				"derivedColumn31 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          {Other (Char Value 2)},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueOtherFactOtherChar2",
 				"select15 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
