@@ -450,6 +450,18 @@
 				},
 				{
 					"name": "filterOtherFactOtherChar1FlaggedY"
+				},
+				{
+					"name": "JoinIdentifiertoUniqueOtherCharVal2"
+				},
+				{
+					"name": "derivedColumn35"
+				},
+				{
+					"name": "select19"
+				},
+				{
+					"name": "filterOtherFactOtherChar2FlaggedY"
 				}
 			],
 			"scriptLines": [
@@ -1251,7 +1263,7 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinIdentifiertoUniqueOtherCharVal1",
 				"JoinIdentifiertoUniqueOtherCharVal1 derive(IdentifierFlag = iif(instr({Other (Char Value 1)},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Other (Char Value 1)},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
-				"          Field = \"OtherChar1\") ~> derivedColumn34",
+				"          Field = \"Char Val 1\") ~> derivedColumn34",
 				"derivedColumn34 select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
@@ -1264,6 +1276,25 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select18",
 				"select18 filter(IdentifierFlag=='Y') ~> filterOtherFactOtherChar1FlaggedY",
+				"derivedColumn1, selectUniqueOtherFactOtherChar2 join(derivedColumn1@IdentifierKey == selectUniqueOtherFactOtherChar2@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoUniqueOtherCharVal2",
+				"JoinIdentifiertoUniqueOtherCharVal2 derive(IdentifierFlag = iif(instr({Other (Char Value 2)},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Other (Char Value 2)},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = \"Char Val 2\") ~> derivedColumn35",
+				"derivedColumn35 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          Field,",
+				"          {Field Value} = {Other (Char Value 2)},",
+				"          TagIdentifier,",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select19",
+				"select19 filter(IdentifierFlag=='Y') ~> filterOtherFactOtherChar2FlaggedY",
 				"select15 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
