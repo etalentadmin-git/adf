@@ -438,6 +438,18 @@
 				},
 				{
 					"name": "filterOtherFactEventDescFlaggedY"
+				},
+				{
+					"name": "JoinIdentifiertoUniqueOtherCharVal1"
+				},
+				{
+					"name": "derivedColumn34"
+				},
+				{
+					"name": "select18"
+				},
+				{
+					"name": "filterOtherFactOtherChar1FlaggedY"
 				}
 			],
 			"scriptLines": [
@@ -1233,6 +1245,25 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select17",
 				"select17 filter(IdentifierFlag=='Y') ~> filterOtherFactEventDescFlaggedY",
+				"derivedColumn1, selectUniqueOtherFactOtherChar1 join(derivedColumn1@IdentifierKey == selectUniqueOtherFactOtherChar1@IdentifierKey,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinIdentifiertoUniqueOtherCharVal1",
+				"JoinIdentifiertoUniqueOtherCharVal1 derive(IdentifierFlag = iif(instr({Other (Char Value 1)},' ' + TagIdentifier + ' ')>0, \"Y\", iif(instr({Other (Char Value 1)},TagIdentifier + ' ')==1, \"Y\", \"N\")),",
+				"          Field = \"OtherChar1\") ~> derivedColumn34",
+				"derivedColumn34 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          Field,",
+				"          {Field Value} = {Other (Char Value 1)},",
+				"          TagIdentifier,",
+				"          IdentifierFlag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select18",
+				"select18 filter(IdentifierFlag=='Y') ~> filterOtherFactOtherChar1FlaggedY",
 				"select15 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
