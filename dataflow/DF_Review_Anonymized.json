@@ -27,6 +27,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "ReqFactTbl"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_OtherCore_File",
+						"type": "DatasetReference"
+					},
+					"name": "OtherCoreTbl"
 				}
 			],
 			"sinks": [
@@ -356,6 +363,45 @@
 				},
 				{
 					"name": "filterBusLvl4ReqFlaggedY"
+				},
+				{
+					"name": "select15"
+				},
+				{
+					"name": "selectOtherFactEventType"
+				},
+				{
+					"name": "aggregate14"
+				},
+				{
+					"name": "derivedColumn28"
+				},
+				{
+					"name": "selectUniqueOtherFactEventType"
+				},
+				{
+					"name": "selectOtherFactEventDesc"
+				},
+				{
+					"name": "aggregate15"
+				},
+				{
+					"name": "derivedColumn29"
+				},
+				{
+					"name": "selectUniqueOtherFactEventDesc"
+				},
+				{
+					"name": "selectOtherFactOtherChar1"
+				},
+				{
+					"name": "aggregate16"
+				},
+				{
+					"name": "derivedColumn30"
+				},
+				{
+					"name": "selectUniqueOtherFactOtherChar1"
 				}
 			],
 			"scriptLines": [
@@ -458,6 +504,28 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> ReqFactTbl",
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as string,",
+				"          {Worker ID} as string,",
+				"          {Event Date} as string,",
+				"          EventMonth as string,",
+				"          {Event Quarter} as string,",
+				"          {Event Year} as string,",
+				"          {Event ID} as string,",
+				"          Event as string,",
+				"          {Event (Type)} as string,",
+				"          {Event (Desc)} as string,",
+				"          {Other (Char Value 1)} as string,",
+				"          {Other (Char Value 2)} as string,",
+				"          {Other (Num Value 1)} as string,",
+				"          {Other (Num Value 2)} as string,",
+				"          {Other (Date Value 1)} as string,",
+				"          {Other (Date Value 2)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> OtherCoreTbl",
 				"CoreFactTblTemplate select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
@@ -993,7 +1061,83 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select14",
 				"select14 filter(IdentifierFlag=='Y') ~> filterBusLvl4ReqFlaggedY",
-				"union1 sink(allowSchemaDrift: true,",
+				"union1 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          Field,",
+				"          {Field Value},",
+				"          TagIdentifier",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select15",
+				"OtherCoreTbl select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event (Type)}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectOtherFactEventType",
+				"selectOtherFactEventType aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event (Type)}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate14",
+				"aggregate14 derive(IdentifierKey = 1,",
+				"          Table = 'Other Core') ~> derivedColumn28",
+				"derivedColumn28 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          {Event (Type)},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueOtherFactEventType",
+				"OtherCoreTbl select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event (Desc)}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectOtherFactEventDesc",
+				"selectOtherFactEventDesc aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event (Desc)}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate15",
+				"aggregate15 derive(IdentifierKey = 1,",
+				"          Table = 'Other Core') ~> derivedColumn29",
+				"derivedColumn29 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          {Event (Desc)},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueOtherFactEventDesc",
+				"OtherCoreTbl select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Other (Char Value 1)}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectOtherFactOtherChar1",
+				"selectOtherFactOtherChar1 aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Other (Char Value 1)}),",
+				"     {Record Count} = count({Client ID})) ~> aggregate16",
+				"aggregate16 derive(IdentifierKey = 1,",
+				"          Table = 'Other Core') ~> derivedColumn30",
+				"derivedColumn30 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          Table,",
+				"          {Other (Char Value 1)},",
+				"          IdentifierKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueOtherFactOtherChar1",
+				"select15 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['AnonymizationReview.csv'],",
 				"     skipDuplicateMapInputs: true,",
