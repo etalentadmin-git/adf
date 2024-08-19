@@ -13,6 +13,72 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_PerfRatingHist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_PerfRatingHist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_All_Rec_FactTbl_PerfRatingHist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"PerfRatingHistFactTbl": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T16:53:04Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_Req')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1244,92 +1310,6 @@
 								"datasetParameters": {
 									"OtherCoreAnalysisFactCurrTbl": {},
 									"DeleteCurrRecords": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Delete Records/Analysis Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T16:53:04Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_Rec_OtherCoreAnalysisTbl')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
-				"activities": [
-					{
-						"name": "Delete_All_Rec_OtherCoreAnalysis",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Delete_All_Rec_OtherCoreAnalysis",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Folder_Year": {
-										"value": "'@{pipeline().parameters.P_Folder_Year}'",
-										"type": "Expression"
-									},
-									"Flow_Folder_Quarter": {
-										"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherCoreAnalysisFactCurrTbl": {},
-									"OtherCoreAnalysisFactP1Tbl": {},
-									"OtherCoreAnalysisFactP2Tbl": {},
-									"OtherCoreAnalysisFactP3Tbl": {},
-									"DeleteCurrRecords": {},
-									"DeleteP1Records": {},
-									"DeleteP2Records": {},
-									"DeleteP3Records": {}
 								}
 							},
 							"staging": {},
