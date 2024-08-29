@@ -159,6 +159,51 @@
 				},
 				{
 					"name": "SelectBasedOnMostRecentClientEngagment"
+				},
+				{
+					"name": "filterBaseYear"
+				},
+				{
+					"name": "filterBaseYearPlus1"
+				},
+				{
+					"name": "filterBaseYearPlus2"
+				},
+				{
+					"name": "filterBaseYearPlus3"
+				},
+				{
+					"name": "aggregate2"
+				},
+				{
+					"name": "selectUniqueWorkers"
+				},
+				{
+					"name": "joinB0"
+				},
+				{
+					"name": "selectB3Hierarchy"
+				},
+				{
+					"name": "selectB2Hierarchy"
+				},
+				{
+					"name": "selectB1Hierarchy"
+				},
+				{
+					"name": "selectB0Hierarchy"
+				},
+				{
+					"name": "joinB1"
+				},
+				{
+					"name": "joinB2"
+				},
+				{
+					"name": "joinB3"
+				},
+				{
+					"name": "select2"
 				}
 			],
 			"scriptLines": [
@@ -688,6 +733,102 @@
 				"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
 				"     negate:false,",
 				"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
+				"union1 filter({Event Year}==2021 && Event=='Headcount') ~> filterBaseYear",
+				"union1 filter({Event Year}==2022 && Event=='Headcount') ~> filterBaseYearPlus1",
+				"union1 filter({Event Year}==2023 && Event=='Headcount') ~> filterBaseYearPlus2",
+				"union1 filter({Event Year}==2024 && Event=='Headcount') ~> filterBaseYearPlus3",
+				"union1 aggregate(groupBy({Record Id}),",
+				"     {Record Count} = count({Record Id})) ~> aggregate2",
+				"aggregate2 select(mapColumn(",
+				"          {Worker Id} = {Record Id}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectUniqueWorkers",
+				"selectUniqueWorkers, selectB0Hierarchy join({Worker Id} == {B0 - Worker Id},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinB0",
+				"filterBaseYearPlus3 select(mapColumn(",
+				"          {B3 - Worker Id} = {Record Id},",
+				"          {B3 - Event Year} = {Event Year},",
+				"          {B3 - Business Group Level 1} = {Business Group Level 1},",
+				"          {B3 - Business Group Level 2} = {Business Group Level 2},",
+				"          {B3 - Business Group Level 3} = {Business Group Level 3},",
+				"          {B3 - Business Group Level 4} = {Business Group Level 4}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectB3Hierarchy",
+				"filterBaseYearPlus2 select(mapColumn(",
+				"          {B2 - Worker Id} = {Record Id},",
+				"          {B2 - Event Year} = {Event Year},",
+				"          {B2 - Business Group Level 1} = {Business Group Level 1},",
+				"          {B2 - Business Group Level 2} = {Business Group Level 2},",
+				"          {B2 - Business Group Level 3} = {Business Group Level 3},",
+				"          {B2 - Business Group Level 4} = {Business Group Level 4}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectB2Hierarchy",
+				"filterBaseYearPlus1 select(mapColumn(",
+				"          {B1 - Worker Id} = {Record Id},",
+				"          {B1 - Event Year} = {Event Year},",
+				"          {B1 - Business Group Level 1} = {Business Group Level 1},",
+				"          {B1 - Business Group Level 2} = {Business Group Level 2},",
+				"          {B1 - Business Group Level 3} = {Business Group Level 3},",
+				"          {B1 - Business Group Level 4} = {Business Group Level 4}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectB1Hierarchy",
+				"filterBaseYear select(mapColumn(",
+				"          {B0 - Worker Id} = {Record Id},",
+				"          {B0 - Event Year} = {Event Year},",
+				"          {B0 - Business Group Level 1} = {Business Group Level 1},",
+				"          {B0 - Business Group Level 2} = {Business Group Level 2},",
+				"          {B0 - Business Group Level 3} = {Business Group Level 3},",
+				"          {B0 - Business Group Level 4} = {Business Group Level 4}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectB0Hierarchy",
+				"joinB0, selectB1Hierarchy join({Worker Id} == {B1 - Worker Id},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinB1",
+				"joinB1, selectB2Hierarchy join({Worker Id} == {B2 - Worker Id},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinB2",
+				"joinB2, selectB3Hierarchy join({Worker Id} == {B3 - Worker Id},",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinB3",
+				"joinB3 select(mapColumn(",
+				"          {Worker Id},",
+				"          {B0 - Event Year},",
+				"          {B0 - Business Group Level 1},",
+				"          {B0 - Business Group Level 2},",
+				"          {B0 - Business Group Level 3},",
+				"          {B0 - Business Group Level 4},",
+				"          {B1 - Event Year},",
+				"          {B1 - Business Group Level 1},",
+				"          {B1 - Business Group Level 2},",
+				"          {B1 - Business Group Level 3},",
+				"          {B1 - Business Group Level 4},",
+				"          {B2 - Event Year},",
+				"          {B2 - Business Group Level 1},",
+				"          {B2 - Business Group Level 2},",
+				"          {B2 - Business Group Level 3},",
+				"          {B2 - Business Group Level 4},",
+				"          {B3 - Event Year},",
+				"          {B3 - Business Group Level 1},",
+				"          {B3 - Business Group Level 2},",
+				"          {B3 - Business Group Level 3},",
+				"          {B3 - Business Group Level 4}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
 				"sort5 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
