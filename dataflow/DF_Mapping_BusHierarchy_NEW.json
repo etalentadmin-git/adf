@@ -19,6 +19,13 @@
 			"sinks": [
 				{
 					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_AuditFolder",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
 				}
 			],
 			"transformations": [
@@ -272,24 +279,28 @@
 				"          {Yr 2 to Yr 3 Hierarchy Code Change} = iif({Yr 2 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'N','Y')) ~> derivedHierarchyCodeChg",
 				"derivedColumn2 select(mapColumn(",
 				"          {Worker Id},",
+				"          {Yr 0 - Worker Id},",
 				"          {Yr 0 - Event Year},",
 				"          {Yr 0 - Business Group Level 1},",
 				"          {Yr 0 - Business Group Level 2},",
 				"          {Yr 0 - Business Group Level 3},",
 				"          {Yr 0 - Business Group Level 4},",
 				"          {Yr 0 - Job Title},",
+				"          {Yr 1 - Worker Id},",
 				"          {Yr 1 - Event Year},",
 				"          {Yr 1 - Business Group Level 1},",
 				"          {Yr 1 - Business Group Level 2},",
 				"          {Yr 1 - Business Group Level 3},",
 				"          {Yr 1 - Business Group Level 4},",
 				"          {Yr 1 - Job Title},",
+				"          {Yr 2 - Worker Id},",
 				"          {Yr 2 - Event Year},",
 				"          {Yr 2 - Business Group Level 1},",
 				"          {Yr 2 - Business Group Level 2},",
 				"          {Yr 2 - Business Group Level 3},",
 				"          {Yr 2 - Business Group Level 4},",
 				"          {Yr 2 - Job Title},",
+				"          {Yr 3 - Worker Id},",
 				"          {Yr 3 - Event Year},",
 				"          {Yr 3 - Business Group Level 1},",
 				"          {Yr 3 - Business Group Level 2},",
@@ -325,7 +336,8 @@
 				"          {Valid Hierarchy Map (1 to 3)},",
 				"          {Valid Hierarchy Map (2 to 3)},",
 				"          {Yr 0 Matches Yr 1},",
-				"          {Yr 0 Matches Yr 2}",
+				"          {Yr 0 Matches Yr 2},",
+				"          {Yr 1 Matches Yr 2}",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectHierarchyFlagOutput",
@@ -342,18 +354,27 @@
 				"          {Valid Hierarchy Map (1 to 3)} = iif({Yr 1 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y','N'),",
 				"          {Valid Hierarchy Map (2 to 3)} = iif({Yr 2 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y','N'),",
 				"          {Yr 0 Matches Yr 1} = iif({Yr 0 - Hierarchy Code}=={Yr 1 - Hierarchy Code},'Y','N'),",
-				"          {Yr 0 Matches Yr 2} = iif({Yr 0 - Hierarchy Code}=={Yr 2 - Hierarchy Code},'Y','N')) ~> derivedColumn2",
+				"          {Yr 0 Matches Yr 2} = iif({Yr 0 - Hierarchy Code}=={Yr 2 - Hierarchy Code},'Y','N'),",
+				"          {Yr 1 Matches Yr 2} = iif({Yr 1 - Hierarchy Code}=={Yr 2 - Hierarchy Code},'Y','N')) ~> derivedColumn2",
 				"filterBaseYearPlus3, selectHierarchyFlagOutput join({Record Id} == {Worker Id},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1",
 				"join1 derive({Mapped Hierarchy Lvl 1} = iif({Valid Hierarchy Map (0 to 3)}=='Y',{Yr 0 - Business Group Level 1},\r",
-				"iif({Yr 0 Matches Yr 1}=='N' && {Yr 0 to Yr 1 Transfer Possibility}=='N' && {Valid Hierarchy Map (1 to 3)}=='Y','Y','N'))) ~> derivedColumn3",
+				"iif({Yr 0 Matches Yr 1}=='N' && {Yr 0 to Yr 1 Transfer Possibility}=='N' && {Valid Hierarchy Map (1 to 3)}=='Y',{Yr 1 - Business Group Level 1},\r",
+				"iif({Yr 0 Matches Yr 1}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Valid Hierarchy Map (2 to 3)}=='Y',{Yr 2 - Business Group Level 1},\r",
+				"iif({Yr 0 Matches Yr 1}=='Y' && {Yr 1 Matches Yr 2}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Valid Hierarchy Map (2 to 3)}=='Y',{Yr 2 - Business Group Level 1},'NO MAPPING'))))) ~> derivedColumn3",
 				"selectHierarchyFlagOutput sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> sink1",
+				"derivedColumn3 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['Worker Hierarchy Map.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink2"
 			]
 		}
 	}
