@@ -67,7 +67,13 @@
 					"name": "joinEachHCTYearB3"
 				},
 				{
-					"name": "derivedCreateHierarchyCodes"
+					"name": "derivedHierarchyChg"
+				},
+				{
+					"name": "derivedTransfer"
+				},
+				{
+					"name": "derivedHierarchyCodeChg"
 				}
 			],
 			"scriptLines": [
@@ -220,10 +226,10 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinEachHCTYearB3",
-				"joinEachHCTYearB3 derive({B0 - Hierarchy Code} = concat(concat(concat({Yr 0 - Business Group Level 1}, {Yr 0 - Business Group Level 2}),{Yr 0 - Business Group Level 3}),{Yr 0 - Business Group Level 4}),",
-				"          {B1 - Hierarchy Code} = concat(concat(concat({Yr 1 - Business Group Level 1}, {Yr 1 - Business Group Level 2}),{Yr 1 - Business Group Level 3}),{Yr 1 - Business Group Level 4}),",
-				"          {B2 - Hierarchy Code} = concat(concat(concat({Yr 2 - Business Group Level 1}, {Yr 2 - Business Group Level 2}),{Yr 2 - Business Group Level 3}),{Yr 2 - Business Group Level 4}),",
-				"          {B3 - Hierarchy Code} = concat(concat(concat({Yr 3 - Business Group Level 1}, {Yr 3 - Business Group Level 2}),{Yr 3 - Business Group Level 3}),{Yr 3 - Business Group Level 4}),",
+				"joinEachHCTYearB3 derive({Yr 0 - Hierarchy Code} = concat(concat(concat({Yr 0 - Business Group Level 1}, {Yr 0 - Business Group Level 2}),{Yr 0 - Business Group Level 3}),{Yr 0 - Business Group Level 4}),",
+				"          {Yr 1 - Hierarchy Code} = concat(concat(concat({Yr 1 - Business Group Level 1}, {Yr 1 - Business Group Level 2}),{Yr 1 - Business Group Level 3}),{Yr 1 - Business Group Level 4}),",
+				"          {Yr 2 - Hierarchy Code} = concat(concat(concat({Yr 2 - Business Group Level 1}, {Yr 2 - Business Group Level 2}),{Yr 2 - Business Group Level 3}),{Yr 2 - Business Group Level 4}),",
+				"          {Yr 3 - Hierarchy Code} = concat(concat(concat({Yr 3 - Business Group Level 1}, {Yr 3 - Business Group Level 2}),{Yr 3 - Business Group Level 3}),{Yr 3 - Business Group Level 4}),",
 				"          {Yr 0 to Yr 1 Lvl 1 Change} = iif({Yr 0 - Business Group Level 1}=={Yr 1 - Business Group Level 1},'N','Y'),",
 				"          {Yr 0 to Yr 1 Lvl 2 Change} = iif({Yr 0 - Business Group Level 2}=={Yr 1 - Business Group Level 2},'N','Y'),",
 				"          {Yr 0 to Yr 1 Lvl 3 Change} = iif({Yr 0 - Business Group Level 3}=={Yr 1 - Business Group Level 3},'N','Y'),",
@@ -235,7 +241,16 @@
 				"          {Yr 2 to Yr 3 Lvl 1 Change} = iif({Yr 2 - Business Group Level 1}=={Yr 3 - Business Group Level 1},'N','Y'),",
 				"          {Yr 2 to Yr 3 Lvl 2 Change} = iif({Yr 2 - Business Group Level 2}=={Yr 3 - Business Group Level 2},'N','Y'),",
 				"          {Yr 2 to Yr 3 Lvl 3 Change} = iif({Yr 2 - Business Group Level 3}=={Yr 3 - Business Group Level 3},'N','Y'),",
-				"          {Yr 2 to Yr 3 Lvl 4 Change} = iif({Yr 2 - Business Group Level 4}=={Yr 3 - Business Group Level 4},'N','Y')) ~> derivedCreateHierarchyCodes"
+				"          {Yr 2 to Yr 3 Lvl 4 Change} = iif({Yr 2 - Business Group Level 4}=={Yr 3 - Business Group Level 4},'N','Y'),",
+				"          {Yr 0 to Yr 1 Job Change} = iif({Yr 0 - Job Title}=={Yr 1 - Job Title},'N','Y'),",
+				"          {Yr 1 to Yr 2 Job Change} = iif({Yr 1 - Job Title}=={Yr 2 - Job Title},'N','Y'),",
+				"          {Yr 2 to Yr 3 Job Change} = iif({Yr 2 - Job Title}=={Yr 3 - Job Title},'N','Y')) ~> derivedHierarchyChg",
+				"derivedHierarchyCodeChg derive({Yr 0 to Yr 1 Transfer Possibility} = iif({Yr 0 to Yr 1 Hierarchy Code Change}=='Y',iif({Yr 0 to Yr 1 Job Change}=='Y','Y','N'),'N'),",
+				"          {Yr 1 to Yr 2 Transfer Possibility} = iif({Yr 1 to Yr 2 Hierarchy Code Change}=='Y',iif({Yr 1 to Yr 2 Job Change}=='Y','Y','N'),'N'),",
+				"          {Yr 2 to Yr 3 Transfer Possibility} = iif({Yr 2 to Yr 3 Hierarchy Code Change}=='Y',iif({Yr 2 to Yr 3 Job Change}=='Y','Y','N'),'N')) ~> derivedTransfer",
+				"derivedHierarchyChg derive({Yr 0 to Yr 1 Hierarchy Code Change} = iif({Yr 0 - Hierarchy Code}=={Yr 1 - Hierarchy Code},'N','Y'),",
+				"          {Yr 1 to Yr 2 Hierarchy Code Change} = iif({Yr 1 - Hierarchy Code}=={Yr 2 - Hierarchy Code},'N','Y'),",
+				"          {Yr 2 to Yr 3 Hierarchy Code Change} = iif({Yr 2 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'N','Y')) ~> derivedHierarchyCodeChg"
 			]
 		}
 	}
