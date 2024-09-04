@@ -16,7 +16,11 @@
 					"name": "AllCoreData"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "SelectCoreRecords"
@@ -74,6 +78,15 @@
 				},
 				{
 					"name": "derivedHierarchyCodeChg"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "derivedColumn2"
 				}
 			],
 			"scriptLines": [
@@ -250,7 +263,76 @@
 				"          {Yr 2 to Yr 3 Transfer Possibility} = iif({Yr 2 to Yr 3 Hierarchy Code Change}=='Y',iif({Yr 2 to Yr 3 Job Change}=='Y','Y','N'),'N')) ~> derivedTransfer",
 				"derivedHierarchyChg derive({Yr 0 to Yr 1 Hierarchy Code Change} = iif({Yr 0 - Hierarchy Code}=={Yr 1 - Hierarchy Code},'N','Y'),",
 				"          {Yr 1 to Yr 2 Hierarchy Code Change} = iif({Yr 1 - Hierarchy Code}=={Yr 2 - Hierarchy Code},'N','Y'),",
-				"          {Yr 2 to Yr 3 Hierarchy Code Change} = iif({Yr 2 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'N','Y')) ~> derivedHierarchyCodeChg"
+				"          {Yr 2 to Yr 3 Hierarchy Code Change} = iif({Yr 2 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'N','Y')) ~> derivedHierarchyCodeChg",
+				"derivedColumn2 select(mapColumn(",
+				"          {Worker Id},",
+				"          {Yr 0 - Event Year},",
+				"          {Yr 0 - Business Group Level 1},",
+				"          {Yr 0 - Business Group Level 2},",
+				"          {Yr 0 - Business Group Level 3},",
+				"          {Yr 0 - Business Group Level 4},",
+				"          {Yr 0 - Job Title},",
+				"          {Yr 1 - Event Year},",
+				"          {Yr 1 - Business Group Level 1},",
+				"          {Yr 1 - Business Group Level 2},",
+				"          {Yr 1 - Business Group Level 3},",
+				"          {Yr 1 - Business Group Level 4},",
+				"          {Yr 1 - Job Title},",
+				"          {Yr 2 - Event Year},",
+				"          {Yr 2 - Business Group Level 1},",
+				"          {Yr 2 - Business Group Level 2},",
+				"          {Yr 2 - Business Group Level 3},",
+				"          {Yr 2 - Business Group Level 4},",
+				"          {Yr 2 - Job Title},",
+				"          {Yr 3 - Event Year},",
+				"          {Yr 3 - Business Group Level 1},",
+				"          {Yr 3 - Business Group Level 2},",
+				"          {Yr 3 - Business Group Level 3},",
+				"          {Yr 3 - Business Group Level 4},",
+				"          {Yr 3 - Job Title},",
+				"          {Yr 0 - Hierarchy Code},",
+				"          {Yr 1 - Hierarchy Code},",
+				"          {Yr 2 - Hierarchy Code},",
+				"          {Yr 3 - Hierarchy Code},",
+				"          {Yr 0 to Yr 1 Lvl 1 Change},",
+				"          {Yr 0 to Yr 1 Lvl 2 Change},",
+				"          {Yr 0 to Yr 1 Lvl 3 Change},",
+				"          {Yr 0 to Yr 1 Lvl 4 Change},",
+				"          {Yr 1 to Yr 2 Lvl 1 Change},",
+				"          {Yr 1 to Yr 2 Lvl 2 Change},",
+				"          {Yr 1 to Yr 2 Lvl 3 Change},",
+				"          {Yr 1 to Yr 2 Lvl 4 Change},",
+				"          {Yr 2 to Yr 3 Lvl 1 Change},",
+				"          {Yr 2 to Yr 3 Lvl 2 Change},",
+				"          {Yr 2 to Yr 3 Lvl 3 Change},",
+				"          {Yr 2 to Yr 3 Lvl 4 Change},",
+				"          {Yr 0 to Yr 1 Job Change},",
+				"          {Yr 1 to Yr 2 Job Change},",
+				"          {Yr 2 to Yr 3 Job Change},",
+				"          {Yr 0 to Yr 1 Hierarchy Code Change},",
+				"          {Yr 1 to Yr 2 Hierarchy Code Change},",
+				"          {Yr 2 to Yr 3 Hierarchy Code Change},",
+				"          {Yr 0 to Yr 1 Transfer Possibility},",
+				"          {Yr 1 to Yr 2 Transfer Possibility},",
+				"          {Yr 2 to Yr 3 Transfer Possibility},",
+				"          {Valid Hierarchy Map}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 aggregate(groupBy({Yr 0 - Hierarchy Code},",
+				"          {Yr 1 - Hierarchy Code},",
+				"          {Yr 2 - Hierarchy Code},",
+				"          {Yr 3 - Hierarchy Code},",
+				"          {Yr 0 to Yr 1 Transfer Possibility},",
+				"          {Yr 1 to Yr 2 Transfer Possibility},",
+				"          {Yr 2 to Yr 3 Transfer Possibility},",
+				"          {Valid Hierarchy Map}),",
+				"     {Record Count} = count({Worker Id})) ~> aggregate1",
+				"derivedTransfer derive({Valid Hierarchy Map} = iif({Yr 0 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y',iif({Yr 1 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y',iif({Yr 2 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y','N')))) ~> derivedColumn2",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
