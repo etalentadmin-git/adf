@@ -3752,6 +3752,371 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Mapping_BusHierarchy_NEW')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "This workflow outputs 2 files for hierarchy review.  The 1st file shows record counts by Business Org Level 1 and the second file shows counts by level 1 and level 2.  Output has placeholder columns for mapping.",
+				"folder": {
+					"name": "Client/Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "AllCoreData"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
+						}
+					],
+					"transformations": [
+						{
+							"name": "SelectCoreRecords"
+						},
+						{
+							"name": "filterBaseYear"
+						},
+						{
+							"name": "filterBaseYearPlus1"
+						},
+						{
+							"name": "filterBaseYearPlus2"
+						},
+						{
+							"name": "filterBaseYearPlus3"
+						},
+						{
+							"name": "selectB3Hierarchy"
+						},
+						{
+							"name": "selectB2Hierarchy"
+						},
+						{
+							"name": "selectB1Hierarchy"
+						},
+						{
+							"name": "selectB0Hierarchy"
+						},
+						{
+							"name": "filterAllHCT"
+						},
+						{
+							"name": "UniqueWorkerIds"
+						},
+						{
+							"name": "selectWorkerIds"
+						},
+						{
+							"name": "joinEachHCTYearB0"
+						},
+						{
+							"name": "joinEachHCTYearB1"
+						},
+						{
+							"name": "joinEachHCTYearB2"
+						},
+						{
+							"name": "joinEachHCTYearB3"
+						},
+						{
+							"name": "derivedHierarchyChg"
+						},
+						{
+							"name": "derivedTransfer"
+						},
+						{
+							"name": "derivedHierarchyCodeChg"
+						},
+						{
+							"name": "selectHierarchyFlagOutput"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "join1"
+						},
+						{
+							"name": "derivedColumn3"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as date,",
+						"          EventMonth as integer,",
+						"          {Event Quarter} as integer,",
+						"          {Event Year} as short,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Status} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Family/Function} as string,",
+						"          {Years in Job} as string,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Family/Function} as string,",
+						"          {Original Hire Date} as string,",
+						"          {Current Hire Date} as string,",
+						"          {Years of Service} as string,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as string,",
+						"          {Last Promo Date} as string,",
+						"          {Rehire Indicator} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGTBQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as string,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as string,",
+						"          EmpCount as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AllCoreData",
+						"AllCoreData select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Record Id} = {Worker ID},",
+						"          {Event Year},",
+						"          Event,",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          {Job Title}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectCoreRecords",
+						"SelectCoreRecords filter({Event Year}==2021 && Event=='Headcount') ~> filterBaseYear",
+						"SelectCoreRecords filter({Event Year}==2022 && Event=='Headcount') ~> filterBaseYearPlus1",
+						"SelectCoreRecords filter({Event Year}==2023 && Event=='Headcount') ~> filterBaseYearPlus2",
+						"SelectCoreRecords filter({Event Year}==2024 && Event=='Headcount') ~> filterBaseYearPlus3",
+						"filterBaseYearPlus3 select(mapColumn(",
+						"          {Yr 3 - Worker Id} = {Record Id},",
+						"          {Yr 3 - Event Year} = {Event Year},",
+						"          {Yr 3 - Business Group Level 1} = {Business Group Level 1},",
+						"          {Yr 3 - Business Group Level 2} = {Business Group Level 2},",
+						"          {Yr 3 - Business Group Level 3} = {Business Group Level 3},",
+						"          {Yr 3 - Business Group Level 4} = {Business Group Level 4},",
+						"          {Yr 3 - Job Title} = {Job Title}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectB3Hierarchy",
+						"filterBaseYearPlus2 select(mapColumn(",
+						"          {Yr 2 - Worker Id} = {Record Id},",
+						"          {Yr 2 - Event Year} = {Event Year},",
+						"          {Yr 2 - Business Group Level 1} = {Business Group Level 1},",
+						"          {Yr 2 - Business Group Level 2} = {Business Group Level 2},",
+						"          {Yr 2 - Business Group Level 3} = {Business Group Level 3},",
+						"          {Yr 2 - Business Group Level 4} = {Business Group Level 4},",
+						"          {Yr 2 - Job Title} = {Job Title}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectB2Hierarchy",
+						"filterBaseYearPlus1 select(mapColumn(",
+						"          {Yr 1 - Worker Id} = {Record Id},",
+						"          {Yr 1 - Event Year} = {Event Year},",
+						"          {Yr 1 - Business Group Level 1} = {Business Group Level 1},",
+						"          {Yr 1 - Business Group Level 2} = {Business Group Level 2},",
+						"          {Yr 1 - Business Group Level 3} = {Business Group Level 3},",
+						"          {Yr 1 - Business Group Level 4} = {Business Group Level 4},",
+						"          {Yr 1 - Job Title} = {Job Title}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectB1Hierarchy",
+						"filterBaseYear select(mapColumn(",
+						"          {Yr 0 - Worker Id} = {Record Id},",
+						"          {Yr 0 - Event Year} = {Event Year},",
+						"          {Yr 0 - Business Group Level 1} = {Business Group Level 1},",
+						"          {Yr 0 - Business Group Level 2} = {Business Group Level 2},",
+						"          {Yr 0 - Business Group Level 3} = {Business Group Level 3},",
+						"          {Yr 0 - Business Group Level 4} = {Business Group Level 4},",
+						"          {Yr 0 - Job Title} = {Job Title}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectB0Hierarchy",
+						"SelectCoreRecords filter(Event=='Headcount') ~> filterAllHCT",
+						"filterAllHCT aggregate(groupBy({Worker Id} = {Record Id}),",
+						"     {Record Count} = count({Record Id})) ~> UniqueWorkerIds",
+						"UniqueWorkerIds select(mapColumn(",
+						"          {Worker Id}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectWorkerIds",
+						"selectWorkerIds, selectB0Hierarchy join({Worker Id} == {Yr 0 - Worker Id},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinEachHCTYearB0",
+						"joinEachHCTYearB0, selectB1Hierarchy join({Worker Id} == {Yr 1 - Worker Id},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinEachHCTYearB1",
+						"joinEachHCTYearB1, selectB2Hierarchy join({Worker Id} == {Yr 2 - Worker Id},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinEachHCTYearB2",
+						"joinEachHCTYearB2, selectB3Hierarchy join({Worker Id} == {Yr 3 - Worker Id},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinEachHCTYearB3",
+						"joinEachHCTYearB3 derive({Yr 0 - Hierarchy Code} = concat(concat(concat({Yr 0 - Business Group Level 1}, {Yr 0 - Business Group Level 2}),{Yr 0 - Business Group Level 3}),{Yr 0 - Business Group Level 4}),",
+						"          {Yr 1 - Hierarchy Code} = concat(concat(concat({Yr 1 - Business Group Level 1}, {Yr 1 - Business Group Level 2}),{Yr 1 - Business Group Level 3}),{Yr 1 - Business Group Level 4}),",
+						"          {Yr 2 - Hierarchy Code} = concat(concat(concat({Yr 2 - Business Group Level 1}, {Yr 2 - Business Group Level 2}),{Yr 2 - Business Group Level 3}),{Yr 2 - Business Group Level 4}),",
+						"          {Yr 3 - Hierarchy Code} = concat(concat(concat({Yr 3 - Business Group Level 1}, {Yr 3 - Business Group Level 2}),{Yr 3 - Business Group Level 3}),{Yr 3 - Business Group Level 4}),",
+						"          {Yr 0 to Yr 1 Lvl 1 Change} = iif({Yr 0 - Business Group Level 1}=={Yr 1 - Business Group Level 1},'N','Y'),",
+						"          {Yr 0 to Yr 1 Lvl 2 Change} = iif({Yr 0 - Business Group Level 2}=={Yr 1 - Business Group Level 2},'N','Y'),",
+						"          {Yr 0 to Yr 1 Lvl 3 Change} = iif({Yr 0 - Business Group Level 3}=={Yr 1 - Business Group Level 3},'N','Y'),",
+						"          {Yr 0 to Yr 1 Lvl 4 Change} = iif({Yr 0 - Business Group Level 4}=={Yr 1 - Business Group Level 4},'N','Y'),",
+						"          {Yr 1 to Yr 2 Lvl 1 Change} = iif({Yr 1 - Business Group Level 1}=={Yr 2 - Business Group Level 1},'N','Y'),",
+						"          {Yr 1 to Yr 2 Lvl 2 Change} = iif({Yr 1 - Business Group Level 2}=={Yr 2 - Business Group Level 2},'N','Y'),",
+						"          {Yr 1 to Yr 2 Lvl 3 Change} = iif({Yr 1 - Business Group Level 3}=={Yr 2 - Business Group Level 3},'N','Y'),",
+						"          {Yr 1 to Yr 2 Lvl 4 Change} = iif({Yr 1 - Business Group Level 4}=={Yr 2 - Business Group Level 4},'N','Y'),",
+						"          {Yr 2 to Yr 3 Lvl 1 Change} = iif({Yr 2 - Business Group Level 1}=={Yr 3 - Business Group Level 1},'N','Y'),",
+						"          {Yr 2 to Yr 3 Lvl 2 Change} = iif({Yr 2 - Business Group Level 2}=={Yr 3 - Business Group Level 2},'N','Y'),",
+						"          {Yr 2 to Yr 3 Lvl 3 Change} = iif({Yr 2 - Business Group Level 3}=={Yr 3 - Business Group Level 3},'N','Y'),",
+						"          {Yr 2 to Yr 3 Lvl 4 Change} = iif({Yr 2 - Business Group Level 4}=={Yr 3 - Business Group Level 4},'N','Y'),",
+						"          {Yr 0 to Yr 1 Job Change} = iif({Yr 0 - Job Title}=={Yr 1 - Job Title},'N','Y'),",
+						"          {Yr 1 to Yr 2 Job Change} = iif({Yr 1 - Job Title}=={Yr 2 - Job Title},'N','Y'),",
+						"          {Yr 2 to Yr 3 Job Change} = iif({Yr 2 - Job Title}=={Yr 3 - Job Title},'N','Y')) ~> derivedHierarchyChg",
+						"derivedHierarchyCodeChg derive({Yr 0 to Yr 1 Transfer Possibility} = iif({Yr 0 to Yr 1 Hierarchy Code Change}=='Y',iif({Yr 0 to Yr 1 Job Change}=='Y','Y','N'),'N'),",
+						"          {Yr 1 to Yr 2 Transfer Possibility} = iif({Yr 1 to Yr 2 Hierarchy Code Change}=='Y',iif({Yr 1 to Yr 2 Job Change}=='Y','Y','N'),'N'),",
+						"          {Yr 2 to Yr 3 Transfer Possibility} = iif({Yr 2 to Yr 3 Hierarchy Code Change}=='Y',iif({Yr 2 to Yr 3 Job Change}=='Y','Y','N'),'N')) ~> derivedTransfer",
+						"derivedHierarchyChg derive({Yr 0 to Yr 1 Hierarchy Code Change} = iif({Yr 0 - Hierarchy Code}=={Yr 1 - Hierarchy Code},'N','Y'),",
+						"          {Yr 1 to Yr 2 Hierarchy Code Change} = iif({Yr 1 - Hierarchy Code}=={Yr 2 - Hierarchy Code},'N','Y'),",
+						"          {Yr 2 to Yr 3 Hierarchy Code Change} = iif({Yr 2 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'N','Y')) ~> derivedHierarchyCodeChg",
+						"derivedColumn2 select(mapColumn(",
+						"          {Worker Id},",
+						"          {Yr 0 - Worker Id},",
+						"          {Yr 0 - Event Year},",
+						"          {Yr 0 - Business Group Level 1},",
+						"          {Yr 0 - Business Group Level 2},",
+						"          {Yr 0 - Business Group Level 3},",
+						"          {Yr 0 - Business Group Level 4},",
+						"          {Yr 0 - Job Title},",
+						"          {Yr 1 - Worker Id},",
+						"          {Yr 1 - Event Year},",
+						"          {Yr 1 - Business Group Level 1},",
+						"          {Yr 1 - Business Group Level 2},",
+						"          {Yr 1 - Business Group Level 3},",
+						"          {Yr 1 - Business Group Level 4},",
+						"          {Yr 1 - Job Title},",
+						"          {Yr 2 - Worker Id},",
+						"          {Yr 2 - Event Year},",
+						"          {Yr 2 - Business Group Level 1},",
+						"          {Yr 2 - Business Group Level 2},",
+						"          {Yr 2 - Business Group Level 3},",
+						"          {Yr 2 - Business Group Level 4},",
+						"          {Yr 2 - Job Title},",
+						"          {Yr 3 - Worker Id},",
+						"          {Yr 3 - Event Year},",
+						"          {Yr 3 - Business Group Level 1},",
+						"          {Yr 3 - Business Group Level 2},",
+						"          {Yr 3 - Business Group Level 3},",
+						"          {Yr 3 - Business Group Level 4},",
+						"          {Yr 3 - Job Title},",
+						"          {Yr 0 - Hierarchy Code},",
+						"          {Yr 1 - Hierarchy Code},",
+						"          {Yr 2 - Hierarchy Code},",
+						"          {Yr 3 - Hierarchy Code},",
+						"          {Yr 0 to Yr 1 Lvl 1 Change},",
+						"          {Yr 0 to Yr 1 Lvl 2 Change},",
+						"          {Yr 0 to Yr 1 Lvl 3 Change},",
+						"          {Yr 0 to Yr 1 Lvl 4 Change},",
+						"          {Yr 1 to Yr 2 Lvl 1 Change},",
+						"          {Yr 1 to Yr 2 Lvl 2 Change},",
+						"          {Yr 1 to Yr 2 Lvl 3 Change},",
+						"          {Yr 1 to Yr 2 Lvl 4 Change},",
+						"          {Yr 2 to Yr 3 Lvl 1 Change},",
+						"          {Yr 2 to Yr 3 Lvl 2 Change},",
+						"          {Yr 2 to Yr 3 Lvl 3 Change},",
+						"          {Yr 2 to Yr 3 Lvl 4 Change},",
+						"          {Yr 0 to Yr 1 Job Change},",
+						"          {Yr 1 to Yr 2 Job Change},",
+						"          {Yr 2 to Yr 3 Job Change},",
+						"          {Yr 0 to Yr 1 Hierarchy Code Change},",
+						"          {Yr 1 to Yr 2 Hierarchy Code Change},",
+						"          {Yr 2 to Yr 3 Hierarchy Code Change},",
+						"          {Yr 0 to Yr 1 Transfer Possibility},",
+						"          {Yr 1 to Yr 2 Transfer Possibility},",
+						"          {Yr 2 to Yr 3 Transfer Possibility},",
+						"          {Valid Hierarchy Map (0 to 3)},",
+						"          {Valid Hierarchy Map (1 to 3)},",
+						"          {Valid Hierarchy Map (2 to 3)},",
+						"          {Yr 0 Matches Yr 1},",
+						"          {Yr 0 Matches Yr 2},",
+						"          {Yr 1 Matches Yr 2}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectHierarchyFlagOutput",
+						"derivedTransfer derive({Valid Hierarchy Map (0 to 3)} = iif({Yr 0 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y','N'),",
+						"          {Valid Hierarchy Map (1 to 3)} = iif({Yr 1 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y','N'),",
+						"          {Valid Hierarchy Map (2 to 3)} = iif({Yr 2 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y','N'),",
+						"          {Yr 0 Matches Yr 1} = iif({Yr 0 - Hierarchy Code}=={Yr 1 - Hierarchy Code},'Y','N'),",
+						"          {Yr 0 Matches Yr 2} = iif({Yr 0 - Hierarchy Code}=={Yr 2 - Hierarchy Code},'Y','N'),",
+						"          {Yr 1 Matches Yr 2} = iif({Yr 1 - Hierarchy Code}=={Yr 2 - Hierarchy Code},'Y','N')) ~> derivedColumn2",
+						"filterBaseYearPlus3, selectHierarchyFlagOutput join({Record Id} == {Worker Id},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 derive({Mapped Hierarchy Lvl 1} = iif({Valid Hierarchy Map (0 to 3)}=='Y',{Yr 0 - Business Group Level 1},\r",
+						"iif({Yr 0 Matches Yr 1}=='N' && {Yr 0 to Yr 1 Transfer Possibility}=='N' && {Valid Hierarchy Map (1 to 3)}=='Y',{Yr 1 - Business Group Level 1},\r",
+						"iif({Yr 0 Matches Yr 1}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Valid Hierarchy Map (2 to 3)}=='Y',{Yr 2 - Business Group Level 1},\r",
+						"iif({Yr 0 Matches Yr 1}=='Y' && {Yr 1 Matches Yr 2}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Valid Hierarchy Map (2 to 3)}=='Y',{Yr 2 - Business Group Level 1},'NO MAPPING'))))) ~> derivedColumn3",
+						"derivedColumn3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Worker Hierarchy Map.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink2"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Mapping_CorpTitle')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -11641,467 +12006,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> OutputPrepPerformanceMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_Mapping_ReqStatus')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "This workflow outputs 1 file for review of ethnicity values across events and time periods.",
-				"folder": {
-					"name": "Client/Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_JobReq_File",
-								"type": "DatasetReference"
-							},
-							"name": "AllReqData"
-						},
-						{
-							"dataset": {
-								"referenceName": "etalentReqStatusMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "ReqStatusMappingTbl"
-						},
-						{
-							"dataset": {
-								"referenceName": "etalentReqFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "DatabaseReqRecords"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_MappingWorkingFldr",
-								"type": "DatasetReference"
-							},
-							"name": "OutputWorkingReqStatusMapping"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_MappingPrepFldr",
-								"type": "DatasetReference"
-							},
-							"name": "OutputPrepReqStatusMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "CreatePivotReqStatusAndEventTime"
-						},
-						{
-							"name": "SortOnEvent"
-						},
-						{
-							"name": "SortOnReqStatus"
-						},
-						{
-							"name": "AddDerivedEventYearColumn"
-						},
-						{
-							"name": "SelectUniqueOtherClientValues"
-						},
-						{
-							"name": "select1"
-						},
-						{
-							"name": "join1"
-						},
-						{
-							"name": "select2"
-						},
-						{
-							"name": "join2"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select3"
-						},
-						{
-							"name": "selectReqDBRecs"
-						},
-						{
-							"name": "select5"
-						},
-						{
-							"name": "union1"
-						},
-						{
-							"name": "selectReqDBRecsInit"
-						},
-						{
-							"name": "GetCountOfClientForUniqueValues"
-						},
-						{
-							"name": "JoinClientIDCountInForMaxFilter"
-						},
-						{
-							"name": "CleanupSelectFields"
-						},
-						{
-							"name": "SelectMappingWithMostClients"
-						},
-						{
-							"name": "aggregate1"
-						},
-						{
-							"name": "JoinBackFinalSelectMapping"
-						},
-						{
-							"name": "TakeLastClientValForRemainingDups"
-						},
-						{
-							"name": "NotEqualtoClientID"
-						},
-						{
-							"name": "EqualtoClientId"
-						},
-						{
-							"name": "GroupUniqueValues"
-						},
-						{
-							"name": "exists1"
-						},
-						{
-							"name": "SelectLastEngagementDt"
-						},
-						{
-							"name": "selectUniqueClientIDValues"
-						},
-						{
-							"name": "RemoveDupRows"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Engagement Type} as string,",
-						"          {Event Date} as string,",
-						"          EventMonth as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Year} as short,",
-						"          EventId as string,",
-						"          Event as string,",
-						"          {Requisition ID} as string,",
-						"          {Requisition Type} as string,",
-						"          {Posting Date} as string,",
-						"          {Requisition Status} as string,",
-						"          {Number of Openings} as string,",
-						"          {Job Title} as string,",
-						"          {Job Function} as string,",
-						"          {Corporate Title} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work Office City} as string,",
-						"          {Work Office State} as string,",
-						"          {Work Office Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          {Hiring Manager Worker ID} as string,",
-						"          {Primary Recruiter Worker ID} as string,",
-						"          {Requisition Other (1)} as string,",
-						"          {Requisition Other (2)} as string,",
-						"          {Requisition Other (3)} as string,",
-						"          {Requisition Other (4)} as string,",
-						"          {Requisition Other (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> AllReqData",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientReqStatus as string,",
-						"          ElloreeReqStatus as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> ReqStatusMappingTbl",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Event as string,",
-						"          EventId as string,",
-						"          ReqId as string,",
-						"          ReqType as string,",
-						"          PostingDt as date,",
-						"          ReqStatus as string,",
-						"          NumberofOpenings as integer,",
-						"          JobTitle as string,",
-						"          JobFunction as string,",
-						"          CorpTitle as string,",
-						"          WorkOfficeLoc as string,",
-						"          WorkOfficeCity as string,",
-						"          WorkOfficeState as string,",
-						"          WorkOfficeCountry as string,",
-						"          WorkStrategicLocInd as string,",
-						"          BusinessGrpLvl1 as string,",
-						"          BusinessGrpLvl2 as string,",
-						"          BusinessGrpLvl3 as string,",
-						"          BusinessGrpLvl4 as string,",
-						"          HiringMgrWorkerId as string,",
-						"          PrimaryRecruiterWorkerId as string,",
-						"          ReqOther1 as string,",
-						"          ReqOther2 as string,",
-						"          ReqOther3 as string,",
-						"          ReqOther4 as string,",
-						"          ReqOther5 as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[TAReqTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-						"     format: 'query') ~> DatabaseReqRecords",
-						"derivedColumn1 pivot(groupBy({Client ID},",
-						"          {Client Engagement Date},",
-						"          {Client Requisition Status},",
-						"          {Elloree Requisition Status},",
-						"          {Suggested Elloree Requisition Status},",
-						"          {Suggested Source}),",
-						"     pivotBy({Event and Year}),",
-						"     {} = count({Requisition ID}),",
-						"     columnNaming: '$N$V',",
-						"     lateral: false,",
-						"     partitionBy('hash', 1)) ~> CreatePivotReqStatusAndEventTime",
-						"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
-						"CreatePivotReqStatusAndEventTime sort(asc({Client Requisition Status}, true)) ~> SortOnReqStatus",
-						"RemoveDupRows derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
-						"          {Elloree Requisition Status} = '') ~> AddDerivedEventYearColumn",
-						"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
-						"          {Unique ClientReqStatus} = ClientReqStatus,",
-						"          {Unique ElloreeReqStatus} = ElloreeReqStatus),",
-						"     ClientEngagementDt = last(ClientEngagementDt)) ~> SelectUniqueOtherClientValues",
-						"TakeLastClientValForRemainingDups select(mapColumn(",
-						"          {Unique ClientId},",
-						"          {Unique ClientReqStatus},",
-						"          {Unique ElloreeReqStatus}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
-						"     && {Requisition Status} == {Unique ClientReqStatus},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> join1",
-						"join1 select(mapColumn(",
-						"          {Client Requisition Status} = {Requisition Status},",
-						"          {Elloree Requisition Status},",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event and Year},",
-						"          {Suggested Source} = {Unique ClientId},",
-						"          {Suggested Elloree Requisition Status} = {Unique ElloreeReqStatus},",
-						"          {Requisition ID} = {Record Id}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select2",
-						"select2, select1 join({Client ID} != {Unique ClientId}",
-						"     && {Client Requisition Status} == {Unique ClientReqStatus},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'both')~> join2",
-						"select3 derive({Suggested Source} = iif(isNull({Suggested Source}),{Unique ClientId},{Suggested Source}),",
-						"          {Suggested Elloree Requisition Status} = iif(isNull({Suggested Source}),{Unique ClientReqStatus},{Suggested Elloree Requisition Status})) ~> derivedColumn1",
-						"join2 select(mapColumn(",
-						"          {Client Requisition Status},",
-						"          {Elloree Requisition Status},",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event and Year},",
-						"          {Suggested Source},",
-						"          {Suggested Elloree Requisition Status},",
-						"          {Requisition ID},",
-						"          {Unique ClientId},",
-						"          {Unique ClientReqStatus},",
-						"          {Unique ElloreeReqStatus}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select3",
-						"selectReqDBRecsInit select(mapColumn(",
-						"          {Client ID} = ClientId,",
-						"          {Client Engagement Date} = ClientEngagementDt,",
-						"          {Event Year} = EventYear,",
-						"          Event,",
-						"          {Record Id} = ReqId,",
-						"          {Requisition Status} = ReqStatus",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> selectReqDBRecs",
-						"AllReqData select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event Year},",
-						"          Event,",
-						"          {Record Id} = {Requisition ID},",
-						"          {Requisition Status}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select5",
-						"select5, selectReqDBRecs union(byName: true)~> union1",
-						"DatabaseReqRecords aggregate(groupBy(ClientId,",
-						"          ClientEngagementDt,",
-						"          EventYear,",
-						"          Event,",
-						"          ReqId,",
-						"          ReqStatus),",
-						"     TotRecCount = count(ReqId)) ~> selectReqDBRecsInit",
-						"SelectUniqueOtherClientValues aggregate(groupBy({Count Unique ClientReqStatus} = {Unique ClientReqStatus},",
-						"          {Count Unique ElloreeReqStatus} = {Unique ElloreeReqStatus}),",
-						"     ClientIDCount = count({Unique ClientId})) ~> GetCountOfClientForUniqueValues",
-						"SelectUniqueOtherClientValues, GetCountOfClientForUniqueValues join({Unique ClientReqStatus} == {Count Unique ClientReqStatus}",
-						"     && {Unique ElloreeReqStatus} == {Count Unique ElloreeReqStatus},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinClientIDCountInForMaxFilter",
-						"JoinClientIDCountInForMaxFilter select(mapColumn(",
-						"          {Unique ClientId},",
-						"          {Unique ClientReqStatus},",
-						"          {Unique ElloreeReqStatus},",
-						"          ClientIDCount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> CleanupSelectFields",
-						"CleanupSelectFields aggregate(groupBy({Unique ClientId},",
-						"          {Unique ClientReqStatus},",
-						"          {Unique ElloreeReqStatus}),",
-						"     ClientIDCount = max(ClientIDCount)) ~> SelectMappingWithMostClients",
-						"SelectMappingWithMostClients aggregate(groupBy({Agg Unique ClientReqStatus} = {Unique ClientReqStatus}),",
-						"     {Agg Unique ElloreeReqStatus} = first({Unique ElloreeReqStatus})) ~> aggregate1",
-						"SelectMappingWithMostClients, aggregate1 join({Unique ClientReqStatus} == {Agg Unique ClientReqStatus}",
-						"     && {Unique ElloreeReqStatus} == {Agg Unique ElloreeReqStatus},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> JoinBackFinalSelectMapping",
-						"JoinBackFinalSelectMapping aggregate(groupBy({Unique ClientReqStatus},",
-						"          {Unique ElloreeReqStatus}),",
-						"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
-						"ReqStatusMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
-						"ReqStatusMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
-						"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
-						"          ClientEngagementDt,",
-						"          {Unique ClientReqStatus} = ClientReqStatus,",
-						"          {Unique ElloreeReqStatus} = ElloreeReqStatus),",
-						"     RowCount = count(ClientId)) ~> GroupUniqueValues",
-						"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
-						"     negate:false,",
-						"     broadcast: 'both')~> exists1",
-						"GroupUniqueValues aggregate(LastEngagementDt = max(ClientEngagementDt)) ~> SelectLastEngagementDt",
-						"exists1 select(mapColumn(",
-						"          {Unique ClientId},",
-						"          {Unique ClientReqStatus},",
-						"          {Unique ElloreeReqStatus}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
-						"union1 aggregate(groupBy({Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event Year},",
-						"          Event,",
-						"          {Record Id},",
-						"          {Requisition Status}),",
-						"     RowCount = count({Client ID})) ~> RemoveDupRows",
-						"SortOnReqStatus sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          Column_1 as string,",
-						"          Column_2 as string,",
-						"          Column_3 as string,",
-						"          Column_4 as string,",
-						"          Column_5 as string,",
-						"          Column_6 as string,",
-						"          Column_7 as string,",
-						"          Column_8 as string,",
-						"          Column_9 as string,",
-						"          Column_10 as string,",
-						"          Column_11 as string,",
-						"          Column_12 as string,",
-						"          Column_13 as string,",
-						"          Column_14 as string,",
-						"          Column_15 as string,",
-						"          Column_16 as string,",
-						"          Column_17 as string,",
-						"          Column_18 as string,",
-						"          Column_19 as string,",
-						"          Column_20 as string,",
-						"          Column_21 as string,",
-						"          Column_22 as string,",
-						"          Column_23 as string,",
-						"          Column_24 as string,",
-						"          Column_25 as string,",
-						"          Column_26 as string,",
-						"          Column_27 as string,",
-						"          Column_28 as string",
-						"     ),",
-						"     partitionFileNames:['reqstatus_mapping.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> OutputWorkingReqStatusMapping",
-						"SortOnReqStatus sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          Column_1 as string,",
-						"          Column_2 as string,",
-						"          Column_3 as string,",
-						"          Column_4 as string,",
-						"          Column_5 as string,",
-						"          Column_6 as string,",
-						"          Column_7 as string,",
-						"          Column_8 as string,",
-						"          Column_9 as string,",
-						"          Column_10 as string,",
-						"          Column_11 as string,",
-						"          Column_12 as string,",
-						"          Column_13 as string,",
-						"          Column_14 as string,",
-						"          Column_15 as string,",
-						"          Column_16 as string,",
-						"          Column_17 as string,",
-						"          Column_18 as string,",
-						"          Column_19 as string,",
-						"          Column_20 as string,",
-						"          Column_21 as string,",
-						"          Column_22 as string,",
-						"          Column_23 as string,",
-						"          Column_24 as string,",
-						"          Column_25 as string,",
-						"          Column_26 as string,",
-						"          Column_27 as string,",
-						"          Column_28 as string",
-						"     ),",
-						"     partitionFileNames:['prep_reqstatus_mapping.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> OutputPrepReqStatusMapping"
 					]
 				}
 			},
