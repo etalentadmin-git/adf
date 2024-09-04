@@ -18,9 +18,6 @@
 			],
 			"sinks": [
 				{
-					"name": "sink1"
-				},
-				{
 					"dataset": {
 						"referenceName": "Source_AuditFolder",
 						"type": "DatasetReference"
@@ -88,9 +85,6 @@
 				},
 				{
 					"name": "selectHierarchyFlagOutput"
-				},
-				{
-					"name": "aggregate1"
 				},
 				{
 					"name": "derivedColumn2"
@@ -341,15 +335,6 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectHierarchyFlagOutput",
-				"selectHierarchyFlagOutput aggregate(groupBy({Yr 0 - Hierarchy Code},",
-				"          {Yr 1 - Hierarchy Code},",
-				"          {Yr 2 - Hierarchy Code},",
-				"          {Yr 3 - Hierarchy Code},",
-				"          {Yr 0 to Yr 1 Transfer Possibility},",
-				"          {Yr 1 to Yr 2 Transfer Possibility},",
-				"          {Yr 2 to Yr 3 Transfer Possibility},",
-				"          {Valid Hierarchy Map}),",
-				"     {Record Count} = count({Worker Id})) ~> aggregate1",
 				"derivedTransfer derive({Valid Hierarchy Map (0 to 3)} = iif({Yr 0 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y','N'),",
 				"          {Valid Hierarchy Map (1 to 3)} = iif({Yr 1 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y','N'),",
 				"          {Valid Hierarchy Map (2 to 3)} = iif({Yr 2 - Hierarchy Code}=={Yr 3 - Hierarchy Code},'Y','N'),",
@@ -365,10 +350,6 @@
 				"iif({Yr 0 Matches Yr 1}=='N' && {Yr 0 to Yr 1 Transfer Possibility}=='N' && {Valid Hierarchy Map (1 to 3)}=='Y',{Yr 1 - Business Group Level 1},\r",
 				"iif({Yr 0 Matches Yr 1}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Valid Hierarchy Map (2 to 3)}=='Y',{Yr 2 - Business Group Level 1},\r",
 				"iif({Yr 0 Matches Yr 1}=='Y' && {Yr 1 Matches Yr 2}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Valid Hierarchy Map (2 to 3)}=='Y',{Yr 2 - Business Group Level 1},'NO MAPPING'))))) ~> derivedColumn3",
-				"selectHierarchyFlagOutput sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1",
 				"derivedColumn3 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['Worker Hierarchy Map.csv'],",
