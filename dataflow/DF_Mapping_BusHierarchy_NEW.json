@@ -171,8 +171,7 @@
 					"name": "derivedSetMappingLevels"
 				},
 				{
-					"name": "derivedSetHierarchyLvlScope",
-					"description": "This sets the hierarchy codes for Levels 2-4 dependent on the level count input value.  If a level is not used then N/A is plugged."
+					"name": "derivedSetHierarchyLvlScope"
 				}
 			],
 			"scriptLines": [
@@ -236,7 +235,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> AllCoreData",
-				"AllCoreData select(mapColumn(",
+				"derivedSetHierarchyLvlScope select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Record Id} = {Worker ID},",
@@ -614,7 +613,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinDuplicateCountInfo",
-				"derivedSetHierarchyLvlScope derive({Yr 0 - Business Group Level 2} = iif($Levels_Count=='2',{Yr 0 - Business Group Level 2},'N/A'),",
+				"joinEachHCTYearB3 derive({Yr 0 - Business Group Level 2} = iif($Levels_Count=='2',{Yr 0 - Business Group Level 2},'N/A'),",
 				"          {Yr 0 - Business Group Level 3} = iif($Levels_Count=='3',{Yr 0 - Business Group Level 3},'N/A'),",
 				"          {Yr 0 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 0 - Business Group Level 4},'N/A'),",
 				"          {Yr 1 - Business Group Level 2} = iif($Levels_Count=='2',{Yr 1 - Business Group Level 2},'N/A'),",
@@ -626,18 +625,9 @@
 				"          {Yr 3 - Business Group Level 2} = iif($Levels_Count=='2',{Yr 3 - Business Group Level 2},'N/A'),",
 				"          {Yr 3 - Business Group Level 3} = iif($Levels_Count=='3',{Yr 2 - Business Group Level 3},'N/A'),",
 				"          {Yr 3 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 2 - Business Group Level 4},'N/A')) ~> derivedSetMappingLevels",
-				"joinEachHCTYearB3 derive({Yr 0 - Business Group Level 2} = iif($Levels_Count=='2'|| $Levels_Count=='3' || $Levels_Count=='4',{Yr 0 - Business Group Level 2},'N/A'),",
-				"          {Yr 0 - Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Yr 0 - Business Group Level 3},'N/A'),",
-				"          {Yr 0 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 0 - Business Group Level 4},'N/A'),",
-				"          {Yr 1 - Business Group Level 2} = iif($Levels_Count=='2'|| $Levels_Count=='3' || $Levels_Count=='4',{Yr 1 - Business Group Level 2},'N/A'),",
-				"          {Yr 1 - Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Yr 1 - Business Group Level 3},'N/A'),",
-				"          {Yr 1 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 1 - Business Group Level 4},'N/A'),",
-				"          {Yr 2 - Business Group Level 2} = iif($Levels_Count=='2'|| $Levels_Count=='3' || $Levels_Count=='4',{Yr 2 - Business Group Level 2},'N/A'),",
-				"          {Yr 2 - Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Yr 2 - Business Group Level 3},'N/A'),",
-				"          {Yr 2 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 2 - Business Group Level 4},'N/A'),",
-				"          {Yr 3 - Business Group Level 2} = iif($Levels_Count=='2'|| $Levels_Count=='3' || $Levels_Count=='4',{Yr 3 - Business Group Level 2},'N/A'),",
-				"          {Yr 3 - Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Yr 3 - Business Group Level 3},'N/A'),",
-				"          {Yr 3 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 3 - Business Group Level 4},'N/A')) ~> derivedSetHierarchyLvlScope",
+				"AllCoreData derive({Business Group Level 2} = iif($Levels_Count=='2'|| $Levels_Count=='3' || $Levels_Count=='4',{Business Group Level 2},'N/A'),",
+				"          {Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Business Group Level 3},'N/A'),",
+				"          {Business Group Level 4} = iif($Levels_Count=='4',{Business Group Level 4},'N/A')) ~> derivedSetHierarchyLvlScope",
 				"selectMappingWithDupCount sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
