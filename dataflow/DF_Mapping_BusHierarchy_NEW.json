@@ -19,10 +19,10 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "Source_AuditFolder",
+						"referenceName": "Source_Mapping_BusHierarchy",
 						"type": "DatasetReference"
 					},
-					"name": "sink2"
+					"name": "sink1"
 				}
 			],
 			"transformations": [
@@ -452,7 +452,7 @@
 				"          {Mapped Hierarchy Lvl 4},",
 				"          {Event Year}),",
 				"     {Record Count} = count({Record Id})) ~> Yr0SuggestedMapping",
-				"Yr0SetMappingLogic filter({Mapped Hierarchy Lvl 1}!='NO MAPPING') ~> Yr0PullOnlyMapped",
+				"Yr0SetMappingLogic filter(1==1) ~> Yr0PullOnlyMapped",
 				"filterBaseYearPlus1, selectHierarchyFlagOutput join({Record Id} == {Worker Id},",
 				"     joinType:'left',",
 				"     matchType:'exact',",
@@ -474,7 +474,7 @@
 				"iif({Yr 1 Matches Yr 2}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 4},  \r",
 				"iif({Yr 1 Matches Yr 2}=='Y' && {Yr 2 Matches Yr 3}=='N' && {Yr 2 to Yr 3 Transfer Possibility}=='N',{Yr 3 - Business Group Level 4}, \r",
 				"iif({Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 to Yr 3 Transfer Possibility}=='N',{Yr 3 - Business Group Level 4},'NO MAPPING' ))))) ~> Yr1SetMappingLogic",
-				"Yr1SetMappingLogic filter({Mapped Hierarchy Lvl 1}!='NO MAPPING') ~> Yr1PullOnlyMapped",
+				"Yr1SetMappingLogic filter(1==1) ~> Yr1PullOnlyMapped",
 				"Yr1PullOnlyMapped aggregate(groupBy({Yr 1 - Business Group Level 1},",
 				"          {Yr 1 - Business Group Level 2},",
 				"          {Yr 1 - Business Group Level 3},",
@@ -533,7 +533,7 @@
 				"          {Mapped Hierarchy Lvl 2} = iif({Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 2},  iif({Yr 2 Matches Yr 3}=='N' && {Yr 2 to Yr 3 Transfer Possibility}=='N',{Yr 3 - Business Group Level 2},'NO MAPPING' )),",
 				"          {Mapped Hierarchy Lvl 3} = iif({Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 3},  iif({Yr 2 Matches Yr 3}=='N' && {Yr 2 to Yr 3 Transfer Possibility}=='N',{Yr 3 - Business Group Level 3},'NO MAPPING' )),",
 				"          {Mapped Hierarchy Lvl 4} = iif({Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 4},  iif({Yr 2 Matches Yr 3}=='N' && {Yr 2 to Yr 3 Transfer Possibility}=='N',{Yr 3 - Business Group Level 4},'NO MAPPING' ))) ~> Yr2SetMappingLogic",
-				"Yr2SetMappingLogic filter({Mapped Hierarchy Lvl 1}!='NO MAPPING') ~> Yr2PullOnlyMapped",
+				"Yr2SetMappingLogic filter(1==1) ~> Yr2PullOnlyMapped",
 				"Yr2PullOnlyMapped aggregate(groupBy({Yr 2 - Business Group Level 1},",
 				"          {Yr 2 - Business Group Level 2},",
 				"          {Yr 2 - Business Group Level 3},",
@@ -638,12 +638,46 @@
 				"          {Yr 3 - Business Group Level 2} = iif($Levels_Count=='2'|| $Levels_Count=='3' || $Levels_Count=='4',{Yr 3 - Business Group Level 2},'N/A'),",
 				"          {Yr 3 - Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Yr 3 - Business Group Level 3},'N/A'),",
 				"          {Yr 3 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 3 - Business Group Level 4},'N/A')) ~> derivedSetHierarchyLvlScope",
-				"Yr0SetMappingLogic sink(allowSchemaDrift: true,",
+				"selectMappingWithDupCount sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     partitionFileNames:['Worker Hierarchy Map.csv'],",
+				"     input(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as string,",
+				"          {Client Business Group Level 1} as string,",
+				"          {Client Business Group Level 2} as string,",
+				"          {Client Business Group Level 3} as string,",
+				"          {Client Business Group Level 4} as string,",
+				"          {Elloree Business Group Level 1} as string,",
+				"          {Elloree Business Group Level 2} as string,",
+				"          {Elloree Business Group Level 3} as string,",
+				"          {Elloree Business Group Level 4} as string,",
+				"          {Suggested Elloree Business Group Level 1} as string,",
+				"          {Suggested Elloree Business Group Level 2} as string,",
+				"          {Suggested Elloree Business Group Level 3} as string,",
+				"          {Suggested Elloree Business Group Level 4} as string,",
+				"          {Suggested Source} as string,",
+				"          {2017 Headcount} as string,",
+				"          {2018 Headcount} as string,",
+				"          {2018 Hire} as string,",
+				"          {2018 Promo} as string,",
+				"          {2018 Term} as string,",
+				"          {2019 Headcount} as string,",
+				"          {2019 Hire} as string,",
+				"          {2019 Promo} as string,",
+				"          {2019 Term} as string,",
+				"          {2020 Headcount} as string,",
+				"          {2020 Hire} as string,",
+				"          {2020 Promo} as string,",
+				"          {2020 Term} as string,",
+				"          {2021 Headcount} as string,",
+				"          {2021 Hire} as string,",
+				"          {2021 Promo} as string,",
+				"          {2021 Term} as string",
+				"     ),",
+				"     partitionFileNames:['Business Mapping Suggestions.csv'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> sink2"
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
