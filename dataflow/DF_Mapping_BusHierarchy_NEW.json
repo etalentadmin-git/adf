@@ -94,6 +94,15 @@
 				},
 				{
 					"name": "derivedColumn3"
+				},
+				{
+					"name": "Yr0SuggestedMapping"
+				},
+				{
+					"name": "PullOnlyMapped"
+				},
+				{
+					"name": "join2"
 				}
 			],
 			"scriptLines": [
@@ -196,7 +205,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectB2Hierarchy",
-				"filterBaseYearPlus1 select(mapColumn(",
+				"join2 select(mapColumn(",
 				"          {Yr 1 - Worker Id} = {Record Id},",
 				"          {Yr 1 - Event Year} = {Event Year},",
 				"          {Yr 1 - Business Group Level 1} = {Business Group Level 1},",
@@ -346,7 +355,25 @@
 				"iif({Yr 0 Matches Yr 1}=='N' && {Yr 0 to Yr 1 Transfer Possibility}=='N' && {Yr 1 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 1},\r",
 				"iif({Yr 0 Matches Yr 1}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 1},\r",
 				"iif({Yr 0 Matches Yr 1}=='Y' && {Yr 1 Matches Yr 2}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 1},\r",
-				"iif({Yr 0 to Yr 1 Transfer Possibility}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 to Yr 3 Transfer Possibility}=='N',{Yr 3 - Business Group Level 1},'NO MAPPING' )))))) ~> derivedColumn3",
+				"iif({Yr 0 to Yr 1 Transfer Possibility}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 to Yr 3 Transfer Possibility}=='N',{Yr 3 - Business Group Level 1},'NO MAPPING' ))))),",
+				"          {Mapped Hierarchy Lvl 2} = iif({Yr 0 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 2}, iif({Yr 0 Matches Yr 1}=='N' && {Yr 0 to Yr 1 Transfer Possibility}=='N' && {Yr 1 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 2}, iif({Yr 0 Matches Yr 1}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 2}, iif({Yr 0 Matches Yr 1}=='Y' && {Yr 1 Matches Yr 2}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 2}, iif({Yr 0 to Yr 1 Transfer Possibility}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 to Yr 3 Transfer Possibility}=='N',{Yr 3 - Business Group Level 2},'NO MAPPING' ))))),",
+				"          {Mapped Hierarchy Lvl 3} = iif({Yr 0 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 3}, iif({Yr 0 Matches Yr 1}=='N' && {Yr 0 to Yr 1 Transfer Possibility}=='N' && {Yr 1 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 3}, iif({Yr 0 Matches Yr 1}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 3}, iif({Yr 0 Matches Yr 1}=='Y' && {Yr 1 Matches Yr 2}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 3}, iif({Yr 0 to Yr 1 Transfer Possibility}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 to Yr 3 Transfer Possibility}=='N',{Yr 3 - Business Group Level 3},'NO MAPPING' ))))),",
+				"          {Mapped Hierarchy Lvl 4} = iif({Yr 0 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 4}, iif({Yr 0 Matches Yr 1}=='N' && {Yr 0 to Yr 1 Transfer Possibility}=='N' && {Yr 1 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 4}, iif({Yr 0 Matches Yr 1}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 4}, iif({Yr 0 Matches Yr 1}=='Y' && {Yr 1 Matches Yr 2}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 Matches Yr 3}=='Y',{Yr 3 - Business Group Level 4}, iif({Yr 0 to Yr 1 Transfer Possibility}=='N' && {Yr 1 to Yr 2 Transfer Possibility}=='N' && {Yr 2 to Yr 3 Transfer Possibility}=='N',{Yr 3 - Business Group Level 4},'NO MAPPING' )))))) ~> derivedColumn3",
+				"PullOnlyMapped aggregate(groupBy({Yr 0 - Business Group Level 1},",
+				"          {Yr 0 - Business Group Level 2},",
+				"          {Yr 0 - Business Group Level 3},",
+				"          {Yr 0 - Business Group Level 4},",
+				"          {Mapped Hierarchy Lvl 1},",
+				"          {Mapped Hierarchy Lvl 2},",
+				"          {Mapped Hierarchy Lvl 3},",
+				"          {Mapped Hierarchy Lvl 4}),",
+				"     {Record Count} = count({Record Id})) ~> Yr0SuggestedMapping",
+				"derivedColumn3 filter({Mapped Hierarchy Lvl 1}!='NO MAPPING') ~> PullOnlyMapped",
+				"filterBaseYearPlus1 join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
 				"derivedColumn3 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     partitionFileNames:['Worker Hierarchy Map.csv'],",
