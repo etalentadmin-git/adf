@@ -251,6 +251,9 @@
 				},
 				{
 					"name": "JoinTalentIdentifiers"
+				},
+				{
+					"name": "FlightRiskSpeedbump8"
 				}
 			],
 			"scriptLines": [
@@ -553,7 +556,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select * from [dbo].[TAApplTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventYear = '{$SB_BL_Year}'\"),",
+				"     query: (\"select * from [dbo].[TAApplTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> Applicant",
 				"source(output(",
 				"          ClientId as string,",
@@ -784,7 +787,7 @@
 				"iif(isNull(CoreLastPromoDt),'Y',\r",
 				"iif(year(CoreLastPromoDt)>=toInteger($SB_BL_Year)-2,'N','Y')))))),'N'),'N'),",
 				"          {Speedbump 5 Name} = 'Applied Roles',",
-				"          {Speedbump 5 Desc} = 'Employee applied for 5 or more roles in the current year',",
+				"          {Speedbump 5 Desc} = 'Employee applied for 3 or more roles',",
 				"          {Speedbump 5 Flag} = iif($SB5_Applied5=='Y',iif({Applicant Five or More}=='Y','Y','N'),'N'),",
 				"          {Speedbump 6 Name} = 'Silver Medalist',",
 				"          {Speedbump 6 Desc} = 'Employee is a \"Silver Medalist\" for at least 1 role in the current year ',",
@@ -837,8 +840,8 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'both')~> Join5OrMoreApplied",
-				"AggApplicantData derive({Applicant Five or More} = iif({Count Req}>=5,'Y','N')) ~> Select5orMoreAppliedApplicant",
-				"CalcSpeedBumps select(mapColumn(",
+				"AggApplicantData derive({Applicant Five or More} = iif({Count Req}>=3,'Y','N')) ~> Select5orMoreAppliedApplicant",
+				"FlightRiskSpeedbump8 select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Event Quarter} = EventQuarter,",
@@ -1016,6 +1019,16 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinTalentIdentifiers",
+				"CalcSpeedBumps derive({Speedbump 8 Name} = 'Flight Risk',",
+				"          {Speedbump 14 Desc} = 'Flight Risk based on Level, Tenure, Promo, Mgr. Change, Applied 5 and Silver Medalist.',",
+				"          {Speedbump 8 Flag} = iif($SB8_Placeholder=='Y',iif((iif(({Elloree Corporate Title Sort}==1 && {Years of Service}>=22 && {Years of Service}<=24)\r",
+				"|| ({Elloree Corporate Title Sort}==2 && {Years of Service}>=11.3 && {Years of Service}<=13.3)\r",
+				"|| ({Elloree Corporate Title Sort}==3 && {Years of Service}>=4.7 && {Years of Service}<=6.7)\r",
+				"|| ({Elloree Corporate Title Sort}==4 && {Years of Service}>=4.4 && {Years of Service}<=6.4),1,0)+\r",
+				"iif({Speedbump 4 Flag}=='Y',1,0)+\r",
+				"iif({Speedbump 7 Flag}=='Y',1,0)+\r",
+				"iif({Speedbump 6 Flag}=='Y',1,0)+\r",
+				"iif({Speedbump 5 Flag}=='Y',1,0))>=3,'Y','N'),'N')) ~> FlightRiskSpeedbump8",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
