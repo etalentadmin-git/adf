@@ -3447,6 +3447,13 @@
 								"type": "DatasetReference"
 							},
 							"name": "OutputReqApplicantReview"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputReqWithSameApplicantMoreThanOnce"
 						}
 					],
 					"transformations": [
@@ -3464,6 +3471,12 @@
 						},
 						{
 							"name": "SelectReqInfo"
+						},
+						{
+							"name": "ReqApplicantCountforDupes"
+						},
+						{
+							"name": "ReqsWithSameApplicantAppliedMultiple"
 						}
 					],
 					"scriptLines": [
@@ -3574,12 +3587,22 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectReqInfo",
+						"ApplicantData aggregate(groupBy({Requisition ID},",
+						"          {Applicant ID}),",
+						"     {Applicant Count} = count({Applicant ID})) ~> ReqApplicantCountforDupes",
+						"ReqApplicantCountforDupes filter({Applicant Count}>1) ~> ReqsWithSameApplicantAppliedMultiple",
 						"SortOnEvent sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['Req Applicant Count Review.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> OutputReqApplicantReview"
+						"     partitionBy('hash', 1)) ~> OutputReqApplicantReview",
+						"ReqsWithSameApplicantAppliedMultiple sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Req Applicant Applied 2+ Times Review.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputReqWithSameApplicantMoreThanOnce"
 					]
 				}
 			},
