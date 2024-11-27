@@ -69,6 +69,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "Talent"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentOtherCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "OtherCoreTbl"
 				}
 			],
 			"sinks": [
@@ -254,6 +261,15 @@
 				},
 				{
 					"name": "FlightRiskSpeedbump8"
+				},
+				{
+					"name": "FilterEngagementType"
+				},
+				{
+					"name": "SelectWorkerEngagementType"
+				},
+				{
+					"name": "JoinWorkerMgrEngagementData"
 				}
 			],
 			"scriptLines": [
@@ -637,6 +653,32 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> Talent",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          WorkerId as string,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          EventDesc as string,",
+				"          EventType as string,",
+				"          OtherCharVal11 as string,",
+				"          OtherCharVal2 as string,",
+				"          OtherNumVal1 as double,",
+				"          OtherNumVal2 as double,",
+				"          OtherDtVal1 as date,",
+				"          OtherDtVal2 as date,",
+				"          EmpCount as integer,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: (\"select * from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     format: 'query') ~> OtherCoreTbl",
 				"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
 				"     joinType:'inner',",
@@ -765,7 +807,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinP1Promo",
-				"Join3YrWorkerMgrCount derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y','N'),",
+				"JoinWorkerMgrEngagementData derive({Speedbump Population Ind} = iif({Curr Talent Tag}!='N/A','Y','N'),",
 				"          {Speedbump Worker Status} = 'Active',",
 				"          {Speedbump 1 Name} = 'Mgr Level',",
 				"          {Speedbump 1 Desc} = 'Assigned to a manager at their same level (non Exec)',",
@@ -798,9 +840,9 @@
 				"          {Speedbump 8 Name} = 'Speedbump 8',",
 				"          {Speedbump 8 Desc} = 'N/A',",
 				"          {Speedbump 8 Flag} = 'N/A',",
-				"          {Speedbump 9 Name} = 'Speedbump 9',",
-				"          {Speedbump 9 Desc} = 'N/A',",
-				"          {Speedbump 9 Flag} = 'N/A',",
+				"          {Speedbump 9 Name} = 'Manager Engagement',",
+				"          {Speedbump 9 Desc} = 'Engagement Index with a score of less than 74',",
+				"          {Speedbump 9 Flag} = iif($SB9_Placeholder=='Y',iif(Engagement<74,'Y','N'),'N'),",
 				"          {Speedbump 10 Name} = 'Speedbump 10',",
 				"          {Speedbump 10 Desc} = 'N/A',",
 				"          {Speedbump 10 Flag} = 'N/A',",
@@ -1029,6 +1071,18 @@
 				"iif({Speedbump 7 Flag}=='Y',1,0)+\r",
 				"iif({Speedbump 6 Flag}=='Y',1,0)+\r",
 				"iif({Speedbump 5 Flag}=='Y',1,0))>=3,'Y','N'),'N')) ~> FlightRiskSpeedbump8",
+				"OtherCoreTbl filter(EventType==\"Engagement Index\") ~> FilterEngagementType",
+				"FilterEngagementType select(mapColumn(",
+				"          WorkerId,",
+				"          Engagement = OtherNumVal1",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectWorkerEngagementType",
+				"Join3YrWorkerMgrCount, SelectWorkerEngagementType join({Worker ID} == WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinWorkerMgrEngagementData",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",

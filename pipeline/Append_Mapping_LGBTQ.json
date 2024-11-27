@@ -1,13 +1,20 @@
 {
-	"name": "Output_Mapping_Job_NO_CLIENT_DELETE",
+	"name": "Append_Mapping_LGBTQ",
 	"properties": {
 		"activities": [
 			{
-				"name": "DF_Mapping_Job_NOT_USING_CLIENT",
+				"name": "Append_Mapping_LGBTQ",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Delete_Rec_Mapping_LGTBQ",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
-					"timeout": "0.12:00:00",
+					"timeout": "1.00:00:00",
 					"retry": 0,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
@@ -16,38 +23,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "DF_Mapping_Job_NOT_USING_CLIENT_DELETE",
+						"referenceName": "Append_Mapping_LGBTQ",
 						"type": "DataFlowReference",
-						"parameters": {
-							"Flow_Client_Id": {
-								"value": "'@{pipeline().parameters.P_Client_Id}'",
-								"type": "Expression"
-							},
-							"Flow_Client_Dt": {
-								"value": "'@{pipeline().parameters.P_Client_Dt}'",
-								"type": "Expression"
-							}
-						},
 						"datasetParameters": {
-							"OutputMappingToPrepFldr": {
-								"Source_Client_Fldr": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"Source_Client_Date": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"Source_Client_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"Source_Client_Quarter": {
-									"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-									"type": "Expression"
-								}
-							},
-							"OutputMappingToWorkingFldr": {
+							"LGBTQ": {
 								"Source_Client_Fldr": {
 									"value": "@pipeline().parameters.P_Client_Id",
 									"type": "Expression"
@@ -73,6 +52,32 @@
 					},
 					"traceLevel": "Fine"
 				}
+			},
+			{
+				"name": "Delete_Rec_Mapping_LGTBQ",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Delete_Rec_Mapping_LGTBQ",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						}
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -90,10 +95,10 @@
 			}
 		},
 		"folder": {
-			"name": "Client/Create Mapping Table Files"
+			"name": "Client/Database/Load Mapping Tables"
 		},
 		"annotations": [],
-		"lastPublishTime": "2023-01-11T23:59:37Z"
+		"lastPublishTime": "2023-01-12T15:19:43Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }
