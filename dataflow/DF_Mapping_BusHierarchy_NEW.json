@@ -240,6 +240,21 @@
 				},
 				{
 					"name": "PY3HierSelect"
+				},
+				{
+					"name": "Py1inCY"
+				},
+				{
+					"name": "Py2inCY"
+				},
+				{
+					"name": "Py3inCY"
+				},
+				{
+					"name": "Py3inPY2"
+				},
+				{
+					"name": "Py2inPY1"
 				}
 			],
 			"scriptLines": [
@@ -677,17 +692,17 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinDuplicateCountInfo",
-				"derivedSetNullHierarchyToNA derive({Yr 0 - Business Group Level 2} = iif($Levels_Count=='2',{Yr 0 - Business Group Level 1},'N/A'),",
-				"          {Yr 0 - Business Group Level 3} = iif($Levels_Count=='3',{Yr 0 - Business Group Level 3},'N/A'),",
+				"derivedSetNullHierarchyToNA derive({Yr 0 - Business Group Level 2} = iif($Levels_Count=='2' || $Levels_Count=='3' || $Levels_Count=='4',{Yr 0 - Business Group Level 1},'N/A'),",
+				"          {Yr 0 - Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Yr 0 - Business Group Level 3},'N/A'),",
 				"          {Yr 0 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 0 - Business Group Level 4},'N/A'),",
-				"          {Yr 1 - Business Group Level 2} = iif($Levels_Count=='2',{Yr 1 - Business Group Level 2},'N/A'),",
-				"          {Yr 1 - Business Group Level 3} = iif($Levels_Count=='3',{Yr 0 - Business Group Level 3},'N/A'),",
+				"          {Yr 1 - Business Group Level 2} = iif($Levels_Count=='2' || $Levels_Count=='3' || $Levels_Count=='4',{Yr 1 - Business Group Level 2},'N/A'),",
+				"          {Yr 1 - Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Yr 0 - Business Group Level 3},'N/A'),",
 				"          {Yr 1 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 1 - Business Group Level 4},'N/A'),",
-				"          {Yr 2 - Business Group Level 2} = iif($Levels_Count=='2',{Yr 2 - Business Group Level 2},'N/A'),",
-				"          {Yr 2 - Business Group Level 3} = iif($Levels_Count=='3',{Yr 2 - Business Group Level 3},'N/A'),",
+				"          {Yr 2 - Business Group Level 2} = iif($Levels_Count=='2' || $Levels_Count=='3' || $Levels_Count=='4',{Yr 2 - Business Group Level 2},'N/A'),",
+				"          {Yr 2 - Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Yr 2 - Business Group Level 3},'N/A'),",
 				"          {Yr 2 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 2 - Business Group Level 4},'N/A'),",
-				"          {Yr 3 - Business Group Level 2} = iif($Levels_Count=='2',{Yr 3 - Business Group Level 2},'N/A'),",
-				"          {Yr 3 - Business Group Level 3} = iif($Levels_Count=='3',{Yr 2 - Business Group Level 3},'N/A'),",
+				"          {Yr 3 - Business Group Level 2} = iif($Levels_Count=='2' || $Levels_Count=='3' || $Levels_Count=='4',{Yr 3 - Business Group Level 2},'N/A'),",
+				"          {Yr 3 - Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Yr 2 - Business Group Level 3},'N/A'),",
 				"          {Yr 3 - Business Group Level 4} = iif($Levels_Count=='4',{Yr 2 - Business Group Level 4},'N/A')) ~> derivedSetMappingLevels",
 				"filter1 derive({Business Group Level 2} = iif($Levels_Count=='2'|| $Levels_Count=='3' || $Levels_Count=='4',{Business Group Level 2},'N/A'),",
 				"          {Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Business Group Level 3},'N/A'),",
@@ -818,6 +833,26 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> PY3HierSelect",
+				"PY1HierSelect, CYHierSelect lookup(PY1HierarchyCode == CYHierarchyCode,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> Py1inCY",
+				"PY2HierSelect, CYHierSelect lookup(PY2HierarchyCode == CYHierarchyCode,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> Py2inCY",
+				"PY3HierSelect, CYHierSelect lookup(PY3HierarchyCode == CYHierarchyCode,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> Py3inCY",
+				"Py3inCY, PY2HierSelect lookup(PY3HierarchyCode == PY2HierarchyCode,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> Py3inPY2",
+				"Py2inCY, PY1HierSelect lookup(PY2HierarchyCode == PY1HierarchyCode,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> Py2inPY1",
 				"selectMappingWithDupCount sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
