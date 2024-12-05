@@ -5425,6 +5425,13 @@
 								"type": "DatasetReference"
 							},
 							"name": "sink2"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_BusHierarchy",
+								"type": "DatasetReference"
+							},
+							"name": "sink3"
 						}
 					],
 					"transformations": [
@@ -5580,6 +5587,9 @@
 						},
 						{
 							"name": "derivedSetNullHierarchyToNA"
+						},
+						{
+							"name": "aggregate2"
 						}
 					],
 					"scriptLines": [
@@ -6032,7 +6042,7 @@
 						"filter1 derive({Business Group Level 2} = iif($Levels_Count=='2'|| $Levels_Count=='3' || $Levels_Count=='4',{Business Group Level 2},'N/A'),",
 						"          {Business Group Level 3} = iif($Levels_Count=='3' || $Levels_Count=='4',{Business Group Level 3},'N/A'),",
 						"          {Business Group Level 4} = iif($Levels_Count=='4',{Business Group Level 4},'N/A')) ~> derivedSetHierarchyLvlScope",
-						"AllCoreData filter({Worker ID}=='56536' && Event=='Headcount') ~> filter1",
+						"AllCoreData filter(1==1) ~> filter1",
 						"joinEachHCTYearB3 derive({Yr 0 - Business Group Level 1} = iif(isNull({Yr 0 - Business Group Level 1}),'N/A',{Yr 0 - Business Group Level 1}),",
 						"          {Yr 0 - Business Group Level 2} = iif(isNull({Yr 0 - Business Group Level 2}),'N/A',{Yr 0 - Business Group Level 2}),",
 						"          {Yr 0 - Business Group Level 3} = iif(isNull({Yr 0 - Business Group Level 3}),'N/A',{Yr 0 - Business Group Level 3}),",
@@ -6053,6 +6063,23 @@
 						"          {Yr 1 - Job Title} = iif(isNull({Yr 1 - Job Title}),'N/A',{Yr 1 - Job Title}),",
 						"          {Yr 2 - Job Title} = iif(isNull({Yr 2 - Job Title}),'N/A',{Yr 2 - Job Title}),",
 						"          {Yr 3 - Job Title} = iif(isNull({Yr 3 - Job Title}),'N/A',{Yr 3 - Job Title})) ~> derivedSetNullHierarchyToNA",
+						"joinEachHCTYearB3 aggregate(groupBy({Yr 0 - Business Group Level 1},",
+						"          {Yr 0 - Business Group Level 2},",
+						"          {Yr 0 - Business Group Level 3},",
+						"          {Yr 0 - Business Group Level 4},",
+						"          {Yr 1 - Business Group Level 1},",
+						"          {Yr 1 - Business Group Level 2},",
+						"          {Yr 1 - Business Group Level 3},",
+						"          {Yr 1 - Business Group Level 4},",
+						"          {Yr 2 - Business Group Level 1},",
+						"          {Yr 2 - Business Group Level 2},",
+						"          {Yr 2 - Business Group Level 3},",
+						"          {Yr 2 - Business Group Level 4},",
+						"          {Yr 3 - Business Group Level 1},",
+						"          {Yr 3 - Business Group Level 2},",
+						"          {Yr 3 - Business Group Level 3},",
+						"          {Yr 3 - Business Group Level 4}),",
+						"     WorkerCount = count({Worker Id})) ~> aggregate2",
 						"selectMappingWithDupCount sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -6132,7 +6159,47 @@
 						"     partitionFileNames:['Business Mapping Suggestions Detail.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink2"
+						"     partitionBy('hash', 1)) ~> sink2",
+						"aggregate2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Client Business Group Level 1} as string,",
+						"          {Client Business Group Level 2} as string,",
+						"          {Client Business Group Level 3} as string,",
+						"          {Client Business Group Level 4} as string,",
+						"          {Elloree Business Group Level 1} as string,",
+						"          {Elloree Business Group Level 2} as string,",
+						"          {Elloree Business Group Level 3} as string,",
+						"          {Elloree Business Group Level 4} as string,",
+						"          {Suggested Elloree Business Group Level 1} as string,",
+						"          {Suggested Elloree Business Group Level 2} as string,",
+						"          {Suggested Elloree Business Group Level 3} as string,",
+						"          {Suggested Elloree Business Group Level 4} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount} as string,",
+						"          {2018 Headcount} as string,",
+						"          {2018 Hire} as string,",
+						"          {2018 Promo} as string,",
+						"          {2018 Term} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2019 Hire} as string,",
+						"          {2019 Promo} as string,",
+						"          {2019 Term} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promo} as string,",
+						"          {2020 Term} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promo} as string,",
+						"          {2021 Term} as string",
+						"     ),",
+						"     partitionFileNames:['FullHierarchyList'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink3"
 					]
 				}
 			},
