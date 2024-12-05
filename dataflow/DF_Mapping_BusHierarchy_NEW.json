@@ -201,6 +201,45 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "PY3Hierarchy"
+				},
+				{
+					"name": "PY2Hierarchy"
+				},
+				{
+					"name": "PY1Hierarchy"
+				},
+				{
+					"name": "CYHierarchy"
+				},
+				{
+					"name": "CYHierarchyCode"
+				},
+				{
+					"name": "RemoveCYNA"
+				},
+				{
+					"name": "CYHierSelect"
+				},
+				{
+					"name": "PY1HierarchyCode"
+				},
+				{
+					"name": "PY1HierSelect"
+				},
+				{
+					"name": "PY2HierarchyCode"
+				},
+				{
+					"name": "PY2HierSelect"
+				},
+				{
+					"name": "PY3HierarchyCode"
+				},
+				{
+					"name": "PY3HierSelect"
 				}
 			],
 			"scriptLines": [
@@ -730,6 +769,55 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 aggregate(groupBy({PY3 - Business Group Level 1},",
+				"          {PY3 - Business Group Level 2},",
+				"          {PY3 - Business Group Level 3},",
+				"          {PY3 - Business Group Level 4}),",
+				"     {Worker Count} = count({Worker Id})) ~> PY3Hierarchy",
+				"select1 aggregate(groupBy({PY2 - Business Group Level 1},",
+				"          {PY2 - Business Group Level 2},",
+				"          {PY2 - Business Group Level 3},",
+				"          {PY2 - Business Group Level 4}),",
+				"     {Worker Count} = count({Worker Id})) ~> PY2Hierarchy",
+				"select1 aggregate(groupBy({PY1 - Business Group Level 1},",
+				"          {PY1 - Business Group Level 2},",
+				"          {PY1 - Business Group Level 3},",
+				"          {PY1 - Business Group Level 4}),",
+				"     {Worker Count} = count({Worker Id})) ~> PY1Hierarchy",
+				"select1 aggregate(groupBy({CY - Business Group Level 1},",
+				"          {CY - Business Group Level 2},",
+				"          {CY - Business Group Level 3},",
+				"          {CY - Business Group Level 4}),",
+				"     {Worker Count} = count({Worker Id})) ~> CYHierarchy",
+				"CYHierarchy derive(CYHierarchyCode = concat(concat(concat({CY - Business Group Level 1},{CY - Business Group Level 2}),{CY - Business Group Level 3}),{CY - Business Group Level 4})) ~> CYHierarchyCode",
+				"CYHierarchyCode filter({CY - Business Group Level 1}!=\"N/A\") ~> RemoveCYNA",
+				"RemoveCYNA select(mapColumn(",
+				"          CYHierarchyCode,",
+				"          {Worker Count}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> CYHierSelect",
+				"PY1Hierarchy derive(PY1HierarchyCode = concat(concat(concat({PY1 - Business Group Level 1},{PY1 - Business Group Level 2}),{PY1 - Business Group Level 3}),{PY1 - Business Group Level 4})) ~> PY1HierarchyCode",
+				"PY1HierarchyCode select(mapColumn(",
+				"          PY1HierarchyCode,",
+				"          {Worker Count}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> PY1HierSelect",
+				"PY2Hierarchy derive(PY2HierarchyCode = concat(concat(concat({PY2 - Business Group Level 1},{PY2 - Business Group Level 2}),{PY2 - Business Group Level 3}),{PY2 - Business Group Level 4})) ~> PY2HierarchyCode",
+				"PY2HierarchyCode select(mapColumn(",
+				"          PY2HierarchyCode,",
+				"          {Worker Count}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> PY2HierSelect",
+				"PY3Hierarchy derive(PY2HierarchyCode = concat(concat(concat({PY3 - Business Group Level 1},{PY3 - Business Group Level 2}),{PY3 - Business Group Level 3}),{PY3 - Business Group Level 4})) ~> PY3HierarchyCode",
+				"PY3HierarchyCode select(mapColumn(",
+				"          PY3HierarchyCode = PY2HierarchyCode,",
+				"          {Worker Count}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> PY3HierSelect",
 				"selectMappingWithDupCount sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
