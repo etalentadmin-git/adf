@@ -304,6 +304,36 @@
 				},
 				{
 					"name": "SelectFinalWorkerHistoryCompare"
+				},
+				{
+					"name": "derivedColumn6"
+				},
+				{
+					"name": "CYtoPY1"
+				},
+				{
+					"name": "filterCYtoPY1Groups"
+				},
+				{
+					"name": "SetFlagForMappingCYtoPY1"
+				},
+				{
+					"name": "PY1toPY2"
+				},
+				{
+					"name": "filterPY1toPY2Groups"
+				},
+				{
+					"name": "SetFlagForMappingPY1toPY2"
+				},
+				{
+					"name": "PY2toPY3"
+				},
+				{
+					"name": "filter2"
+				},
+				{
+					"name": "SetFlagForMappingPY2toPY3"
 				}
 			],
 			"scriptLines": [
@@ -1110,6 +1140,65 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectFinalWorkerHistoryCompare",
+				"SelectFinalWorkerHistoryCompare derive({CY - Percentage of PY1 Employees} = round({CY - Percentage of PY1 Employees}),",
+				"          {PY1 - Percentage of PY2 Employees} = round({PY1 - Percentage of PY2 Employees}),",
+				"          {PY2 - Percentage of PY3 Employees} = round({PY2 - Percentage of PY3 Employees})) ~> derivedColumn6",
+				"derivedColumn6 aggregate(groupBy({CY - Event Year},",
+				"          {CY - Hierarchy Code},",
+				"          {CY - Business Group Level 1},",
+				"          {CY - Business Group Level 2},",
+				"          {CY - Business Group Level 3},",
+				"          {CY - Business Group Level 4},",
+				"          {CY - Workers In Hierarchy},",
+				"          {CY - Percentage of PY1 Employees},",
+				"          {PY1 to CY Hierarchy Code Change},",
+				"          {PY1 - Event Year},",
+				"          {PY1 - Hierarchy Code},",
+				"          {PY1 - In CY Hierarachy},",
+				"          {PY1 - Business Group Level 1},",
+				"          {PY1 - Business Group Level 2},",
+				"          {PY1 - Business Group Level 3},",
+				"          {PY1 - Business Group Level 4}),",
+				"     {Record Count} = count({Worker Id})) ~> CYtoPY1",
+				"CYtoPY1 filter({PY1 - In CY Hierarachy}==\"N\" && {PY1 - Business Group Level 1}!=\"N/A\") ~> filterCYtoPY1Groups",
+				"filterCYtoPY1Groups derive({Map PY1 to CY} = iif({CY - Percentage of PY1 Employees}>=60,'Y','N')) ~> SetFlagForMappingCYtoPY1",
+				"derivedColumn6 aggregate(groupBy({PY1 - Event Year},",
+				"          {PY1 - Hierarchy Code},",
+				"          {PY1 - Business Group Level 1},",
+				"          {PY1 - Business Group Level 2},",
+				"          {PY1 - Business Group Level 3},",
+				"          {PY1 - Business Group Level 4},",
+				"          {PY1 - Workers In Hierarchy},",
+				"          {PY1 - Percentage of PY2 Employees},",
+				"          {PY2 to PY1 Hierarchy Code Change},",
+				"          {PY2 - In PY1 Hierarachy},",
+				"          {PY2 - Event Year},",
+				"          {PY2 - Hierarchy Code},",
+				"          {PY2 - Business Group Level 1},",
+				"          {PY2 - Business Group Level 2},",
+				"          {PY2 - Business Group Level 3},",
+				"          {PY2 - Business Group Level 4}),",
+				"     {Record Count} = count({Worker Id})) ~> PY1toPY2",
+				"PY1toPY2 filter({PY2 - In PY1 Hierarachy}==\"N\" && {PY2 - Business Group Level 1}!=\"N/A\") ~> filterPY1toPY2Groups",
+				"filterPY1toPY2Groups derive({Map PY2 to PY1} = iif({PY1 - Percentage of PY2 Employees}>=60,'Y','N')) ~> SetFlagForMappingPY1toPY2",
+				"derivedColumn6 aggregate(groupBy({PY2 - Event Year},",
+				"          {PY2 - Hierarchy Code},",
+				"          {PY2 - Business Group Level 1},",
+				"          {PY2 - Business Group Level 2},",
+				"          {PY2 - Business Group Level 3},",
+				"          {PY2 - Business Group Level 4},",
+				"          {PY2 - Percentage of PY3 Employees},",
+				"          {PY3 to PY2 Hierarchy Code Change},",
+				"          {PY3 - In PY2 Hierarachy},",
+				"          {PY3 - Event Year},",
+				"          {PY3 - Hierarchy Code},",
+				"          {PY3 - Business Group Level 1},",
+				"          {PY3 - Business Group Level 2},",
+				"          {PY3 - Business Group Level 3},",
+				"          {PY3 - Business Group Level 4}),",
+				"     {Record Count} = count({Worker Id})) ~> PY2toPY3",
+				"PY2toPY3 filter({PY3 - In PY2 Hierarachy}==\"N\" && {PY3 - Business Group Level 1}!=\"N/A\") ~> filter2",
+				"filter2 derive({Map PY3 to PY2} = iif({PY2 - Percentage of PY3 Employees}>=60,'Y','N')) ~> SetFlagForMappingPY2toPY3",
 				"selectMappingWithDupCount sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -1230,7 +1319,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     partitionBy('hash', 1)) ~> sink3",
-				"SelectFinalWorkerHistoryCompare sink(allowSchemaDrift: true,",
+				"derivedColumn6 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          {Client ID} as string,",
