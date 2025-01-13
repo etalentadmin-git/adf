@@ -1,0 +1,54 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"folder": {
+			"name": "Test"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Client_Output",
+						"type": "DatasetReference"
+					},
+					"name": "ClientData"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_Identification",
+						"type": "DatasetReference"
+					},
+					"name": "IdentifierData"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "flatten1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ValuesA as string,",
+				"          ValuesB as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ClientData",
+				"source(output(",
+				"          Identifiers as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> IdentifierData",
+				"IdentifierData foldDown(unroll(),",
+				"     mapColumn(",
+				"          Identifiers",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten1"
+			]
+		}
+	}
+}
