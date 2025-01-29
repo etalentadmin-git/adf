@@ -13,134 +13,6 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_BusHierarchy')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_BusHierarchy",
-								"type": "DatasetReference"
-							},
-							"name": "BusHierarchy"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentBusHierarchyMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendBusHierarchyMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Business Group Level 1} as string,",
-						"          {Client Business Group Level 2} as string,",
-						"          {Client Business Group Level 3} as string,",
-						"          {Client Business Group Level 4} as string,",
-						"          {Elloree Business Group Level 1} as string,",
-						"          {Elloree Business Group Level 2} as string,",
-						"          {Elloree Business Group Level 3} as string,",
-						"          {Elloree Business Group Level 4} as string,",
-						"          {Suggested Elloree Business Group Level 1} as string,",
-						"          {Suggested Elloree Business Group Level 2} as string,",
-						"          {Suggested Elloree Business Group Level 3} as string,",
-						"          {Suggested Elloree Business Group Level 4} as string,",
-						"          {Suggested Source} as string,",
-						"          {2017 Headcount} as string,",
-						"          {2018 Headcount} as string,",
-						"          {2018 Hire} as string,",
-						"          {2018 Promo} as string,",
-						"          {2018 Term} as string,",
-						"          {2019 Headcount} as string,",
-						"          {2019 Hire} as string,",
-						"          {2019 Promo} as string,",
-						"          {2019 Term} as string,",
-						"          {2020 Headcount} as string,",
-						"          {2020 Hire} as string,",
-						"          {2020 Promo} as string,",
-						"          {2020 Term} as string,",
-						"          {2021 Headcount} as string,",
-						"          {2021 Hire} as string,",
-						"          {2021 Promo} as string,",
-						"          {2021 Term} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> BusHierarchy",
-						"BusHierarchy alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Elloree Business Group Level 1})),",
-						"     deleteIf(isNull({Elloree Business Group Level 2})),",
-						"     deleteIf(isNull({Elloree Business Group Level 3})),",
-						"     deleteIf(isNull({Elloree Business Group Level 4}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          ClientBusGrpLvl1 = {Client Business Group Level 1},",
-						"          ElloreeBusGrpLvl1 = {Elloree Business Group Level 1},",
-						"          ClientBusGrpLvl2 = {Client Business Group Level 2},",
-						"          ElloreeBusGrpLvl2 = {Elloree Business Group Level 2},",
-						"          ClientBusGrpLvl3 = {Client Business Group Level 3},",
-						"          ElloreeBusGrpLvl3 = {Elloree Business Group Level 3},",
-						"          ClientBusGrpLvl4 = {Client Business Group Level 4},",
-						"          ElloreeBusGrpLvl4 = {Elloree Business Group Level 4}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientBusGrpLvl1 as string,",
-						"          ClientBusGrpLvl2 as string,",
-						"          ClientBusGrpLvl3 as string,",
-						"          ClientBusGrpLvl4 as string,",
-						"          ElloreeBusGrpLvl1 as string,",
-						"          ElloreeBusGrpLvl2 as string,",
-						"          ElloreeBusGrpLvl3 as string,",
-						"          ElloreeBusGrpLvl4 as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientBusGrpLvl1','ClientBusGrpLvl2','ClientBusGrpLvl3','ClientBusGrpLvl4'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendBusHierarchyMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Append_Mapping_BusHierarchy_Hist')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -2912,6 +2784,104 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError') ~> AppendLocationMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_PerformanceRating')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_PerformanceRating",
+								"type": "DatasetReference"
+							},
+							"name": "Performance"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentPerfRatingMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendPerformanceMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Performance Rating} as string,",
+						"          {Elloree Performance Rating} as string,",
+						"          {Elloree Performance Rating Sort} as string,",
+						"          {Suggested Elloree Performance Rating} as string,",
+						"          {Suggested Elloree Performane Rating Sort Id} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Talent Assessment} as string,",
+						"          {2018 Talent Assessment} as string,",
+						"          {2019 Talent Assessment} as string,",
+						"          {2020 Talent Assessment} as string,",
+						"          {2021 Talent Assessment} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Performance",
+						"Performance alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Client Performance Rating})),",
+						"     deleteIf(isNull({Elloree Performance Rating})),",
+						"     deleteIf(isNull({Elloree Performance Rating Sort}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientPerfRating = {Client Performance Rating},",
+						"          ElloreePerfRating = {Elloree Performance Rating},",
+						"          ElloreePerfRatingSortId = {Elloree Performance Rating Sort},",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientPerfRating as string,",
+						"          ElloreePerfRating as string,",
+						"          ElloreePerfRatingSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientPerfRating'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendPerformanceMapping"
 					]
 				}
 			},
