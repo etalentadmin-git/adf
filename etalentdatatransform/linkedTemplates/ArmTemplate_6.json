@@ -13,3060 +13,1412 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_ColumnMapping_Requisition')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ApplicantFlow_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Mapping"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": "Requisition",
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "column_mapping.xlsx",
-						"folderPath": "Template Admin",
-						"container": "processing"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": [
+				"activities": [
 					{
-						"name": "Sort Id",
-						"type": "String"
-					},
-					{
-						"name": "Column Name",
-						"type": "String"
+						"name": "Append_Mapping_ApplicantFlow_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_ApplicantFlow_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"ApplicantFlowMapping": {},
+									"AppendApplicantFlowMapping": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
 					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Source_ColumnMapping_TalentAssessment')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Mapping"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": "TalentAssessment",
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "column_mapping.xlsx",
-						"folderPath": "Template Admin",
-						"container": "processing"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": [
-					{
-						"name": "Sort Id",
-						"type": "String"
-					},
-					{
-						"name": "Column Name",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Source_ColumnMapping_Terminations')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Mapping"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": "Terminations",
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "column_mapping.xlsx",
-						"folderPath": "Template Admin",
-						"container": "processing"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": [
-					{
-						"name": "Sort Id",
-						"type": "String"
-					},
-					{
-						"name": "Column Name",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTblFldr')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_AllCoreData_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_BusHierarchy_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_BusHierarchy_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_BusHierarchy_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"BusHierarchy": {},
+									"AppendBusHierarchyMapping": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "CoreFctTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "EventMonth",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Event Date",
-						"type": "String"
-					},
-					{
-						"name": "Event Code",
-						"type": "String"
-					},
-					{
-						"name": "Event Type",
-						"type": "String"
-					},
-					{
-						"name": "Event",
-						"type": "String"
-					},
-					{
-						"name": "Event Reason",
-						"type": "String"
-					},
-					{
-						"name": "Worker Status",
-						"type": "String"
-					},
-					{
-						"name": "Worker Type",
-						"type": "String"
-					},
-					{
-						"name": "Job Title",
-						"type": "String"
-					},
-					{
-						"name": "Job Family/Function",
-						"type": "String"
-					},
-					{
-						"name": "Years in Job",
-						"type": "String"
-					},
-					{
-						"name": "Previous Job Title",
-						"type": "String"
-					},
-					{
-						"name": "Previous Job Family/Function",
-						"type": "String"
-					},
-					{
-						"name": "Original Hire Date",
-						"type": "String"
-					},
-					{
-						"name": "Current Hire Date",
-						"type": "String"
-					},
-					{
-						"name": "Years of Service",
-						"type": "String"
-					},
-					{
-						"name": "Years of Service Band",
-						"type": "String"
-					},
-					{
-						"name": "Years of Service Sort ID",
-						"type": "String"
-					},
-					{
-						"name": "Last Promo Date",
-						"type": "String"
-					},
-					{
-						"name": "Rehire Indicator",
-						"type": "String"
-					},
-					{
-						"name": "Corporate Title",
-						"type": "String"
-					},
-					{
-						"name": "Previous Corporate Title",
-						"type": "String"
-					},
-					{
-						"name": "Manager Indicator",
-						"type": "String"
-					},
-					{
-						"name": "Direct Manager Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Work Office Location",
-						"type": "String"
-					},
-					{
-						"name": "Work City",
-						"type": "String"
-					},
-					{
-						"name": "Work State",
-						"type": "String"
-					},
-					{
-						"name": "Work Country",
-						"type": "String"
-					},
-					{
-						"name": "Strategic Work Location Ind",
-						"type": "String"
-					},
-					{
-						"name": "Legacy Organization",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 1",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 2",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 3",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 4",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Hispanic or Latino Origin",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Veteran Ind",
-						"type": "String"
-					},
-					{
-						"name": "LGBTQ",
-						"type": "String"
-					},
-					{
-						"name": "Disability Ind",
-						"type": "String"
-					},
-					{
-						"name": "Birth Year",
-						"type": "String"
-					},
-					{
-						"name": "Generation Desc",
-						"type": "String"
-					},
-					{
-						"name": "Generation Sort ID",
-						"type": "String"
-					},
-					{
-						"name": "EmpCount",
-						"type": "String"
-					},
-					{
-						"name": "RowCount",
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_ApplStatus_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_CorpTitle_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_CorpTitle",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_CorpTitle_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"CorpTitle": {},
+									"AppendCorpTitleMappingToDB": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "TAApplStatusFactTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "Applicant ID",
-						"type": "String"
-					},
-					{
-						"name": "Requisition ID",
-						"type": "String"
-					},
-					{
-						"name": "Event Date",
-						"type": "String"
-					},
-					{
-						"name": "EventMonth",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Type",
-						"type": "String"
-					},
-					{
-						"name": "Elloree Applicant Final Disposition",
-						"type": "String"
-					},
-					{
-						"name": "Elloree Applicant Category",
-						"type": "String"
-					},
-					{
-						"name": "Elloree Submitted to Mgr Fl",
-						"type": "String"
-					},
-					{
-						"name": "Elloree Race",
-						"type": "String"
-					},
-					{
-						"name": "Elloree Hispanic or Latino Origin",
-						"type": "String"
-					},
-					{
-						"name": "Elloree Gender",
-						"type": "String"
-					},
-					{
-						"name": "Applicant",
-						"type": "String"
-					},
-					{
-						"name": "White Appl",
-						"type": "String"
-					},
-					{
-						"name": "Black Appl",
-						"type": "String"
-					},
-					{
-						"name": "Latinx Appl",
-						"type": "String"
-					},
-					{
-						"name": "Asian Appl",
-						"type": "String"
-					},
-					{
-						"name": "Two or More Appl",
-						"type": "String"
-					},
-					{
-						"name": "Other Appl",
-						"type": "String"
-					},
-					{
-						"name": "DNSID Appl",
-						"type": "String"
-					},
-					{
-						"name": "Female Appl",
-						"type": "String"
-					},
-					{
-						"name": "PoC Appl",
-						"type": "String"
-					},
-					{
-						"name": "Male Appl",
-						"type": "String"
-					},
-					{
-						"name": "Other Gender Appl",
-						"type": "String"
-					},
-					{
-						"name": "DNSID Gender Appl",
-						"type": "String"
-					},
-					{
-						"name": "Diverse Applicant",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Rejected by HR",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Withdrew",
-						"type": "String"
-					},
-					{
-						"name": "Candidate",
-						"type": "String"
-					},
-					{
-						"name": "Candidate Rejected by HR",
-						"type": "String"
-					},
-					{
-						"name": "Candidate StM",
-						"type": "String"
-					},
-					{
-						"name": "Candidate Rejected by HM",
-						"type": "String"
-					},
-					{
-						"name": "Candidate Interviewed",
-						"type": "String"
-					},
-					{
-						"name": "Candidate Hired",
-						"type": "String"
-					},
-					{
-						"name": "Candidate Withdrew",
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_Applicant_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Disability_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_Disability_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_Disability_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Disability": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "ApplicantTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "Event Date",
-						"type": "String"
-					},
-					{
-						"name": "EventMonth",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Event",
-						"type": "String"
-					},
-					{
-						"name": "Requisition ID",
-						"type": "String"
-					},
-					{
-						"name": "Applicant ID",
-						"type": "String"
-					},
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Type",
-						"type": "String"
-					},
-					{
-						"name": "Internal Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Applicant City",
-						"type": "String"
-					},
-					{
-						"name": "Applicant State",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Country",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Hispanic or Latino Origin",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Veteran Ind",
-						"type": "String"
-					},
-					{
-						"name": "LGBTQ",
-						"type": "String"
-					},
-					{
-						"name": "Disability Ind",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Final Disposition",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Step Before Final Disposition",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Rejected Reason",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Other (1)",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Other (2)",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Other (3)",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Other (4)",
-						"type": "String"
-					},
-					{
-						"name": "Applicant Other (5)",
-						"type": "String"
-					},
-					{
-						"name": "RowCount",
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_DivSlate_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Ethnicity_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_Ethnicity_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_Ethnicity_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Ethnicity": {},
+									"AppendEthnicityMapping": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "TASlateFactTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "Requisition ID",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "White Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal White Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External White Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "White Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal White Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External White Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Black Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Black Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Black Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Black Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Black Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Black Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Latinx Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Latinx Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Latinx Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Latinx Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Latinx Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Latinx Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Asian Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Asian Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Asian Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Asian Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Asian Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Asian Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "2+ Races Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal 2+ Races Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External 2+ Races Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "2+ Races Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal 2+ Races Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External 2+ Races Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Other Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Other Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Other Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Other Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Other Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Other Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Male Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Male Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Male Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Male Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Male Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Male Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Female Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Female Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Female Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Female Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Female Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Female Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Other Gender Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Other Gender Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Other Gender Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Other Gender Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Other Gender Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Other Gender Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "PoC  Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal PoC  Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External PoC  Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Diverse Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Diverse Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Diverse Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Diverse Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Diverse Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Diverse Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Female Not PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Female Not PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Female Not PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Female Not PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Female Not PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Female Not PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Female PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Female PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Female PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Female PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Female PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Female PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Not Female PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Not Female PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Not Female PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Not Female PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Not Female PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Not Female PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Not Female Not PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Internal Not Female Not PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "External Not Female Not PoC Candidates StM",
-						"type": "String"
-					},
-					{
-						"name": "Not Female Not PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Internal Not Female Not PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "External Not Female Not PoC Candidates Hired",
-						"type": "String"
-					},
-					{
-						"name": "Diverse Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Diverse Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Diverse Slate",
-						"type": "String"
-					},
-					{
-						"name": "No Diverse Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal No Diverse Slate",
-						"type": "String"
-					},
-					{
-						"name": "External No Diverse Slate",
-						"type": "String"
-					},
-					{
-						"name": "Diverse Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Diverse Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Diverse Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "PoC Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal PoC Slate",
-						"type": "String"
-					},
-					{
-						"name": "External PoC Slate",
-						"type": "String"
-					},
-					{
-						"name": "No PoC Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal No PoC Slate",
-						"type": "String"
-					},
-					{
-						"name": "External No PoC Slate",
-						"type": "String"
-					},
-					{
-						"name": "PoC Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal PoC Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "External PoC Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "White Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal White Slate",
-						"type": "String"
-					},
-					{
-						"name": "External White Slate",
-						"type": "String"
-					},
-					{
-						"name": "No White Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal No White Slate",
-						"type": "String"
-					},
-					{
-						"name": "External No White Slate",
-						"type": "String"
-					},
-					{
-						"name": "White Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal White Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "External White Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Black Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Black Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Black Slate",
-						"type": "String"
-					},
-					{
-						"name": "No Black Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal No Black Slate",
-						"type": "String"
-					},
-					{
-						"name": "External No Black Slate",
-						"type": "String"
-					},
-					{
-						"name": "Black Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Black Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Black Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Latinx Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Latinx Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Latinx Slate",
-						"type": "String"
-					},
-					{
-						"name": "No Latinx Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal No Latinx Slate",
-						"type": "String"
-					},
-					{
-						"name": "External No Latinx Slate",
-						"type": "String"
-					},
-					{
-						"name": "Latinx Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Latinx Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Latinx Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Asian Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Asian Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Asian Slate",
-						"type": "String"
-					},
-					{
-						"name": "No Asian Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal No Asian Slate",
-						"type": "String"
-					},
-					{
-						"name": "External No Asian Slate",
-						"type": "String"
-					},
-					{
-						"name": "Asian Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Asian Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Asian Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "2+ Races Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal 2+ Races Slate",
-						"type": "String"
-					},
-					{
-						"name": "External 2+ Races Slate",
-						"type": "String"
-					},
-					{
-						"name": "No 2+ Races Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal No 2+ Races Slate",
-						"type": "String"
-					},
-					{
-						"name": "External No 2+ Races Slate",
-						"type": "String"
-					},
-					{
-						"name": "2+ Races Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal 2+ Races Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "External 2+ Races Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Other Race Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Other Race Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Other Race Slate",
-						"type": "String"
-					},
-					{
-						"name": "No Other Race Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal No Other Race Slate",
-						"type": "String"
-					},
-					{
-						"name": "External No Other Race Slate",
-						"type": "String"
-					},
-					{
-						"name": "Other Race Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Other Race Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Other Race Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Female Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Female Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Female Slate",
-						"type": "String"
-					},
-					{
-						"name": "No Female Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal No Female Slate",
-						"type": "String"
-					},
-					{
-						"name": "External No Female Slate",
-						"type": "String"
-					},
-					{
-						"name": "Female Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Female Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Female Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Male Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Male Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Male Slate",
-						"type": "String"
-					},
-					{
-						"name": "No Male Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal No Male Slate",
-						"type": "String"
-					},
-					{
-						"name": "External No Male Slate",
-						"type": "String"
-					},
-					{
-						"name": "Male Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "Internal Male Hired Slate",
-						"type": "String"
-					},
-					{
-						"name": "External Male Hired Slate",
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_JobReq_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Event_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_Event_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_Event_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Event": {},
+									"AppendEventMapping": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "ReqTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Type",
-						"type": "String"
-					},
-					{
-						"name": "Event Date",
-						"type": "String"
-					},
-					{
-						"name": "EventMonth",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "EventId",
-						"type": "String"
-					},
-					{
-						"name": "Event",
-						"type": "String"
-					},
-					{
-						"name": "Requisition ID",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Type",
-						"type": "String"
-					},
-					{
-						"name": "Posting Date",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Status",
-						"type": "String"
-					},
-					{
-						"name": "Number of Openings",
-						"type": "String"
-					},
-					{
-						"name": "Job Title",
-						"type": "String"
-					},
-					{
-						"name": "Job Function",
-						"type": "String"
-					},
-					{
-						"name": "Corporate Title",
-						"type": "String"
-					},
-					{
-						"name": "Work Office Location",
-						"type": "String"
-					},
-					{
-						"name": "Work Office City",
-						"type": "String"
-					},
-					{
-						"name": "Work Office State",
-						"type": "String"
-					},
-					{
-						"name": "Work Office Country",
-						"type": "String"
-					},
-					{
-						"name": "Strategic Work Location Ind",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 1",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 2",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 3",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 4",
-						"type": "String"
-					},
-					{
-						"name": "Hiring Manager Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Primary Recruiter Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Other (1)",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Other (2)",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Other (3)",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Other (4)",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Other (5)",
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_Json_PipelineResult')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Gender_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_Gender_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_Gender_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Gender": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),\nconcat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "proessing"
-					}
-				},
-				"schema": {}
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_OtherCore_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_LGTBQ_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_LGBTQ_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_LGBTQ_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"LGTBQ": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "OthrCoreFlexTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Event Date",
-						"type": "String"
-					},
-					{
-						"name": "EventMonth",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Event ID",
-						"type": "String"
-					},
-					{
-						"name": "Event",
-						"type": "String"
-					},
-					{
-						"name": "Event (Type)",
-						"type": "String"
-					},
-					{
-						"name": "Event (Desc)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Char Value 1)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Char Value 2)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Num Value 1)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Num Value 2)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Date Value 1)",
-						"type": "String"
-					},
-					{
-						"name": "Other (Date Value 2)",
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_PerRatingHistory_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Location_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_Location_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_Location_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Location": {},
+									"AppendLocationMapping": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "PerformanceHistoryFactTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Last Performance Year",
-						"type": "String"
-					},
-					{
-						"name": "Last Performance Rating Date",
-						"type": "String"
-					},
-					{
-						"name": "Last Client Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "Last Elloree Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "Last Elloree Performance Rating Sort Id",
-						"type": "String"
-					},
-					{
-						"name": "Last Top Talent Ind",
-						"type": "String"
-					},
-					{
-						"name": "Curr Performance Year",
-						"type": "String"
-					},
-					{
-						"name": "Curr Performance Rating Date",
-						"type": "String"
-					},
-					{
-						"name": "Curr Talent Tag",
-						"type": "String"
-					},
-					{
-						"name": "Curr Client Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "Curr Elloree Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "Curr Elloree Performance Rating Sort Id",
-						"type": "String"
-					},
-					{
-						"name": "Curr Top Talent Ind",
-						"type": "String"
-					},
-					{
-						"name": "P1 Performance Year",
-						"type": "String"
-					},
-					{
-						"name": "P1 Performance Rating Date",
-						"type": "String"
-					},
-					{
-						"name": "P1 Client Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "P1 Elloree Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "P1 Elloree Performance Rating Sort Id",
-						"type": "String"
-					},
-					{
-						"name": "P1 Top Talent Ind",
-						"type": "String"
-					},
-					{
-						"name": "P2 Performance Year",
-						"type": "String"
-					},
-					{
-						"name": "P2 Client Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "P2 Performance Rating Date",
-						"type": "String"
-					},
-					{
-						"name": "P2 Elloree Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "P2 Elloree Performance Rating Sort Id",
-						"type": "String"
-					},
-					{
-						"name": "P2 Top Talent Ind",
-						"type": "String"
-					},
-					{
-						"name": "P3 Performance Year",
-						"type": "String"
-					},
-					{
-						"name": "P3 Client Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "P3 Performance Rating Date",
-						"type": "String"
-					},
-					{
-						"name": "P3 Elloree Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "P3 Elloree Performance Rating Sort Id",
-						"type": "String"
-					},
-					{
-						"name": "P3 Top Talent Ind",
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_Pipeline_ApplFail')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_PerformanceRating_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_PerformanceRating_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_PerformanceRating_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Performance": {},
+									"AppendPerformanceMapping": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "Binary",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "PipelineApplFctTbl_Worksheet.txt",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					}
-				}
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_SilverMedalist_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ReqStatus_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_ReqStatus_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_ReqStatus_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"RequisitionStatus": {},
+									"AppendReqStatusMapping": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "SilverMedalistFactTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Applicant ID",
-						"type": "String"
-					},
-					{
-						"name": "Internal Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Requisition ID",
-						"type": "String"
-					},
-					{
-						"name": "Silver Medalist Ind",
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_Speedbumps_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ReqType_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_ReqType_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_ReqType_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"RequisitionType": {},
+									"AppendReqStatusMapping": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "SpeedbumpsFactTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Core Event Id",
-						"type": "String"
-					},
-					{
-						"name": "Core Event Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Core Event Date",
-						"type": "String"
-					},
-					{
-						"name": "Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump Worker Status",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump Population Ind",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 1 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 1 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 1 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 2 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 2 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 2 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 3 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 3 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 3 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 4 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 4 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 4 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 5 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 5 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 5 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 6 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 6 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 6 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 7 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 7 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 7 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 8 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 8 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 8 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 9 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 9 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 9 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 10 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 10 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 10 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 11 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 11 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 11 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 12 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 12 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 12 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 13 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 13 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 13 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 14 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 14 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 14 Flag",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 15 Name",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 15 Desc",
-						"type": "String"
-					},
-					{
-						"name": "Speedbump 15 Flag",
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_TalentData_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Veteran_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "Append_Mapping_Veteran_Hist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_Veteran_Hist",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Hist_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Hist_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Veteran": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Hist_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "TalentFactTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Event Date",
-						"type": "String"
-					},
-					{
-						"name": "Event",
-						"type": "String"
-					},
-					{
-						"name": "Event Type",
-						"type": "String"
-					},
-					{
-						"name": "Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Performance Rating",
-						"type": "String"
-					},
-					{
-						"name": "Performance Rating Date",
-						"type": "String"
-					},
-					{
-						"name": "Talent Identifier (1)",
-						"type": "String"
-					},
-					{
-						"name": "Talent Identifier (2)",
-						"type": "String"
-					},
-					{
-						"name": "Talent Identifier (3)",
-						"type": "String"
-					},
-					{
-						"name": "Talent Identifier (4)",
-						"type": "String"
-					},
-					{
-						"name": "Talent Identifier (5)",
-						"type": "String"
-					}
-				]
+				"lastPublishTime": "2023-01-12T14:43:28Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_YearRef_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Delete_All_Rec_FactTbl_Speedbumps')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_Speedbumps",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_All_Rec_FactTbl_Speedbumps",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"SpeedbumpsFactTbl": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
-						"type": "string"
-					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Fact Table"
+					"name": "Client/Database/Delete Records/Fact Tables/All Records"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "YearRefTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
+				"lastPublishTime": "2023-01-12T16:53:03Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Qtr_Rec_FactTbl_Speedbumps_NEW')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Delete_Qtr_Rec_FactTbl_Speedbmps",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
 						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "CurrEventYear",
-						"type": "String"
-					},
-					{
-						"name": "P1EventYear",
-						"type": "String"
-					},
-					{
-						"name": "P2EventYear",
-						"type": "String"
-					},
-					{
-						"name": "P3EventYear",
-						"type": "String"
-					},
-					{
-						"name": "P4EventYear",
-						"type": "String"
-					},
-					{
-						"name": "P5EventYear",
-						"type": "String"
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_Qtr_Rec_FactTbl_Speedbmps",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Year": {
+										"value": "'@{pipeline().parameters.P_SB_Year}'",
+										"type": "Expression"
+									},
+									"Flow_Quarter": {
+										"value": "'@{pipeline().parameters.P_SB_Quarter}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Speedbumps": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
 					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Source_Identification')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Test"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": "Identifier",
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "Identification.xlsx",
-						"folderPath": "Test Files",
-						"container": "processing"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": [
-					{
-						"name": "Identifiers",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Source_MappingPrepFldr')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
+					"P_Client_Dt": {
 						"type": "string"
 					},
-					"Source_Client_Year": {
+					"P_SB_Year": {
 						"type": "string"
 					},
-					"Source_Client_Quarter": {
+					"P_SB_Quarter": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Mapping"
+					"name": "Client/Database/Delete Records/Fact Tables/Quarter Records"
 				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Prep')))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					}
-				]
+				"annotations": []
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Source_MappingWorkingFldr')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_Applicant')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_Applicant",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_All_Rec_FactTbl_Applicant",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"ApplicantFact": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"Source_Client_Fldr": {
+					"P_Client_Id": {
 						"type": "string"
 					},
-					"Source_Client_Date": {
-						"type": "string"
-					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
+					"P_Client_Dt": {
 						"type": "string"
 					}
 				},
 				"folder": {
-					"name": "Client/Mapping"
+					"name": "Client/Database/Delete Records/Fact Tables"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
-							"type": "Expression"
+				"lastPublishTime": "2023-01-12T16:53:03Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_ApplicantStatus')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_ApplicantStatus",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
 						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"encodingName": "UTF-8",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_All_Rec_FactTbl_ApplicantStatus",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"ApplicantStatus": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
 					}
-				]
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T16:53:03Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_Client')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_Client",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_All_Rec_FactTbl_Client",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"ClientTbl": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T16:53:03Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_Core')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_Core",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_All_Rec_FactTbl_Core",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Core": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T16:53:04Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_DivSlate')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_DivSlate",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_All_Rec_FactTbl_DivSlate",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"DivSlateFactTbl": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T16:53:04Z"
 			},
 			"dependsOn": []
 		}

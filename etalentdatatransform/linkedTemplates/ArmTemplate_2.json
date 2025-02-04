@@ -6,6 +6,30 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "etalentdatatransform"
+		},
+		"AzureBlobStorage_privateendpoint1_properties_privateLinkResourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalentdatabase/providers/Microsoft.Storage/storageAccounts/etalent1storage"
+		},
+		"AzureBlobStorage_privateendpoint1_properties_groupId": {
+			"type": "string",
+			"defaultValue": "blob"
+		},
+		"AzureBlobStorage_pythonStorage_privateendpoint1_properties_privateLinkResourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalentdatabase/providers/Microsoft.Storage/storageAccounts/pythonteststorage1"
+		},
+		"AzureBlobStorage_pythonStorage_privateendpoint1_properties_groupId": {
+			"type": "string",
+			"defaultValue": "blob"
+		},
+		"AzureBlobStorage2_properties_typeProperties_serviceEndpoint": {
+			"type": "string",
+			"defaultValue": "https://etalent1storage.blob.core.windows.net/"
+		},
+		"AzureBlobStorage_pythonscripts_properties_typeProperties_serviceEndpoint": {
+			"type": "string",
+			"defaultValue": "https://pythonteststorage1.blob.core.windows.net/"
 		}
 	},
 	"variables": {
@@ -13,1602 +37,2612 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_TwoOrMore_Female_Tbl')]",
+			"name": "[concat(parameters('factoryName'), '/etalentTalentFactTbl')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "connection to Talent Fact table",
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "etalentdb_connection",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
+					"name": "Client/Database"
 				},
 				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_TwoOrMore_Female.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
+				"type": "AzureSqlTable",
 				"schema": [
 					{
-						"name": "Source",
-						"type": "String"
+						"name": "ClientId",
+						"type": "nvarchar"
 					},
 					{
-						"name": "SourceId",
-						"type": "String"
+						"name": "ClientEngagementDt",
+						"type": "date"
 					},
 					{
-						"name": "Desc",
-						"type": "String"
+						"name": "WorkerId",
+						"type": "nvarchar"
 					},
 					{
-						"name": "Year",
-						"type": "String"
+						"name": "EventYear",
+						"type": "int",
+						"precision": 10
 					},
 					{
-						"name": "Quarter",
-						"type": "String"
+						"name": "EventDt",
+						"type": "date"
 					},
 					{
-						"name": "Latest",
-						"type": "String"
+						"name": "Event",
+						"type": "nvarchar"
 					},
 					{
-						"name": "EthnicOrigin",
-						"type": "String"
+						"name": "EventType",
+						"type": "nvarchar"
 					},
 					{
-						"name": "Race",
-						"type": "String"
+						"name": "PerfRating",
+						"type": "nvarchar"
 					},
 					{
-						"name": "Gender",
-						"type": "String"
+						"name": "PerfRatingDt",
+						"type": "date"
 					},
 					{
-						"name": "Headcount",
-						"type": "String"
+						"name": "TalentIdentifier1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TalentIdentifier2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TalentIdentifier3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TalentIdentifier4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TalentIdentifier5",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
 					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_TwoOrMore_Male_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
+				],
 				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_TwoOrMore_Male.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_TwoOrMore_Total_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_TwoOrMore_Total.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Female_Hisp_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_White_Female_Hisp.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Female_NonHisp_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_White_Female_NonHisp.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Female_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_White_Female.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Male_Hisp_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_White_Male_Hisp.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Male_NonHisp_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_White_Male_NonHisp.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Male_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_White_Male.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Total_Hisp_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_White_Total_Hisp.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Total_NonHisp_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_White_Total_NonHisp.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Total_Tbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Table Source Files"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_White_Total.csv",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Source",
-						"type": "String"
-					},
-					{
-						"name": "SourceId",
-						"type": "String"
-					},
-					{
-						"name": "Desc",
-						"type": "String"
-					},
-					{
-						"name": "Year",
-						"type": "String"
-					},
-					{
-						"name": "Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Latest",
-						"type": "String"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "String"
-					},
-					{
-						"name": "Race",
-						"type": "String"
-					},
-					{
-						"name": "Gender",
-						"type": "String"
-					},
-					{
-						"name": "Headcount",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DELETE_Source_Template_JobRequisition')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"Source_Client_Fldr": {
-						"type": "string"
-					},
-					"Source_Client_Date": {
-						"type": "string"
-					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Template"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": "DATA_JobRequisition",
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "Elloree Data Submission Template - TA.xlsx",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": [
-					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
-						"type": "String"
-					},
-					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Event Date",
-						"type": "String"
-					},
-					{
-						"name": "Requisition ID",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Type",
-						"type": "String"
-					},
-					{
-						"name": "Posting Date",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Status",
-						"type": "String"
-					},
-					{
-						"name": "Number of Openings",
-						"type": "String"
-					},
-					{
-						"name": "Job Title",
-						"type": "String"
-					},
-					{
-						"name": "Job Function",
-						"type": "String"
-					},
-					{
-						"name": "Corporate Title",
-						"type": "String"
-					},
-					{
-						"name": "Work Office Location",
-						"type": "String"
-					},
-					{
-						"name": "Work Office City",
-						"type": "String"
-					},
-					{
-						"name": "Work Office State",
-						"type": "String"
-					},
-					{
-						"name": "Work Office Country",
-						"type": "String"
-					},
-					{
-						"name": "Strategic Work Location Ind",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 1",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 2",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 3",
-						"type": "String"
-					},
-					{
-						"name": "Business Group Level 4",
-						"type": "String"
-					},
-					{
-						"name": "Hiring Manager Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Primary Recruiter Worker ID",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Other (1)",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Other (2)",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Other (3)",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Other (4)",
-						"type": "String"
-					},
-					{
-						"name": "Requisition Other (5)",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Json_BLS_AmerIndAlaskNat_Female')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Json Source Files"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_AmerIndAlaskNat_Female",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"status": {
-							"type": "string"
-						},
-						"responseTime": {
-							"type": "integer"
-						},
-						"message": {
-							"type": "array"
-						},
-						"Results": {
-							"type": "object",
-							"properties": {
-								"series": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"seriesID": {
-												"type": "string"
-											},
-											"data": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"year": {
-															"type": "string"
-														},
-														"period": {
-															"type": "string"
-														},
-														"periodName": {
-															"type": "string"
-														},
-														"latest": {
-															"type": "string"
-														},
-														"value": {
-															"type": "string"
-														},
-														"footnotes": {
-															"type": "array",
-															"items": {
-																"type": "object"
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+					"schema": "dbo",
+					"table": "TalentFactTbl"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Json_BLS_AmerIndAlaskNat_Male')]",
+			"name": "[concat(parameters('factoryName'), '/etalentUSCensusSummaryTbl')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "connection to Core Fact table",
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "etalentdb_connection",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
-					"name": "External Data/BLS/BLS Json Source Files"
+					"name": "External Data/US Census"
 				},
 				"annotations": [],
-				"type": "Json",
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Census_Year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_City",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Census_State",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Census_Country",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Census_MSA",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Census_Region",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Census_Total",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_Male",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_Female",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_White",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_Black",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_Hispanic",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_Asian",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_OtherRace",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_PoC",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_TwoPlusRaces",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_AmerIndAlaskaNat",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_NatHawaiianOtherPacIsl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Census_SomeOtherRace",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_Total",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_Male",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_Female",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_White",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_Black",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_Hispanic",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_Asian",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_OtherRace",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_PoC",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_TwoPlusRaces",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_AmerIndAlaskaNat",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_NatHawaiianOtherPacIsl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MSA_SomeOtherRace",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_Total",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_Male",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_Female",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_White",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_Black",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_Hispanic",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_Asian",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_OtherRace",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_PoC",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_TwoPlusRaces",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_AmerIndAlaskaNat",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_NatHawaiianOtherPacIsl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "State_SomeOtherRace",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_Total",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_Male",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_Female",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_White",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_Black",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_Hispanic",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_Asian",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_OtherRace",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_PoC",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_TwoPlusRaces",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_AmerIndAlaskaNat",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_NatHawaiianOtherPacIsl",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "US_SomeOtherRace",
+						"type": "int",
+						"precision": 10
+					}
+				],
 				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_AmerIndAlaskNat_Male",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"status": {
-							"type": "string"
-						},
-						"responseTime": {
-							"type": "integer"
-						},
-						"message": {
-							"type": "array"
-						},
-						"Results": {
-							"type": "object",
-							"properties": {
-								"series": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"seriesID": {
-												"type": "string"
-											},
-											"data": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"year": {
-															"type": "string"
-														},
-														"period": {
-															"type": "string"
-														},
-														"periodName": {
-															"type": "string"
-														},
-														"latest": {
-															"type": "string"
-														},
-														"value": {
-															"type": "string"
-														},
-														"footnotes": {
-															"type": "array",
-															"items": {
-																"type": "object"
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+					"schema": "dbo",
+					"table": "USCensusSummaryTbl"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Json_BLS_AmerIndAlaskNat_Total')]",
+			"name": "[concat(parameters('factoryName'), '/etalentVeteranMapTbl')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "connection to veteran mapping table",
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "etalentdb_connection",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
-					"name": "External Data/BLS/BLS Json Source Files"
+					"name": "Client/Database"
 				},
 				"annotations": [],
-				"type": "Json",
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "ClientVeteran",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeVeteran",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					}
+				],
 				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_AmerIndAlaskNat_Total",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"status": {
-							"type": "string"
-						},
-						"responseTime": {
-							"type": "integer"
-						},
-						"message": {
-							"type": "array"
-						},
-						"Results": {
-							"type": "object",
-							"properties": {
-								"series": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"seriesID": {
-												"type": "string"
-											},
-											"data": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"year": {
-															"type": "string"
-														},
-														"period": {
-															"type": "string"
-														},
-														"periodName": {
-															"type": "string"
-														},
-														"latest": {
-															"type": "string"
-														},
-														"value": {
-															"type": "string"
-														},
-														"footnotes": {
-															"type": "array",
-															"items": {
-																"type": "object"
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+					"schema": "dbo",
+					"table": "VeteranMapTbl"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Json_BLS_Asian_Female')]",
+			"name": "[concat(parameters('factoryName'), '/etalentYearRefTbl')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "connection to Core Fact table",
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "etalentdb_connection",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
-					"name": "External Data/BLS/BLS Json Source Files"
+					"name": "Client/Database"
 				},
 				"annotations": [],
-				"type": "Json",
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "CurEventYear",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "P1EventYear",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "P2EventYear",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "P3EventYear",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "P4EventYear",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "P5EventYear",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					}
+				],
 				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_Asian_Female",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"status": {
-							"type": "string"
-						},
-						"responseTime": {
-							"type": "integer"
-						},
-						"message": {
-							"type": "array"
-						},
-						"Results": {
-							"type": "object",
-							"properties": {
-								"series": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"seriesID": {
-												"type": "string"
-											},
-											"data": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"year": {
-															"type": "string"
-														},
-														"period": {
-															"type": "string"
-														},
-														"periodName": {
-															"type": "string"
-														},
-														"latest": {
-															"type": "string"
-														},
-														"value": {
-															"type": "string"
-														},
-														"footnotes": {
-															"type": "array",
-															"items": {
-																"type": "object"
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+					"schema": "dbo",
+					"table": "YearRefTbl"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Json_BLS_Asian_Female_Hisp')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/integrationRuntime1')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Json Source Files"
-				},
-				"annotations": [],
-				"type": "Json",
+				"type": "Managed",
 				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_Asian_Female_Hisp",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"status": {
-							"type": "string"
+					"computeProperties": {
+						"location": "Central US",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 10,
+							"cleanup": false,
+							"customProperties": []
 						},
-						"responseTime": {
-							"type": "integer"
-						},
-						"message": {
-							"type": "array"
-						},
-						"Results": {
-							"type": "object",
-							"properties": {
-								"series": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"seriesID": {
-												"type": "string"
-											},
-											"data": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"year": {
-															"type": "string"
-														},
-														"period": {
-															"type": "string"
-														},
-														"periodName": {
-															"type": "string"
-														},
-														"latest": {
-															"type": "string"
-														},
-														"value": {
-															"type": "string"
-														},
-														"footnotes": {
-															"type": "array",
-															"items": {
-																"type": "object"
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
+						"pipelineExternalComputeScaleProperties": {
+							"timeToLive": 60,
+							"numberOfPipelineNodes": 1,
+							"numberOfExternalNodes": 1
 						}
 					}
+				},
+				"managedVirtualNetwork": {
+					"type": "ManagedVirtualNetworkReference",
+					"referenceName": "default"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Json_BLS_Asian_Female_NonHisp')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/default/AzureBlobStorage_privateendpoint1')]",
+			"type": "Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS/BLS Json Source Files"
-				},
+				"privateLinkResourceId": "[parameters('AzureBlobStorage_privateendpoint1_properties_privateLinkResourceId')]",
+				"groupId": "[parameters('AzureBlobStorage_privateendpoint1_properties_groupId')]"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/default/AzureBlobStorage_pythonStorage_privateendpoint1')]",
+			"type": "Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"privateLinkResourceId": "[parameters('AzureBlobStorage_pythonStorage_privateendpoint1_properties_privateLinkResourceId')]",
+				"groupId": "[parameters('AzureBlobStorage_pythonStorage_privateendpoint1_properties_groupId')]"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "etalent1storage",
 				"annotations": [],
-				"type": "Json",
+				"type": "AzureBlobStorage",
 				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_Asian_Female_NonHisp",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					}
+					"serviceEndpoint": "[parameters('AzureBlobStorage2_properties_typeProperties_serviceEndpoint')]",
+					"accountKind": "StorageV2"
 				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"status": {
-							"type": "string"
-						},
-						"responseTime": {
-							"type": "integer"
-						},
-						"message": {
-							"type": "array"
-						},
-						"Results": {
-							"type": "object",
-							"properties": {
-								"series": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"seriesID": {
-												"type": "string"
-											},
-											"data": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"year": {
-															"type": "string"
-														},
-														"period": {
-															"type": "string"
-														},
-														"periodName": {
-															"type": "string"
-														},
-														"latest": {
-															"type": "string"
-														},
-														"value": {
-															"type": "string"
-														},
-														"footnotes": {
-															"type": "array",
-															"items": {
-																"type": "object"
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
+				"connectVia": {
+					"referenceName": "integrationRuntime1",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntime1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage_pythonscripts')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"serviceEndpoint": "[parameters('AzureBlobStorage_pythonscripts_properties_typeProperties_serviceEndpoint')]",
+					"accountKind": "StorageV2"
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntime1",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntime1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_ApplStatus_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplStatusFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "ApplStatus"
 						}
-					}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplStatusFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendApplStatusFact"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ApplId as string,",
+						"          ReqId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Applicants as integer,",
+						"          WhiteAppl as integer,",
+						"          BlackAppl as integer,",
+						"          LatinxAppl as integer,",
+						"          AsianAppl as integer,",
+						"          TwoorMoreAppl as integer,",
+						"          OtherAppl as integer,",
+						"          DNSIDAppl as integer,",
+						"          PoCAppl as integer,",
+						"          FemaleAppl as integer,",
+						"          MaleAppl as integer,",
+						"          OtherGenderAppl as integer,",
+						"          DNSIDGenderAppl as integer,",
+						"          DiverseAppl as integer,",
+						"          ApplRejected as integer,",
+						"          ApplWithdrew as integer,",
+						"          Candidates as integer,",
+						"          CandRejectedHR as integer,",
+						"          CandStM as integer,",
+						"          CandRejectedHM as integer,",
+						"          CandInterviewed as integer,",
+						"          CandHired as integer,",
+						"          CandWithdrew as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TAApplStatusFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> ApplStatus",
+						"ApplStatus alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ApplId as string,",
+						"          ReqId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Applicants as integer,",
+						"          WhiteAppl as integer,",
+						"          BlackAppl as integer,",
+						"          LatinxAppl as integer,",
+						"          AsianAppl as integer,",
+						"          TwoorMoreAppl as integer,",
+						"          OtherAppl as integer,",
+						"          DNSIDAppl as integer,",
+						"          PoCAppl as integer,",
+						"          FemaleAppl as integer,",
+						"          MaleAppl as integer,",
+						"          OtherGenderAppl as integer,",
+						"          DNSIDGenderAppl as integer,",
+						"          DiverseAppl as integer,",
+						"          ApplRejected as integer,",
+						"          ApplWithdrew as integer,",
+						"          Candidates as integer,",
+						"          CandRejectedHR as integer,",
+						"          CandStM as integer,",
+						"          CandRejectedHM as integer,",
+						"          CandInterviewed as integer,",
+						"          CandHired as integer,",
+						"          CandWithdrew as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventDt','ReqId','ApplId'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          ApplId,",
+						"          ReqId,",
+						"          EventDt,",
+						"          EventMonth,",
+						"          EventQuarter,",
+						"          EventYear,",
+						"          Applicants,",
+						"          WhiteAppl,",
+						"          BlackAppl,",
+						"          LatinxAppl,",
+						"          AsianAppl,",
+						"          TwoorMoreAppl,",
+						"          OtherAppl,",
+						"          DNSIDAppl,",
+						"          PoCAppl,",
+						"          FemaleAppl,",
+						"          MaleAppl,",
+						"          OtherGenderAppl,",
+						"          DNSIDGenderAppl,",
+						"          DiverseAppl,",
+						"          ApplRejected,",
+						"          ApplWithdrew,",
+						"          Candidates,",
+						"          CandRejectedHR,",
+						"          CandStM,",
+						"          CandRejectedHM,",
+						"          CandInterviewed,",
+						"          CandHired,",
+						"          CandWithdrew,",
+						"          LoadDt",
+						"     )) ~> AppendApplStatusFact"
+					]
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Json_BLS_Asian_Male')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Applicant_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
-					"type": "LinkedServiceReference"
-				},
 				"folder": {
-					"name": "External Data/BLS/BLS Json Source Files"
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
 				},
-				"annotations": [],
-				"type": "Json",
+				"type": "MappingDataFlow",
 				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "BLS_Asian_Male",
-						"folderPath": "External Data/BLS",
-						"container": "processing"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"status": {
-							"type": "string"
-						},
-						"responseTime": {
-							"type": "integer"
-						},
-						"message": {
-							"type": "array"
-						},
-						"Results": {
-							"type": "object",
-							"properties": {
-								"series": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"seriesID": {
-												"type": "string"
-											},
-											"data": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"year": {
-															"type": "string"
-														},
-														"period": {
-															"type": "string"
-														},
-														"periodName": {
-															"type": "string"
-														},
-														"latest": {
-															"type": "string"
-														},
-														"value": {
-															"type": "string"
-														},
-														"footnotes": {
-															"type": "array",
-															"items": {
-																"type": "object"
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplicantFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Applicant"
 						}
-					}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplicantFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn2"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          ReqId as string,",
+						"          ApplicantId as string,",
+						"          Source as string,",
+						"          ApplType as string,",
+						"          InternalWorkerId as string,",
+						"          Race as string,",
+						"          HispanicLatinoOrigin as string,",
+						"          Gender as string,",
+						"          Veteran as string,",
+						"          LGBTQ as string,",
+						"          DisabilityInd as string,",
+						"          ApplFinalDisp as string,",
+						"          ApplStepBeforeFinalDisp as string,",
+						"          ApplRejectedReason as string,",
+						"          ApplOther1 as string,",
+						"          ApplOther2 as string,",
+						"          ApplOther3 as string,",
+						"          ApplOther4 as string,",
+						"          ApplOther5 as string,",
+						"          LoadDt as date,",
+						"          ApplicantCity as string,",
+						"          ApplicantState as string,",
+						"          ApplicantCountry as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TAApplTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Applicant",
+						"Applicant alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
+						"          LoadDt = currentDate()) ~> derivedColumn2",
+						"derivedColumn2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          ReqId as string,",
+						"          ApplicantId as string,",
+						"          Source as string,",
+						"          ApplType as string,",
+						"          InternalWorkerId as string,",
+						"          Race as string,",
+						"          HispanicLatinoOrigin as string,",
+						"          Gender as string,",
+						"          Veteran as string,",
+						"          LGBTQ as string,",
+						"          DisabilityInd as string,",
+						"          ApplFinalDisp as string,",
+						"          ApplStepBeforeFinalDisp as string,",
+						"          ApplRejectedReason as string,",
+						"          ApplOther1 as string,",
+						"          ApplOther2 as string,",
+						"          ApplOther3 as string,",
+						"          ApplOther4 as string,",
+						"          ApplOther5 as string,",
+						"          LoadDt as date,",
+						"          ApplicantCity as string,",
+						"          ApplicantState as string,",
+						"          ApplicantCountry as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ApplicantId','ReqId','EventDt','EventId'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Core_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Core"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendCoreFact"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          EventType as string,",
+						"          EventReason as string,",
+						"          WorkerStatus as string,",
+						"          WorkerType as string,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          YearsinJob as double,",
+						"          PrevJobTitle as string,",
+						"          PrevJobFunction as string,",
+						"          LastPromoDt as date,",
+						"          OrigHireDt as date,",
+						"          CurrHireDt as date,",
+						"          RehireInd as string,",
+						"          YearsofSrvc as double,",
+						"          YearsofSrvcBand as string,",
+						"          YearsofSrvcBandSortId as integer,",
+						"          CorpTitle as string,",
+						"          PrevCorpTitle as string,",
+						"          ManagerInd as string,",
+						"          DirectMgrWorkerId as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          LegacyOrg as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          Race as string,",
+						"          HispanicLatinoOrigin as string,",
+						"          Gender as string,",
+						"          Veteran as string,",
+						"          LGBTQ as string,",
+						"          DisabilityInd as string,",
+						"          BirthYear as integer,",
+						"          Generation as string,",
+						"          GenerationSortId as integer,",
+						"          EmpCount as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Core",
+						"Core alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          EventType as string,",
+						"          EventReason as string,",
+						"          WorkerStatus as string,",
+						"          WorkerType as string,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          YearsinJob as double,",
+						"          PrevJobTitle as string,",
+						"          PrevJobFunction as string,",
+						"          LastPromoDt as date,",
+						"          OrigHireDt as date,",
+						"          CurrHireDt as date,",
+						"          RehireInd as string,",
+						"          YearsofSrvc as double,",
+						"          YearsofSrvcBand as string,",
+						"          YearsofSrvcBandSortId as integer,",
+						"          CorpTitle as string,",
+						"          PrevCorpTitle as string,",
+						"          ManagerInd as string,",
+						"          DirectMgrWorkerId as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          LegacyOrg as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          Race as string,",
+						"          HispanicLatinoOrigin as string,",
+						"          Gender as string,",
+						"          Veteran as string,",
+						"          LGBTQ as string,",
+						"          DisabilityInd as string,",
+						"          BirthYear as integer,",
+						"          Generation as string,",
+						"          GenerationSortId as integer,",
+						"          EmpCount as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventDt','EventId','WorkerId'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendCoreFact"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_DivSlate_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentDivSlateFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DivSlate"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentDivSlateFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendDivSlateFact"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventYear as integer,",
+						"          ReqId as string,",
+						"          CandStM as integer,",
+						"          IntCandStM as integer,",
+						"          ExtCandStM as integer,",
+						"          CandHired as integer,",
+						"          IntCandHired as integer,",
+						"          ExtCandHired as integer,",
+						"          WhiteCandStM as integer,",
+						"          IntWhiteCandStM as integer,",
+						"          ExtWhiteCandStM as integer,",
+						"          WhiteCandHired as integer,",
+						"          IntWhiteCandHired as integer,",
+						"          ExtWhiteCandHired as integer,",
+						"          BlackCandStM as integer,",
+						"          IntBlackCandStM as integer,",
+						"          ExtBlackCandStM as integer,",
+						"          BlackCandHired as integer,",
+						"          IntBlackCandHired as integer,",
+						"          ExtBlackCandHired as integer,",
+						"          LatinxCandStM as integer,",
+						"          IntLatinxCandStM as integer,",
+						"          ExtLatinxCandStM as integer,",
+						"          LatinxCandHired as integer,",
+						"          IntLatinxCandHired as integer,",
+						"          ExtLatinxCandHired as integer,",
+						"          AsianCandStM as integer,",
+						"          IntAsianCandStM as integer,",
+						"          ExtAsianCandStM as integer,",
+						"          AsianCandHired as integer,",
+						"          IntAsianCandHired as integer,",
+						"          ExtAsianCandHired as integer,",
+						"          TwoPlusRacesCandStM as integer,",
+						"          IntTwoPlusRacesCandStM as integer,",
+						"          ExtTwoPlusRacesCandStM as integer,",
+						"          TwoPlusRacesCandHired as integer,",
+						"          IntTwoPlusRacesCandHired as integer,",
+						"          ExtTwoPlusRacesCandHired as integer,",
+						"          OtherCandStM as integer,",
+						"          IntOtherCandStM as integer,",
+						"          ExtOtherCandStM as integer,",
+						"          OtherCandHired as integer,",
+						"          IntOtherCandHired as integer,",
+						"          ExtOtherCandHired as integer,",
+						"          MaleCandStM as integer,",
+						"          IntMaleCandStM as integer,",
+						"          ExtMaleCandStM as integer,",
+						"          MaleCandHired as integer,",
+						"          IntMaleCandHired as integer,",
+						"          ExtMaleCandHired as integer,",
+						"          FemaleCandStM as integer,",
+						"          IntFemaleCandStM as integer,",
+						"          ExtFemaleCandStM as integer,",
+						"          FemaleCandHired as integer,",
+						"          IntFemaleCandHired as integer,",
+						"          ExtFemaleCandHired as integer,",
+						"          OtherGenderCandStM as integer,",
+						"          IntOtherGenderCandStM as integer,",
+						"          ExtOtherGenderCandStM as integer,",
+						"          OtherGenderCandHired as integer,",
+						"          IntOtherGenderCandHired as integer,",
+						"          ExtOtherGenderCandHired as integer,",
+						"          PoCCandStM as integer,",
+						"          IntPoCCandStM as integer,",
+						"          ExtPoCCandStM as integer,",
+						"          PoCCandHired as integer,",
+						"          IntPoCCandHired as integer,",
+						"          ExtPoCCandHired as integer,",
+						"          DiverseCandStM as integer,",
+						"          IntDiverseCandStM as integer,",
+						"          ExtDiverseCandStM as integer,",
+						"          DiverseCandHired as integer,",
+						"          IntDiverseCandHired as integer,",
+						"          ExtDiverseCandHired as integer,",
+						"          FemalePoCCandStM as integer,",
+						"          IntFemalePoCCandStM as integer,",
+						"          ExtFemalePoCCandStM as integer,",
+						"          FemalePoCCandHired as integer,",
+						"          IntFemalePoCCandHired as integer,",
+						"          ExtFemalePoCCandHired as integer,",
+						"          FemaleNotPoCCandStM as integer,",
+						"          IntFemaleNotPoCCandStM as integer,",
+						"          ExtFemaleNotPoCCandStM as integer,",
+						"          FemaleNotPoCCandHired as integer,",
+						"          IntFemaleNotPoCCandHired as integer,",
+						"          ExtFemaleNotPoCCandHired as integer,",
+						"          NotFemalePoCCandStM as integer,",
+						"          IntNotFemalePoCCandStM as integer,",
+						"          ExtNotFemalePoCCandStM as integer,",
+						"          NotFemalePoCCandHired as integer,",
+						"          IntNotFemalePoCCandHired as integer,",
+						"          ExtNotFemalePoCCandHired as integer,",
+						"          NotFemaleNotPoCCandStM as integer,",
+						"          IntNotFemaleNotPoCCandStM as integer,",
+						"          ExtNotFemaleNotPoCCandStM as integer,",
+						"          NotFemaleNotPoCCandHired as integer,",
+						"          IntNotFemaleNotPoCCandHired as integer,",
+						"          ExtNotFemaleNotPoCCandHired as integer,",
+						"          DiverseSlate as string,",
+						"          IntDiverseSlate as string,",
+						"          ExtDiverseSlate as string,",
+						"          NoDiverseSlate as string,",
+						"          IntNoDiverseSlate as string,",
+						"          ExtNoDiverseSlate as string,",
+						"          DiverseHiredSlate as string,",
+						"          IntDiverseHiredSlate as string,",
+						"          ExtDiverseHiredSlate as string,",
+						"          PoCSlate as string,",
+						"          IntPoCSlate as string,",
+						"          ExtPoCSlate as string,",
+						"          NoPoCSlate as string,",
+						"          IntNoPoCSlate as string,",
+						"          ExtNoPoCSlate as string,",
+						"          PoCHiredSlate as string,",
+						"          IntPoCHiredSlate as string,",
+						"          ExtPoCHiredSlate as string,",
+						"          WhiteSlate as string,",
+						"          IntWhiteSlate as string,",
+						"          ExtWhiteSlate as string,",
+						"          NoWhiteSlate as string,",
+						"          IntNoWhiteSlate as string,",
+						"          ExtNoWhiteSlate as string,",
+						"          WhiteHiredSlate as string,",
+						"          IntWhiteHiredSlate as string,",
+						"          ExtWhiteHiredSlate as string,",
+						"          BlackSlate as string,",
+						"          IntBlackSlate as string,",
+						"          ExtBlackSlate as string,",
+						"          NoBlackSlate as string,",
+						"          IntNoBlackSlate as string,",
+						"          ExtNoBlackSlate as string,",
+						"          BlackHiredSlate as string,",
+						"          IntBlackHiredSlate as string,",
+						"          ExtBlackHiredSlate as string,",
+						"          LatinxSlate as string,",
+						"          IntLatinxSlate as string,",
+						"          ExtLatinxSlate as string,",
+						"          NoLatinxSlate as string,",
+						"          IntNoLatinxSlate as string,",
+						"          ExtNoLatinxSlate as string,",
+						"          LatinxHiredSlate as string,",
+						"          IntLatinxHiredSlate as string,",
+						"          ExtLatinxHiredSlate as string,",
+						"          AsianSlate as string,",
+						"          IntAsianSlate as string,",
+						"          ExtAsianSlate as string,",
+						"          NoAsianSlate as string,",
+						"          IntNoAsianSlate as string,",
+						"          ExtNoAsianSlate as string,",
+						"          AsianHiredSlate as string,",
+						"          IntAsianHiredSlate as string,",
+						"          ExtAsianHiredSlate as string,",
+						"          TwoPlusRacesSlate as string,",
+						"          IntTwoPlusRacesSlate as string,",
+						"          ExtTwoPlusRacesSlate as string,",
+						"          NoTwoPlusRacesSlate as string,",
+						"          IntNoTwoPlusRacesSlate as string,",
+						"          ExtNoTwoPlusRacesSlate as string,",
+						"          TwoPlusRacesHiredSlate as string,",
+						"          IntTwoPlusRacesHiredSlate as string,",
+						"          ExtTwoPlusRacesHiredSlate as string,",
+						"          OtherRaceSlate as string,",
+						"          IntOtherRaceSlate as string,",
+						"          ExtOtherRaceSlate as string,",
+						"          NoOtherRaceSlate as string,",
+						"          IntNoOtherRaceSlate as string,",
+						"          ExtNoOtherRaceSlate as string,",
+						"          OtherRaceHiredSlate as string,",
+						"          IntOtherRaceHiredSlate as string,",
+						"          ExtOtherRaceHiredSlate as string,",
+						"          FemaleSlate as string,",
+						"          IntFemaleSlate as string,",
+						"          ExtFemaleSlate as string,",
+						"          NoFemaleSlate as string,",
+						"          IntNoFemaleSlate as string,",
+						"          ExtNoFemaleSlate as string,",
+						"          FemaleHiredSlate as string,",
+						"          IntFemaleHiredSlate as string,",
+						"          ExtFemaleHiredSlate as string,",
+						"          MaleSlate as string,",
+						"          IntMaleSlate as string,",
+						"          ExtMaleSlate as string,",
+						"          NoMaleSlate as string,",
+						"          IntNoMaleSlate as string,",
+						"          ExtNoMaleSlate as string,",
+						"          MaleHiredSlate as string,",
+						"          IntMaleHiredSlate as string,",
+						"          ExtMaleHiredSlate as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TASlateFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> DivSlate",
+						"DivSlate alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventYear as integer,",
+						"          ReqId as string,",
+						"          CandStM as integer,",
+						"          IntCandStM as integer,",
+						"          ExtCandStM as integer,",
+						"          CandHired as integer,",
+						"          IntCandHired as integer,",
+						"          ExtCandHired as integer,",
+						"          WhiteCandStM as integer,",
+						"          IntWhiteCandStM as integer,",
+						"          ExtWhiteCandStM as integer,",
+						"          WhiteCandHired as integer,",
+						"          IntWhiteCandHired as integer,",
+						"          ExtWhiteCandHired as integer,",
+						"          BlackCandStM as integer,",
+						"          IntBlackCandStM as integer,",
+						"          ExtBlackCandStM as integer,",
+						"          BlackCandHired as integer,",
+						"          IntBlackCandHired as integer,",
+						"          ExtBlackCandHired as integer,",
+						"          LatinxCandStM as integer,",
+						"          IntLatinxCandStM as integer,",
+						"          ExtLatinxCandStM as integer,",
+						"          LatinxCandHired as integer,",
+						"          IntLatinxCandHired as integer,",
+						"          ExtLatinxCandHired as integer,",
+						"          AsianCandStM as integer,",
+						"          IntAsianCandStM as integer,",
+						"          ExtAsianCandStM as integer,",
+						"          AsianCandHired as integer,",
+						"          IntAsianCandHired as integer,",
+						"          ExtAsianCandHired as integer,",
+						"          TwoPlusRacesCandStM as integer,",
+						"          IntTwoPlusRacesCandStM as integer,",
+						"          ExtTwoPlusRacesCandStM as integer,",
+						"          TwoPlusRacesCandHired as integer,",
+						"          IntTwoPlusRacesCandHired as integer,",
+						"          ExtTwoPlusRacesCandHired as integer,",
+						"          OtherCandStM as integer,",
+						"          IntOtherCandStM as integer,",
+						"          ExtOtherCandStM as integer,",
+						"          OtherCandHired as integer,",
+						"          IntOtherCandHired as integer,",
+						"          ExtOtherCandHired as integer,",
+						"          MaleCandStM as integer,",
+						"          IntMaleCandStM as integer,",
+						"          ExtMaleCandStM as integer,",
+						"          MaleCandHired as integer,",
+						"          IntMaleCandHired as integer,",
+						"          ExtMaleCandHired as integer,",
+						"          FemaleCandStM as integer,",
+						"          IntFemaleCandStM as integer,",
+						"          ExtFemaleCandStM as integer,",
+						"          FemaleCandHired as integer,",
+						"          IntFemaleCandHired as integer,",
+						"          ExtFemaleCandHired as integer,",
+						"          OtherGenderCandStM as integer,",
+						"          IntOtherGenderCandStM as integer,",
+						"          ExtOtherGenderCandStM as integer,",
+						"          OtherGenderCandHired as integer,",
+						"          IntOtherGenderCandHired as integer,",
+						"          ExtOtherGenderCandHired as integer,",
+						"          PoCCandStM as integer,",
+						"          IntPoCCandStM as integer,",
+						"          ExtPoCCandStM as integer,",
+						"          PoCCandHired as integer,",
+						"          IntPoCCandHired as integer,",
+						"          ExtPoCCandHired as integer,",
+						"          DiverseCandStM as integer,",
+						"          IntDiverseCandStM as integer,",
+						"          ExtDiverseCandStM as integer,",
+						"          DiverseCandHired as integer,",
+						"          IntDiverseCandHired as integer,",
+						"          ExtDiverseCandHired as integer,",
+						"          FemalePoCCandStM as integer,",
+						"          IntFemalePoCCandStM as integer,",
+						"          ExtFemalePoCCandStM as integer,",
+						"          FemalePoCCandHired as integer,",
+						"          IntFemalePoCCandHired as integer,",
+						"          ExtFemalePoCCandHired as integer,",
+						"          FemaleNotPoCCandStM as integer,",
+						"          IntFemaleNotPoCCandStM as integer,",
+						"          ExtFemaleNotPoCCandStM as integer,",
+						"          FemaleNotPoCCandHired as integer,",
+						"          IntFemaleNotPoCCandHired as integer,",
+						"          ExtFemaleNotPoCCandHired as integer,",
+						"          NotFemalePoCCandStM as integer,",
+						"          IntNotFemalePoCCandStM as integer,",
+						"          ExtNotFemalePoCCandStM as integer,",
+						"          NotFemalePoCCandHired as integer,",
+						"          IntNotFemalePoCCandHired as integer,",
+						"          ExtNotFemalePoCCandHired as integer,",
+						"          NotFemaleNotPoCCandStM as integer,",
+						"          IntNotFemaleNotPoCCandStM as integer,",
+						"          ExtNotFemaleNotPoCCandStM as integer,",
+						"          NotFemaleNotPoCCandHired as integer,",
+						"          IntNotFemaleNotPoCCandHired as integer,",
+						"          ExtNotFemaleNotPoCCandHired as integer,",
+						"          DiverseSlate as string,",
+						"          IntDiverseSlate as string,",
+						"          ExtDiverseSlate as string,",
+						"          NoDiverseSlate as string,",
+						"          IntNoDiverseSlate as string,",
+						"          ExtNoDiverseSlate as string,",
+						"          DiverseHiredSlate as string,",
+						"          IntDiverseHiredSlate as string,",
+						"          ExtDiverseHiredSlate as string,",
+						"          PoCSlate as string,",
+						"          IntPoCSlate as string,",
+						"          ExtPoCSlate as string,",
+						"          NoPoCSlate as string,",
+						"          IntNoPoCSlate as string,",
+						"          ExtNoPoCSlate as string,",
+						"          PoCHiredSlate as string,",
+						"          IntPoCHiredSlate as string,",
+						"          ExtPoCHiredSlate as string,",
+						"          WhiteSlate as string,",
+						"          IntWhiteSlate as string,",
+						"          ExtWhiteSlate as string,",
+						"          NoWhiteSlate as string,",
+						"          IntNoWhiteSlate as string,",
+						"          ExtNoWhiteSlate as string,",
+						"          WhiteHiredSlate as string,",
+						"          IntWhiteHiredSlate as string,",
+						"          ExtWhiteHiredSlate as string,",
+						"          BlackSlate as string,",
+						"          IntBlackSlate as string,",
+						"          ExtBlackSlate as string,",
+						"          NoBlackSlate as string,",
+						"          IntNoBlackSlate as string,",
+						"          ExtNoBlackSlate as string,",
+						"          BlackHiredSlate as string,",
+						"          IntBlackHiredSlate as string,",
+						"          ExtBlackHiredSlate as string,",
+						"          LatinxSlate as string,",
+						"          IntLatinxSlate as string,",
+						"          ExtLatinxSlate as string,",
+						"          NoLatinxSlate as string,",
+						"          IntNoLatinxSlate as string,",
+						"          ExtNoLatinxSlate as string,",
+						"          LatinxHiredSlate as string,",
+						"          IntLatinxHiredSlate as string,",
+						"          ExtLatinxHiredSlate as string,",
+						"          AsianSlate as string,",
+						"          IntAsianSlate as string,",
+						"          ExtAsianSlate as string,",
+						"          NoAsianSlate as string,",
+						"          IntNoAsianSlate as string,",
+						"          ExtNoAsianSlate as string,",
+						"          AsianHiredSlate as string,",
+						"          IntAsianHiredSlate as string,",
+						"          ExtAsianHiredSlate as string,",
+						"          TwoPlusRacesSlate as string,",
+						"          IntTwoPlusRacesSlate as string,",
+						"          ExtTwoPlusRacesSlate as string,",
+						"          NoTwoPlusRacesSlate as string,",
+						"          IntNoTwoPlusRacesSlate as string,",
+						"          ExtNoTwoPlusRacesSlate as string,",
+						"          TwoPlusRacesHiredSlate as string,",
+						"          IntTwoPlusRacesHiredSlate as string,",
+						"          ExtTwoPlusRacesHiredSlate as string,",
+						"          OtherRaceSlate as string,",
+						"          IntOtherRaceSlate as string,",
+						"          ExtOtherRaceSlate as string,",
+						"          NoOtherRaceSlate as string,",
+						"          IntNoOtherRaceSlate as string,",
+						"          ExtNoOtherRaceSlate as string,",
+						"          OtherRaceHiredSlate as string,",
+						"          IntOtherRaceHiredSlate as string,",
+						"          ExtOtherRaceHiredSlate as string,",
+						"          FemaleSlate as string,",
+						"          IntFemaleSlate as string,",
+						"          ExtFemaleSlate as string,",
+						"          NoFemaleSlate as string,",
+						"          IntNoFemaleSlate as string,",
+						"          ExtNoFemaleSlate as string,",
+						"          FemaleHiredSlate as string,",
+						"          IntFemaleHiredSlate as string,",
+						"          ExtFemaleHiredSlate as string,",
+						"          MaleSlate as string,",
+						"          IntMaleSlate as string,",
+						"          ExtMaleSlate as string,",
+						"          NoMaleSlate as string,",
+						"          IntNoMaleSlate as string,",
+						"          ExtNoMaleSlate as string,",
+						"          MaleHiredSlate as string,",
+						"          IntMaleHiredSlate as string,",
+						"          ExtMaleHiredSlate as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ReqId'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          EventYear,",
+						"          ReqId,",
+						"          CandStM,",
+						"          IntCandStM,",
+						"          ExtCandStM,",
+						"          CandHired,",
+						"          IntCandHired,",
+						"          ExtCandHired,",
+						"          WhiteCandStM,",
+						"          IntWhiteCandStM,",
+						"          ExtWhiteCandStM,",
+						"          WhiteCandHired,",
+						"          IntWhiteCandHired,",
+						"          ExtWhiteCandHired,",
+						"          BlackCandStM,",
+						"          IntBlackCandStM,",
+						"          ExtBlackCandStM,",
+						"          BlackCandHired,",
+						"          IntBlackCandHired,",
+						"          ExtBlackCandHired,",
+						"          LatinxCandStM,",
+						"          IntLatinxCandStM,",
+						"          ExtLatinxCandStM,",
+						"          LatinxCandHired,",
+						"          IntLatinxCandHired,",
+						"          ExtLatinxCandHired,",
+						"          AsianCandStM,",
+						"          IntAsianCandStM,",
+						"          ExtAsianCandStM,",
+						"          AsianCandHired,",
+						"          IntAsianCandHired,",
+						"          ExtAsianCandHired,",
+						"          TwoPlusRacesCandStM,",
+						"          IntTwoPlusRacesCandStM,",
+						"          ExtTwoPlusRacesCandStM,",
+						"          TwoPlusRacesCandHired,",
+						"          IntTwoPlusRacesCandHired,",
+						"          ExtTwoPlusRacesCandHired,",
+						"          OtherCandStM,",
+						"          IntOtherCandStM,",
+						"          ExtOtherCandStM,",
+						"          OtherCandHired,",
+						"          IntOtherCandHired,",
+						"          ExtOtherCandHired,",
+						"          MaleCandStM,",
+						"          IntMaleCandStM,",
+						"          ExtMaleCandStM,",
+						"          MaleCandHired,",
+						"          IntMaleCandHired,",
+						"          ExtMaleCandHired,",
+						"          FemaleCandStM,",
+						"          IntFemaleCandStM,",
+						"          ExtFemaleCandStM,",
+						"          FemaleCandHired,",
+						"          IntFemaleCandHired,",
+						"          ExtFemaleCandHired,",
+						"          OtherGenderCandStM,",
+						"          IntOtherGenderCandStM,",
+						"          ExtOtherGenderCandStM,",
+						"          OtherGenderCandHired,",
+						"          IntOtherGenderCandHired,",
+						"          ExtOtherGenderCandHired,",
+						"          PoCCandStM,",
+						"          IntPoCCandStM,",
+						"          ExtPoCCandStM,",
+						"          PoCCandHired,",
+						"          IntPoCCandHired,",
+						"          ExtPoCCandHired,",
+						"          DiverseCandStM,",
+						"          IntDiverseCandStM,",
+						"          ExtDiverseCandStM,",
+						"          DiverseCandHired,",
+						"          IntDiverseCandHired,",
+						"          ExtDiverseCandHired,",
+						"          FemalePoCCandStM,",
+						"          IntFemalePoCCandStM,",
+						"          ExtFemalePoCCandStM,",
+						"          FemalePoCCandHired,",
+						"          IntFemalePoCCandHired,",
+						"          ExtFemalePoCCandHired,",
+						"          FemaleNotPoCCandStM,",
+						"          IntFemaleNotPoCCandStM,",
+						"          ExtFemaleNotPoCCandStM,",
+						"          FemaleNotPoCCandHired,",
+						"          IntFemaleNotPoCCandHired,",
+						"          ExtFemaleNotPoCCandHired,",
+						"          NotFemalePoCCandStM,",
+						"          IntNotFemalePoCCandStM,",
+						"          ExtNotFemalePoCCandStM,",
+						"          NotFemalePoCCandHired,",
+						"          IntNotFemalePoCCandHired,",
+						"          ExtNotFemalePoCCandHired,",
+						"          NotFemaleNotPoCCandStM,",
+						"          IntNotFemaleNotPoCCandStM,",
+						"          ExtNotFemaleNotPoCCandStM,",
+						"          NotFemaleNotPoCCandHired,",
+						"          IntNotFemaleNotPoCCandHired,",
+						"          ExtNotFemaleNotPoCCandHired,",
+						"          DiverseSlate,",
+						"          IntDiverseSlate,",
+						"          ExtDiverseSlate,",
+						"          NoDiverseSlate,",
+						"          IntNoDiverseSlate,",
+						"          ExtNoDiverseSlate,",
+						"          DiverseHiredSlate,",
+						"          IntDiverseHiredSlate,",
+						"          ExtDiverseHiredSlate,",
+						"          PoCSlate,",
+						"          IntPoCSlate,",
+						"          ExtPoCSlate,",
+						"          NoPoCSlate,",
+						"          IntNoPoCSlate,",
+						"          ExtNoPoCSlate,",
+						"          PoCHiredSlate,",
+						"          IntPoCHiredSlate,",
+						"          ExtPoCHiredSlate,",
+						"          WhiteSlate,",
+						"          IntWhiteSlate,",
+						"          ExtWhiteSlate,",
+						"          NoWhiteSlate,",
+						"          IntNoWhiteSlate,",
+						"          ExtNoWhiteSlate,",
+						"          WhiteHiredSlate,",
+						"          IntWhiteHiredSlate,",
+						"          ExtWhiteHiredSlate,",
+						"          BlackSlate,",
+						"          IntBlackSlate,",
+						"          ExtBlackSlate,",
+						"          NoBlackSlate,",
+						"          IntNoBlackSlate,",
+						"          ExtNoBlackSlate,",
+						"          BlackHiredSlate,",
+						"          IntBlackHiredSlate,",
+						"          ExtBlackHiredSlate,",
+						"          LatinxSlate,",
+						"          IntLatinxSlate,",
+						"          ExtLatinxSlate,",
+						"          NoLatinxSlate,",
+						"          IntNoLatinxSlate,",
+						"          ExtNoLatinxSlate,",
+						"          LatinxHiredSlate,",
+						"          IntLatinxHiredSlate,",
+						"          ExtLatinxHiredSlate,",
+						"          AsianSlate,",
+						"          IntAsianSlate,",
+						"          ExtAsianSlate,",
+						"          NoAsianSlate,",
+						"          IntNoAsianSlate,",
+						"          ExtNoAsianSlate,",
+						"          AsianHiredSlate,",
+						"          IntAsianHiredSlate,",
+						"          ExtAsianHiredSlate,",
+						"          TwoPlusRacesSlate,",
+						"          IntTwoPlusRacesSlate,",
+						"          ExtTwoPlusRacesSlate,",
+						"          NoTwoPlusRacesSlate,",
+						"          IntNoTwoPlusRacesSlate,",
+						"          ExtNoTwoPlusRacesSlate,",
+						"          TwoPlusRacesHiredSlate,",
+						"          IntTwoPlusRacesHiredSlate,",
+						"          ExtTwoPlusRacesHiredSlate,",
+						"          OtherRaceSlate,",
+						"          IntOtherRaceSlate,",
+						"          ExtOtherRaceSlate,",
+						"          NoOtherRaceSlate,",
+						"          IntNoOtherRaceSlate,",
+						"          ExtNoOtherRaceSlate,",
+						"          OtherRaceHiredSlate,",
+						"          IntOtherRaceHiredSlate,",
+						"          ExtOtherRaceHiredSlate,",
+						"          FemaleSlate,",
+						"          IntFemaleSlate,",
+						"          ExtFemaleSlate,",
+						"          NoFemaleSlate,",
+						"          IntNoFemaleSlate,",
+						"          ExtNoFemaleSlate,",
+						"          FemaleHiredSlate,",
+						"          IntFemaleHiredSlate,",
+						"          ExtFemaleHiredSlate,",
+						"          MaleSlate,",
+						"          IntMaleSlate,",
+						"          ExtMaleSlate,",
+						"          NoMaleSlate,",
+						"          IntNoMaleSlate,",
+						"          ExtNoMaleSlate,",
+						"          MaleHiredSlate,",
+						"          IntMaleHiredSlate,",
+						"          ExtMaleHiredSlate,",
+						"          LoadDt",
+						"     )) ~> AppendDivSlateFact"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_OtherCore_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Other"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendOtherFactTbl"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          EventDesc as string,",
+						"          EventType as string,",
+						"          OtherCharVal11 as string,",
+						"          OtherCharVal2 as string,",
+						"          OtherNumVal1 as double,",
+						"          OtherNumVal2 as double,",
+						"          OtherDtVal1 as date,",
+						"          OtherDtVal2 as date,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Other",
+						"Other alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
+						"          LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientEngagementType as string,",
+						"          WorkerId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          EventDesc as string,",
+						"          EventType as string,",
+						"          OtherCharVal11 as string,",
+						"          OtherCharVal2 as string,",
+						"          OtherNumVal1 as double,",
+						"          OtherNumVal2 as double,",
+						"          OtherDtVal1 as date,",
+						"          OtherDtVal2 as date,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventYear','EventType','WorkerId'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendOtherFactTbl"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_PerfRatingHist_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentPerfRatingHistFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "PerRatingHistory"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentPerfRatingHistFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendTalentMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventYear as integer,",
+						"          WorkerId as string,",
+						"          LastPerfYear as integer,",
+						"          LastPerfRatingDt as date,",
+						"          LastClientPerfRating as string,",
+						"          LastElloreePerfRating as string,",
+						"          LastElloreePerfRatingSortId as integer,",
+						"          LastTopTalentInd as string,",
+						"          CurrPerfYear as integer,",
+						"          CurrPerfRatingDt as date,",
+						"          CurrTalentTag as string,",
+						"          CurrClientPerfRating as string,",
+						"          CurrElloreePerfRating as string,",
+						"          CurrElloreePerfRatingSortId as integer,",
+						"          CurrTopTalentInd as string,",
+						"          P1PerfYear as integer,",
+						"          P1PerfRatingDt as date,",
+						"          P1ClientPerfRating as string,",
+						"          P1ElloreePerfRating as string,",
+						"          P1ElloreePerfRatingSortId as integer,",
+						"          P1TopTalentInd as string,",
+						"          P2PerfYear as integer,",
+						"          P2PerfRatingDt as date,",
+						"          P2ClientPerfRating as string,",
+						"          P2ElloreePerfRating as string,",
+						"          P2ElloreePerfRatingSortId as integer,",
+						"          P2TopTalentInd as string,",
+						"          P3PerfYear as integer,",
+						"          P3PerfRatingDt as date,",
+						"          P3ClientPerfRating as string,",
+						"          P3ElloreePerfRating as string,",
+						"          P3ElloreePerfRatingSortId as integer,",
+						"          P3TopTalentInd as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[PerfRatingHistTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> PerRatingHistory",
+						"PerRatingHistory alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventYear as integer,",
+						"          WorkerId as string,",
+						"          LastPerfYear as integer,",
+						"          LastPerfRatingDt as date,",
+						"          LastClientPerfRating as string,",
+						"          LastElloreePerfRating as string,",
+						"          LastElloreePerfRatingSortId as integer,",
+						"          LastTopTalentInd as string,",
+						"          CurrPerfYear as integer,",
+						"          CurrPerfRatingDt as date,",
+						"          CurrTalentTag as string,",
+						"          CurrClientPerfRating as string,",
+						"          CurrElloreePerfRating as string,",
+						"          CurrElloreePerfRatingSortId as integer,",
+						"          CurrTopTalentInd as string,",
+						"          P1PerfYear as integer,",
+						"          P1PerfRatingDt as date,",
+						"          P1ClientPerfRating as string,",
+						"          P1ElloreePerfRating as string,",
+						"          P1ElloreePerfRatingSortId as integer,",
+						"          P1TopTalentInd as string,",
+						"          P2PerfYear as integer,",
+						"          P2PerfRatingDt as date,",
+						"          P2ClientPerfRating as string,",
+						"          P2ElloreePerfRating as string,",
+						"          P2ElloreePerfRatingSortId as integer,",
+						"          P2TopTalentInd as string,",
+						"          P3PerfYear as integer,",
+						"          P3PerfRatingDt as date,",
+						"          P3ClientPerfRating as string,",
+						"          P3ElloreePerfRating as string,",
+						"          P3ElloreePerfRatingSortId as integer,",
+						"          P3TopTalentInd as string,",
+						"          LastTalentTagYear as integer,",
+						"          LastTalentTag as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','WorkerId','EventYear'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Req_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentReqFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Requisitions"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentReqFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendReqFact"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "addLoadDt"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          ReqId as string,",
+						"          ReqType as string,",
+						"          PostingDt as date,",
+						"          ReqStatus as string,",
+						"          NumberofOpenings as integer,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          CorpTitle as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          HiringMgrWorkerId as string,",
+						"          PrimaryRecruiterWorkerId as string,",
+						"          ReqOther1 as string,",
+						"          ReqOther2 as string,",
+						"          ReqOther3 as string,",
+						"          ReqOther4 as string,",
+						"          ReqOther5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TAReqTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Requisitions",
+						"Requisitions alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> addLoadDt",
+						"addLoadDt sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientEngagementType as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          ReqId as string,",
+						"          ReqType as string,",
+						"          PostingDt as date,",
+						"          ReqStatus as string,",
+						"          NumberofOpenings as integer,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          CorpTitle as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          HiringMgrWorkerId as string,",
+						"          PrimaryRecruiterWorkerId as string,",
+						"          ReqOther1 as string,",
+						"          ReqOther2 as string,",
+						"          ReqOther3 as string,",
+						"          ReqOther4 as string,",
+						"          ReqOther5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventDt','EventId','ReqId'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendReqFact"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_SilverMedalist_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentSilverMedalistFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "SilverMedalist"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentSilverMedalistFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendSilverMedalistFAct"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventYear as integer,",
+						"          ReqId as string,",
+						"          ApplId as string,",
+						"          IntWorkerId as string,",
+						"          SilverMedalistInd as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TASilverMedalistFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> SilverMedalist",
+						"SilverMedalist alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventYear as integer,",
+						"          ReqId as string,",
+						"          ApplId as string,",
+						"          IntWorkerId as string,",
+						"          SilverMedalistInd as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventYear','ReqId','ApplId'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendSilverMedalistFAct"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Speedbumps_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentSpeedbumpsFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Speedbumps"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentSpeedbumpsFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          WorkerId as string,",
+						"          SpeedbumpPopulationInd as string,",
+						"          Speedbump1Name as string,",
+						"          Speedbump1Desc as string,",
+						"          Speedbump1Flag as string,",
+						"          Speedbump2Name as string,",
+						"          Speedbump2Desc as string,",
+						"          Speedbump2Flag as string,",
+						"          Speedbump3Name as string,",
+						"          Speedbump3Desc as string,",
+						"          Speedbump3Flag as string,",
+						"          Speedbump4Name as string,",
+						"          Speedbump4Desc as string,",
+						"          Speedbump4Flag as string,",
+						"          Speedbump5Name as string,",
+						"          Speedbump5Desc as string,",
+						"          Speedbump5Flag as string,",
+						"          Speedbump6Name as string,",
+						"          Speedbump6Desc as string,",
+						"          Speedbump6Flag as string,",
+						"          Speedbump7Name as string,",
+						"          Speedbump7Desc as string,",
+						"          Speedbump7Flag as string,",
+						"          Speedbump8Name as string,",
+						"          Speedbump8Desc as string,",
+						"          Speedbump8Flag as string,",
+						"          Speedbump9Name as string,",
+						"          Speedbump9Desc as string,",
+						"          Speedbump9Flag as string,",
+						"          Speedbump10Name as string,",
+						"          Speedbump10Desc as string,",
+						"          Speedbump10Flag as string,",
+						"          Speedbump11Name as string,",
+						"          Speedbump11Desc as string,",
+						"          Speedbump11Flag as string,",
+						"          Speedbump12Name as string,",
+						"          Speedbump12Desc as string,",
+						"          Speedbump12Flag as string,",
+						"          Speedbump13Name as string,",
+						"          Speedbump13Desc as string,",
+						"          Speedbump13Flag as string,",
+						"          Speedbump14Name as string,",
+						"          Speedbump14Desc as string,",
+						"          Speedbump14Flag as string,",
+						"          Speedbump15Name as string,",
+						"          Speedbump15Desc as string,",
+						"          Speedbump15Flag as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[SpeedbumpsFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Speedbumps",
+						"Speedbumps alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          CoreEventId as string,",
+						"          CoreEventQuarter as integer,",
+						"          CoreEventDate as date,",
+						"          WorkerId as string,",
+						"          SpeedbumnpWorkerStatus as string,",
+						"          SpeedbumpPopulationInd as string,",
+						"          Speedbump1Name as string,",
+						"          Speedbump1Desc as string,",
+						"          Speedbump1Flag as string,",
+						"          Speedbump2Name as string,",
+						"          Speedbump2Desc as string,",
+						"          Speedbump2Flag as string,",
+						"          Speedbump3Name as string,",
+						"          Speedbump3Desc as string,",
+						"          Speedbump3Flag as string,",
+						"          Speedbump4Name as string,",
+						"          Speedbump4Desc as string,",
+						"          Speedbump4Flag as string,",
+						"          Speedbump5Name as string,",
+						"          Speedbump5Desc as string,",
+						"          Speedbump5Flag as string,",
+						"          Speedbump6Name as string,",
+						"          Speedbump6Desc as string,",
+						"          Speedbump6Flag as string,",
+						"          Speedbump7Name as string,",
+						"          Speedbump7Desc as string,",
+						"          Speedbump7Flag as string,",
+						"          Speedbump8Name as string,",
+						"          Speedbump8Desc as string,",
+						"          Speedbump8Flag as string,",
+						"          Speedbump9Name as string,",
+						"          Speedbump9Desc as string,",
+						"          Speedbump9Flag as string,",
+						"          Speedbump10Name as string,",
+						"          Speedbump10Desc as string,",
+						"          Speedbump10Flag as string,",
+						"          Speedbump11Name as string,",
+						"          Speedbump11Desc as string,",
+						"          Speedbump11Flag as string,",
+						"          Speedbump12Name as string,",
+						"          Speedbump12Desc as string,",
+						"          Speedbump12Flag as string,",
+						"          Speedbump13Name as string,",
+						"          Speedbump13Desc as string,",
+						"          Speedbump13Flag as string,",
+						"          Speedbump14Name as string,",
+						"          Speedbump14Desc as string,",
+						"          Speedbump14Flag as string,",
+						"          Speedbump15Name as string,",
+						"          Speedbump15Desc as string,",
+						"          Speedbump15Flag as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','WorkerId','EventYear'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          EventQuarter,",
+						"          EventYear,",
+						"          WorkerId,",
+						"          SpeedbumpPopulationInd,",
+						"          Speedbump1Name,",
+						"          Speedbump1Desc,",
+						"          Speedbump1Flag,",
+						"          Speedbump2Name,",
+						"          Speedbump2Desc,",
+						"          Speedbump2Flag,",
+						"          Speedbump3Name,",
+						"          Speedbump3Desc,",
+						"          Speedbump3Flag,",
+						"          Speedbump4Name,",
+						"          Speedbump4Desc,",
+						"          Speedbump4Flag,",
+						"          Speedbump5Name,",
+						"          Speedbump5Desc,",
+						"          Speedbump5Flag,",
+						"          Speedbump6Name,",
+						"          Speedbump6Desc,",
+						"          Speedbump6Flag,",
+						"          Speedbump7Name,",
+						"          Speedbump7Desc,",
+						"          Speedbump7Flag,",
+						"          Speedbump8Name,",
+						"          Speedbump8Desc,",
+						"          Speedbump8Flag,",
+						"          Speedbump9Name,",
+						"          Speedbump9Desc,",
+						"          Speedbump9Flag,",
+						"          Speedbump10Name,",
+						"          Speedbump10Desc,",
+						"          Speedbump10Flag,",
+						"          Speedbump11Name,",
+						"          Speedbump11Desc,",
+						"          Speedbump11Flag,",
+						"          Speedbump12Name,",
+						"          Speedbump12Desc,",
+						"          Speedbump12Flag,",
+						"          Speedbump13Name,",
+						"          Speedbump13Desc,",
+						"          Speedbump13Flag,",
+						"          Speedbump14Name,",
+						"          Speedbump14Desc,",
+						"          Speedbump14Flag,",
+						"          Speedbump15Name,",
+						"          Speedbump15Desc,",
+						"          Speedbump15Flag,",
+						"          LoadDt",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentTalentFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Talent"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentTalentFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendTalentMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventYear as integer,",
+						"          EventDt as date,",
+						"          Event as string,",
+						"          EventType as string,",
+						"          PerfRating as string,",
+						"          PerfRatingDt as date,",
+						"          TalentIdentifier1 as string,",
+						"          TalentIdentifier2 as string,",
+						"          TalentIdentifier3 as string,",
+						"          TalentIdentifier4 as string,",
+						"          TalentIdentifier5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Talent",
+						"Talent alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
+						"          LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventYear as integer,",
+						"          EventDt as date,",
+						"          Event as string,",
+						"          EventType as string,",
+						"          PerfRating as string,",
+						"          PerfRatingDt as date,",
+						"          TalentIdentifier1 as string,",
+						"          TalentIdentifier2 as string,",
+						"          TalentIdentifier3 as string,",
+						"          TalentIdentifier4 as string,",
+						"          TalentIdentifier5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventDt','PerfRating'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/etalentTalentFactTbl')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentYearRefTbl",
+								"type": "DatasetReference"
+							},
+							"name": "YearRef"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentYearRefTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendYearRef"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          CurEventYear as integer,",
+						"          P1EventYear as integer,",
+						"          P2EventYear as integer,",
+						"          P3EventYear as integer,",
+						"          P4EventYear as integer,",
+						"          P5EventYear as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[YearRefTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> YearRef",
+						"YearRef alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          CurEventYear as integer,",
+						"          P1EventYear as integer,",
+						"          P2EventYear as integer,",
+						"          P3EventYear as integer,",
+						"          P4EventYear as integer,",
+						"          P5EventYear as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendYearRef"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/etalentYearRefTbl')]"
+			]
 		}
 	]
 }

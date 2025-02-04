@@ -13,2114 +13,2055 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Male')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Event')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Male",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "event_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'All',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force Level - Men',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Male.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Event",
+						"type": "String"
+					},
+					{
+						"name": "Client Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Client Event Reason",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Event",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Event Reason",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Termination Reason",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Event",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Event Type",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Event Reason",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Termination Reason",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					},
+					{
+						"name": "2022 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2022 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2022 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2022 Term",
+						"type": "String"
+					},
+					{
+						"name": "2023 Promo",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_NatHawPacIsl_Female')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Gender')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_NatHawPacIsl_Female",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "gender_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Native Hawaiian or Other Pacific Islander',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian labor force, Women, Native Hawaiian or other Pacific Islander only',",
-						"          Quarter = 4,",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_NatHawPacIsl_Female.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Gender",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Gender",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Gender",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_NatHawPacIsl_Male')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Job')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_NatHawPacIsl_Male",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "job_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Native Hawaiian or Other Pacific Islander',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(unadj) Civilian labor force, Men, Native Hawaiian or other Pacific Islander only',",
-						"          Quarter = 4,",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_NatHawPacIsl_Male.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"encodingName": "WINDOWS-1252",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "ElloreeBusGrpLvl1",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Client Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Client Job Function",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Job Function",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_NatHawPacIsl_Total')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Job_Temp_DELETE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_NatHawPacIsl_Total",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Native Hawaiian or Other Pacific Islander',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Native Hawaiian or Other Pacific Islander',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_NatHawPacIsl_Total.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "job_mapping.csv",
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"encodingName": "WINDOWS-1252",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Bus Grp Lvl1",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Client Job Function",
+						"type": "String"
+					},
+					{
+						"name": "Client Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Job Function",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Other_Female_Hisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_LGBTQ')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Other_Female_Hisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "lgbtq_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						},
-						{
-							"name": "PullOnlyQuarterData"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Other',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Hispanic or Latino',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Other Hispanic or Latino, women',",
-						"          Quarter = iif(period=='M03',1,iif(period=='M06',2,iif(period=='M09',3,iif(period=='M12',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"PullOnlyQuarterData select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"derivedColumn1 filter(Quarter==1 || Quarter==2 || Quarter==3 || Quarter==4) ~> PullOnlyQuarterData",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Other_Female_Hisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client LGBTQ",
+						"type": "String"
+					},
+					{
+						"name": "Elloree LGBTQ",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree LGBTQ",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promotion",
+						"type": "String"
+					},
+					{
+						"name": "2021 Termination",
+						"type": "String"
+					},
+					{
+						"name": "2022 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2022 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2022 Job Applicant",
+						"type": "String"
+					},
+					{
+						"name": "2022 Promotion",
+						"type": "String"
+					},
+					{
+						"name": "2022 Termination",
+						"type": "String"
+					},
+					{
+						"name": "2023 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2023 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2023 Job Applicant",
+						"type": "String"
+					},
+					{
+						"name": "2023 Promotion",
+						"type": "String"
+					},
+					{
+						"name": "2023 Termination",
+						"type": "String"
+					},
+					{
+						"name": "2024 Job Applicant",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Other_Male_Hisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Location')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Other_Male_Hisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "location_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						},
-						{
-							"name": "PullOnlyQuarterData"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Other',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Hispanic or Latino',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Other Hispanic or Latino, men',",
-						"          Quarter = iif(period=='M03',1,iif(period=='M06',2,iif(period=='M09',3,iif(period=='M12',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"PullOnlyQuarterData select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"derivedColumn1 filter(Quarter==1 || Quarter==2 || Quarter==3 || Quarter==4) ~> PullOnlyQuarterData",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Other_Male_Hisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Work Office Location",
+						"type": "String"
+					},
+					{
+						"name": "Client Work City",
+						"type": "String"
+					},
+					{
+						"name": "Client Work State",
+						"type": "String"
+					},
+					{
+						"name": "Client Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Client Strategic Work Location Ind",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Work Ofiice",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Work City",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Work State",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Work Region",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Strategic Location",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Location Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Work Office",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Work City",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Work State",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Work Region",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Strategic Location",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Location Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "Location Identifier 1",
+						"type": "String"
+					},
+					{
+						"name": "Location Identifier 2",
+						"type": "String"
+					},
+					{
+						"name": "Location Identifier 3",
+						"type": "String"
+					},
+					{
+						"name": "Location Identifier 4",
+						"type": "String"
+					},
+					{
+						"name": "Location Identifier 5",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promotion",
+						"type": "String"
+					},
+					{
+						"name": "2020 Termination",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promotion",
+						"type": "String"
+					},
+					{
+						"name": "2021 Requisition",
+						"type": "String"
+					},
+					{
+						"name": "2021 Termination",
+						"type": "String"
+					},
+					{
+						"name": "2022 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2022 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2022 Promotion",
+						"type": "String"
+					},
+					{
+						"name": "2022 Requisition",
+						"type": "String"
+					},
+					{
+						"name": "2022 Termination",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Other_Total_Hisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_PerformanceRating')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Other_Total_Hisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "perf_rating_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						},
-						{
-							"name": "PullOnlyQuarterData"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Other',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Hispanic or Latino',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Other Hispanic or Latino',",
-						"          Quarter = iif(period=='M03',1,iif(period=='M06',2,iif(period=='M09',3,iif(period=='M12',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"PullOnlyQuarterData select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"derivedColumn1 filter(Quarter==1 || Quarter==2 || Quarter==3 || Quarter==4) ~> PullOnlyQuarterData",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Other_Total_Hisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Performance Rating",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Performance Rating",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Performance Rating Sort",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Performance Rating",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Performane Rating Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Talent Assessment",
+						"type": "String"
+					},
+					{
+						"name": "2018 Talent Assessment",
+						"type": "String"
+					},
+					{
+						"name": "2019 Talent Assessment",
+						"type": "String"
+					},
+					{
+						"name": "2020 Talent Assessment",
+						"type": "String"
+					},
+					{
+						"name": "2021 Talent Assessment",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Test_Black')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_ReqStatus')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Test",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "reqstatus_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Asian',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Asian, women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Asian_Female.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Requisition Status",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Requisition Status",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Requisition Status",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2021 Requisition",
+						"type": "String"
+					},
+					{
+						"name": "2022 Requisition",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Total')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_ReqType')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Total",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "reqtype_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'All',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force Level',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Total.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2021 Job Requisition",
+						"type": "String"
+					},
+					{
+						"name": "2022 Job Requisition",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_TwoOrMore_Female')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_TRASH')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_TwoOrMore_Female",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Two or more races',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Two or more races, women',",
-						"          Quarter = 4,",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_TwoOrMore_Female.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "job_mapping.csv",
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Corp Title",
+						"type": "String"
+					},
+					{
+						"name": "Job Function",
+						"type": "String"
+					},
+					{
+						"name": "Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Job Function",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_TwoOrMore_Male')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Veteran')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_TwoOrMore_Male",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "veteran_mapping.csv",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/Mapping/',concat(concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter),'/Working')))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Two or more races',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Two or more races, men',",
-						"          Quarter = 4,",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_TwoOrMore_Male.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Veteran",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Veteran",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Veteran",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_TwoOrMore_Total')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_TalentAssessmentColumnMapping')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "Excel",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_TwoOrMore_Total",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Two or more races',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Two or more races',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_TwoOrMore_Total.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+					"sheetName": "TalentAssessment",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "column_mapping.xlsx",
+						"folderPath": "Template Admin",
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Column Name",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Female')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Admin')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_White_Female",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'White',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force Level - White Women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_White_Female.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "Template Admin",
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Female_Hisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Analysis_OtherTbl_1P')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Analysis"
+				},
+				"annotations": [],
+				"type": "Excel",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_White_Female_Hisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "OtherCoreTableAnalysis_Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Analysis/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))\n",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'White',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Hispanic or Latino',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - White, Hispanic, women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_White_Female_Hisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"sheetIndex": 1,
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Year",
+						"type": "String"
+					},
+					{
+						"name": "Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Notes",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Female_NonHisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Analysis_OtherTbl_2P')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Analysis"
+				},
+				"annotations": [],
+				"type": "Excel",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_White_Female_NonHisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "OtherCoreTableAnalysis_Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Analysis/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))\n",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'White',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Non-Hispanic or Latino',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - White, Non-Hispanic, women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_White_Female_NonHisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"sheetIndex": 2,
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Year",
+						"type": "String"
+					},
+					{
+						"name": "Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Notes",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Male')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Analysis_OtherTbl_3P')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Analysis"
+				},
+				"annotations": [],
+				"type": "Excel",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_White_Male",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "OtherCoreTableAnalysis_Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Analysis/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))\n",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'White',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force Level - White Men',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_White_Male.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"sheetIndex": 3,
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Year",
+						"type": "String"
+					},
+					{
+						"name": "Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Notes",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Male_Hisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Analysis_OtherTbl_Curr')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Analysis"
+				},
+				"annotations": [],
+				"type": "Excel",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_White_Male_Hisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "OtherCoreTableAnalysis_Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Analysis/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))\n",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'White',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Hispanic or Latino',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - White, Hispanic, men',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_White_Male_Hisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"sheetIndex": 0,
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Year",
+						"type": "String"
+					},
+					{
+						"name": "Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Notes",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Male_NonHisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Applicant_Append')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"AppendFileName": {
+						"type": "string",
+						"defaultValue": "Elloree Data Submission Template - TA.xlsx"
+					},
+					"WorkSheetName": {
+						"type": "string",
+						"defaultValue": "DATA_JobApplicants"
+					},
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_White_Male_NonHisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"sheetName": {
+						"value": "@dataset().WorkSheetName",
+						"type": "Expression"
+					},
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().AppendFileName",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
 						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'White',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Non-Hispanic or Latino',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - White, Non-Hispanic, men',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_White_Male_NonHisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Requisition ID",
+						"type": "String"
+					},
+					{
+						"name": "Applicant ID",
+						"type": "String"
+					},
+					{
+						"name": "Source",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Type",
+						"type": "String"
+					},
+					{
+						"name": "Internal Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Applicant City",
+						"type": "String"
+					},
+					{
+						"name": "Applicant State",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Country",
+						"type": "String"
+					},
+					{
+						"name": "Race",
+						"type": "String"
+					},
+					{
+						"name": "Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Veteran Ind",
+						"type": "String"
+					},
+					{
+						"name": "LGBTQ",
+						"type": "String"
+					},
+					{
+						"name": "Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Final Disposition",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Step Before Final Disposition",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Rejected Reason",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (1)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (2)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (3)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (4)",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Other (5)",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Total')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Fldr')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_White_Total",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'White',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force Level - White',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_White_Total.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_White_Total_Hisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Headcount')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage2",
+					"type": "LinkedServiceReference"
 				},
-				"type": "MappingDataFlow",
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
 				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_White_Total_Hisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
+					"sheetName": "DATA_Headcount",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Elloree Data Submission Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
 						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'White',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Hispanic or Latino',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - White, Hispanic',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_White_Total_Hisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Worker Status",
+						"type": "String"
+					},
+					{
+						"name": "Worker Type",
+						"type": "String"
+					},
+					{
+						"name": "Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Job Family/Function",
+						"type": "String"
+					},
+					{
+						"name": "Years in Job",
+						"type": "String"
+					},
+					{
+						"name": "Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Manager Indicator",
+						"type": "String"
+					},
+					{
+						"name": "Direct Manager Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Legacy Organization",
+						"type": "String"
+					},
+					{
+						"name": "Work Office Location",
+						"type": "String"
+					},
+					{
+						"name": "Work City",
+						"type": "String"
+					},
+					{
+						"name": "Work State",
+						"type": "String"
+					},
+					{
+						"name": "Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Strategic Work Location Ind",
+						"type": "String"
+					},
+					{
+						"name": "Original Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Current Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Years of Service",
+						"type": "String"
+					},
+					{
+						"name": "Last Promo Date",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Race",
+						"type": "String"
+					},
+					{
+						"name": "Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Veteran Ind",
+						"type": "String"
+					},
+					{
+						"name": "LGBTQ",
+						"type": "String"
+					},
+					{
+						"name": "Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Birth Year",
+						"type": "String"
+					},
+					{
+						"name": "Generation Desc",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": []
 		}
