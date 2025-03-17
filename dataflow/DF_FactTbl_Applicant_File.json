@@ -13,6 +13,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "Applicants"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_Template_Req",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
 				}
 			],
 			"sinks": [
@@ -38,9 +45,6 @@
 					"name": "ConvertNullsForKeyFields"
 				},
 				{
-					"name": "derivedColumn1"
-				},
-				{
 					"name": "RemoveNullRecords"
 				},
 				{
@@ -60,12 +64,28 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "selectReqDateInfo"
+				},
+				{
+					"name": "FilterOutClientReqHeaderRowAndColumn"
+				},
+				{
+					"name": "RemoveNullReqRecords"
+				},
+				{
+					"name": "joinReqDateInfo"
+				},
+				{
+					"name": "SetEventMonth"
 				}
 			],
 			"scriptLines": [
 				"parameters{",
 				"     Flow_Client_Id as string,",
-				"     Flow_Client_Dt as string",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Qtr1_MonthNum as string",
 				"}",
 				"source(output(",
 				"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
@@ -98,14 +118,43 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> Applicants",
+				"source(output(",
+				"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+				"          {Event Year} as string,",
+				"          {Event Quarter} as integer,",
+				"          {Event Date} as date,",
+				"          {Requisition ID} as string,",
+				"          {Requisition Type} as string,",
+				"          {Posting Date} as string,",
+				"          {Requisition Status} as string,",
+				"          {Number of Openings} as string,",
+				"          {Job Title} as string,",
+				"          {Job Function} as string,",
+				"          {Corporate Title} as string,",
+				"          {Work Office Location} as string,",
+				"          {Work Office City} as string,",
+				"          {Work Office State} as string,",
+				"          {Work Office Country} as string,",
+				"          {Strategic Work Location Ind} as string,",
+				"          {Business Group Level 1} as string,",
+				"          {Business Group Level 2} as string,",
+				"          {Business Group Level 3} as string,",
+				"          {Business Group Level 4} as string,",
+				"          {Hiring Manager Worker ID} as string,",
+				"          {Primary Recruiter Worker ID} as string,",
+				"          {Requisition Other (1)} as string,",
+				"          {Requisition Other (2)} as string,",
+				"          {Requisition Other (3)} as string,",
+				"          {Requisition Other (4)} as string,",
+				"          {Requisition Other (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
 				"Applicants filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
-				"derivedColumn1 select(mapColumn(",
+				"ConvertNullsForKeyFields select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
-				"          {Event Date},",
-				"          EventMonth,",
-				"          {Event Quarter},",
-				"          {Event Year},",
 				"          Event,",
 				"          {Requisition ID},",
 				"          {Applicant ID},",
@@ -146,16 +195,15 @@
 				"          {Disability Ind} = iif(isNull({Disability Ind}),'N/A',{Disability Ind}),",
 				"          {Applicant Step Before Final Disposition} = iif(isNull({Applicant Step Before Final Disposition}),'N/A',{Applicant Step Before Final Disposition}),",
 				"          {Applicant Rejected Reason} = iif(isNull({Applicant Rejected Reason}),'N/A',{Applicant Rejected Reason})) ~> ConvertNullsForKeyFields",
-				"ConvertNullsForKeyFields derive(EventMonth = month({Event Date})) ~> derivedColumn1",
 				"FilterOutClientHeaderRowAndColumn filter(!(isNull({Applicant ID}))) ~> RemoveNullRecords",
-				"SelectFinal aggregate(groupBy({Client ID},",
+				"SetEventMonth aggregate(groupBy({Client ID},",
 				"          {Client Engagement Date},",
-				"          {Event Date},",
+				"          {Event Date} = SelectFinal@{Event Date},",
 				"          EventMonth,",
-				"          {Event Quarter},",
-				"          {Event Year},",
+				"          {Event Quarter} = SelectFinal@{Event Quarter},",
+				"          {Event Year} = SelectFinal@{Event Year},",
 				"          Event,",
-				"          {Requisition ID},",
+				"          SelectFinal@{Requisition ID},",
 				"          {Applicant ID},",
 				"          Source,",
 				"          {Applicant Type},",
@@ -223,6 +271,22 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
+				"RemoveNullReqRecords select(mapColumn(",
+				"          {Event Year},",
+				"          {Event Quarter},",
+				"          {Event Date},",
+				"          {Requisition ID}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectReqDateInfo",
+				"source1 filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientReqHeaderRowAndColumn",
+				"FilterOutClientReqHeaderRowAndColumn filter(!(isNull({Requisition ID}))) ~> RemoveNullReqRecords",
+				"SelectFinal, selectReqDateInfo join(SelectFinal@{Requisition ID} == selectReqDateInfo@{Requisition ID},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinReqDateInfo",
+				"joinReqDateInfo derive({Event Month} = month({Event Date})) ~> SetEventMonth",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
