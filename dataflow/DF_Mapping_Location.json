@@ -42,6 +42,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "DatabaseReqRecords"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_FactTbl_Applicant_File",
+						"type": "DatasetReference"
+					},
+					"name": "Applicants"
 				}
 			],
 			"sinks": [
@@ -162,6 +169,15 @@
 				},
 				{
 					"name": "RemoveDupRows"
+				},
+				{
+					"name": "aggregate2"
+				},
+				{
+					"name": "SelectAppl"
+				},
+				{
+					"name": "derivedColumn2"
 				}
 			],
 			"scriptLines": [
@@ -385,6 +401,42 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[TAReqTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
 				"     format: 'query') ~> DatabaseReqRecords",
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date,",
+				"          {Event Date} as string,",
+				"          EventMonth as string,",
+				"          {Event Quarter} as string,",
+				"          {Event Year} as short,",
+				"          Event as string,",
+				"          {Requisition ID} as string,",
+				"          {Application Date} as string,",
+				"          {Applicant ID} as string,",
+				"          Source as string,",
+				"          {Applicant Type} as string,",
+				"          {Applicant City} as string,",
+				"          {Applicant State} as string,",
+				"          {Applicant Country} as string,",
+				"          {Internal Worker ID} as string,",
+				"          Race as string,",
+				"          {Hispanic or Latino Origin} as string,",
+				"          Gender as string,",
+				"          {Veteran Ind} as string,",
+				"          LGTBQ as string,",
+				"          {Disability Ind} as string,",
+				"          {Applicant Final Disposition Date} as string,",
+				"          {Applicant Final Disposition} as string,",
+				"          {Applicant Step Before Final Disposition} as string,",
+				"          {Applicant Rejected Reason} as string,",
+				"          {Applicant Other (1)} as string,",
+				"          {Applicant Other (2)} as string,",
+				"          {Applicant Other (3)} as string,",
+				"          {Applicant Other (4)} as string,",
+				"          {Applicant Other (5)} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Applicants",
 				"derivedColumn1 pivot(groupBy({Client ID},",
 				"          {Client Engagement Date},",
 				"          {Client Work Office Location},",
@@ -592,7 +644,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectCore",
-				"SelectCore, SelectReq, selectCoreDBRecs, selectReqDBRecs union(byName: true)~> union1",
+				"SelectCore, SelectReq, SelectAppl, selectCoreDBRecs, selectReqDBRecs union(byName: true)~> union1",
 				"AllCoreData filter(not(isNull({Event Code}))) ~> FilterOutNullHCTEventRows",
 				"Requisitions filter(not(isNull(Event))) ~> FilterOutNullReqEventRows",
 				"selectCoreDBRecsInit select(mapColumn(",
@@ -796,6 +848,31 @@
 				"          {Work Country},",
 				"          {Strategic Work Location Ind}),",
 				"     RowCount = count({Client ID})) ~> RemoveDupRows",
+				"Applicants aggregate(groupBy({Client ID},",
+				"          {Client Engagement Date},",
+				"          {Applicant ID},",
+				"          {Event Year},",
+				"          Event,",
+				"          {Applicant City},",
+				"          {Applicant State},",
+				"          {Applicant Country}),",
+				"     MaxId = max({Applicant ID})) ~> aggregate2",
+				"derivedColumn2 select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Record Id} = {Applicant ID},",
+				"          {Event Year},",
+				"          Event,",
+				"          {Work Office Location},",
+				"          {Work City} = {Applicant City},",
+				"          {Work State} = {Applicant State},",
+				"          {Work Country} = {Applicant Country},",
+				"          {Strategic Work Location Ind}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectAppl",
+				"aggregate2 derive({Strategic Work Location Ind} = \"N/A\",",
+				"          {Work Office Location} = \"N/A\") ~> derivedColumn2",
 				"SortOnLocation sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
