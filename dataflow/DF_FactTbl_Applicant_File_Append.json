@@ -49,9 +49,6 @@
 					"name": "AddDerived"
 				},
 				{
-					"name": "ConvertNullsForKeyFields"
-				},
-				{
 					"name": "unionApplicantDBData"
 				},
 				{
@@ -101,6 +98,9 @@
 				},
 				{
 					"name": "derivedColumn2"
+				},
+				{
+					"name": "ConvertNullsForKeyFields"
 				}
 			],
 			"scriptLines": [
@@ -209,7 +209,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> Reqisitions",
 				"ApplicantAppendFile filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
-				"ConvertNullsForKeyFields select(mapColumn(",
+				"AddDerived select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          Event,",
@@ -243,22 +243,8 @@
 				"FilterOutClientHeaderRowAndColumn derive({Client ID} = $Flow_Client_Id,",
 				"          {Client Engagement Date} = $Flow_Client_Dt,",
 				"          Event = 'Job Applicant') ~> AddDerived",
-				"AddDerived derive(Event = iif(isNull(Event),'Job Applicant',Event),",
-				"          Source = iif(isNull(Source),'N/A',Source),",
-				"          {Applicant Type} = iif(isNull({Applicant Type}),'N/A',{Applicant Type}),",
-				"          {Applicant City} = iif(isNull({Applicant City}),'N/A',{Applicant City}),",
-				"          {Applicant State } = iif(isNull({Applicant State }),'N/A',{Applicant State }),",
-				"          {Applicant Country} = iif(isNull({Applicant Country}),'N/A',{Applicant Country}),",
-				"          Race = iif(isNull(Race),'N/A',Race),",
-				"          {Hispanic or Latino Origin} = iif(isNull({Hispanic or Latino Origin}),'N/A',{Hispanic or Latino Origin}),",
-				"          Gender = iif(isNull(Gender),'N/A',Gender),",
-				"          {Veteran Ind} = iif(isNull({Veteran Ind}),'N/A',{Veteran Ind}),",
-				"          LGBTQ = iif(isNull(LGBTQ),'N/A',LGBTQ),",
-				"          {Disability Ind} = iif(isNull({Disability Ind}),'N/A',{Disability Ind}),",
-				"          {Applicant Step Before Final Disposition} = iif(isNull({Applicant Step Before Final Disposition}),'N/A',{Applicant Step Before Final Disposition}),",
-				"          {Applicant Rejected Reason} = iif(isNull({Applicant Rejected Reason}),'N/A',{Applicant Rejected Reason})) ~> ConvertNullsForKeyFields",
 				"derivedColumn2, Applicants union(byName: true)~> unionApplicantDBData",
-				"unionApplicantDBData aggregate(groupBy({Client Engagement Date},",
+				"ConvertNullsForKeyFields aggregate(groupBy({Client Engagement Date},",
 				"          {Event Year},",
 				"          {Event Quarter},",
 				"          EventMonth,",
@@ -477,6 +463,20 @@
 				"SetEventQuarter derive({Event Date} = toString({Event Date}),",
 				"          {Event Quarter} = toString({Event Quarter}),",
 				"          EventMonth = toString(EventMonth)) ~> derivedColumn2",
+				"unionApplicantDBData derive(Event = iif(isNull(Event),'Job Applicant',Event),",
+				"          Source = iif(isNull(Source),'N/A',Source),",
+				"          {Applicant Type} = iif(isNull({Applicant Type}),'N/A',{Applicant Type}),",
+				"          {Applicant City} = iif(isNull({Applicant City}),'N/A',{Applicant City}),",
+				"          {Applicant State} = iif(isNull({Applicant State}),'N/A',{Applicant State}),",
+				"          {Applicant Country} = iif(isNull({Applicant Country}),'N/A',{Applicant Country}),",
+				"          Race = iif(isNull(Race),'N/A',Race),",
+				"          {Hispanic or Latino Origin} = iif(isNull({Hispanic or Latino Origin}),'N/A',{Hispanic or Latino Origin}),",
+				"          Gender = iif(isNull(Gender),'N/A',Gender),",
+				"          {Veteran Ind} = iif(isNull({Veteran Ind}),'N/A',{Veteran Ind}),",
+				"          LGBTQ = iif(isNull(LGBTQ),'N/A',LGBTQ),",
+				"          {Disability Ind} = iif(isNull({Disability Ind}),'N/A',{Disability Ind}),",
+				"          {Applicant Step Before Final Disposition} = iif(isNull({Applicant Step Before Final Disposition}),'N/A',{Applicant Step Before Final Disposition}),",
+				"          {Applicant Rejected Reason} = iif(isNull({Applicant Rejected Reason}),'N/A',{Applicant Rejected Reason})) ~> ConvertNullsForKeyFields",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
