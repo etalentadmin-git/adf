@@ -7,39 +7,51 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "etalentdatatransform"
 		},
-		"AzureBatch1_properties_typeProperties_batchUri": {
-			"type": "string",
-			"defaultValue": "https://batchacct1.centralus.batch.azure.com"
-		},
-		"AzureBatch1_properties_typeProperties_poolName": {
-			"type": "string",
-			"defaultValue": "python-pool-1"
-		},
-		"AzureBatch1_properties_typeProperties_accountName": {
-			"type": "string",
-			"defaultValue": "batchacct1"
-		},
-		"AzureBatch_New_properties_typeProperties_batchUri": {
-			"type": "string",
-			"defaultValue": "https://batchacct1.centralus.batch.azure.com"
-		},
-		"AzureBatch_New_properties_typeProperties_poolName": {
-			"type": "string",
-			"defaultValue": "python-pool-0"
-		},
-		"AzureBatch_New_properties_typeProperties_accountName": {
-			"type": "string",
-			"defaultValue": "batchacct1"
-		},
 		"AzureBatch_Python_properties_typeProperties_batchUri": {
 			"type": "string",
 			"defaultValue": "https://batchacct1.centralus.batch.azure.com"
 		},
 		"AzureBatch_Python_properties_typeProperties_poolName": {
 			"type": "string",
-			"defaultValue": "python-pool-0"
+			"defaultValue": "python-pool-1"
 		},
 		"AzureBatch_Python_properties_typeProperties_accountName": {
+			"type": "string",
+			"defaultValue": "batchacct1"
+		},
+		"AzureBatch_etalent1storage_properties_typeProperties_batchUri": {
+			"type": "string",
+			"defaultValue": "https://batchacct1.centralus.batch.azure.com"
+		},
+		"AzureBatch_etalent1storage_properties_typeProperties_poolName": {
+			"type": "string",
+			"defaultValue": "python-pool-0"
+		},
+		"AzureBatch_etalent1storage_properties_typeProperties_accountName": {
+			"type": "string",
+			"defaultValue": "batchacct1"
+		},
+		"AzureBatch_etalent2storage_properties_typeProperties_batchUri": {
+			"type": "string",
+			"defaultValue": "https://batchacct1.centralus.batch.azure.com"
+		},
+		"AzureBatch_etalent2storage_properties_typeProperties_poolName": {
+			"type": "string",
+			"defaultValue": "e-pool-2"
+		},
+		"AzureBatch_etalent2storage_properties_typeProperties_accountName": {
+			"type": "string",
+			"defaultValue": "batchacct1"
+		},
+		"AzureBatch_etalent2storage_pool0_properties_typeProperties_batchUri": {
+			"type": "string",
+			"defaultValue": "https://batchacct1.centralus.batch.azure.com"
+		},
+		"AzureBatch_etalent2storage_pool0_properties_typeProperties_poolName": {
+			"type": "string",
+			"defaultValue": "python-pool-1"
+		},
+		"AzureBatch_etalent2storage_pool0_properties_typeProperties_accountName": {
 			"type": "string",
 			"defaultValue": "batchacct1"
 		}
@@ -49,13 +61,199 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Headcount')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlob_Etalent1Storage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Template"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "DATA_Headcount",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Elloree Data Submission Template - Core.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"type": "String"
+					},
+					{
+						"name": "Event Year",
+						"type": "String"
+					},
+					{
+						"name": "Event Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Event Date",
+						"type": "String"
+					},
+					{
+						"name": "Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Worker Status",
+						"type": "String"
+					},
+					{
+						"name": "Worker Type",
+						"type": "String"
+					},
+					{
+						"name": "Job Title",
+						"type": "String"
+					},
+					{
+						"name": "Job Family/Function",
+						"type": "String"
+					},
+					{
+						"name": "Years in Job",
+						"type": "String"
+					},
+					{
+						"name": "Corporate Title",
+						"type": "String"
+					},
+					{
+						"name": "Manager Indicator",
+						"type": "String"
+					},
+					{
+						"name": "Direct Manager Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Legacy Organization",
+						"type": "String"
+					},
+					{
+						"name": "Work Office Location",
+						"type": "String"
+					},
+					{
+						"name": "Work City",
+						"type": "String"
+					},
+					{
+						"name": "Work State",
+						"type": "String"
+					},
+					{
+						"name": "Work Country",
+						"type": "String"
+					},
+					{
+						"name": "Strategic Work Location Ind",
+						"type": "String"
+					},
+					{
+						"name": "Original Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Current Hire Date",
+						"type": "String"
+					},
+					{
+						"name": "Years of Service",
+						"type": "String"
+					},
+					{
+						"name": "Last Promo Date",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 1",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 2",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 3",
+						"type": "String"
+					},
+					{
+						"name": "Business Group Level 4",
+						"type": "String"
+					},
+					{
+						"name": "Race",
+						"type": "String"
+					},
+					{
+						"name": "Hispanic or Latino Origin",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Veteran Ind",
+						"type": "String"
+					},
+					{
+						"name": "LGBTQ",
+						"type": "String"
+					},
+					{
+						"name": "Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Birth Year",
+						"type": "String"
+					},
+					{
+						"name": "Generation Desc",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Source_Template_Hires')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"description": "Connection to template to pull hires tab.",
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "AzureBlob_Etalent1Storage",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -81,7 +279,7 @@
 					"sheetName": "DATA_Hire",
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "Elloree Data Submission Template.xlsx",
+						"fileName": "Elloree Data Submission Template - Core.xlsx",
 						"folderPath": {
 							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
 							"type": "Expression"
@@ -233,7 +431,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "AzureBlob_Etalent1Storage",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -274,19 +472,11 @@
 						"type": "String"
 					},
 					{
-						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
-						"type": "String"
-					},
-					{
-						"name": "Event Date",
-						"type": "String"
-					},
-					{
 						"name": "Requisition ID",
+						"type": "String"
+					},
+					{
+						"name": "Application Date",
 						"type": "String"
 					},
 					{
@@ -310,7 +500,7 @@
 						"type": "String"
 					},
 					{
-						"name": "Applicant State",
+						"name": "Applicant State ",
 						"type": "String"
 					},
 					{
@@ -339,6 +529,10 @@
 					},
 					{
 						"name": "Disability Ind",
+						"type": "String"
+					},
+					{
+						"name": "Applicant Final Disposition Date",
 						"type": "String"
 					},
 					{
@@ -383,7 +577,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "AzureBlob_Etalent1Storage",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -555,7 +749,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "AzureBlob_Etalent1Storage",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -581,7 +775,7 @@
 					"sheetName": "DATA_WorkerOther",
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "Elloree Data Submission Template (Other).xlsx",
+						"fileName": "Elloree Data Submission Template - Other.xlsx",
 						"folderPath": {
 							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
 							"type": "Expression"
@@ -597,10 +791,6 @@
 					},
 					{
 						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
 						"type": "String"
 					},
 					{
@@ -653,7 +843,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "AzureBlob_Etalent1Storage",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -712,10 +902,6 @@
 						"type": "String"
 					},
 					{
-						"name": "Event Quarter",
-						"type": "String"
-					},
-					{
 						"name": "Event Date",
 						"type": "String"
 					},
@@ -765,7 +951,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "AzureBlob_Etalent1Storage",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -791,7 +977,7 @@
 					"sheetName": "DATA_Promotion",
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "Elloree Data Submission Template.xlsx",
+						"fileName": "Elloree Data Submission Template - Core.xlsx",
 						"folderPath": {
 							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
 							"type": "Expression"
@@ -955,7 +1141,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "AzureBlob_Etalent1Storage",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -997,10 +1183,6 @@
 					},
 					{
 						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
 						"type": "String"
 					},
 					{
@@ -1113,7 +1295,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "AzureBlob_Etalent1Storage",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -1215,7 +1397,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "AzureBlob_Etalent1Storage",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
@@ -1241,7 +1423,7 @@
 					"sheetName": "DATA_Term",
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "Elloree Data Submission Template.xlsx",
+						"fileName": "Elloree Data Submission Template - Core.xlsx",
 						"folderPath": {
 							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Templates/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
 							"type": "Expression"
@@ -1401,7 +1583,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage2",
+					"referenceName": "AzureBlob_Etalent1Storage",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
@@ -1657,44 +1839,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureBatch1')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBatch",
-				"typeProperties": {
-					"batchUri": "[parameters('AzureBatch1_properties_typeProperties_batchUri')]",
-					"poolName": "[parameters('AzureBatch1_properties_typeProperties_poolName')]",
-					"accountName": "[parameters('AzureBatch1_properties_typeProperties_accountName')]",
-					"linkedServiceName": {
-						"referenceName": "AzureBlobStorage2",
-						"type": "LinkedServiceReference"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureBatch_New')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBatch",
-				"typeProperties": {
-					"batchUri": "[parameters('AzureBatch_New_properties_typeProperties_batchUri')]",
-					"poolName": "[parameters('AzureBatch_New_properties_typeProperties_poolName')]",
-					"accountName": "[parameters('AzureBatch_New_properties_typeProperties_accountName')]",
-					"linkedServiceName": {
-						"referenceName": "AzureBlobStorage2",
-						"type": "LinkedServiceReference"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/AzureBatch_Python')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -1706,7 +1850,7 @@
 					"poolName": "[parameters('AzureBatch_Python_properties_typeProperties_poolName')]",
 					"accountName": "[parameters('AzureBatch_Python_properties_typeProperties_accountName')]",
 					"linkedServiceName": {
-						"referenceName": "AzureBlobStorage_pythonscripts",
+						"referenceName": "AzureBlob_pythonteststorage1",
 						"type": "LinkedServiceReference"
 					}
 				}
@@ -1714,983 +1858,73 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_All_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/AzureBatch_etalent1storage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
-					{
-						"name": "Append_FactTbl_ApplStatus_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_Applicant_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_ApplStatus_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_Applicant_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_Applicant_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_ClientInfo_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_ApplStatus_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_ClientInfo_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_Core_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_ClientInfo_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_Core_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_DivSlate_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_Core_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_DivSlate_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_OtherCore_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_DivSlate_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_OtherCore_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_PerfRating_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_OtherCore_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_PerfRating_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_Req_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_PerfRating_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_Req_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_SilverMedalist_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_Req_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_SilverMedalist_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_Speedbumps_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_SilverMedalist_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_Speedbumps_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_Talent_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_Speedbumps_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_Talent_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_FactTbl_YearRef_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_FactTbl_Talent_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_FactTbl_YearRef_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Fact Tables/Load From Prior Engagement"
-				},
 				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:29Z"
+				"type": "AzureBatch",
+				"typeProperties": {
+					"batchUri": "[parameters('AzureBatch_etalent1storage_properties_typeProperties_batchUri')]",
+					"poolName": "[parameters('AzureBatch_etalent1storage_properties_typeProperties_poolName')]",
+					"accountName": "[parameters('AzureBatch_etalent1storage_properties_typeProperties_accountName')]",
+					"linkedServiceName": {
+						"referenceName": "AzureBlob_Etalent1Storage",
+						"type": "LinkedServiceReference"
+					}
+				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_All_Hist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/AzureBatch_etalent2storage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_BusHierarchy_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_ApplicantFlow_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_BusHierarchy_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_ApplicantFlow_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_ApplicantFlow_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_CorpTitle_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_BusHierarchy_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_CorpTitle_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Disability_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_CorpTitle_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Disability_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Ethnicity_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_Disability_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Ethnicity_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Event_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_Ethnicity_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Event_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Gender_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_Event_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Gender_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_LGTBQ_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_Gender_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_LGTBQ_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Location_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_LGTBQ_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Location_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_PerformanceRating_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_Location_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_PerformanceRating_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_ReqStatus_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_PerformanceRating_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_ReqStatus_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_ReqType_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_ReqStatus_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_ReqType_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Append_Mapping_Veteran_Hist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Append_Mapping_ReqType_Hist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Append_Mapping_Veteran_Hist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Hist_Client_Dt": {
-									"value": "@pipeline().parameters.P_Hist_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Hist_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
-				},
+				"description": "test",
 				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:29Z"
+				"type": "AzureBatch",
+				"typeProperties": {
+					"batchUri": "[parameters('AzureBatch_etalent2storage_properties_typeProperties_batchUri')]",
+					"poolName": "[parameters('AzureBatch_etalent2storage_properties_typeProperties_poolName')]",
+					"accountName": "[parameters('AzureBatch_etalent2storage_properties_typeProperties_accountName')]",
+					"linkedServiceName": {
+						"referenceName": "AzureBlob_Etalent2Storage",
+						"type": "LinkedServiceReference"
+					}
+				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/BLS_TEST')]",
+			"name": "[concat(parameters('factoryName'), '/AzureBatch_etalent2storage_pool0')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBatch",
+				"typeProperties": {
+					"batchUri": "[parameters('AzureBatch_etalent2storage_pool0_properties_typeProperties_batchUri')]",
+					"poolName": "[parameters('AzureBatch_etalent2storage_pool0_properties_typeProperties_poolName')]",
+					"accountName": "[parameters('AzureBatch_etalent2storage_pool0_properties_typeProperties_accountName')]",
+					"linkedServiceName": {
+						"referenceName": "AzureBlob_Etalent2Storage",
+						"type": "LinkedServiceReference"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Anonymization_Output_Core')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "Creating anonymization review file (this one runs)",
 				"activities": [
 					{
-						"name": "Copy data1",
-						"type": "Copy",
+						"name": "RunPython",
+						"type": "Custom",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -2701,929 +1935,53 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET"
+							"command": "python Anonymization_Output_Core.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
 							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
 						},
-						"inputs": [
-							{
-								"referenceName": "Source_BLS_Site",
-								"type": "DatasetReference",
-								"parameters": {
-									"SeriesId": "https://api.bls.gov/publicAPI/v2/timeseries/data/LNU02072666"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Json_BLS_Asian_Female",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"annotations": [],
-				"lastPublishTime": "2022-12-14T00:01:06Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_All')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
-				"activities": [
-					{
-						"name": "Delete_Rec_FactTbl_Speedbumps",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_All_Rec_FactTbl_Speedbumps",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_Applicant",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_Speedbumps",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_Applicant",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_ApplicantStatus",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_Applicant",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_ApplicantStatus",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_Client",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_ApplicantStatus",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_Client",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_Core",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_Client",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_Core",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_DivSlate",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_Core",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_DivSlate",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_OtherCore",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_DivSlate",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_OtherCore",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_PerfRatingHist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_OtherCore",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_PerfRatingHist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_Req",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_PerfRatingHist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_Req",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_SilverMedalist",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_Req",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_SilverMedalist",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_Talent",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_SilverMedalist",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_Talent",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_FactTbl_YearRef",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_FactTbl_Talent",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_FactTbl_YearRef",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
 						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
+				"variables": {
+					"ErrorMessage": {
+						"type": "String"
 					}
 				},
 				"folder": {
-					"name": "Client/Database/Delete Records/Fact Tables"
+					"name": "Client/Client Setup Routines"
 				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:29Z"
+				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
+			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_All')]",
+			"name": "[concat(parameters('factoryName'), '/Anonymization_Output_Other')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"description": "Creating anonymization review file (this one runs)",
 				"activities": [
 					{
-						"name": "Delete_Rec_Mapping_Veteran",
-						"type": "ExecutePipeline",
+						"name": "RunPython",
+						"type": "Custom",
 						"dependsOn": [],
 						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_Veteran",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_ApplFlow",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_Veteran",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_ApplFlow",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_BusHierarchy",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_ApplFlow",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_BusHierarchy",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_CorpTitle",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_BusHierarchy",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_CorpTitle",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_Disability",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_CorpTitle",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_Disability",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_Ethnicity",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_Disability",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_Ethnicity",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_Event",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_Ethnicity",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_Event",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_Gender",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_Event",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_Gender",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_LGTBQ",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_Gender",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_LGTBQ",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_Location",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_LGTBQ",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_Location",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_PerfRating",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_Location",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_PerfRating",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_ReqStatusMap",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_PerfRating",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_ReqStatusMap",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_ReqType",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_ReqStatusMap",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_ReqType",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Delete Records/Mapping"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T14:43:29Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Move_Template_Into_AnalysisFldr')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy Analysis Template to Client Folder",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
+							"timeout": "0.12:00:00",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false,
@@ -3631,94 +1989,53 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "BinarySource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true
-								},
-								"formatSettings": {
-									"type": "BinaryReadSettings"
-								}
+							"command": "python Anonymization_Output_Other.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent2Storage",
+								"type": "LinkedServiceReference"
 							},
-							"sink": {
-								"type": "BinarySink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								}
-							},
-							"enableStaging": false
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
 						},
-						"inputs": [
-							{
-								"referenceName": "Source_Binary_AnalysisTemplate_TemplateAdminFldr",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Source_Binary_AnalysisFldr",
-								"type": "DatasetReference",
-								"parameters": {
-									"Source_Client_Fldr": {
-										"value": "@pipeline().parameters.P_Client_Id",
-										"type": "Expression"
-									},
-									"Source_Client_Date": {
-										"value": "@pipeline().parameters.P_Client_Dt",
-										"type": "Expression"
-									},
-									"Source_Client_Year": {
-										"value": "@pipeline().parameters.P_Folder_Year",
-										"type": "Expression"
-									},
-									"Source_Client_Quarter": {
-										"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-										"type": "Expression"
-									}
-								}
-							}
-						]
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent2storage",
+							"type": "LinkedServiceReference"
+						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
+				"variables": {
+					"ErrorMessage": {
+						"type": "String"
 					}
 				},
 				"folder": {
-					"name": "Client/Create Analysis Table Files"
+					"name": "Client/Client Setup Routines"
 				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:37Z"
+				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent2storage')]"
+			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Move_Templates_Into_ClientFldr')]",
+			"name": "[concat(parameters('factoryName'), '/Anonymization_Output_TA')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "Creating anonymization review file (this one runs)",
 				"activities": [
 					{
-						"name": "Copy data1",
-						"type": "Copy",
+						"name": "RunPython",
+						"type": "Custom",
 						"dependsOn": [],
 						"policy": {
-							"timeout": "7.00:00:00",
+							"timeout": "0.12:00:00",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false,
@@ -3726,207 +2043,137 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "BinarySource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true
-								},
-								"formatSettings": {
-									"type": "BinaryReadSettings"
-								}
+							"command": "python Anonymization_Output_TA.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent2Storage",
+								"type": "LinkedServiceReference"
 							},
-							"sink": {
-								"type": "BinarySink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								}
-							},
-							"enableStaging": false
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
 						},
-						"inputs": [
-							{
-								"referenceName": "Source_Binary_CoreTemplate_ProcessingFldr",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Source_Binary_TemplatesFldr",
-								"type": "DatasetReference",
-								"parameters": {
-									"Source_Client_Fldr": {
-										"value": "@pipeline().parameters.P_Client_Id",
-										"type": "Expression"
-									},
-									"Source_Client_Date": {
-										"value": "@pipeline().parameters.P_Client_Dt",
-										"type": "Expression"
-									},
-									"Source_Client_Year": {
-										"value": "@pipeline().parameters.P_Folder_Year",
-										"type": "Expression"
-									},
-									"Source_Client_Quarter": {
-										"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-										"type": "Expression"
-									}
-								}
-							}
-						]
-					},
-					{
-						"name": "Copy data2",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "BinarySource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true
-								},
-								"formatSettings": {
-									"type": "BinaryReadSettings"
-								}
-							},
-							"sink": {
-								"type": "BinarySink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "Source_Binary_TalentAcqTemplate_ProcessingFldr",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Source_Binary_TemplatesFldr",
-								"type": "DatasetReference",
-								"parameters": {
-									"Source_Client_Fldr": {
-										"value": "@pipeline().parameters.P_Client_Id",
-										"type": "Expression"
-									},
-									"Source_Client_Date": {
-										"value": "@pipeline().parameters.P_Client_Dt",
-										"type": "Expression"
-									},
-									"Source_Client_Year": {
-										"value": "@pipeline().parameters.P_Folder_Year",
-										"type": "Expression"
-									},
-									"Source_Client_Quarter": {
-										"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-										"type": "Expression"
-									}
-								}
-							}
-						]
-					},
-					{
-						"name": "Copy data3",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "BinarySource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true
-								},
-								"formatSettings": {
-									"type": "BinaryReadSettings"
-								}
-							},
-							"sink": {
-								"type": "BinarySink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "Source_Binary_OtherTemplate_ProcessingFldr",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Source_Binary_TemplatesFldr",
-								"type": "DatasetReference",
-								"parameters": {
-									"Source_Client_Fldr": {
-										"value": "@pipeline().parameters.P_Client_Id",
-										"type": "Expression"
-									},
-									"Source_Client_Date": {
-										"value": "@pipeline().parameters.P_Client_Dt",
-										"type": "Expression"
-									},
-									"Source_Client_Year": {
-										"value": "@pipeline().parameters.P_Folder_Year",
-										"type": "Expression"
-									},
-									"Source_Client_Quarter": {
-										"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-										"type": "Expression"
-									}
-								}
-							}
-						]
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent2storage",
+							"type": "LinkedServiceReference"
+						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
+				"variables": {
+					"ErrorMessage": {
+						"type": "String"
 					}
 				},
 				"folder": {
-					"name": "Client/Create Fact Table Files"
+					"name": "Client/Client Setup Routines"
 				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:37Z"
+				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent2storage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Anonymization_Review_Core')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Creating anonymization review file (this one runs)",
+				"activities": [
+					{
+						"name": "Custom1",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python Anonymization_Review_Core.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Anonymization_Review_Other')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Creating anonymization review file (this one runs)",
+				"activities": [
+					{
+						"name": "Custom1",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python Anonymization_Review_Other.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
+			]
 		}
 	]
 }

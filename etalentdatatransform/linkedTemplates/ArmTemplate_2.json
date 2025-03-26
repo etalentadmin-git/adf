@@ -15,6 +15,14 @@
 			"type": "string",
 			"defaultValue": "blob"
 		},
+		"AzureBlobStorage_privateendpoint2_properties_privateLinkResourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalentdatabase/providers/Microsoft.Storage/storageAccounts/etalent2storage"
+		},
+		"AzureBlobStorage_privateendpoint2_properties_groupId": {
+			"type": "string",
+			"defaultValue": "blob"
+		},
 		"AzureBlobStorage_pythonStorage_privateendpoint1_properties_privateLinkResourceId": {
 			"type": "string",
 			"defaultValue": "/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalentdatabase/providers/Microsoft.Storage/storageAccounts/pythonteststorage1"
@@ -23,11 +31,15 @@
 			"type": "string",
 			"defaultValue": "blob"
 		},
-		"AzureBlobStorage2_properties_typeProperties_serviceEndpoint": {
+		"AzureBlob_Etalent1Storage_properties_typeProperties_serviceEndpoint": {
 			"type": "string",
 			"defaultValue": "https://etalent1storage.blob.core.windows.net/"
 		},
-		"AzureBlobStorage_pythonscripts_properties_typeProperties_serviceEndpoint": {
+		"AzureBlob_Etalent2Storage_properties_typeProperties_serviceEndpoint": {
+			"type": "string",
+			"defaultValue": "https://etalent2storage.blob.core.windows.net/"
+		},
+		"AzureBlob_pythonteststorage1_properties_typeProperties_serviceEndpoint": {
 			"type": "string",
 			"defaultValue": "https://pythonteststorage1.blob.core.windows.net/"
 		}
@@ -36,91 +48,6 @@
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentTalentFactTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "connection to Talent Fact table",
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Database"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ClientId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEngagementDt",
-						"type": "date"
-					},
-					{
-						"name": "WorkerId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EventYear",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "EventDt",
-						"type": "date"
-					},
-					{
-						"name": "Event",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EventType",
-						"type": "nvarchar"
-					},
-					{
-						"name": "PerfRating",
-						"type": "nvarchar"
-					},
-					{
-						"name": "PerfRatingDt",
-						"type": "date"
-					},
-					{
-						"name": "TalentIdentifier1",
-						"type": "nvarchar"
-					},
-					{
-						"name": "TalentIdentifier2",
-						"type": "nvarchar"
-					},
-					{
-						"name": "TalentIdentifier3",
-						"type": "nvarchar"
-					},
-					{
-						"name": "TalentIdentifier4",
-						"type": "nvarchar"
-					},
-					{
-						"name": "TalentIdentifier5",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDt",
-						"type": "date"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "TalentFactTbl"
-				}
-			},
-			"dependsOn": []
-		},
 		{
 			"name": "[concat(parameters('factoryName'), '/etalentUSCensusSummaryTbl')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
@@ -557,7 +484,7 @@
 							"customProperties": []
 						},
 						"pipelineExternalComputeScaleProperties": {
-							"timeToLive": 60,
+							"timeToLive": 10,
 							"numberOfPipelineNodes": 1,
 							"numberOfExternalNodes": 1
 						}
@@ -581,6 +508,16 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/default/AzureBlobStorage_privateendpoint2')]",
+			"type": "Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"privateLinkResourceId": "[parameters('AzureBlobStorage_privateendpoint2_properties_privateLinkResourceId')]",
+				"groupId": "[parameters('AzureBlobStorage_privateendpoint2_properties_groupId')]"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/default/AzureBlobStorage_pythonStorage_privateendpoint1')]",
 			"type": "Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints",
 			"apiVersion": "2018-06-01",
@@ -591,15 +528,15 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage2')]",
+			"name": "[concat(parameters('factoryName'), '/AzureBlob_Etalent1Storage')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "etalent1storage",
+				"description": "Linked service for standard blob storage access",
 				"annotations": [],
 				"type": "AzureBlobStorage",
 				"typeProperties": {
-					"serviceEndpoint": "[parameters('AzureBlobStorage2_properties_typeProperties_serviceEndpoint')]",
+					"serviceEndpoint": "[parameters('AzureBlob_Etalent1Storage_properties_typeProperties_serviceEndpoint')]",
 					"accountKind": "StorageV2"
 				},
 				"connectVia": {
@@ -612,14 +549,35 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage_pythonscripts')]",
+			"name": "[concat(parameters('factoryName'), '/AzureBlob_Etalent2Storage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Linked service for premium etalent2storage",
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"serviceEndpoint": "[parameters('AzureBlob_Etalent2Storage_properties_typeProperties_serviceEndpoint')]",
+					"accountKind": "BlockBlobStorage"
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntime1",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntime1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlob_pythonteststorage1')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
 				"type": "AzureBlobStorage",
 				"typeProperties": {
-					"serviceEndpoint": "[parameters('AzureBlobStorage_pythonscripts_properties_typeProperties_serviceEndpoint')]",
+					"serviceEndpoint": "[parameters('AzureBlob_pythonteststorage1_properties_typeProperties_serviceEndpoint')]",
 					"accountKind": "StorageV2"
 				},
 				"connectVia": {
@@ -915,7 +873,9 @@
 						"          LoadDt as date,",
 						"          ApplicantCity as string,",
 						"          ApplicantState as string,",
-						"          ApplicantCountry as string",
+						"          ApplicantCountry as string,",
+						"          ApplDt as date,",
+						"          ApplFinalDispDt as date",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -2550,99 +2510,7 @@
 					]
 				}
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/etalentTalentFactTbl')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef_Hist')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentYearRefTbl",
-								"type": "DatasetReference"
-							},
-							"name": "YearRef"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentYearRefTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendYearRef"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_Hist_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          CurEventYear as integer,",
-						"          P1EventYear as integer,",
-						"          P2EventYear as integer,",
-						"          P3EventYear as integer,",
-						"          P4EventYear as integer,",
-						"          P5EventYear as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[YearRefTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> YearRef",
-						"YearRef alterRow(upsertIf(true())) ~> alterRow1",
-						"alterRow1 derive(LoadDt = currentDate(),",
-						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          CurEventYear as integer,",
-						"          P1EventYear as integer,",
-						"          P2EventYear as integer,",
-						"          P3EventYear as integer,",
-						"          P4EventYear as integer,",
-						"          P5EventYear as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendYearRef"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/etalentYearRefTbl')]"
-			]
+			"dependsOn": []
 		}
 	]
 }

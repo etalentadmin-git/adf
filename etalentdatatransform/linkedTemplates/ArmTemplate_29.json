@@ -13,6 +13,1084 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/BLS_White_Male')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_BLS_Site",
+								"type": "DatasetReference",
+								"parameters": {
+									"SeriesId": "https://api.bls.gov/publicAPI/v2/timeseries/data/LNU01000004Q"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json_BLS_White_Male",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "BLS_White_Male",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "BLS_White_Male",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"BLSJsonSource": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "BLS_White_Male",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Json_BLS_White_Male",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-14T00:01:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLS_White_Male_Hisp')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_BLS_Site",
+								"type": "DatasetReference",
+								"parameters": {
+									"SeriesId": "https://api.bls.gov/publicAPI/v2/timeseries/data/LNU01092758"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json_BLS_White_Male_Hisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "BLS_White_Male_Hisp",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "BLS_White_Male_Hisp",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"BLSJsonSource": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "BLS_White_Male_Hisp",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Json_BLS_White_Male_Hisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-14T00:01:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLS_White_Male_NonHisp')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_BLS_Site",
+								"type": "DatasetReference",
+								"parameters": {
+									"SeriesId": "https://api.bls.gov/publicAPI/v2/timeseries/data/LNU01092173Q"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json_BLS_White_Male_NonHisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "BLS_White_Male_NonHisp",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "BLS_White_Male_NonHisp",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"BLSJsonSource": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "BLS_White_Male_NonHisp",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Json_BLS_White_Male_NonHisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-14T00:01:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLS_White_Total')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_BLS_Site",
+								"type": "DatasetReference",
+								"parameters": {
+									"SeriesId": "https://api.bls.gov/publicAPI/v2/timeseries/data/LNU01000003Q"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json_BLS_White_Total",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "BLS_White_Total",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "BLS_White_Total",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"BLSJsonSource": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "BLS_White_Total",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Json_BLS_White_Total",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-14T00:01:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLS_White_Total_Hisp')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_BLS_Site",
+								"type": "DatasetReference",
+								"parameters": {
+									"SeriesId": "https://api.bls.gov/publicAPI/v2/timeseries/data/LNU01092757"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json_BLS_White_Total_Hisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "BLS_White_Total_Hisp",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "BLS_White_Total_Hisp",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"BLSJsonSource": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "BLS_White_Total_Hisp",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Json_BLS_White_Total_Hisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-14T00:01:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLS_White_Total_NonHisp')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_BLS_Site",
+								"type": "DatasetReference",
+								"parameters": {
+									"SeriesId": "https://api.bls.gov/publicAPI/v2/timeseries/data/LNU01092172Q"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json_BLS_White_Total_NonHisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "BLS_White_Total_NonHisp",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "BLS_White_Total_NonHisp",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"BLSJsonSource": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "BLS_White_Total_NonHisp",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Json_BLS_White_Total_NonHisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-14T00:01:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_All_Client_Records')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_All",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_All",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_Mapping_All",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_All",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_Mapping_All",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:29Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/InitialJobMapLoad_TRASH')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_Mapping_Job_Review",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_Job",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"JobFunctionMappingFile": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"CorpTitleMappingTable": {},
+									"CoreDB": {},
+									"BusHierarchyMapping": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Load_BLSTbl')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FullLoad_BLSTbl",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "FullLoad_BLSTbl",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"AmerIndAlaskNatFemale": {},
+									"AmerIndAlaskNatMale": {},
+									"AmerIndAlaskNatTotal": {},
+									"AsianFemale": {},
+									"AsianMale": {},
+									"AsianTotal": {},
+									"BlackFemale": {},
+									"BlackMale": {},
+									"BlackTotal": {},
+									"Female": {},
+									"LatinxFemale": {},
+									"LatinxMale": {},
+									"LatinxTotal": {},
+									"Male": {},
+									"NatHawPacIslFemale": {},
+									"NatHawPacIslMale": {},
+									"NatHawPacIslTotal": {},
+									"Total": {},
+									"TwoOrMoreFemale": {},
+									"TwoOrMoreMale": {},
+									"TwoOrMoreTotal": {},
+									"WhiteFemale": {},
+									"WhiteMale": {},
+									"WhiteTotal": {},
+									"AsianFemaleHisp": {},
+									"AsianFemaleNonHisp": {},
+									"AsianMaleHisp": {},
+									"AsianMaleNonHisp": {},
+									"AsianTotalHisp": {},
+									"AsianTotalNonHisp": {},
+									"BlackFemaleHisp": {},
+									"BlackFemaleNonHisp": {},
+									"BlackMaleHisp": {},
+									"BlackMaleNonHisp": {},
+									"BlackTotalHisp": {},
+									"BlackTotalNonHisp": {},
+									"OtherFemaleHisp": {},
+									"OtherMaleHisp": {},
+									"OtherTotalHisp": {},
+									"WhiteFemaleHisp": {},
+									"WhiteFemaleNonHisp": {},
+									"WhiteMaleHisp": {},
+									"WhiteMaleNonHisp": {},
+									"WhiteTotalHisp": {},
+									"WhiteTotalNonHisp": {},
+									"FullLoadBLSTable": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-14T00:01:06Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Load_USCensusSummaryTbl')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1104,6 +2182,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -1128,6 +2210,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (2)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -1204,6 +2304,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -1228,6 +2332,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (3)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -1304,6 +2426,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -1328,6 +2454,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (4)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -1404,6 +2548,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -1428,6 +2576,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (5)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -1504,6 +2670,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -1528,6 +2698,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (6)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -1604,6 +2792,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -1630,6 +2822,24 @@
 										"WorkSheetName": "DATA_JobApplicants (7)",
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
+										"Source_Client_Fldr": {
+											"value": "@activity('DF_FactTbl_Applicant_File').output",
 											"type": "Expression"
 										},
 										"Source_Client_Date": {
@@ -1704,6 +2914,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -1728,6 +2942,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (8)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -1804,6 +3036,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -1828,6 +3064,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (9)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -1904,6 +3158,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -1928,6 +3186,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (10)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2004,6 +3280,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -2028,6 +3308,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (11)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2104,6 +3402,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -2128,6 +3430,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (12)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2204,6 +3524,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -2228,6 +3552,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (13)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2304,6 +3646,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -2328,6 +3674,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (14)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2404,6 +3768,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -2428,6 +3796,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (15)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2504,6 +3890,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -2528,6 +3918,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (16)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2604,6 +4012,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -2628,6 +4040,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (17)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2704,6 +4134,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -2728,6 +4162,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (18)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2804,6 +4256,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -2828,6 +4284,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (19)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2904,6 +4378,10 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
@@ -2928,6 +4406,24 @@
 									"ApplicantAppendFile": {
 										"AppendFileName": "Elloree Data Submission Template - TA.xlsx",
 										"WorkSheetName": "DATA_JobApplicants (20)",
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Reqisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -2997,10 +4493,32 @@
 									"Flow_Client_Dt": {
 										"value": "'@{pipeline().parameters.P_Client_Dt}'",
 										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
 									}
 								},
 								"datasetParameters": {
 									"Applicants": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Requisitions": {
 										"Source_Client_Fldr": {
 											"value": "@pipeline().parameters.P_Client_Id",
 											"type": "Expression"
@@ -3061,6 +4579,9 @@
 						"type": "string"
 					},
 					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Qtr_Start_Mnth": {
 						"type": "string"
 					}
 				},
@@ -3381,3417 +4902,6 @@
 				},
 				"folder": {
 					"name": "Client/Create Fact Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:37Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_OtherCore')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Merge all core events into one file.",
-				"activities": [
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append2",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (2)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append3",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append2",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (3)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append4",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append3",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (4)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append5",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append4",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (5)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append6",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append5",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (6)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append7",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append6",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (7)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append8",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append7",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (8)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append9",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append8",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (9)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append10",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append9",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (10)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append11",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append10",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (11)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append12",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append11",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (12)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append13",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append12",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (13)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append14",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append13",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (14)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append15",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append14",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (15)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append16",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append15",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (16)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append17",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append16",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (17)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append18",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append17",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (18)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append19",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append18",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (19)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File_Append20",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_OtherCore_File_Append19",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"OtherAppend": {
-										"AppendFileName": "Elloree Data Submission Template (Other).xlsx",
-										"WorkSheetName": "DATA_WorkerOther (20)",
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_OtherCore_File",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_OtherCore_File",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Other": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"variables": {
-					"FailureSheet": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "Client/Create Fact Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:35Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_PerfRatingHist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "DF_FactTbl_PerfRatingHist_Init_File",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_PerfRatingHist_Init_File",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Core": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Performance": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"PerformanceMapping": {},
-									"HistoricalCoreDB": {},
-									"HistoricalTalentDB": {},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DF_FactTbl_PerfRatingHist_Final_File",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_PerfRatingHist_Init_File",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_PerfRatingHist_Final_File",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"PerformanceHistory": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Core": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"CoreForHCTEventYears": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"PerfRatingHistFactTbl": {},
-									"CoreDBHist": {},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "If Condition1",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "DF_FactTbl_PerfRatingHist_Final_File",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@contains(pipeline().parameters.P_Replace_Curr_With_P1_Y_N, 'Y')",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "DF_FactTbl_PerfRatingHist_Update_Curr_Prior",
-									"type": "ExecuteDataFlow",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataflow": {
-											"referenceName": "DF_FactTbl_PerfRatingHist_Update_Curr_Prior",
-											"type": "DataFlowReference",
-											"parameters": {
-												"Flow_Client_Id": {
-													"value": "'@{pipeline().parameters.P_Client_Id}'",
-													"type": "Expression"
-												},
-												"Flow_Client_Dt": {
-													"value": "'@{pipeline().parameters.P_Client_Dt}'",
-													"type": "Expression"
-												},
-												"Flow_Client_Year": {
-													"value": "'@{pipeline().parameters.P_Folder_Year}'",
-													"type": "Expression"
-												}
-											},
-											"datasetParameters": {
-												"PerformanceHistory": {
-													"Source_Client_Fldr": {
-														"value": "@pipeline().parameters.P_Client_Id",
-														"type": "Expression"
-													},
-													"Source_Client_Date": {
-														"value": "@pipeline().parameters.P_Client_Dt",
-														"type": "Expression"
-													},
-													"Source_Client_Year": {
-														"value": "@pipeline().parameters.P_Folder_Year",
-														"type": "Expression"
-													},
-													"Source_Client_Quarter": {
-														"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-														"type": "Expression"
-													}
-												},
-												"source1": {
-													"Source_Client_Fldr": {
-														"value": "@pipeline().parameters.P_Client_Id",
-														"type": "Expression"
-													},
-													"Source_Client_Date": {
-														"value": "@pipeline().parameters.P_Client_Dt",
-														"type": "Expression"
-													},
-													"Source_Client_Year": {
-														"value": "@pipeline().parameters.P_Folder_Year",
-														"type": "Expression"
-													},
-													"Source_Client_Quarter": {
-														"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-														"type": "Expression"
-													}
-												},
-												"OutputHistoricalPerfRatingFctTbl": {
-													"Source_Client_Fldr": {
-														"value": "@pipeline().parameters.P_Client_Id",
-														"type": "Expression"
-													},
-													"Source_Client_Date": {
-														"value": "@pipeline().parameters.P_Client_Dt",
-														"type": "Expression"
-													},
-													"Source_Client_Year": {
-														"value": "@pipeline().parameters.P_Folder_Year",
-														"type": "Expression"
-													},
-													"Source_Client_Quarter": {
-														"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-														"type": "Expression"
-													}
-												}
-											}
-										},
-										"staging": {},
-										"compute": {
-											"coreCount": 8,
-											"computeType": "General"
-										},
-										"traceLevel": "Fine"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					},
-					"P_Replace_Curr_With_P1_Y_N": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Create Fact Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:38Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_PerfRatingHist_TestFinal')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "DF_FactTbl_PerfRatingHist_Final_File",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_PerfRatingHist_Final_File",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"PerformanceHistory": {
-										"Source_Client_Fldr": "@pipeline().parameters.P_Client_Id",
-										"Source_Client_Date": "@pipeline().parameters.P_Client_Dt",
-										"Source_Client_Year": "@pipeline().parameters.P_Folder_Year",
-										"Source_Client_Quarter": "@concat('Q',pipeline().parameters.P_Folder_Quarter)"
-									},
-									"Core": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"CoreForHCTEventYears": {
-										"Source_Client_Fldr": "@pipeline().parameters.P_Client_Id",
-										"Source_Client_Date": "@pipeline().parameters.P_Client_Dt",
-										"Source_Client_Year": "@pipeline().parameters.P_Folder_Year",
-										"Source_Client_Quarter": "@concat('Q',pipeline().parameters.P_Folder_Quarter)"
-									},
-									"PerfRatingHistFactTbl": {},
-									"CoreDBHist": {},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Create Fact Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:38Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_PerfRatingHist_TestINIT')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "DF_FactTbl_PerfRatingHist_Init_File",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_PerfRatingHist_Init_File",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Core": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"Performance": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"PerformanceMapping": {},
-									"HistoricalCoreDB": {},
-									"HistoricalTalentDB": {},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Create Fact Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:38Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_Req')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Merge all core events into one file.",
-				"activities": [
-					{
-						"name": "DF_FactTbl_JobReq_File",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_JobReq_File",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"Requisitions": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Create Fact Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:38Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_Req_Append')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Merge all core events into one file.",
-				"activities": [
-					{
-						"name": "DF_FactTbl_JobReq_File_Append_Qtr",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_JobReq_File_Append",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"JobRegFactTableFile": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"JobReqAppendFile": {
-										"AppendFileName": {
-											"value": "@pipeline().parameters.P_AppendFile",
-											"type": "Expression"
-										},
-										"WorkSheetName": {
-											"value": "@pipeline().parameters.P_AppendSheet",
-											"type": "Expression"
-										},
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					},
-					"P_AppendFile": {
-						"type": "string",
-						"defaultValue": "Elloree Data Submission Template - TA.xlsx"
-					},
-					"P_AppendSheet": {
-						"type": "string",
-						"defaultValue": "DATA_JobRequisition"
-					}
-				},
-				"folder": {
-					"name": "Client/Create Fact Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:35Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_SilverMedalist')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "DF_FactTbl_SilverMedalApplicant_File",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_SilverMedalApplicant_File",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"Applicant": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"ApplicantMap": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Create Fact Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:38Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_Speedbumps_BL_Bamboo')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "DF_FactTbl_Speedbumps_Baseline",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_Speedbumps_BL_wParam_Bamboo",
-								"type": "DataFlowReference",
-								"parameters": {
-									"SB_BL_Year": {
-										"value": "'@{pipeline().parameters.P_BL_SB_Year}'",
-										"type": "Expression"
-									},
-									"SB_BL_Quarter": {
-										"value": "'@{pipeline().parameters.P_BL_SB_Quarter}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"SB1_MgrLvl": {
-										"value": "'@{pipeline().parameters.P_SB1_MgrLvl}'",
-										"type": "Expression"
-									},
-									"SB2_MgrTalent": {
-										"value": "'@{pipeline().parameters.P_SB2_MgrTalent}'",
-										"type": "Expression"
-									},
-									"SB3_MgrExp": {
-										"value": "'@{pipeline().parameters.P_SB3_MgrExp}'",
-										"type": "Expression"
-									},
-									"SB4_Promotion": {
-										"value": "'@{pipeline().parameters.P_SB4_Promotion}'",
-										"type": "Expression"
-									},
-									"SB5_Applied5": {
-										"value": "'@{pipeline().parameters.P_SB5_Applied5}'",
-										"type": "Expression"
-									},
-									"SB6_SilvMedal": {
-										"value": "'@{pipeline().parameters.P_SB6_SilvMedal}'",
-										"type": "Expression"
-									},
-									"SB7_Mgr3Plus": {
-										"value": "'@{pipeline().parameters.P_SB7_Mgr3Plus}'",
-										"type": "Expression"
-									},
-									"SB8_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB8_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB9_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB9_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB10_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB10_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB11_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB11_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB12_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB12_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB13_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB13_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB14_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB14_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB15_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB15_Placeholder}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"CoreFact": {},
-									"SilverMedalist": {},
-									"PerfRatingHistory": {},
-									"CoreYear": {},
-									"LevelMapForEmp": {},
-									"CorePromo": {},
-									"Applicant": {},
-									"AllCore": {},
-									"Talent": {},
-									"OutputSpeedbumpsFactTbl": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					},
-					"P_BL_SB_Year": {
-						"type": "string"
-					},
-					"P_BL_SB_Quarter": {
-						"type": "string"
-					},
-					"P_SB1_MgrLvl": {
-						"type": "string"
-					},
-					"P_SB2_MgrTalent": {
-						"type": "string"
-					},
-					"P_SB3_MgrExp": {
-						"type": "string"
-					},
-					"P_SB4_Promotion": {
-						"type": "string"
-					},
-					"P_SB5_Applied5": {
-						"type": "string"
-					},
-					"P_SB6_SilvMedal": {
-						"type": "string"
-					},
-					"P_SB7_Mgr3Plus": {
-						"type": "string"
-					},
-					"P_SB8_Placeholder": {
-						"type": "string"
-					},
-					"P_SB9_Placeholder": {
-						"type": "string"
-					},
-					"P_SB10_Placeholder": {
-						"type": "string"
-					},
-					"P_SB11_Placeholder": {
-						"type": "string"
-					},
-					"P_SB12_Placeholder": {
-						"type": "string"
-					},
-					"P_SB13_Placeholder": {
-						"type": "string"
-					},
-					"P_SB14_Placeholder": {
-						"type": "string"
-					},
-					"P_SB15_Placeholder": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Create Fact Table Files/Create Custom Fact Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:37Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_Speedbumps_BL_Bonsai')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "DF_FactTbl_Speedbumps_BL_wParam_Bonsai",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DF_FactTbl_Speedbumps_BL_wParam_Bonsai",
-								"type": "DataFlowReference",
-								"parameters": {
-									"SB_BL_Year": {
-										"value": "'@{pipeline().parameters.P_BL_SB_Year}'",
-										"type": "Expression"
-									},
-									"SB_BL_Quarter": {
-										"value": "'@{pipeline().parameters.P_BL_SB_Quarter}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"SB1_MgrLvl": {
-										"value": "'@{pipeline().parameters.P_SB1_MgrLvl}'",
-										"type": "Expression"
-									},
-									"SB2_MgrTalent": {
-										"value": "'@{pipeline().parameters.P_SB2_MgrTalent}'",
-										"type": "Expression"
-									},
-									"SB3_MgrExp": {
-										"value": "'@{pipeline().parameters.P_SB3_MgrExp}'",
-										"type": "Expression"
-									},
-									"SB4_Promotion": {
-										"value": "'@{pipeline().parameters.P_SB4_Promotion}'",
-										"type": "Expression"
-									},
-									"SB5_Applied5": {
-										"value": "'@{pipeline().parameters.P_SB5_Applied5}'",
-										"type": "Expression"
-									},
-									"SB6_SilvMedal": {
-										"value": "'@{pipeline().parameters.P_SB6_SilvMedal}'",
-										"type": "Expression"
-									},
-									"SB7_Mgr3Plus": {
-										"value": "'@{pipeline().parameters.P_SB7_Mgr3Plus}'",
-										"type": "Expression"
-									},
-									"SB8_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB8_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB9_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB9_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB10_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB10_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB11_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB11_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB12_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB12_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB13_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB13_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB14_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB14_Placeholder}'",
-										"type": "Expression"
-									},
-									"SB15_Placeholder": {
-										"value": "'@{pipeline().parameters.P_SB15_Placeholder}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"CoreFact": {},
-									"SilverMedalist": {},
-									"PerfRatingHistory": {},
-									"CoreYear": {},
-									"LevelMapForEmp": {},
-									"CorePromo": {},
-									"Applicant": {},
-									"AllCore": {},
-									"Talent": {},
-									"CoreWorkerIDandEventYr": {},
-									"OtherCoreFactTbl": {},
-									"OutputSpeedbumpsFactTbl": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_BL_SB_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					},
-					"P_BL_SB_Year": {
-						"type": "string"
-					},
-					"P_BL_SB_Quarter": {
-						"type": "string"
-					},
-					"P_SB1_MgrLvl": {
-						"type": "string"
-					},
-					"P_SB2_MgrTalent": {
-						"type": "string"
-					},
-					"P_SB3_MgrExp": {
-						"type": "string"
-					},
-					"P_SB4_Promotion": {
-						"type": "string"
-					},
-					"P_SB5_Applied5": {
-						"type": "string"
-					},
-					"P_SB6_SilvMedal": {
-						"type": "string"
-					},
-					"P_SB7_Mgr3Plus": {
-						"type": "string"
-					},
-					"P_SB8_Placeholder": {
-						"type": "string"
-					},
-					"P_SB9_Placeholder": {
-						"type": "string"
-					},
-					"P_SB10_Placeholder": {
-						"type": "string"
-					},
-					"P_SB11_Placeholder": {
-						"type": "string"
-					},
-					"P_SB12_Placeholder": {
-						"type": "string"
-					},
-					"P_SB13_Placeholder": {
-						"type": "string"
-					},
-					"P_SB14_Placeholder": {
-						"type": "string"
-					},
-					"P_SB15_Placeholder": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Create Fact Table Files/Create Custom Fact Table Files"
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-11T23:59:37Z"
