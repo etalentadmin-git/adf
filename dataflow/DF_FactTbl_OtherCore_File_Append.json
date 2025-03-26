@@ -55,17 +55,20 @@
 				},
 				{
 					"name": "RemoveNullRows"
+				},
+				{
+					"name": "derivedEventQtr"
 				}
 			],
 			"scriptLines": [
 				"parameters{",
 				"     Flow_Client_Id as string,",
-				"     Flow_Client_Dt as string",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Qtr1_Start as string",
 				"}",
 				"source(output(",
 				"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
 				"          {Event Year} as short,",
-				"          {Event Quarter} as integer,",
 				"          {Event Date} as date,",
 				"          {Worker ID} as string,",
 				"          {Event (Type)} as string,",
@@ -128,9 +131,8 @@
 				"          {Client Engagement Date} = $Flow_Client_Dt,",
 				"          Event = 'Other',",
 				"          {Event ID} = 'OTH',",
-				"          EventMonth = month({Event Date}),",
-				"          {Event Quarter} = iif(isNull({Event Quarter}),iif(between(month({Event Date}),1,3),1,iif(between(month({Event Date}),4,6),2,iif(between(month({Event Date}),7,9),3,iif(between(month({Event Date}),10,12),4,0)))),{Event Quarter})) ~> AddDerived",
-				"AddDerived derive({Event (Type)} = iif(isNull({Event (Type)}),'N/A',{Event (Type)}),",
+				"          EventMonth = month({Event Date})) ~> AddDerived",
+				"derivedEventQtr derive({Event (Type)} = iif(isNull({Event (Type)}),'N/A',{Event (Type)}),",
 				"          {Event (Desc)} = iif(isNull({Event (Desc)}),'N/A',{Event (Desc)}),",
 				"          {Other (Char Value 1)} = iif(isNull({Other (Char Value 1)}),'N/A',{Other (Char Value 1)}),",
 				"          {Other (Char Value 2)} = iif(isNull({Other (Char Value 2)}),'N/A',{Other (Char Value 2)}),",
@@ -178,6 +180,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectOutput",
 				"FilterOutClientHeaderRowAndColumn filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullRows",
+				"AddDerived derive({Event Quarter} = iif(     (         (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12     ) < 3,      1,     iif(         (             (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12         ) >= 3 && (             (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12         ) < 6,          2,         iif(             (                 (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12             ) >= 6 && (                 (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12             ) < 9,              3,             4         )     ) )) ~> derivedEventQtr",
 				"SelectOutput sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
