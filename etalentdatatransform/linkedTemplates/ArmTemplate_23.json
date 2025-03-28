@@ -11447,6 +11447,9 @@
 						},
 						{
 							"name": "derivedColumn2"
+						},
+						{
+							"name": "setNulltoNA"
 						}
 					],
 					"scriptLines": [
@@ -12106,7 +12109,7 @@
 						"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
 						"     negate:false,",
 						"     broadcast: 'both')~> SelectBasedOnMostRecentClientEngagment",
-						"union1 aggregate(groupBy({Client ID},",
+						"setNulltoNA aggregate(groupBy({Client ID},",
 						"          {Client Engagement Date},",
 						"          {Record Id},",
 						"          {Event Year},",
@@ -12142,6 +12145,11 @@
 						"     skipDuplicateMapOutputs: true) ~> SelectAppl",
 						"aggregate2 derive({Strategic Work Location Ind} = \"N/A\",",
 						"          {Work Office Location} = \"N/A\") ~> derivedColumn2",
+						"union1 derive({Work Office Location} = iif(isNull({Work Office Location}),\"N/A\",{Work Office Location}),",
+						"          {Work City} = iif(isNull({Work City}),\"N/A\",{Work City}),",
+						"          {Work State} = iif(isNull({Work State}),\"N/A\",{Work State}),",
+						"          {Work Country} = iif(isNull({Work Country}),\"N/A\",{Work Country}),",
+						"          {Strategic Work Location Ind} = iif(isNull({Strategic Work Location Ind}),\"N/A\",{Strategic Work Location Ind})) ~> setNulltoNA",
 						"SortOnLocation sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
