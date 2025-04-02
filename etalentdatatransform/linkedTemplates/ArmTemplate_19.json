@@ -13,111 +13,6 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Veteran')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_Veteran",
-								"type": "DatasetReference"
-							},
-							"name": "Veteran"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentVeteranMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Veteran} as string,",
-						"          {Elloree Veteran} as string,",
-						"          {Suggested Elloree Veteran} as string,",
-						"          {Suggested Source} as string,",
-						"          {2017 Headcount} as string,",
-						"          {2018 Headcount} as string,",
-						"          {2018 Hire} as string,",
-						"          {2018 Promo} as string,",
-						"          {2018 Term} as string,",
-						"          {2019 Headcount} as string,",
-						"          {2019 Hire} as string,",
-						"          {2019 Promo} as string,",
-						"          {2019 Term} as string,",
-						"          {2020 Headcount} as string,",
-						"          {2020 Hire} as string,",
-						"          {2020 Promo} as string,",
-						"          {2020 Term} as string,",
-						"          {2021 Headcount} as string,",
-						"          {2021 Hire} as string,",
-						"          {2021 Promo} as string,",
-						"          {2021 Term} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Veteran",
-						"Veteran alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Client Veteran})),",
-						"     deleteIf(isNull({Elloree Veteran}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientVeteran = {Client Veteran},",
-						"          ElloreeVeteran = {Elloree Veteran},",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientVeteran as string,",
-						"          ElloreeVeteran as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientVeteran'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Append_Tbl_Client')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -7938,6 +7833,111 @@
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['BLS_Asian_Total_NonHisp.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLS_Black_Female')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Json_BLS_Black_Female",
+								"type": "DatasetReference"
+							},
+							"name": "BLSJsonSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_BLS_Output",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flatten3"
+						},
+						{
+							"name": "flatten4"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          status as string,",
+						"          responseTime as integer,",
+						"          message as string[],",
+						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
+						"BLSJsonSource foldDown(unroll(Results.series),",
+						"     mapColumn(",
+						"          status,",
+						"          responseTime,",
+						"          message,",
+						"          seriesID = Results.series.seriesID,",
+						"          data = Results.series.data",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten3",
+						"flatten3 foldDown(unroll(data),",
+						"     mapColumn(",
+						"          seriesID,",
+						"          year = data.year,",
+						"          period = data.period,",
+						"          latest = data.latest,",
+						"          value = data.value",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten4",
+						"flatten4 derive(Race = 'Black',",
+						"          Source = 'BLS',",
+						"          EthnicOrigin = 'All',",
+						"          Gender = 'Female',",
+						"          SeriesDesc = '(unadj) Civilian Labor Force Level - Black or African American Women',",
+						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
+						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          Source,",
+						"          SourceId = seriesID,",
+						"          Desc = SeriesDesc,",
+						"          Year = year,",
+						"          Quarter,",
+						"          Latest = latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['BLS_Black_Female.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink1"

@@ -13,102 +13,6 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_SilverMedalist')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_SilverMedalist_File",
-								"type": "DatasetReference"
-							},
-							"name": "SilverMedalist"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentSilverMedalistFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendSilverMedalistFAct"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'yyyy-MM-dd',",
-						"          {Event Year} as short,",
-						"          {Applicant ID} as string,",
-						"          {Internal Worker ID} as string,",
-						"          {Requisition ID} as string,",
-						"          {Silver Medalist Ind} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> SilverMedalist",
-						"SilverMedalist alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Event Year})),",
-						"     deleteIf(isNull({Requisition ID})),",
-						"     deleteIf(isNull({Applicant ID}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          EventYear = {Event Year},",
-						"          ApplId = {Applicant ID},",
-						"          IntWorkerId = {Internal Worker ID},",
-						"          ReqId = {Requisition ID},",
-						"          SilverMedalistInd = {Silver Medalist Ind}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          EventYear as integer,",
-						"          ReqId as string,",
-						"          ApplId as string,",
-						"          IntWorkerId as string,",
-						"          SilverMedalistInd as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','EventYear','ReqId','ApplId'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendSilverMedalistFAct"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Speedbumps')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -3201,6 +3105,111 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError') ~> AppendReqStatusMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Veteran')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_Veteran",
+								"type": "DatasetReference"
+							},
+							"name": "Veteran"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentVeteranMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Veteran} as string,",
+						"          {Elloree Veteran} as string,",
+						"          {Suggested Elloree Veteran} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount} as string,",
+						"          {2018 Headcount} as string,",
+						"          {2018 Hire} as string,",
+						"          {2018 Promo} as string,",
+						"          {2018 Term} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2019 Hire} as string,",
+						"          {2019 Promo} as string,",
+						"          {2019 Term} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promo} as string,",
+						"          {2020 Term} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promo} as string,",
+						"          {2021 Term} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Veteran",
+						"Veteran alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Client Veteran})),",
+						"     deleteIf(isNull({Elloree Veteran}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientVeteran = {Client Veteran},",
+						"          ElloreeVeteran = {Elloree Veteran},",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientVeteran as string,",
+						"          ElloreeVeteran as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientVeteran'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 					]
 				}
 			},
