@@ -54,7 +54,7 @@
 					"description": "Add employee count column for aggregations."
 				},
 				{
-					"name": "select1"
+					"name": "selectfinal"
 				},
 				{
 					"name": "TagHeadcountEvent"
@@ -130,12 +130,16 @@
 				},
 				{
 					"name": "ReplaceCharacterUnknown"
+				},
+				{
+					"name": "SetEventQuarter"
 				}
 			],
 			"scriptLines": [
 				"parameters{",
 				"     Flow_Client_Id as string,",
-				"     Flow_Client_Dt as string",
+				"     Flow_Client_Dt as string,",
+				"     Flow_Qtr1_Start as string",
 				"}",
 				"source(output(",
 				"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
@@ -323,7 +327,7 @@
 				"iif({Years of Service}>=25,1, 10))))))))),",
 				"          {Client ID} = $Flow_Client_Id,",
 				"          {Client Engagement Date} = $Flow_Client_Dt) ~> AddDerived",
-				"derivedEventMonthQtr select(mapColumn(",
+				"SetEventQuarter select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Worker ID},",
@@ -375,7 +379,7 @@
 				"          EmpCount",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
+				"     skipDuplicateMapOutputs: true) ~> selectfinal",
 				"select2 derive(Event = 'Headcount',",
 				"          {Event Code} = 'HCT') ~> TagHeadcountEvent",
 				"select3 derive(Event = 'Termination',",
@@ -581,7 +585,7 @@
 				"iif(between(month({Event Date}),7,9),3,\r",
 				"iif(between(month({Event Date}),10,12),4,0)))),\r",
 				"{Event Quarter})) ~> derivedEventMonthQtr",
-				"select1 aggregate(groupBy({Client ID},",
+				"selectfinal aggregate(groupBy({Client ID},",
 				"          {Client Engagement Date},",
 				"          EventMonth,",
 				"          {Event Quarter},",
@@ -635,6 +639,29 @@
 				"ReplaceSpecCharHyphen derive({Job Title} = replace({Job Title},\"’\",\"'\")) ~> ReplaceSpecialCharApostrophe",
 				"ReplaceSpecialCharApostrophe derive({Job Title} = replace({Job Title},\"ó\",\"o\")) ~> ReplaceSpecialCharacterAccent",
 				"ReplaceSpecialCharacterAccent derive({Job Title} = replace({Job Title},\"�\",\"-\")) ~> ReplaceCharacterUnknown",
+				"derivedEventMonthQtr derive({Event Quarter} = iif(\r",
+				"    (\r",
+				"        (toInteger({Event Month}) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
+				"    ) < 3, \r",
+				"    1,\r",
+				"    iif(\r",
+				"        (\r",
+				"            (toInteger({Event Month}) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
+				"        ) >= 3 && (\r",
+				"            (toInteger({Event Month}) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
+				"        ) < 6, \r",
+				"        2,\r",
+				"        iif(\r",
+				"            (\r",
+				"                (toInteger({Event Month}) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
+				"            ) >= 6 && (\r",
+				"                (toInteger({Event Month}) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
+				"            ) < 9, \r",
+				"            3,\r",
+				"            4\r",
+				"        )\r",
+				"    )\r",
+				")) ~> SetEventQuarter",
 				"RemoveDuplicates sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
