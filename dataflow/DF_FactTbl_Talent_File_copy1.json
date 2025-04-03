@@ -1,0 +1,150 @@
+{
+	"name": "DF_FactTbl_Talent_File_copy1",
+	"properties": {
+		"folder": {
+			"name": "Client/Fact Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Template_TalentAssessment",
+						"type": "DatasetReference"
+					},
+					"name": "Talent"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Source_FactTblFldr",
+						"type": "DatasetReference"
+					},
+					"name": "sinkOutputTalentFactTbl"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FilterOutClientHeaderRowAndColumn"
+				},
+				{
+					"name": "SelectFinal"
+				},
+				{
+					"name": "AddParameters"
+				},
+				{
+					"name": "RemoveDuplicates"
+				},
+				{
+					"name": "RemoveNullWorkerIDRows"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Flow_Client_Id as string,",
+				"     Flow_Client_Dt as string",
+				"}",
+				"source(output(",
+				"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+				"          {Event Year} as short,",
+				"          {Event Date} as date,",
+				"          {Event Type} as string,",
+				"          {Worker ID} as string,",
+				"          {Performance Rating} as string,",
+				"          {Performance Rating Date} as date,",
+				"          {Top Performer} as string,",
+				"          {Talent Identifier (1)} as string,",
+				"          {Talent Identifier (2)} as string,",
+				"          {Talent Identifier (3)} as string,",
+				"          {Talent Identifier (4)} as string,",
+				"          {Talent Identifier (5)} as string,",
+				"          {Salary Range} as string,",
+				"          Bonus as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Talent",
+				"Talent filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+				"RemoveNullWorkerIDRows select(mapColumn(",
+				"          {Client ID},",
+				"          {Client Engagement Date},",
+				"          {Event Year},",
+				"          {Event Date},",
+				"          Event,",
+				"          {Event Type},",
+				"          {Worker ID},",
+				"          {Performance Rating},",
+				"          {Performance Rating Date},",
+				"          {Talent Identifier (1)},",
+				"          {Talent Identifier (2)},",
+				"          {Talent Identifier (3)},",
+				"          {Talent Identifier (4)},",
+				"          {Talent Identifier (5)},",
+				"          {Salary Range},",
+				"          Bonus",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectFinal",
+				"FilterOutClientHeaderRowAndColumn derive({Client ID} = $Flow_Client_Id,",
+				"          {Client Engagement Date} = $Flow_Client_Dt,",
+				"          Event = 'PER',",
+				"          {Performance Rating} = iif(isNull({Performance Rating}), 'N/A',{Performance Rating})) ~> AddParameters",
+				"AddParameters aggregate(groupBy({Event Year},",
+				"          {Event Date},",
+				"          Event,",
+				"          {Event Type},",
+				"          {Worker ID},",
+				"          {Performance Rating},",
+				"          {Performance Rating Date},",
+				"          {Talent Identifier (1)},",
+				"          {Talent Identifier (2)},",
+				"          {Talent Identifier (3)},",
+				"          {Talent Identifier (4)},",
+				"          {Talent Identifier (5)},",
+				"          {Client ID},",
+				"          {Salary Range},",
+				"          Bonus),",
+				"     {Client Engagement Date} = max({Client Engagement Date})) ~> RemoveDuplicates",
+				"RemoveDuplicates filter(not(isNull({Worker ID}))) ~> RemoveNullWorkerIDRows",
+				"SelectFinal sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string,",
+				"          Column_3 as string,",
+				"          Column_4 as string,",
+				"          Column_5 as string,",
+				"          Column_6 as string,",
+				"          Column_7 as string,",
+				"          Column_8 as string,",
+				"          Column_9 as string,",
+				"          Column_10 as string,",
+				"          Column_11 as string,",
+				"          Column_12 as string,",
+				"          Column_13 as string,",
+				"          Column_14 as string,",
+				"          Column_15 as string,",
+				"          Column_16 as string,",
+				"          Column_17 as string,",
+				"          Column_18 as string,",
+				"          Column_19 as string,",
+				"          Column_20 as string,",
+				"          Column_21 as string,",
+				"          Column_22 as string,",
+				"          Column_23 as string,",
+				"          Column_24 as string,",
+				"          Column_25 as string,",
+				"          Column_26 as string,",
+				"          Column_27 as string,",
+				"          Column_28 as string",
+				"     ),",
+				"     partitionFileNames:['TalentFactTbl.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sinkOutputTalentFactTbl"
+			]
+		}
+	}
+}
