@@ -13,6 +13,164 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_Nulls_TalentAssessment')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_TalentData_File",
+								"type": "DatasetReference"
+							},
+							"name": "CoreTalent"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputNullReview"
+						}
+					],
+					"transformations": [
+						{
+							"name": "IdentifyNulls",
+							"description": "Calculate whether a null value exists and assign 1 for count."
+						},
+						{
+							"name": "AggregateNullsByColumn",
+							"description": "Count nulls for each column and group by event."
+						},
+						{
+							"name": "unpivotColumnNames",
+							"description": "Unpivot as part of formatting to establish Column Name as the primary dimension column."
+						},
+						{
+							"name": "pivotEvents",
+							"description": "Pivot row to show counts by column names grouped by events."
+						},
+						{
+							"name": "derivedColumn1",
+							"description": "Pivot to show null counts by column name and grouped by events."
+						},
+						{
+							"name": "ChangeColumnNames",
+							"description": "Rename columns to remove 'Null' name tagging."
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Event Year} as string,",
+						"          {Event Date} as string,",
+						"          Event as string,",
+						"          {Event Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Performance Rating} as string,",
+						"          {Performance Rating Date} as string,",
+						"          {Talent Identifier (1)} as string,",
+						"          {Talent Identifier (2)} as string,",
+						"          {Talent Identifier (3)} as string,",
+						"          {Talent Identifier (4)} as string,",
+						"          {Talent Identifier (5)} as string,",
+						"          {Salary Range} as string,",
+						"          Bonus as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> CoreTalent",
+						"CoreTalent derive({Event Year - Null} = iif(isNull({Event Year}),1,iif({Event Year}=='N/A',1,0)),",
+						"          {Event Date  - Null} = iif(isNull({Event Date}),1,iif({Event Date}=='N/A',1,0)),",
+						"          {Event - Null} = iif(isNull(Event),1,iif(Event=='N/A',1,0)),",
+						"          {Worker ID - Null} = iif(isNull({Worker ID}),1,iif({Worker ID}=='N/A',1,0)),",
+						"          {Performance Rating - Null} = iif(isNull({Performance Rating}),1,iif({Performance Rating}=='N/A',1,0)),",
+						"          {Performance Rating Date - Null} = iif(isNull({Performance Rating Date}), 1,0),",
+						"          {Talent Identifier (1) - Null} = iif(isNull({Talent Identifier (1)}),1,iif({Talent Identifier (1)}=='N/A',1,0)),",
+						"          {Talent Identifier (2) - Null} = iif(isNull({Talent Identifier (2)}),1,iif({Talent Identifier (2)}=='N/A',1,0)),",
+						"          {Talent Identifier (3) - Null} = iif(isNull({Talent Identifier (3)}),1,iif({Talent Identifier (3)}=='N/A',1,0)),",
+						"          {Talent Identifier (4) - Null} = iif(isNull({Talent Identifier (4)}),1,iif({Talent Identifier (4)}=='N/A',1,0)),",
+						"          {Talent Identifier (5) - Null} = iif(isNull({Talent Identifier (5)}),1,iif({Talent Identifier (5)}=='N/A',1,0)),",
+						"          EmpCount = 1) ~> IdentifyNulls",
+						"IdentifyNulls aggregate(groupBy({Event Review} = Event,",
+						"          {Client ID},",
+						"          {Client Engagement Date}),",
+						"     {Event Year - Null} = sum({Event Year - Null}),",
+						"          {Event Date  - Null} = sum({Event Date  - Null}),",
+						"          {Event - Null} = sum({Event - Null}),",
+						"          {Worker ID - Null} = sum({Worker ID - Null}),",
+						"          {Performance Rating - Null} = sum({Performance Rating - Null}),",
+						"          {Performance Rating Date - Null} = sum({Performance Rating Date - Null}),",
+						"          {Talent Identifier (1) - Null} = sum({Talent Identifier (1) - Null}),",
+						"          {Talent Identifier (2) - Null} = sum({Talent Identifier (2) - Null}),",
+						"          {Talent Identifier (3) - Null} = sum({Talent Identifier (3) - Null}),",
+						"          {Talent Identifier (4) - Null} = sum({Talent Identifier (4) - Null}),",
+						"          {Talent Identifier (5) - Null} = sum({Talent Identifier (5) - Null}),",
+						"          Total = sum(EmpCount)) ~> AggregateNullsByColumn",
+						"ChangeColumnNames unpivot(output(",
+						"          {Table Columns} as string,",
+						"          Total as long",
+						"     ),",
+						"     ungroupBy({Event Review},",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Total Records}),",
+						"     lateral: true,",
+						"     ignoreNullPivots: false) ~> unpivotColumnNames",
+						"derivedColumn1 pivot(groupBy({Event Review},",
+						"          {Table Columns},",
+						"          {Client ID},",
+						"          {Client Engagement Date}),",
+						"     pivotBy({Event Review}),",
+						"     { Null Total} = sum(Total),",
+						"          { Null % of Total} = sum({%}),",
+						"     columnNaming: '$V$N',",
+						"     lateral: false,",
+						"     partitionBy('hash', 1)) ~> pivotEvents",
+						"unpivotColumnNames derive({%} = round(Total/{Total Records}*100,0)) ~> derivedColumn1",
+						"AggregateNullsByColumn select(mapColumn(",
+						"          {Event Review},",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Event Year} = {Event Year - Null},",
+						"          {Event Date} = {Event Date  - Null},",
+						"          Event = {Event - Null},",
+						"          {Worker ID} = {Worker ID - Null},",
+						"          {Performance Rating} = {Performance Rating - Null},",
+						"          {Performance Rating Date} = {Performance Rating Date - Null},",
+						"          {Talent Identifier (1)} = {Talent Identifier (1) - Null},",
+						"          {Talent Identifier (2)} = {Talent Identifier (2) - Null},",
+						"          {Talent Identifier (3)} = {Talent Identifier (3) - Null},",
+						"          {Talent Identifier (4) } = {Talent Identifier (4) - Null},",
+						"          {Talent Identifier (5)} = {Talent Identifier (5) - Null},",
+						"          {Total Records} = Total",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> ChangeColumnNames",
+						"pivotEvents sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Null Review Talent Assessment.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputNullReview"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_Nulls_Terminations')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -86,7 +244,6 @@
 						"          {Event Type} as string,",
 						"          Event as string,",
 						"          {Event Reason} as string,",
-						"          {Worker Status} as string,",
 						"          {Worker Type} as string,",
 						"          {Job Title} as string,",
 						"          {Job Family/Function} as string,",
@@ -341,7 +498,9 @@
 						"          {Talent Identifier (2)} as string,",
 						"          {Talent Identifier (3)} as string,",
 						"          {Talent Identifier (4)} as string,",
-						"          {Talent Identifier (5)} as string",
+						"          {Talent Identifier (5)} as string,",
+						"          {Salary Range} as string,",
+						"          Bonus as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -665,7 +824,6 @@
 						"          {Event Year} as string,",
 						"          {Event Date} as string,",
 						"          {Worker ID} as string,",
-						"          {Worker Status} as string,",
 						"          {Worker Type} as string,",
 						"          {Job Title} as string,",
 						"          {Job Family/Function} as string,",
@@ -828,7 +986,9 @@
 						"          {Talent Identifier (2)} as string,",
 						"          {Talent Identifier (3)} as string,",
 						"          {Talent Identifier (4)} as string,",
-						"          {Talent Identifier (5)} as string",
+						"          {Talent Identifier (5)} as string,",
+						"          {Salary Range} as string,",
+						"          Bonus as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -1019,7 +1179,6 @@
 						"          {Event Year},",
 						"          {Event Date},",
 						"          {Worker ID},",
-						"          {Worker Status},",
 						"          {Worker Type},",
 						"          {Job Title},",
 						"          {Job Family/Function},",
@@ -1172,7 +1331,9 @@
 						"          {Talent Identifier (2)},",
 						"          {Talent Identifier (3)},",
 						"          {Talent Identifier (4)},",
-						"          {Talent Identifier (5)}",
+						"          {Talent Identifier (5)},",
+						"          {Salary Range},",
+						"          Bonus",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> TalentRemoveClientRefColumn",
@@ -1798,7 +1959,6 @@
 						"          {Event Year} as string,",
 						"          {Event Date} as string,",
 						"          {Worker ID} as string,",
-						"          {Worker Status} as string,",
 						"          {Worker Type} as string,",
 						"          {Job Title} as string,",
 						"          {Job Family/Function} as string,",
@@ -1924,7 +2084,9 @@
 						"          {Talent Identifier (2)} as string,",
 						"          {Talent Identifier (3)} as string,",
 						"          {Talent Identifier (4)} as string,",
-						"          {Talent Identifier (5)} as string",
+						"          {Talent Identifier (5)} as string,",
+						"          {Salary Range} as string,",
+						"          Bonus as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -2141,7 +2303,6 @@
 						"          {Event Date},",
 						"          Event,",
 						"          {Worker ID},",
-						"          {Worker Status},",
 						"          {Worker Type},",
 						"          {Job Title},",
 						"          {Job Family/Function},",
@@ -2262,7 +2423,9 @@
 						"          {Talent Identifier (2)},",
 						"          {Talent Identifier (3)},",
 						"          {Talent Identifier (4)},",
-						"          {Talent Identifier (5)}",
+						"          {Talent Identifier (5)},",
+						"          Bonus,",
+						"          {Salary Range}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select5",
@@ -2712,26 +2875,24 @@
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Engagement Type} as string,",
+						"          EventMonth as integer,",
+						"          {Event Quarter} as integer,",
+						"          {Event Year} as short,",
 						"          {Worker ID} as string,",
-						"          {Event Date} as string,",
-						"          EventMonth as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Year} as integer,",
+						"          {Event Date} as date,",
 						"          {Event Code} as string,",
 						"          {Event Type} as string,",
 						"          Event as string,",
 						"          {Event Reason} as string,",
-						"          {Worker Status} as string,",
 						"          {Worker Type} as string,",
 						"          {Job Title} as string,",
 						"          {Job Family/Function} as string,",
-						"          {Years in Job} as string,",
+						"          {Years in Job} as double,",
 						"          {Previous Job Title} as string,",
 						"          {Previous Job Family/Function} as string,",
-						"          {Original Hire Date} as string,",
-						"          {Current Hire Date} as string,",
-						"          {Years of Service} as string,",
+						"          {Original Hire Date} as date,",
+						"          {Current Hire Date} as date,",
+						"          {Years of Service} as double,",
 						"          {Years of Service Band} as string,",
 						"          {Years of Service Sort ID} as string,",
 						"          {Last Promo Date} as string,",
@@ -2754,12 +2915,13 @@
 						"          {Hispanic or Latino Origin} as string,",
 						"          Gender as string,",
 						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
+						"          LGBTQ as string,",
 						"          {Disability Ind} as string,",
 						"          {Birth Year} as string,",
 						"          {Generation Desc} as string,",
 						"          {Generation Sort ID} as string,",
-						"          EmpCount as string",
+						"          EmpCount as integer,",
+						"          RowCount as integer",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -2767,7 +2929,6 @@
 						"source(output(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
 						"          WorkerId as string,",
 						"          EventDt as date,",
 						"          EventMonth as integer,",
@@ -2777,7 +2938,6 @@
 						"          EventId as string,",
 						"          EventType as string,",
 						"          EventReason as string,",
-						"          WorkerStatus as string,",
 						"          WorkerType as string,",
 						"          JobTitle as string,",
 						"          JobFunction as string,",
@@ -2809,7 +2969,7 @@
 						"          HispanicLatinoOrigin as string,",
 						"          Gender as string,",
 						"          Veteran as string,",
-						"          LGTBQ as string,",
+						"          LGBTQ as string,",
 						"          DisabilityInd as string,",
 						"          BirthYear as integer,",
 						"          Generation as string,",
@@ -6471,148 +6631,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-12T15:44:11Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_FactTbl_Talent",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DeleteAllHistory",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_FactTbl_Talent",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"Talent": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"AppendTalentMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DeleteAllHistory",
-						"type": "IfCondition",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Delete_All_Rec_FactTbl_Talent",
-									"type": "ExecuteDataFlow",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataflow": {
-											"referenceName": "Delete_All_Rec_FactTbl_Talent",
-											"type": "DataFlowReference",
-											"parameters": {
-												"Flow_Client_Id": {
-													"value": "'@{pipeline().parameters.P_Client_Id}'",
-													"type": "Expression"
-												},
-												"Flow_Client_Dt": {
-													"value": "'@{pipeline().parameters.P_Client_Dt}'",
-													"type": "Expression"
-												}
-											},
-											"datasetParameters": {
-												"TalentFactTbl": {},
-												"DeleteRecords": {}
-											}
-										},
-										"staging": {},
-										"compute": {
-											"coreCount": 8,
-											"computeType": "General"
-										},
-										"traceLevel": "Fine"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					},
-					"P_Delete_History_No_All": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T20:31:36Z"
 			},
 			"dependsOn": []
 		}
