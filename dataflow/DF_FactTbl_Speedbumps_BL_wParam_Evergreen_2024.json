@@ -287,7 +287,7 @@
 					"name": "FilterEngagementSkillsDev"
 				},
 				{
-					"name": "CalcGrowthSurveyAvg"
+					"name": "CalcSkillsDevAvg"
 				},
 				{
 					"name": "derivedSpeedBump12SkillsDev"
@@ -757,6 +757,7 @@
 				"          OtherNumVal2 as double,",
 				"          OtherDtVal1 as date,",
 				"          OtherDtVal2 as date,",
+				"          EmpCount as integer,",
 				"          LoadDt as date",
 				"     ),",
 				"     allowSchemaDrift: true,",
@@ -1178,8 +1179,8 @@
 				"FilterEngagementSkillsDev aggregate(groupBy(WorkerId),",
 				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
 				"          SumSurveyValues = sum(OtherNumVal1),",
-				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcGrowthSurveyAvg",
-				"CalcGrowthSurveyAvg derive(SkillsDevSpeedbump12 = iif(SurveryAvg<=81.0, 'Y','N')) ~> derivedSpeedBump12SkillsDev",
+				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcSkillsDevAvg",
+				"CalcSkillsDevAvg derive(SkillsDevSpeedbump12 = iif(SurveryAvg<=81.0, 'Y','N')) ~> derivedSpeedBump12SkillsDev",
 				"derivedSpeedBump12SkillsDev select(mapColumn(",
 				"          WorkerId,",
 				"          SkillsDevSpeedbump12",
@@ -1198,7 +1199,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump13",
-				"OtherCore filter(EventType=='Potential') ~> FilterEngagementSurveyPotential",
+				"OtherCore filter(EventType=='feedback' || EventType=='quarter_convo' || EventType=='well_being_mgr') ~> FilterEngagementSurveyPotential",
 				"CalcMgrEffAvg derive(MgEffSpeedbump9 = iif(SurveryAvg<=84.1, 'Y','N')) ~> derivedSpeedBump9MgrEff",
 				"derivedSpeedBump9MgrEff select(mapColumn(",
 				"          WorkerId,",
