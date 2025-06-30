@@ -296,13 +296,13 @@
 					"name": "SelectSpeedbump12"
 				},
 				{
-					"name": "FilterEngagementGoalClarity"
+					"name": "FilterEngagementPurpose"
 				},
 				{
-					"name": "CalcGoalClarityAvg"
+					"name": "CalcPurposeAvg"
 				},
 				{
-					"name": "derivedSpeedBump13GoalClarity"
+					"name": "derivedSpeedBump13Purpose"
 				},
 				{
 					"name": "SelectSpeedbump13"
@@ -335,7 +335,7 @@
 					"name": "FilterEngagementSurveyGoals"
 				},
 				{
-					"name": "SelectSurveyGoals"
+					"name": "SelectSpeedbump14"
 				},
 				{
 					"name": "filter1"
@@ -351,6 +351,15 @@
 				},
 				{
 					"name": "joinSurveySpeedbump9"
+				},
+				{
+					"name": "CalcWorkSustainability"
+				},
+				{
+					"name": "derivedSpeedbump14WorkSustainability"
+				},
+				{
+					"name": "joinSurveySpeedbump14"
 				}
 			],
 			"scriptLines": [
@@ -941,9 +950,9 @@
 				"          {Speedbump 13 Name} = 'Goal Clarity',",
 				"          {Speedbump 13 Desc} = 'Employees with an avg. score at or below 82.2 when asked about whether they feel goals are clearly identified.',",
 				"          {Speedbump 13 Flag} = iif($SB13_Placeholder=='Y',iif(not(isNull(GoalClaritySpeedbump13)),GoalClaritySpeedbump13,'N'),'N'),",
-				"          {Speedbump 14 Name} = 'Speedbump 14',",
-				"          {Speedbump 14 Desc} = 'N/A',",
-				"          {Speedbump 14 Flag} = 'N/A',",
+				"          {Speedbump 14 Name} = 'Work Sustainability',",
+				"          {Speedbump 14 Desc} = 'Employees with an avg. score at or below 72.8 when asked about work life balance, available resources and operational effectiveness.',",
+				"          {Speedbump 14 Flag} = iif($SB14_Placeholder=='Y',iif(not(isNull(WorkSustainabilitySpeedbump14)),WorkSustainabilitySpeedbump14,'N'),'N'),",
 				"          {Speedbump 15 Name} = 'Speedbump 15',",
 				"          {Speedbump 15 Desc} = 'N/A',",
 				"          {Speedbump 15 Flag} = 'N/A') ~> CalcSpeedBumps",
@@ -1151,51 +1160,58 @@
 				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
 				"          SumSurveryValues = sum(OtherNumVal1),",
 				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalceSatSurveyAvg",
-				"CalceSatSurveyAvg derive(eSatSpeedbump10 = iif(SurveryAvg<=81.4, 'Y','N')) ~> derivedSpeedBump10eSat",
+				"CalceSatSurveyAvg derive(eSatSpeedbump10 = iif(SurveryAvg<=76.4, 'Y','N')) ~> derivedSpeedBump10eSat",
 				"derivedSpeedBump10eSat select(mapColumn(",
 				"          WorkerId,",
 				"          eSatSpeedbump10",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump10",
-				"OtherCore filter(EventType=='belong') ~> FilterEngagementBelongScore",
+				"OtherCore filter(EventType=='belong' ||",
+				"EventType=='safe' ||",
+				"EventType=='inclusion') ~> FilterEngagementBelongScore",
 				"FilterEngagementBelongScore aggregate(groupBy(WorkerId),",
 				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
 				"          SumSurveyValues = sum(OtherNumVal1),",
 				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcBelongAvg",
-				"CalcBelongAvg derive(BelongSpeedbump11 = iif(SurveryAvg<=83.4, 'Y','N')) ~> derivedSpeedBump11Belong",
+				"CalcBelongAvg derive(BelongSpeedbump11 = iif(SurveryAvg<=78.7, 'Y','N')) ~> derivedSpeedBump11Belong",
 				"derivedSpeedBump11Belong select(mapColumn(",
 				"          WorkerId,",
 				"          BelongSpeedbump11",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump11",
-				"OtherCore filter(EventType=='skills_development') ~> FilterEngagementSkillsDev",
+				"OtherCore filter(EventType=='skills_development' ||",
+				"EventType=='empowerment' ||",
+				"EventType=='recognition') ~> FilterEngagementSkillsDev",
 				"FilterEngagementSkillsDev aggregate(groupBy(WorkerId),",
 				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
 				"          SumSurveyValues = sum(OtherNumVal1),",
 				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcSkillsDevAvg",
-				"CalcSkillsDevAvg derive(SkillsDevSpeedbump12 = iif(SurveryAvg<=81.0, 'Y','N')) ~> derivedSpeedBump12SkillsDev",
+				"CalcSkillsDevAvg derive(SkillsDevSpeedbump12 = iif(SurveryAvg<=74.9, 'Y','N')) ~> derivedSpeedBump12SkillsDev",
 				"derivedSpeedBump12SkillsDev select(mapColumn(",
 				"          WorkerId,",
 				"          SkillsDevSpeedbump12",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump12",
-				"OtherCore filter(EventType=='goal_clarity_ind') ~> FilterEngagementGoalClarity",
-				"FilterEngagementGoalClarity aggregate(groupBy(WorkerId),",
+				"OtherCore filter(EventType=='goal_clarity_ind' ||",
+				"EventType=='role_clarity' ||",
+				"EventType=='strat_align') ~> FilterEngagementPurpose",
+				"FilterEngagementPurpose aggregate(groupBy(WorkerId),",
 				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
 				"          SumSurveyValues = sum(OtherNumVal1),",
-				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcGoalClarityAvg",
-				"CalcGoalClarityAvg derive(GoalClaritySpeedbump13 = iif(SurveryAvg<=82.2, 'Y','N')) ~> derivedSpeedBump13GoalClarity",
-				"derivedSpeedBump13GoalClarity select(mapColumn(",
+				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcPurposeAvg",
+				"CalcPurposeAvg derive(PurposeSpeedbump13 = iif(SurveryAvg<=78.2, 'Y','N')) ~> derivedSpeedBump13Purpose",
+				"derivedSpeedBump13Purpose select(mapColumn(",
 				"          WorkerId,",
-				"          GoalClaritySpeedbump13",
+				"          GoalClaritySpeedbump13 = PurposeSpeedbump13",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump13",
-				"OtherCore filter(EventType=='feedback' || EventType=='quarter_convo' || EventType=='well_being_mgr') ~> FilterEngagementSurveyPotential",
-				"CalcMgrEffAvg derive(MgEffSpeedbump9 = iif(SurveryAvg<=84.1, 'Y','N')) ~> derivedSpeedBump9MgrEff",
+				"OtherCore filter(EventType=='feedback' || EventType=='quarter_convo' || EventType=='well_being_mgr' ||",
+				"EventType=='equal_opp') ~> FilterEngagementSurveyPotential",
+				"CalcMgrEffAvg derive(MgEffSpeedbump9 = iif(SurveryAvg<=79.3, 'Y','N')) ~> derivedSpeedBump9MgrEff",
 				"derivedSpeedBump9MgrEff select(mapColumn(",
 				"          WorkerId,",
 				"          MgrEffSpeedbump9 = MgEffSpeedbump9",
@@ -1222,7 +1238,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinSurveySpeedbump13",
-				"joinSurveySpeedbump13 select(mapColumn(",
+				"joinSurveySpeedbump14 select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Worker ID},",
@@ -1262,19 +1278,18 @@
 				"          eSatSpeedbump10,",
 				"          BelongSpeedbump11,",
 				"          SkillsDevSpeedbump12,",
-				"          GoalClaritySpeedbump13",
+				"          GoalClaritySpeedbump13,",
+				"          WorkSustainabilitySpeedbump14",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
 				"OtherCore filter(EventType=='Engagement Survey - Goal_Clarity_Ind') ~> FilterEngagementSurveyGoals",
-				"FilterEngagementSurveyGoals select(mapColumn(",
+				"derivedSpeedbump14WorkSustainability select(mapColumn(",
 				"          WorkerId,",
-				"          EventDesc,",
-				"          EventType,",
-				"          {Goals Survey Val} = OtherCharVal11",
+				"          WorkSustainabilitySpeedbump14",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSurveyGoals",
+				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump14",
 				"OtherCore filter(EventType=='Engagement Survey - Values') ~> filter1",
 				"filter1 select(mapColumn(",
 				"          WorkerId,",
@@ -1311,6 +1326,16 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinSurveySpeedbump9",
+				"FilterEngagementSurveyGoals aggregate(groupBy(WorkerId),",
+				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
+				"          SumSurveyValues = sum(OtherNumVal1),",
+				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcWorkSustainability",
+				"CalcWorkSustainability derive(WorkSustainabilitySpeedbump14 = iif(SurveryAvg<=72.8, 'Y','N')) ~> derivedSpeedbump14WorkSustainability",
+				"joinSurveySpeedbump13, SelectSpeedbump14 join({Worker ID} == SelectSpeedbump14@WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinSurveySpeedbump14",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
