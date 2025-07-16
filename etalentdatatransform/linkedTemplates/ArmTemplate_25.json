@@ -13,654 +13,6 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/DF_Review_Nulls_Other')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Audit Reports"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_OtherCore_File",
-								"type": "DatasetReference"
-							},
-							"name": "Applicants"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_AuditFolder",
-								"type": "DatasetReference"
-							},
-							"name": "OutputNullReview"
-						}
-					],
-					"transformations": [
-						{
-							"name": "IdentifyNulls",
-							"description": "Calculate whether a null value exists and assign 1 for count."
-						},
-						{
-							"name": "AggregateNullsByColumn",
-							"description": "Count nulls for each column and group by event."
-						},
-						{
-							"name": "unpivotColumnNames",
-							"description": "Unpivot as part of formatting to establish Column Name as the primary dimension column."
-						},
-						{
-							"name": "pivotEvents",
-							"description": "Pivot row to show counts by column names grouped by events."
-						},
-						{
-							"name": "derivedColumn1",
-							"description": "Pivot to show null counts by column name and grouped by events."
-						},
-						{
-							"name": "ChangeColumnNames",
-							"description": "Rename columns to remove 'Null' name tagging."
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as string,",
-						"          {Worker ID} as string,",
-						"          {Event Date} as string,",
-						"          EventMonth as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Year} as string,",
-						"          {Event ID} as string,",
-						"          Event as string,",
-						"          {Event (Type)} as string,",
-						"          {Event (Desc)} as string,",
-						"          {Other (Char Value 1)} as string,",
-						"          {Other (Char Value 2)} as string,",
-						"          {Other (Num Value 1)} as string,",
-						"          {Other (Num Value 2)} as string,",
-						"          {Other (Date Value 1)} as string,",
-						"          {Other (Date Value 2)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Applicants",
-						"Applicants derive({Event Year - Null} = iif(isNull({Event Year}),1,iif({Event Year}=='N/A',1,0)),",
-						"          {Event Date  - Null} = iif(isNull({Event Date}),1,iif({Event Date}=='N/A',1,0)),",
-						"          {Event (Type) - Null} = iif(isNull({Event (Type)}),1,iif({Event (Type)}=='N/A',1,0)),",
-						"          {Event (Desc) - Null} = iif(isNull({Event (Desc)}),1,iif({Event (Desc)}=='N/A',1,0)),",
-						"          {Other (Char Value 1) - Null} = iif(isNull({Other (Char Value 1)}),1,iif({Other (Char Value 1)}=='N/A',1,0)),",
-						"          {Other (Char Value 2) - Null} = iif(isNull({Other (Char Value 2)}),1,iif({Other (Char Value 2)}=='N/A',1,0)),",
-						"          {Other (Num Value 1) - Null} = iif(isNull({Other (Num Value 1)}),1,iif({Other (Num Value 2)}=='N/A',1,0)),",
-						"          {Other (Num Value 2) - Null} = iif(isNull({Other (Num Value 2)}),1,iif({Other (Num Value 2)}=='N/A',1,0)),",
-						"          {Other (Date Value 1) - Null} = iif(isNull({Other (Date Value 1)}),1,iif({Other (Date Value 1)}=='N/A',1,0)),",
-						"          {Other (Date Value 2) - Null} = iif(isNull({Other (Date Value 2)}),1,iif({Other (Date Value 2)}=='N/A',1,0)),",
-						"          EmpCount = 1,",
-						"          {Event Code} = 'OTH') ~> IdentifyNulls",
-						"IdentifyNulls aggregate(groupBy({Event Review} = {Event Code},",
-						"          {Client ID},",
-						"          {Client Engagement Date}),",
-						"     {Event Year - Null} = sum({Event Year - Null}),",
-						"          {Event Date  - Null} = sum({Event Date  - Null}),",
-						"          {Event (Type) - Null} = sum({Event (Type) - Null}),",
-						"          {Event (Desc) - Null} = sum({Event (Desc) - Null}),",
-						"          {Other (Char Value 1) - Null} = sum({Other (Char Value 1) - Null}),",
-						"          {Other (Char Value 2) - Null} = sum({Other (Char Value 2) - Null}),",
-						"          {Other (Num Value 1) - Null} = sum({Other (Num Value 1) - Null}),",
-						"          {Other (Num Value 2) - Null} = sum({Other (Num Value 2) - Null}),",
-						"          {Other (Date Value 1) - Null} = sum({Other (Date Value 1) - Null}),",
-						"          {Other (Date Value 2) - Null} = sum({Other (Date Value 2) - Null}),",
-						"          {Total Records} = sum(EmpCount)) ~> AggregateNullsByColumn",
-						"ChangeColumnNames unpivot(output(",
-						"          {Table Columns} as string,",
-						"          Total as long",
-						"     ),",
-						"     ungroupBy({Event Review},",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Total Records}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> unpivotColumnNames",
-						"derivedColumn1 pivot(groupBy({Event Review},",
-						"          {Table Columns},",
-						"          {Client ID},",
-						"          {Client Engagement Date}),",
-						"     pivotBy({Event Review}),",
-						"     { Null Total} = sum(Total),",
-						"          { Null % of Total} = sum({%}),",
-						"     columnNaming: '$V$N',",
-						"     lateral: false,",
-						"     partitionBy('hash', 1)) ~> pivotEvents",
-						"unpivotColumnNames derive({%} = round(Total/{Total Records}*100,0)) ~> derivedColumn1",
-						"AggregateNullsByColumn select(mapColumn(",
-						"          {Event Review},",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event Year} = {Event Year - Null},",
-						"          {Event Date} = {Event Date  - Null},",
-						"          {Event (Type)} = {Event (Type) - Null},",
-						"          {Event (Desc)} = {Event (Desc) - Null},",
-						"          {Other (Char Value 1)} = {Other (Char Value 1) - Null},",
-						"          {Other (Char Value 2)} = {Other (Char Value 2) - Null},",
-						"          {Other (Num Value 1)} = {Other (Num Value 1) - Null},",
-						"          {Other (Num Value 2)} = {Other (Num Value 2) - Null},",
-						"          {Other (Date Value 1)} = {Other (Date Value 1) - Null},",
-						"          {Other (Date Value 2)} = {Other (Date Value 2) - Null},",
-						"          {Total Records}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> ChangeColumnNames",
-						"pivotEvents sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Template - Null Review Other.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> OutputNullReview"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_Review_Nulls_Promotions')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Audit Reports"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_AllCoreData_File",
-								"type": "DatasetReference"
-							},
-							"name": "CorePromotions"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_AuditFolder",
-								"type": "DatasetReference"
-							},
-							"name": "OutputNullReview"
-						}
-					],
-					"transformations": [
-						{
-							"name": "IdentifyNulls",
-							"description": "Calculate whether a null value exists and assign 1 for count."
-						},
-						{
-							"name": "AggregateNullsByColumn",
-							"description": "Count nulls for each column and group by event."
-						},
-						{
-							"name": "unpivotColumnNames",
-							"description": "Unpivot as part of formatting to establish Column Name as the primary dimension column."
-						},
-						{
-							"name": "pivotEvents",
-							"description": "Pivot row to show counts by column names grouped by events."
-						},
-						{
-							"name": "derivedColumn1",
-							"description": "Pivot to show null counts by column name and grouped by events."
-						},
-						{
-							"name": "ChangeColumnNames",
-							"description": "Rename columns to remove 'Null' name tagging."
-						},
-						{
-							"name": "PromotionsFilter"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as string,",
-						"          EventMonth as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Year} as string,",
-						"          {Worker ID} as string,",
-						"          {Event Date} as string,",
-						"          {Event Code} as string,",
-						"          {Event Type} as string,",
-						"          Event as string,",
-						"          {Event Reason} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Function} as string,",
-						"          {Years in Job} as string,",
-						"          {Previous Job Title} as string,",
-						"          {Previous Job Function} as string,",
-						"          {Original Hire Date} as string,",
-						"          {Current Hire Date} as string,",
-						"          {Years of Service} as string,",
-						"          {Years of Service Band} as string,",
-						"          {Years of Service Sort ID} as string,",
-						"          {Last Promo Date} as string,",
-						"          {Corporate Title} as string,",
-						"          {Previous Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Legacy Organization} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGBTQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as string,",
-						"          {Generation Desc} as string,",
-						"          {Generation Sort ID} as string,",
-						"          EmpCount as string,",
-						"          RowCount as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> CorePromotions",
-						"PromotionsFilter derive({Event Year - Null} = iif(isNull({Event Year}),1,iif({Event Year}=='N/A',1,0)),",
-						"          {Event Date  - Null} = iif(isNull({Event Date}),1,iif({Event Date}=='N/A',1,0)),",
-						"          {Event - Null} = iif(isNull(Event),1,iif(Event=='N/A',1,0)),",
-						"          {Event Type - Null} = iif(isNull({Event Type}),1,iif({Event Type}=='N/A',1,0)),",
-						"          {Worker ID - Null} = iif(isNull({Worker ID}),1,iif({Worker ID}=='N/A',1,0)),",
-						"          {Worker Type - Null} = iif(isNull({Worker Type}),1,iif({Worker Type}=='N/A',1,0)),",
-						"          {Job Title - Null} = iif(isNull({Job Title}),1,iif({Job Title}=='N/A',1,0)),",
-						"          {Job Function - Null} = iif(isNull({Job Function}),1,iif({Job Function}=='N/A',1,0)),",
-						"          {Previous Job Title - Null} = iif(isNull({Previous Job Title}),1,iif({Previous Job Title}=='N/A',1,0)),",
-						"          {Previous Job Function - Null} = iif(isNull({Previous Job Function}),1,iif({Previous Job Function}=='N/A',1,0)),",
-						"          {Years in Job - Null} = iif(isNull({Years in Job}),1,iif({Years in Job}=='N/A',1,0)),",
-						"          {Corporate Title - Null} = iif(isNull({Corporate Title}),1,iif({Corporate Title}=='N/A',1,0)),",
-						"          {Previous Corporate Title - Null} = iif(isNull({Previous Corporate Title}),1,iif({Previous Corporate Title}=='N/A',1,0)),",
-						"          {Manager Indicator - Null} = iif(isNull({Manager Indicator}),1,iif({Manager Indicator}=='N/A',1,0)),",
-						"          {Direct Manager Worker ID - Null} = iif(isNull({Direct Manager Worker ID}),1,iif({Direct Manager Worker ID}=='N/A',1,0)),",
-						"          {Work Office Location - Null} = iif(isNull({Work Office Location}),1,iif({Work Office Location}=='N/A',1,0)),",
-						"          {Work City - Null} = iif(isNull({Work City}),1,iif({Work City}=='N/A',1,0)),",
-						"          {Work State - Null} = iif(isNull({Work State}),1,iif({Work State}=='N/A',1,0)),",
-						"          {Work Country - Null} = iif(isNull({Work Country}),1,iif({Work Country}=='N/A',1,0)),",
-						"          {Strategic Work Location Ind - Null} = iif(isNull({Strategic Work Location Ind}),1,iif({Strategic Work Location Ind}=='N/A',1,0)),",
-						"          {Original Hire Date - Null} = iif(isNull({Original Hire Date}),1,iif({Original Hire Date}=='N/A',1,0)),",
-						"          {Current Hire Date - Null} = iif(isNull({Current Hire Date}),1,iif({Current Hire Date}=='N/A',1,0)),",
-						"          {Years of Service - Null} = iif(isNull({Years of Service}),1,iif({Years of Service}=='N/A',1,0)),",
-						"          {Business Group Level 1 - Null} = iif(isNull({Business Group Level 1}),1,iif({Business Group Level 1}=='N/A',1,0)),",
-						"          {Business Group Level 2 - Null} = iif(isNull({Business Group Level 2}),1,iif({Business Group Level 2}=='N/A',1,0)),",
-						"          {Business Group Level 3 - Null} = iif(isNull({Business Group Level 3}),1,iif({Business Group Level 3}=='N/A',1,0)),",
-						"          {Business Group Level 4 - Null} = iif(isNull({Business Group Level 4}),1,iif({Business Group Level 4}=='N/A',1,0)),",
-						"          {Race - Null} = iif(isNull(Race),1,iif(Race=='N/A',1,0)),",
-						"          {Hispanic or Latino Origin - Null} = iif(isNull({Hispanic or Latino Origin}),1,iif({Hispanic or Latino Origin}=='N/A',1,0)),",
-						"          {Gender - Null} = iif(isNull(Gender),1,iif(Gender=='N/A',1,0)),",
-						"          {Veteran Ind - Null} = iif(isNull({Veteran Ind}),1,iif({Veteran Ind}=='N/A',1,0)),",
-						"          {LGBTQ - Null} = iif(isNull(LGBTQ),1,iif(LGBTQ=='N/A',1,0)),",
-						"          {Disability Ind - Null} = iif(isNull({Disability Ind}),1,iif({Disability Ind}=='N/A',1,0)),",
-						"          {Birth Year - Null} = iif(isNull({Birth Year}),1,iif({Birth Year}=='N/A',1,0)),",
-						"          {Generation Desc - Null} = iif(isNull({Generation Desc}),1,iif({Generation Desc}=='N/A',1,0)),",
-						"          EmpCount = 1) ~> IdentifyNulls",
-						"IdentifyNulls aggregate(groupBy({Event Code},",
-						"          {Client ID},",
-						"          {Client Engagement Date}),",
-						"     {Event Year - Null} = sum({Event Year - Null}),",
-						"          {Event Date  - Null} = sum({Event Date  - Null}),",
-						"          {Event - Null} = sum({Event - Null}),",
-						"          {Event Type - Null} = sum({Event Type - Null}),",
-						"          {Worker ID - Null} = sum({Worker ID - Null}),",
-						"          {Worker Type - Null} = sum({Worker Type - Null}),",
-						"          {Job Title - Null} = sum({Job Title - Null}),",
-						"          {Job Function - Null} = sum({Job Function - Null}),",
-						"          {Previous Job Title - Null} = sum({Previous Job Title - Null}),",
-						"          {Previous Job Function - Null} = sum({Previous Job Function - Null}),",
-						"          {Years in Job - Null} = sum({Years in Job - Null}),",
-						"          {Corporate Title - Null} = sum({Corporate Title - Null}),",
-						"          {Previous Corporate Title - Null} = sum({Previous Corporate Title - Null}),",
-						"          {Manager Indicator - Null} = sum({Manager Indicator - Null}),",
-						"          {Direct Manager Worker ID - Null} = sum({Direct Manager Worker ID - Null}),",
-						"          {Work Office - Null} = sum({Work Office Location - Null}),",
-						"          {Work City - Null} = sum({Work City - Null}),",
-						"          {Work State - Null} = sum({Work State - Null}),",
-						"          {Work Country - Null} = sum({Work Country - Null}),",
-						"          {Strategic Work Location Ind - Null} = sum({Strategic Work Location Ind - Null}),",
-						"          {Original Hire Date - Null} = sum({Original Hire Date - Null}),",
-						"          {Current Hire Date - Null} = sum({Current Hire Date - Null}),",
-						"          {Years of Service - Null} = sum({Years of Service - Null}),",
-						"          {Business Group Level 1 - Null} = sum({Business Group Level 1 - Null}),",
-						"          {Business Group Level 2 - Null} = sum({Business Group Level 2 - Null}),",
-						"          {Business Group Level 3 - Null} = sum({Business Group Level 3 - Null}),",
-						"          {Business Group Level 4 - Null} = sum({Business Group Level 4 - Null}),",
-						"          {Race - Null} = sum({Race - Null}),",
-						"          {Hispanic or Latino Origin - Null} = sum({Hispanic or Latino Origin - Null}),",
-						"          {Gender - Null} = sum({Gender - Null}),",
-						"          {Veteran Ind - Null} = sum({Veteran Ind - Null}),",
-						"          {LGBTQ - Null} = sum({LGBTQ - Null}),",
-						"          {Disability Ind - Null} = sum({Disability Ind - Null}),",
-						"          {Birth Year - Null} = sum({Birth Year - Null}),",
-						"          {Generation Desc - Null} = sum({Generation Desc - Null}),",
-						"          {Total Records} = sum(EmpCount)) ~> AggregateNullsByColumn",
-						"ChangeColumnNames unpivot(output(",
-						"          {Table Columns} as string,",
-						"          Total as long",
-						"     ),",
-						"     ungroupBy({Event Review},",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Total Records}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> unpivotColumnNames",
-						"derivedColumn1 pivot(groupBy({Event Review},",
-						"          {Table Columns},",
-						"          {Client ID},",
-						"          {Client Engagement Date}),",
-						"     pivotBy({Event Review}),",
-						"     { Null Total} = sum(Total),",
-						"          { Null % of Total} = sum({%}),",
-						"     columnNaming: '$V$N',",
-						"     lateral: false,",
-						"     partitionBy('hash', 1)) ~> pivotEvents",
-						"unpivotColumnNames derive({%} = round(Total/{Total Records}*100,0)) ~> derivedColumn1",
-						"AggregateNullsByColumn select(mapColumn(",
-						"          {Event Review} = {Event Code},",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event Year} = {Event Year - Null},",
-						"          {Event Date} = {Event Date  - Null},",
-						"          Event = {Event - Null},",
-						"          {Event Type} = {Event Type - Null},",
-						"          {Worker ID} = {Worker ID - Null},",
-						"          {Worker Type} = {Worker Type - Null},",
-						"          {Job Title} = {Job Title - Null},",
-						"          {Job Function} = {Job Function - Null},",
-						"          {Previous Job Title} = {Previous Job Title - Null},",
-						"          {Previous Job Function} = {Previous Job Function - Null},",
-						"          {Years in Job} = {Years in Job - Null},",
-						"          {Corporate Title} = {Corporate Title - Null},",
-						"          {Previous Corporate Title} = {Previous Corporate Title - Null},",
-						"          {Manager Indicator} = {Manager Indicator - Null},",
-						"          {Direct Manager Worker ID} = {Direct Manager Worker ID - Null},",
-						"          {Work Office} = {Work Office - Null},",
-						"          {Work City} = {Work City - Null},",
-						"          {Work State} = {Work State - Null},",
-						"          {Work Country} = {Work Country - Null},",
-						"          {Strategic Work Location Ind} = {Strategic Work Location Ind - Null},",
-						"          {Original Hire Date} = {Original Hire Date - Null},",
-						"          {Current Hire Date} = {Current Hire Date - Null},",
-						"          {Years of Service} = {Years of Service - Null},",
-						"          {Business Group Level 1} = {Business Group Level 1 - Null},",
-						"          {Business Group Level 2} = {Business Group Level 2 - Null},",
-						"          {Business Group Level 3} = {Business Group Level 3 - Null},",
-						"          {Business Group Level 4} = {Business Group Level 4 - Null},",
-						"          Race = {Race - Null},",
-						"          {Hispanic or Latino Origin} = {Hispanic or Latino Origin - Null},",
-						"          Gender = {Gender - Null},",
-						"          {Veteran Ind} = {Veteran Ind - Null},",
-						"          LGBTQ = {LGBTQ - Null},",
-						"          {Disability Ind} = {Disability Ind - Null},",
-						"          {Birth Year} = {Birth Year - Null},",
-						"          {Generation Desc} = {Generation Desc - Null},",
-						"          {Total Records}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> ChangeColumnNames",
-						"CorePromotions filter({Event Code}=='PRO') ~> PromotionsFilter",
-						"pivotEvents sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Template - Null Review Promotions.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> OutputNullReview"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_Review_Nulls_Requisitions')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Audit Reports"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_JobReq_File",
-								"type": "DatasetReference"
-							},
-							"name": "Requisitions"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_AuditFolder",
-								"type": "DatasetReference"
-							},
-							"name": "OutputNullReview"
-						}
-					],
-					"transformations": [
-						{
-							"name": "IdentifyNulls",
-							"description": "Calculate whether a null value exists and assign 1 for count."
-						},
-						{
-							"name": "AggregateNullsByColumn",
-							"description": "Count nulls for each column and group by event."
-						},
-						{
-							"name": "unpivotColumnNames",
-							"description": "Unpivot as part of formatting to establish Column Name as the primary dimension column."
-						},
-						{
-							"name": "pivotEvents",
-							"description": "Pivot row to show counts by column names grouped by events."
-						},
-						{
-							"name": "derivedColumn1",
-							"description": "Pivot to show null counts by column name and grouped by events."
-						},
-						{
-							"name": "ChangeColumnNames",
-							"description": "Rename columns to remove 'Null' name tagging."
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as string,",
-						"          {Client Engagement Type} as string,",
-						"          {Event Date} as string,",
-						"          EventMonth as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Year} as string,",
-						"          EventId as string,",
-						"          Event as string,",
-						"          {Requisition ID} as string,",
-						"          {Requisition Type} as string,",
-						"          {Posting Date} as string,",
-						"          {Requisition Status} as string,",
-						"          {Number of Openings} as string,",
-						"          {Job Title} as string,",
-						"          {Job Function} as string,",
-						"          {Corporate Title} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work Office City} as string,",
-						"          {Work Office State} as string,",
-						"          {Work Office Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          {Hiring Manager Worker ID} as string,",
-						"          {Primary Recruiter Worker ID} as string,",
-						"          {Requisition Other (1)} as string,",
-						"          {Requisition Other (2)} as string,",
-						"          {Requisition Other (3)} as string,",
-						"          {Requisition Other (4)} as string,",
-						"          {Requisition Other (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Requisitions",
-						"Requisitions derive({Event Year - Null} = iif(isNull({Event Year}),1,iif({Event Year}=='N/A',1,0)),",
-						"          {Event Date  - Null} = iif(isNull({Event Date}),1,iif({Event Date}=='N/A',1,0)),",
-						"          {Event - Null} = iif(isNull(Event),1,iif(Event=='N/A',1,0)),",
-						"          {Requisition ID - Null} = iif(isNull({Requisition ID}),1,iif({Requisition ID}=='N/A',1,0)),",
-						"          {Requisition Type - Null} = iif(isNull({Requisition Type}),1,iif({Requisition Type}=='N/A',1,0)),",
-						"          {Posting Date - Null} = iif(isNull({Posting Date}),1,iif({Posting Date}=='N/A',1,0)),",
-						"          {Requisition Status - Null} = iif(isNull({Requisition Status}),1,iif({Requisition Status}=='N/A',1,0)),",
-						"          {Number of Openings - Null} = iif(isNull({Number of Openings}),1,iif({Number of Openings}=='N/A',1,0)),",
-						"          {Job Title - Null} = iif(isNull({Job Title}),1,iif({Job Title}=='N/A',1,0)),",
-						"          {Job Function - Null} = iif(isNull({Job Function}),1,iif({Job Function}=='N/A',1,0)),",
-						"          {Corporate Title - Null} = iif(isNull({Corporate Title}),1,iif({Corporate Title}=='N/A',1,0)),",
-						"          {Work Office Location - Null} = iif(isNull({Work Office Location}),1,iif({Work Office Location}=='N/A',1,0)),",
-						"          {Work City - Null} = iif(isNull({Work Office City}),1,iif({Work Office City}=='N/A',1,0)),",
-						"          {Work State - Null} = iif(isNull({Work Office State}),1,iif({Work Office State}=='N/A',1,0)),",
-						"          {Work Country - Null} = iif(isNull({Work Office Country}),1,iif({Work Office Country}=='N/A',1,0)),",
-						"          {Strategic Work Location Ind - Null} = iif(isNull({Strategic Work Location Ind}),1,iif({Strategic Work Location Ind}=='N/A',1,0)),",
-						"          {Business Group Level 1 - Null} = iif(isNull({Business Group Level 1}),1,iif({Business Group Level 1}=='N/A',1,0)),",
-						"          {Business Group Level 2 - Null} = iif(isNull({Business Group Level 2}),1,iif({Business Group Level 2}=='N/A',1,0)),",
-						"          {Business Group Level 3 - Null} = iif(isNull({Business Group Level 3}),1,iif({Business Group Level 3}=='N/A',1,0)),",
-						"          {Business Group Level 4 - Null} = iif(isNull({Business Group Level 4}),1,iif({Business Group Level 4}=='N/A',1,0)),",
-						"          {Hiring Manager Worker ID - Null} = iif(isNull({Hiring Manager Worker ID}),1,iif({Hiring Manager Worker ID}=='N/A',1,0)),",
-						"          {Primary Recruiter Worker ID - Null} = iif(isNull({Primary Recruiter Worker ID}),1,iif({Primary Recruiter Worker ID}=='N/A',1,0)),",
-						"          {Requisition Other (1) - Null} = iif(isNull({Requisition Other (1)}),1,iif({Requisition Other (1)}=='N/A',1,0)),",
-						"          {Requisition Other (2) - Null} = iif(isNull({Requisition Other (2)}),1,iif({Requisition Other (2)}=='N/A',1,0)),",
-						"          {Requisition Other (3) - Null} = iif(isNull({Requisition Other (3)}),1,iif({Requisition Other (3)}=='N/A',1,0)),",
-						"          {Requisition Other (4) - Null} = iif(isNull({Requisition Other (4)}),1,iif({Requisition Other (4)}=='N/A',1,0)),",
-						"          {Requisition Other (5) - Null} = iif(isNull({Requisition Other (5)}),1,iif({Requisition Other (5)}=='N/A',1,0)),",
-						"          EmpCount = 1,",
-						"          {Event Code} = 'REQ') ~> IdentifyNulls",
-						"IdentifyNulls aggregate(groupBy({Event Review} = {Event Code},",
-						"          {Client ID},",
-						"          {Client Engagement Date}),",
-						"     {Event Year - Null} = sum({Event Year - Null}),",
-						"          {Event Date  - Null} = sum({Event Date  - Null}),",
-						"          {Event - Null} = sum({Event - Null}),",
-						"          {Requisition ID - Null} = sum({Requisition ID - Null}),",
-						"          {Requisition Type - Null} = sum({Requisition Type - Null}),",
-						"          {Posting Date - Null} = sum({Posting Date - Null}),",
-						"          {Requisition Status - Null} = sum({Requisition Status - Null}),",
-						"          {Number of Openings - Null} = sum({Number of Openings - Null}),",
-						"          {Job Title - Null} = sum({Job Title - Null}),",
-						"          {Job Function - Null} = sum({Job Function - Null}),",
-						"          {Corporate Title - Null} = sum({Corporate Title - Null}),",
-						"          {Work Office - Null} = sum({Work Office Location - Null}),",
-						"          {Work City - Null} = sum({Work City - Null}),",
-						"          {Work State - Null} = sum({Work State - Null}),",
-						"          {Work Country - Null} = sum({Work Country - Null}),",
-						"          {Strategic Work Location Ind - Null} = sum({Strategic Work Location Ind - Null}),",
-						"          {Business Group Level 1 - Null} = sum({Business Group Level 1 - Null}),",
-						"          {Business Group Level 2 - Null} = sum({Business Group Level 2 - Null}),",
-						"          {Business Group Level 3 - Null} = sum({Business Group Level 3 - Null}),",
-						"          {Business Group Level 4 - Null} = sum({Business Group Level 4 - Null}),",
-						"          {Hiring Manager Worker ID - Null} = sum({Hiring Manager Worker ID - Null}),",
-						"          {Primary Recruiter Worker ID - Null} = sum({Primary Recruiter Worker ID - Null}),",
-						"          {Requisition Other (1) - Null} = sum({Requisition Other (1) - Null}),",
-						"          {Requisition Other (2) - Null} = sum({Requisition Other (2) - Null}),",
-						"          {Requisition Other (3) - Null} = sum({Requisition Other (2) - Null}),",
-						"          {Requisition Other (4) - Null} = sum({Requisition Other (4) - Null}),",
-						"          {Requisition Other (5) - Null} = sum({Requisition Other (5) - Null}),",
-						"          {Total Records} = sum(EmpCount)) ~> AggregateNullsByColumn",
-						"ChangeColumnNames unpivot(output(",
-						"          {Table Columns} as string,",
-						"          Total as long",
-						"     ),",
-						"     ungroupBy({Event Review},",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Total Records}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> unpivotColumnNames",
-						"derivedColumn1 pivot(groupBy({Event Review},",
-						"          {Table Columns},",
-						"          {Client ID},",
-						"          {Client Engagement Date}),",
-						"     pivotBy({Event Review}),",
-						"     { Null Total} = sum(Total),",
-						"          { Null % of Total} = sum({%}),",
-						"     columnNaming: '$V$N',",
-						"     lateral: false,",
-						"     partitionBy('hash', 1)) ~> pivotEvents",
-						"unpivotColumnNames derive({%} = round(Total/{Total Records}*100,0)) ~> derivedColumn1",
-						"AggregateNullsByColumn select(mapColumn(",
-						"          {Event Review},",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event Year} = {Event Year - Null},",
-						"          {Event Date} = {Event Date  - Null},",
-						"          Event = {Event - Null},",
-						"          {Requisition ID} = {Requisition ID - Null},",
-						"          {Requisition Type} = {Requisition Type - Null},",
-						"          {Posting Date} = {Posting Date - Null},",
-						"          {Requisition Status} = {Requisition Status - Null},",
-						"          {Number of Openings} = {Number of Openings - Null},",
-						"          {Job Title} = {Job Title - Null},",
-						"          {Job Function} = {Job Function - Null},",
-						"          {Corporate Title} = {Corporate Title - Null},",
-						"          {Work Office} = {Work Office - Null},",
-						"          {Work City} = {Work City - Null},",
-						"          {Work State} = {Work State - Null},",
-						"          {Work Country} = {Work Country - Null},",
-						"          {Strategic Work Location Ind} = {Strategic Work Location Ind - Null},",
-						"          {Business Group Level 1} = {Business Group Level 1 - Null},",
-						"          {Business Group Level 2} = {Business Group Level 2 - Null},",
-						"          {Business Group Level 3} = {Business Group Level 3 - Null},",
-						"          {Business Group Level 4} = {Business Group Level 4 - Null},",
-						"          {Hiring Manager Worker ID} = {Hiring Manager Worker ID - Null},",
-						"          {Primary Recruiter Worker ID} = {Primary Recruiter Worker ID - Null},",
-						"          {Requisition Other (1)} = {Requisition Other (1) - Null},",
-						"          {Requisition Other (2)} = {Requisition Other (2) - Null},",
-						"          {Requisition Other (3)} = {Requisition Other (3) - Null},",
-						"          {Requisition Other (4)} = {Requisition Other (4) - Null},",
-						"          {Requisition Other (5)} = {Requisition Other (5) - Null},",
-						"          {Total Records},",
-						"          {Event Review}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> ChangeColumnNames",
-						"pivotEvents sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Template - Null Review Requisitions.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> OutputNullReview"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_Nulls_TalentAssessment')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -6910,6 +6262,369 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-12T20:23:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Req')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_Req",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DeleteAllHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_Req",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Requisitions": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendReqFact": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DeleteAllHistory",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_All_Rec_FactTbl_Req",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_All_Rec_FactTbl_Req",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"Requisition": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Delete_History_No_All": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T20:26:48Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_SilverMedalist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_SilverMedalist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DeleteAllHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_SilverMedalist",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SilverMedalist": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendSilverMedalistFAct": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DeleteAllHistory",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_All_Rec_FactTbl_SilverMedalist",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_All_Rec_FactTbl_SilverMedalist",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"SilverMedalistFactTbl": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Delete_History_No_All": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T17:55:31Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Speedbumps')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_Speedbumps",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_Speedbumps",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Speedbumps": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:44:11Z"
 			},
 			"dependsOn": []
 		}

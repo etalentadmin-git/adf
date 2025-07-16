@@ -25,33 +25,9 @@
 		},
 		"AzureBatch_etalent1storage_properties_typeProperties_poolName": {
 			"type": "string",
-			"defaultValue": "python-pool-1"
+			"defaultValue": "ubuntu001"
 		},
 		"AzureBatch_etalent1storage_properties_typeProperties_accountName": {
-			"type": "string",
-			"defaultValue": "batchacct1"
-		},
-		"AzureBatch_etalent2storage_properties_typeProperties_batchUri": {
-			"type": "string",
-			"defaultValue": "https://batchacct1.centralus.batch.azure.com"
-		},
-		"AzureBatch_etalent2storage_properties_typeProperties_poolName": {
-			"type": "string",
-			"defaultValue": "e-pool-2"
-		},
-		"AzureBatch_etalent2storage_properties_typeProperties_accountName": {
-			"type": "string",
-			"defaultValue": "batchacct1"
-		},
-		"AzureBatch_etalent2storage_pool0_properties_typeProperties_batchUri": {
-			"type": "string",
-			"defaultValue": "https://batchacct1.centralus.batch.azure.com"
-		},
-		"AzureBatch_etalent2storage_pool0_properties_typeProperties_poolName": {
-			"type": "string",
-			"defaultValue": "python-pool-1"
-		},
-		"AzureBatch_etalent2storage_pool0_properties_typeProperties_accountName": {
 			"type": "string",
 			"defaultValue": "batchacct1"
 		}
@@ -1679,45 +1655,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureBatch_etalent2storage')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "test",
-				"annotations": [],
-				"type": "AzureBatch",
-				"typeProperties": {
-					"batchUri": "[parameters('AzureBatch_etalent2storage_properties_typeProperties_batchUri')]",
-					"poolName": "[parameters('AzureBatch_etalent2storage_properties_typeProperties_poolName')]",
-					"accountName": "[parameters('AzureBatch_etalent2storage_properties_typeProperties_accountName')]",
-					"linkedServiceName": {
-						"referenceName": "AzureBlob_Etalent2Storage",
-						"type": "LinkedServiceReference"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureBatch_etalent2storage_pool0')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBatch",
-				"typeProperties": {
-					"batchUri": "[parameters('AzureBatch_etalent2storage_pool0_properties_typeProperties_batchUri')]",
-					"poolName": "[parameters('AzureBatch_etalent2storage_pool0_properties_typeProperties_poolName')]",
-					"accountName": "[parameters('AzureBatch_etalent2storage_pool0_properties_typeProperties_accountName')]",
-					"linkedServiceName": {
-						"referenceName": "AzureBlob_Etalent2Storage",
-						"type": "LinkedServiceReference"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Anonymization_Output_Core')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -2025,6 +1962,975 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_All_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_ApplStatus_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_Applicant_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_ApplStatus_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Applicant_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Applicant_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_ClientInfo_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_ApplStatus_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_ClientInfo_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Core_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_ClientInfo_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Core_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_DivSlate_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_Core_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_DivSlate_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_OtherCore_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_DivSlate_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_OtherCore_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_PerfRating_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_OtherCore_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_PerfRating_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Req_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_PerfRating_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Req_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_SilverMedalist_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_Req_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_SilverMedalist_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Speedbumps_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_SilverMedalist_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Speedbumps_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Talent_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_Speedbumps_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Talent_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_YearRef_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_Talent_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_YearRef_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Hist_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load From Prior Engagement"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:29Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_All_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_Mapping_BusHierarchy_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_ApplicantFlow_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_BusHierarchy_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_ApplicantFlow_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_ApplicantFlow_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_CorpTitle_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_BusHierarchy_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_CorpTitle_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_Disability_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_CorpTitle_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_Disability_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_Ethnicity_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_Disability_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_Ethnicity_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_Event_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_Ethnicity_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_Event_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_Gender_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_Event_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_Gender_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_LGTBQ_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_Gender_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_LGTBQ_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_Location_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_LGTBQ_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_Location_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_PerformanceRating_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_Location_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_PerformanceRating_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_ReqStatus_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_PerformanceRating_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_ReqStatus_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_ReqType_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_ReqStatus_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_ReqType_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_Mapping_Veteran_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_ReqType_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_Veteran_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Hist_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables/Load From Prior Engagement"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:29Z"
+			},
+			"dependsOn": []
 		}
 	]
 }
