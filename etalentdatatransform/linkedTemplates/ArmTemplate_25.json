@@ -13,6 +13,231 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_Nulls_Requisitions')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_JobReq_File",
+								"type": "DatasetReference"
+							},
+							"name": "Requisitions"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputNullReview"
+						}
+					],
+					"transformations": [
+						{
+							"name": "IdentifyNulls",
+							"description": "Calculate whether a null value exists and assign 1 for count."
+						},
+						{
+							"name": "AggregateNullsByColumn",
+							"description": "Count nulls for each column and group by event."
+						},
+						{
+							"name": "unpivotColumnNames",
+							"description": "Unpivot as part of formatting to establish Column Name as the primary dimension column."
+						},
+						{
+							"name": "pivotEvents",
+							"description": "Pivot row to show counts by column names grouped by events."
+						},
+						{
+							"name": "derivedColumn1",
+							"description": "Pivot to show null counts by column name and grouped by events."
+						},
+						{
+							"name": "ChangeColumnNames",
+							"description": "Rename columns to remove 'Null' name tagging."
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Client Engagement Type} as string,",
+						"          {Event Date} as string,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
+						"          EventId as string,",
+						"          Event as string,",
+						"          {Requisition ID} as string,",
+						"          {Requisition Type} as string,",
+						"          {Posting Date} as string,",
+						"          {Requisition Status} as string,",
+						"          {Number of Openings} as string,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Corporate Title} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          {Hiring Manager Worker ID} as string,",
+						"          {Primary Recruiter Worker ID} as string,",
+						"          {Requisition Other (1)} as string,",
+						"          {Requisition Other (2)} as string,",
+						"          {Requisition Other (3)} as string,",
+						"          {Requisition Other (4)} as string,",
+						"          {Requisition Other (5)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Requisitions",
+						"Requisitions derive({Event Year - Null} = iif(isNull({Event Year}),1,iif({Event Year}=='N/A',1,0)),",
+						"          {Event Date  - Null} = iif(isNull({Event Date}),1,iif({Event Date}=='N/A',1,0)),",
+						"          {Event - Null} = iif(isNull(Event),1,iif(Event=='N/A',1,0)),",
+						"          {Requisition ID - Null} = iif(isNull({Requisition ID}),1,iif({Requisition ID}=='N/A',1,0)),",
+						"          {Requisition Type - Null} = iif(isNull({Requisition Type}),1,iif({Requisition Type}=='N/A',1,0)),",
+						"          {Posting Date - Null} = iif(isNull({Posting Date}),1,iif({Posting Date}=='N/A',1,0)),",
+						"          {Requisition Status - Null} = iif(isNull({Requisition Status}),1,iif({Requisition Status}=='N/A',1,0)),",
+						"          {Number of Openings - Null} = iif(isNull({Number of Openings}),1,iif({Number of Openings}=='N/A',1,0)),",
+						"          {Job Title - Null} = iif(isNull({Job Title}),1,iif({Job Title}=='N/A',1,0)),",
+						"          {Job Function - Null} = iif(isNull({Job Function}),1,iif({Job Function}=='N/A',1,0)),",
+						"          {Corporate Title - Null} = iif(isNull({Corporate Title}),1,iif({Corporate Title}=='N/A',1,0)),",
+						"          {Work Office Location - Null} = iif(isNull({Work Office Location}),1,iif({Work Office Location}=='N/A',1,0)),",
+						"          {Work City - Null} = iif(isNull({Work Office City}),1,iif({Work Office City}=='N/A',1,0)),",
+						"          {Work State - Null} = iif(isNull({Work Office State}),1,iif({Work Office State}=='N/A',1,0)),",
+						"          {Work Country - Null} = iif(isNull({Work Office Country}),1,iif({Work Office Country}=='N/A',1,0)),",
+						"          {Strategic Work Location Ind - Null} = iif(isNull({Strategic Work Location Ind}),1,iif({Strategic Work Location Ind}=='N/A',1,0)),",
+						"          {Business Group Level 1 - Null} = iif(isNull({Business Group Level 1}),1,iif({Business Group Level 1}=='N/A',1,0)),",
+						"          {Business Group Level 2 - Null} = iif(isNull({Business Group Level 2}),1,iif({Business Group Level 2}=='N/A',1,0)),",
+						"          {Business Group Level 3 - Null} = iif(isNull({Business Group Level 3}),1,iif({Business Group Level 3}=='N/A',1,0)),",
+						"          {Business Group Level 4 - Null} = iif(isNull({Business Group Level 4}),1,iif({Business Group Level 4}=='N/A',1,0)),",
+						"          {Hiring Manager Worker ID - Null} = iif(isNull({Hiring Manager Worker ID}),1,iif({Hiring Manager Worker ID}=='N/A',1,0)),",
+						"          {Primary Recruiter Worker ID - Null} = iif(isNull({Primary Recruiter Worker ID}),1,iif({Primary Recruiter Worker ID}=='N/A',1,0)),",
+						"          {Requisition Other (1) - Null} = iif(isNull({Requisition Other (1)}),1,iif({Requisition Other (1)}=='N/A',1,0)),",
+						"          {Requisition Other (2) - Null} = iif(isNull({Requisition Other (2)}),1,iif({Requisition Other (2)}=='N/A',1,0)),",
+						"          {Requisition Other (3) - Null} = iif(isNull({Requisition Other (3)}),1,iif({Requisition Other (3)}=='N/A',1,0)),",
+						"          {Requisition Other (4) - Null} = iif(isNull({Requisition Other (4)}),1,iif({Requisition Other (4)}=='N/A',1,0)),",
+						"          {Requisition Other (5) - Null} = iif(isNull({Requisition Other (5)}),1,iif({Requisition Other (5)}=='N/A',1,0)),",
+						"          EmpCount = 1,",
+						"          {Event Code} = 'REQ') ~> IdentifyNulls",
+						"IdentifyNulls aggregate(groupBy({Event Review} = {Event Code},",
+						"          {Client ID},",
+						"          {Client Engagement Date}),",
+						"     {Event Year - Null} = sum({Event Year - Null}),",
+						"          {Event Date  - Null} = sum({Event Date  - Null}),",
+						"          {Event - Null} = sum({Event - Null}),",
+						"          {Requisition ID - Null} = sum({Requisition ID - Null}),",
+						"          {Requisition Type - Null} = sum({Requisition Type - Null}),",
+						"          {Posting Date - Null} = sum({Posting Date - Null}),",
+						"          {Requisition Status - Null} = sum({Requisition Status - Null}),",
+						"          {Number of Openings - Null} = sum({Number of Openings - Null}),",
+						"          {Job Title - Null} = sum({Job Title - Null}),",
+						"          {Job Function - Null} = sum({Job Function - Null}),",
+						"          {Corporate Title - Null} = sum({Corporate Title - Null}),",
+						"          {Work Office - Null} = sum({Work Office Location - Null}),",
+						"          {Work City - Null} = sum({Work City - Null}),",
+						"          {Work State - Null} = sum({Work State - Null}),",
+						"          {Work Country - Null} = sum({Work Country - Null}),",
+						"          {Strategic Work Location Ind - Null} = sum({Strategic Work Location Ind - Null}),",
+						"          {Business Group Level 1 - Null} = sum({Business Group Level 1 - Null}),",
+						"          {Business Group Level 2 - Null} = sum({Business Group Level 2 - Null}),",
+						"          {Business Group Level 3 - Null} = sum({Business Group Level 3 - Null}),",
+						"          {Business Group Level 4 - Null} = sum({Business Group Level 4 - Null}),",
+						"          {Hiring Manager Worker ID - Null} = sum({Hiring Manager Worker ID - Null}),",
+						"          {Primary Recruiter Worker ID - Null} = sum({Primary Recruiter Worker ID - Null}),",
+						"          {Requisition Other (1) - Null} = sum({Requisition Other (1) - Null}),",
+						"          {Requisition Other (2) - Null} = sum({Requisition Other (2) - Null}),",
+						"          {Requisition Other (3) - Null} = sum({Requisition Other (2) - Null}),",
+						"          {Requisition Other (4) - Null} = sum({Requisition Other (4) - Null}),",
+						"          {Requisition Other (5) - Null} = sum({Requisition Other (5) - Null}),",
+						"          {Total Records} = sum(EmpCount)) ~> AggregateNullsByColumn",
+						"ChangeColumnNames unpivot(output(",
+						"          {Table Columns} as string,",
+						"          Total as long",
+						"     ),",
+						"     ungroupBy({Event Review},",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Total Records}),",
+						"     lateral: true,",
+						"     ignoreNullPivots: false) ~> unpivotColumnNames",
+						"derivedColumn1 pivot(groupBy({Event Review},",
+						"          {Table Columns},",
+						"          {Client ID},",
+						"          {Client Engagement Date}),",
+						"     pivotBy({Event Review}),",
+						"     { Null Total} = sum(Total),",
+						"          { Null % of Total} = sum({%}),",
+						"     columnNaming: '$V$N',",
+						"     lateral: false,",
+						"     partitionBy('hash', 1)) ~> pivotEvents",
+						"unpivotColumnNames derive({%} = round(Total/{Total Records}*100,0)) ~> derivedColumn1",
+						"AggregateNullsByColumn select(mapColumn(",
+						"          {Event Review},",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Event Year} = {Event Year - Null},",
+						"          {Event Date} = {Event Date  - Null},",
+						"          Event = {Event - Null},",
+						"          {Requisition ID} = {Requisition ID - Null},",
+						"          {Requisition Type} = {Requisition Type - Null},",
+						"          {Posting Date} = {Posting Date - Null},",
+						"          {Requisition Status} = {Requisition Status - Null},",
+						"          {Number of Openings} = {Number of Openings - Null},",
+						"          {Job Title} = {Job Title - Null},",
+						"          {Job Function} = {Job Function - Null},",
+						"          {Corporate Title} = {Corporate Title - Null},",
+						"          {Work Office} = {Work Office - Null},",
+						"          {Work City} = {Work City - Null},",
+						"          {Work State} = {Work State - Null},",
+						"          {Work Country} = {Work Country - Null},",
+						"          {Strategic Work Location Ind} = {Strategic Work Location Ind - Null},",
+						"          {Business Group Level 1} = {Business Group Level 1 - Null},",
+						"          {Business Group Level 2} = {Business Group Level 2 - Null},",
+						"          {Business Group Level 3} = {Business Group Level 3 - Null},",
+						"          {Business Group Level 4} = {Business Group Level 4 - Null},",
+						"          {Hiring Manager Worker ID} = {Hiring Manager Worker ID - Null},",
+						"          {Primary Recruiter Worker ID} = {Primary Recruiter Worker ID - Null},",
+						"          {Requisition Other (1)} = {Requisition Other (1) - Null},",
+						"          {Requisition Other (2)} = {Requisition Other (2) - Null},",
+						"          {Requisition Other (3)} = {Requisition Other (3) - Null},",
+						"          {Requisition Other (4)} = {Requisition Other (4) - Null},",
+						"          {Requisition Other (5)} = {Requisition Other (5) - Null},",
+						"          {Total Records},",
+						"          {Event Review}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> ChangeColumnNames",
+						"pivotEvents sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Null Review Requisitions.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputNullReview"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_Nulls_TalentAssessment')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -6546,85 +6771,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-12T17:55:31Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Speedbumps')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_FactTbl_Speedbumps",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_FactTbl_Speedbumps",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"Speedbumps": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:44:11Z"
 			},
 			"dependsOn": []
 		}

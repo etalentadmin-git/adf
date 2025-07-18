@@ -13,6 +13,173 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_Tbl_OthCoreAnalysisRef')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Analysis Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Analysis_OtherTbl_Curr",
+								"type": "DatasetReference"
+							},
+							"name": "SourceAnalysisRefOtherCoreCurr"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Analysis_OtherTbl_1P",
+								"type": "DatasetReference"
+							},
+							"name": "SourceAnalysisRefOtherCore1P"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Analysis_OtherTbl_2P",
+								"type": "DatasetReference"
+							},
+							"name": "SourceAnalysisRefOtherCore2P"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Analysis_OtherTbl_3P",
+								"type": "DatasetReference"
+							},
+							"name": "SourceAnalysisRefOtherCore3P"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreAnalysisRefTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendOtherCoreAnalysisTmp"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AssignDerivedColumns"
+						},
+						{
+							"name": "alterRow2"
+						},
+						{
+							"name": "unionAllTimePeriods"
+						},
+						{
+							"name": "RemoveNullTypes"
+						},
+						{
+							"name": "SelectFinalOutput"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Collection_Year as string,",
+						"     Flow_Collection_Quarter as string",
+						"}",
+						"source(output(",
+						"          Id as integer,",
+						"          Type as string,",
+						"          Year as integer,",
+						"          Quarter as integer,",
+						"          Notes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCoreCurr",
+						"source(output(",
+						"          Id as integer,",
+						"          Type as string,",
+						"          Year as integer,",
+						"          Quarter as integer,",
+						"          Notes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCore1P",
+						"source(output(",
+						"          Id as integer,",
+						"          Type as string,",
+						"          Year as integer,",
+						"          Quarter as integer,",
+						"          Notes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCore2P",
+						"source(output(",
+						"          Id as integer,",
+						"          Type as string,",
+						"          Year as integer,",
+						"          Quarter as integer,",
+						"          Notes as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCore3P",
+						"RemoveNullTypes derive(ClientId = $Flow_Client_Id,",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
+						"          DataCollectionYear = toInteger($Flow_Collection_Year),",
+						"          DataCollectionQuarter = toInteger($Flow_Collection_Quarter),",
+						"          Type = concat(concat(concat(concat(concat(toString(Year),'-'),'Q'),toString(Quarter)),' '),Type),",
+						"          LoadDt = currentDate()) ~> AssignDerivedColumns",
+						"SelectFinalOutput alterRow(upsertIf(true())) ~> alterRow2",
+						"SourceAnalysisRefOtherCoreCurr, SourceAnalysisRefOtherCore1P, SourceAnalysisRefOtherCore2P, SourceAnalysisRefOtherCore3P union(byName: true)~> unionAllTimePeriods",
+						"unionAllTimePeriods filter(Type!='N/A') ~> RemoveNullTypes",
+						"AssignDerivedColumns select(mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          DataCollectionYear,",
+						"          DataCollectionQuarter,",
+						"          Type,",
+						"          Notes,",
+						"          LoadDt",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectFinalOutput",
+						"alterRow2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          Type as string,",
+						"          DataCollectionYear as integer,",
+						"          DataCollectionQuarter as integer,",
+						"          Notes as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','DataCollectionYear','DataCollectionQuarter','Type'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          Type,",
+						"          DataCollectionYear,",
+						"          DataCollectionQuarter,",
+						"          Notes,",
+						"          LoadDt",
+						"     )) ~> AppendOtherCoreAnalysisTmp"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_Tbl_OthCoreAnalysis_Curr')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -7719,111 +7886,6 @@
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['BLS_Black_Female_Hisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Black_Female_NonHisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Black_Female_NonHisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Black',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Non-Hispanic or Latino',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Black or African American, Non-Hispanic, women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Black_Female_NonHisp.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink1"
