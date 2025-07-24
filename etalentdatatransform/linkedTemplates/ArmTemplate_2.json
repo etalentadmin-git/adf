@@ -49,6 +49,99 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/etalentTalentFactTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "connection to Talent Fact table",
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Database"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "WorkerId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EventYear",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EventDt",
+						"type": "date"
+					},
+					{
+						"name": "Event",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EventType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PerfRating",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PerfRatingDt",
+						"type": "date"
+					},
+					{
+						"name": "TalentIdentifier1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TalentIdentifier2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TalentIdentifier3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TalentIdentifier4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TalentIdentifier5",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					},
+					{
+						"name": "SalaryRange",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Bonus",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "TalentFactTbl"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/etalentUSCensusSummaryTbl')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2405,108 +2498,6 @@
 						"          Speedbump15Flag,",
 						"          LoadDt",
 						"     )) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent_Hist')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentTalentFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "Talent"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentTalentFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendTalentMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_Hist_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          WorkerId as string,",
-						"          EventYear as integer,",
-						"          EventDt as date,",
-						"          Event as string,",
-						"          EventType as string,",
-						"          PerfRating as string,",
-						"          PerfRatingDt as date,",
-						"          TalentIdentifier1 as string,",
-						"          TalentIdentifier2 as string,",
-						"          TalentIdentifier3 as string,",
-						"          TalentIdentifier4 as string,",
-						"          TalentIdentifier5 as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[TalentFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> Talent",
-						"Talent alterRow(upsertIf(true())) ~> alterRow1",
-						"alterRow1 derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
-						"          LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          WorkerId as string,",
-						"          EventYear as integer,",
-						"          EventDt as date,",
-						"          Event as string,",
-						"          EventType as string,",
-						"          PerfRating as string,",
-						"          PerfRatingDt as date,",
-						"          TalentIdentifier1 as string,",
-						"          TalentIdentifier2 as string,",
-						"          TalentIdentifier3 as string,",
-						"          TalentIdentifier4 as string,",
-						"          TalentIdentifier5 as string,",
-						"          LoadDt as date,",
-						"          SalaryRange as string,",
-						"          Bonus as string",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','EventDt','PerfRating'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
 					]
 				}
 			},

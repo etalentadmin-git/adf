@@ -35,6 +35,10 @@
 			"type": "string",
 			"defaultValue": "scott.prince@elloreetalent.com"
 		},
+		"keyvault_secrets_elloree_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://ElloreeSecureVault.vault.azure.net/"
+		},
 		"UpdatedCoreData_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalent_bamboo/providers/Microsoft.Storage/storageAccounts/etalent1storage"
@@ -97,6 +101,19 @@
 				"type": "AzureSqlDatabase",
 				"typeProperties": {
 					"connectionString": "[parameters('etalentdb_connection_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/keyvault_secrets_elloree')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('keyvault_secrets_elloree_properties_typeProperties_baseUrl')]"
 				}
 			},
 			"dependsOn": []
@@ -2072,72 +2089,6 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "EthnicityMapTbl"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentEventMapTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "connection to gender mapping table",
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Database"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ClientId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEngagementDt",
-						"type": "date"
-					},
-					{
-						"name": "ClientEvent",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEventType",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEventReason",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeEvent",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeEventType",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeEventReason",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeTermReason",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDt",
-						"type": "date"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "EventMapTbl"
 				}
 			},
 			"dependsOn": [
