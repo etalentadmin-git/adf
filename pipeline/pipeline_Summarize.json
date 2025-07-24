@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Custom1",
-				"type": "Custom",
+				"name": "Read DB Name",
+				"type": "WebActivity",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,42 +15,44 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"command": "python3 summarize_applications.py",
-					"resourceLinkedService": {
-						"referenceName": "AzureBlob_Etalent1Storage",
-						"type": "LinkedServiceReference"
-					},
-					"folderPath": "processing/Python",
-					"extendedProperties": {
-						"SQL_DATABASE": {
-							"value": "@Microsoft.KeyVault(SecretName=\"sql-database\")",
-							"type": "Expression"
-						},
-						"SQL_USERNAME": {
-							"value": "@Microsoft.KeyVault(SecretName=\"sql-username\")",
-							"type": "Expression"
-						},
-						"SQL_PASSWORD": {
-							"value": "@Microsoft.KeyVault(SecretName=\"sql-password\")",
-							"type": "Expression"
-						},
-						"azure-blob-connection": {
-							"value": "@Microsoft.KeyVault(SecretName=\"azure-blob-conn\")",
-							"type": "Expression"
-						},
-						"OUTPUT_DIR": "/processing"
-					},
-					"referenceObjects": {
-						"linkedServices": [],
-						"datasets": []
+					"method": "GET",
+					"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-database/f8dcde178f2149989daee6b6a5c83979?api-version=7.0",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
 					}
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Read DB Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
 				},
-				"linkedServiceName": {
-					"referenceName": "AzureBatch_etalent1storage",
-					"type": "LinkedServiceReference"
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "SQL_DATABASE",
+					"value": {
+						"value": "@activity('Read DB Name').output.value",
+						"type": "Expression"
+					}
 				}
 			}
 		],
+		"variables": {
+			"SQL_DATABASE": {
+				"type": "String"
+			}
+		},
 		"folder": {
 			"name": "Client"
 		},
