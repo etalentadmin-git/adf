@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Read DB Name",
-				"type": "WebActivity",
+				"name": "Custom1",
+				"type": "Custom",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,60 +15,8 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"method": "GET",
-					"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-database/f8dcde178f2149989daee6b6a5c83979?api-version=7.0",
-					"authentication": {
-						"type": "MSI",
-						"resource": "https://vault.azure.net"
-					}
-				}
-			},
-			{
-				"name": "Set DB Name Variable",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "Read DB Name",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "SQL_DATABASE",
-					"value": {
-						"value": "@activity('Read DB Name').output.value",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "Custom1",
-				"type": "Custom",
-				"dependsOn": [
-					{
-						"activity": "Set DB Name Variable",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
 					"command": {
-						"value": "@concat('python3 testCredPrint.py', variables('SQL_DATABASE'))",
+						"value": "python3 testCredPrint2.py",
 						"type": "Expression"
 					},
 					"resourceLinkedService": {
