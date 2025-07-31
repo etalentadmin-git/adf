@@ -53,6 +53,29 @@
 						"resource": "https://vault.azure.net"
 					}
 				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ReturnClientVersionValues",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Var_OldClientVersions",
+					"value": [
+						"@skip(activity('ReturnClientVersionValues').output.body.value, 1)"
+					]
+				}
 			}
 		],
 		"parameters": {
@@ -67,6 +90,11 @@
 			},
 			"P_Folder_Quarter": {
 				"type": "string"
+			}
+		},
+		"variables": {
+			"Var_OldClientVersions": {
+				"type": "Array"
 			}
 		},
 		"folder": {
