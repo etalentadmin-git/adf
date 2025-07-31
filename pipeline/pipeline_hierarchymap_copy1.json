@@ -59,7 +59,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "ReturnClientVersionValues",
+						"activity": "Set_LatestClientVersion",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -98,30 +98,67 @@
 					"batchCount": 1,
 					"activities": [
 						{
-							"name": "Web1",
-							"type": "WebActivity",
+							"name": "If_Not_Latest",
+							"type": "IfCondition",
 							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
 							"userProperties": [],
 							"typeProperties": {
-								"method": "DELETE",
-								"url": {
-									"value": "@concat(\n    'https://processingkeyvault-e01.vault.azure.net/secrets/',\n    split(item().id,'/')[4],\n    '/',\n    last(split(item().id,'/')),\n    '?api-version=7.3'\n)\n",
+								"expression": {
+									"value": "@not(equals(item().id, variables('Var_LatestClientVersion').id))",
 									"type": "Expression"
 								},
-								"authentication": {
-									"type": "MSI",
-									"resource": "https://vault.azure.net"
-								}
+								"ifTrueActivities": [
+									{
+										"name": "Web1",
+										"type": "WebActivity",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"method": "DELETE",
+											"url": {
+												"value": "@concat(\n    'https://processingkeyvault-e01.vault.azure.net/secrets/',\n    split(item().id,'/')[4],\n    '/',\n    last(split(item().id,'/')),\n    '?api-version=7.3'\n)\n",
+												"type": "Expression"
+											},
+											"authentication": {
+												"type": "MSI"
+											}
+										}
+									}
+								]
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "Set_LatestClientVersion",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ReturnClientVersionValues",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Var_LatestClientVersion",
+					"value": {
+						"value": "@first(activity('ReturnClientVersionValues').output.value)\n\n",
+						"type": "Expression"
+					}
 				}
 			}
 		],
@@ -142,6 +179,9 @@
 		"variables": {
 			"Var_OldClientVersions": {
 				"type": "Array"
+			},
+			"Var_LatestClientVersion": {
+				"type": "String"
 			}
 		},
 		"folder": {
