@@ -59,7 +59,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "Set_LatestClientVersion",
+						"activity": "Filter_OldClientVersions",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -73,7 +73,7 @@
 				"typeProperties": {
 					"variableName": "Var_OldClientVersions",
 					"value": {
-						"value": "@skip(activity('ReturnClientVersionValues').output.value, 1)",
+						"value": "@activity('Filter_OldClientVersions').output.value\n",
 						"type": "Expression"
 					}
 				}
@@ -158,6 +158,29 @@
 					"variableName": "Var_LatestClientVersion",
 					"value": {
 						"value": "@first(activity('ReturnClientVersionValues').output.value).id\n\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Filter_OldClientVersions",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Set_LatestClientVersion",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ReturnClientVersionValues').output.value\n",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@not(equals(item().id, variables('Var_LatestClientVersion')))\n",
 						"type": "Expression"
 					}
 				}
