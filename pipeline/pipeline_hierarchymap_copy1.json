@@ -97,6 +97,315 @@
 				"typeProperties": {
 					"waitTimeInSeconds": 5
 				}
+			},
+			{
+				"name": "Delete_EngagementDt_Secret",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "SetNewClientValue",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "DELETE",
+					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementDate?api-version=7.3",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Purge_EngagementDt_Secret",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Delete_EngagementDt_Secret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "DELETE",
+					"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/EngagementDate?api-version=7.3",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Wait5ForEngagementDt",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Purge_EngagementDt_Secret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 5
+				}
+			},
+			{
+				"name": "SetNewEngagementDtValue",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Wait5ForEngagementDt",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "PUT",
+					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementDate?api-version=7.3",
+					"body": {
+						"value": "@pipeline().parameters.P_Client_Dt"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Delete_EngagementQuarter_Secret",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "SetNewEngagementDtValue",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "DELETE",
+					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementQuarter?api-version=7.3",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Purge_EngagementQuarter_Secret",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Delete_EngagementQuarter_Secret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "DELETE",
+					"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/EngagementQuarter?api-version=7.3",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Wait5ForEngagementQuarter",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Purge_EngagementQuarter_Secret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 5
+				}
+			},
+			{
+				"name": "SetNewEngagementQuarterValue",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Wait5ForEngagementQuarter",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "PUT",
+					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementQuarter?api-version=7.3",
+					"body": {
+						"value": "@pipeline().parameters.P_Folder_Quarter"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Delete_EngagementYear_Secret",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "SetNewEngagementQuarterValue",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "DELETE",
+					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementYear?api-version=7.3",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Purge_EngagementYear_Secret",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Delete_EngagementYear_Secret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "DELETE",
+					"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/EngagementYear?api-version=7.3",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Wait5ForEngagementYear",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Purge_EngagementYear_Secret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 5
+				}
+			},
+			{
+				"name": "SetNewEngagementYearValue",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Wait5ForEngagementYear",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "PUT",
+					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementYear?api-version=7.3",
+					"body": {
+						"value": "@pipeline().parameters.P_Folder_Year"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
 			}
 		],
 		"parameters": {
