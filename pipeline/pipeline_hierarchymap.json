@@ -5,7 +5,14 @@
 			{
 				"name": "Custom1",
 				"type": "Custom",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Client_Information_Secrets",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -32,27 +39,36 @@
 				}
 			},
 			{
-				"name": "SetClient",
-				"type": "WebActivity",
+				"name": "Client_Information_Secrets",
+				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
 					"secureInput": false
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"method": "PUT",
-					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client/e27040af3d564d7cae2823f6be52081e?api-version=7.3",
-					"body": {
-						"value": "@pipeline().parameters.P_Client_Id",
-						"type": "Expression"
+					"pipeline": {
+						"referenceName": "Client_Information_Secrets",
+						"type": "PipelineReference"
 					},
-					"authentication": {
-						"type": "MSI",
-						"resource": "https://processingkeyvault-e01.vault.azure.net/"
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
 					}
 				}
 			}
