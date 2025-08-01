@@ -5,7 +5,14 @@
 			{
 				"name": "SetNewClientValue",
 				"type": "WebActivity",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Wait5ForClient",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -16,7 +23,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"method": "PUT",
-					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client/e27040af3d564d7cae2823f6be52081e?api-version=7.3",
+					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client?api-version=7.3",
 					"body": {
 						"value": "@pipeline().parameters.P_Client_Id"
 					},
@@ -27,11 +34,32 @@
 				}
 			},
 			{
-				"name": "ReturnClientVersionValues",
+				"name": "Delete_Client_Secret",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "DELETE",
+					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client?api-version=7.3",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Purge_Client_Secret",
 				"type": "WebActivity",
 				"dependsOn": [
 					{
-						"activity": "SetNewClientValue",
+						"activity": "Delete_Client_Secret",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -46,8 +74,8 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"method": "GET",
-					"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client/versions?api-version=7.3",
+					"method": "DELETE",
+					"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/Client?api-version=7.3",
 					"authentication": {
 						"type": "MSI",
 						"resource": "https://vault.azure.net"
@@ -55,35 +83,11 @@
 				}
 			},
 			{
-				"name": "SetArrayOld Client Versions",
-				"type": "SetVariable",
+				"name": "Wait5ForClient",
+				"type": "Wait",
 				"dependsOn": [
 					{
-						"activity": "Filter_OldClientVersions",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "Var_OldClientVersions",
-					"value": {
-						"value": "@activity('Filter_OldClientVersions').output.value\n",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "ForEach_DeleteOldClientVersions",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "SetArrayOld Client Versions",
+						"activity": "Purge_Client_Secret",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -91,98 +95,7 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"items": {
-						"value": "@variables('Var_OldClientVersions')",
-						"type": "Expression"
-					},
-					"batchCount": 1,
-					"activities": [
-						{
-							"name": "If_Not_Latest",
-							"type": "IfCondition",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"expression": {
-									"value": "@not(equals(item().id, variables('Var_LatestClientVersion')))",
-									"type": "Expression"
-								},
-								"ifTrueActivities": [
-									{
-										"name": "Web1",
-										"type": "WebActivity",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"method": "DELETE",
-											"url": {
-												"value": "@concat(\n    'https://processingkeyvault-e01.vault.azure.net/secrets/',\n    split(item().id,'/')[4],\n    '/',\n    last(split(item().id,'/')),\n    '?api-version=7.3'\n)\n",
-												"type": "Expression"
-											},
-											"authentication": {
-												"type": "MSI",
-												"resource": "https://vault.azure.net"
-											}
-										}
-									}
-								]
-							}
-						}
-					]
-				}
-			},
-			{
-				"name": "Set_LatestClientVersion",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "ReturnClientVersionValues",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "Var_LatestClientVersion",
-					"value": {
-						"value": "@first(activity('ReturnClientVersionValues').output.value).id\n\n",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "Filter_OldClientVersions",
-				"type": "Filter",
-				"dependsOn": [
-					{
-						"activity": "Set_LatestClientVersion",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"items": {
-						"value": "@activity('ReturnClientVersionValues').output.value\n",
-						"type": "Expression"
-					},
-					"condition": {
-						"value": "@not(equals(item().id, variables('Var_LatestClientVersion')))\n",
-						"type": "Expression"
-					}
+					"waitTimeInSeconds": 5
 				}
 			}
 		],
