@@ -6,7 +6,14 @@
 			{
 				"name": "Append_FactTbl_Core",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Append_FactTbl_YearRef",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureInput": false
 				},
@@ -35,10 +42,26 @@
 							"type": "Expression"
 						},
 						"P_Delete_History_No_All_Qtr": {
-							"value": "@pipeline().parameters.P_Delete_Hist_Talent_No_All",
+							"value": "@pipeline().parameters.P_Delete_Hist_Core_No_All_Qtr",
 							"type": "Expression"
 						}
 					}
+				}
+			},
+			{
+				"name": "Append_FactTbl_YearRef",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Append_FactTbl_YearRef",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
 				}
 			}
 		],
