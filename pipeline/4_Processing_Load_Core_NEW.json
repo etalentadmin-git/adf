@@ -1,12 +1,19 @@
 {
 	"name": "4_Processing_Load_Core_NEW",
 	"properties": {
-		"description": "Load all fact tables to the database once audit files have been reviewed and any remediation action taken.",
+		"description": "Load the Year Reference Data (Based on Core file) and Core Fact Table Output file to the database.",
 		"activities": [
 			{
 				"name": "Append_FactTbl_Core",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Append_FactTbl_YearRef",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureInput": false
 				},
@@ -36,6 +43,40 @@
 						},
 						"P_Delete_History_No_All_Qtr": {
 							"value": "@pipeline().parameters.P_Delete_Hist_Core_No_All_Qtr",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Append_FactTbl_YearRef",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Append_FactTbl_YearRef",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
 							"type": "Expression"
 						}
 					}
