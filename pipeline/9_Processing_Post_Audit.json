@@ -4,81 +4,11 @@
 		"description": "Load all fact tables to the database once audit files have been reviewed and any remediation action taken.",
 		"activities": [
 			{
-				"name": "Append_FactTbl_All",
-				"type": "ExecutePipeline",
-				"dependsOn": [],
-				"policy": {
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "Append_FactTbl_All",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"P_Client_Id": {
-							"value": "@pipeline().parameters.P_Client_Id",
-							"type": "Expression"
-						},
-						"P_Client_Dt": {
-							"value": "@pipeline().parameters.P_Client_Dt",
-							"type": "Expression"
-						},
-						"P_Folder_Year": {
-							"value": "@pipeline().parameters.P_Folder_Year",
-							"type": "Expression"
-						},
-						"P_Folder_Quarter": {
-							"value": "@pipeline().parameters.P_Folder_Quarter",
-							"type": "Expression"
-						},
-						"P_Delete_Hist_Core_No_All_Qtr": {
-							"value": "@pipeline().parameters.P_Delete_Hist_Core_No_All_Qtr",
-							"type": "Expression"
-						},
-						"P_Delete_Hist_OtherCore_No_All_Qtr": {
-							"value": "@pipeline().parameters.P_Delete_Hist_OtherCore_No_All_Qtr",
-							"type": "Expression"
-						},
-						"P_Delete_Hist_SilverMedal_No_All_Qtr": {
-							"value": "@pipeline().parameters.P_Delete_Hist_SilverMedal_No_All_Qtr",
-							"type": "Expression"
-						},
-						"P_Delete_Hist_Applicant_No_All": {
-							"value": "@pipeline().parameters.P_Delete_Hist_Applicant_No_All",
-							"type": "Expression"
-						},
-						"P_Delete_Hist_ApplicantStatus_No_All": {
-							"value": "@pipeline().parameters.P_Delete_Hist_ApplicantStatus_No_All",
-							"type": "Expression"
-						},
-						"P_Delete_Hist_DiverseSlate_No_All": {
-							"value": "@pipeline().parameters.P_Delete_Hist_DiverseSlate_No_All",
-							"type": "Expression"
-						},
-						"P_Delete_Hist_PerfRatingHist_No_All": {
-							"value": "@pipeline().parameters.P_Delete_Hist_PerfRatingHist_No_All",
-							"type": "Expression"
-						},
-						"P_Delete_Hist_Requisitions_No_All": {
-							"value": "@pipeline().parameters.P_Delete_Hist_Requisitions_No_All",
-							"type": "Expression"
-						},
-						"P_Delete_Hist_Talent_No_All": {
-							"value": "@pipeline().parameters.P_Delete_Hist_Talent_No_All",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			{
 				"name": "Output_AnalysisTemplatePrep_OtherCore",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Append_FactTbl_All",
+						"activity": "Append_FactTbl_Talent",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -112,6 +42,114 @@
 							"type": "Expression"
 						}
 					}
+				}
+			},
+			{
+				"name": "Append_FactTbl_ApplStatus",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Append_FactTbl_ApplStatus",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Append_FactTbl_DivSlate",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Append_FactTbl_ApplStatus",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Append_FactTbl_DivSlate",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Append_FactTbl_PerfRatingHist",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Append_FactTbl_DivSlate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Append_FactTbl_PerfRatingHist",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Append_FactTbl_SilverMedalist",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Append_FactTbl_PerfRatingHist",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Append_FactTbl_SilverMedalist",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Append_FactTbl_Talent",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Append_FactTbl_SilverMedalist",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Append_FactTbl_Talent",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
 				}
 			}
 		],
