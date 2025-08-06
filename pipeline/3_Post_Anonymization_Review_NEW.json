@@ -1,12 +1,19 @@
 {
-	"name": "1_Processing_Pre_Mapping_Existing",
+	"name": "3_Post_Anonymization_Review_NEW",
 	"properties": {
 		"description": "Copy templates from processing to designated year/qrt folders.  Run fact tables for Core, Talent, Req, OtherCore, Applicant and ",
 		"activities": [
 			{
 				"name": "Move_Templates_Into_ClientFldr",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Anonymization_Output_TA",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureInput": false
 				},
@@ -255,47 +262,6 @@
 				}
 			},
 			{
-				"name": "Output_All_Mapping_Files",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "Output_FactTbl_File_Applicant",
-						"dependencyConditions": [
-							"Completed"
-						]
-					}
-				],
-				"policy": {
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "Output_All_Mapping_Files",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"P_Client_Id": {
-							"value": "@pipeline().parameters.P_Client_Id",
-							"type": "Expression"
-						},
-						"P_Client_Dt": {
-							"value": "@pipeline().parameters.P_Client_Dt",
-							"type": "Expression"
-						},
-						"P_Folder_Year": {
-							"value": "@pipeline().parameters.P_Folder_Year",
-							"type": "Expression"
-						},
-						"P_Folder_Quarter": {
-							"value": "@pipeline().parameters.P_Folder_Quarter",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			{
 				"name": "Output_FactTbl_YearRef",
 				"type": "ExecutePipeline",
 				"dependsOn": [
@@ -334,6 +300,68 @@
 							"type": "Expression"
 						}
 					}
+				}
+			},
+			{
+				"name": "Anonymization_Output_Core",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Anonymization_Output_Core",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Anonymization_Output_Other",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Anonymization_Output_Core",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Anonymization_Output_Other",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Anonymization_Output_TA",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Anonymization_Output_Other",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Anonymization_Output_TA",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
 				}
 			}
 		],
