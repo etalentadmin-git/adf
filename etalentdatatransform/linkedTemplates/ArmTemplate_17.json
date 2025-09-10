@@ -13,6 +13,566 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Anonymization_Review_Other')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Creating anonymization review file (this one runs)",
+				"activities": [
+					{
+						"name": "Custom1",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 Anonymization_Review_Otherv3.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Anonymization"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Anonymization_Review_TA')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Creating anonymization review file (this one runs)",
+				"activities": [
+					{
+						"name": "Custom1",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 Anonymization_Review_TAv3.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Anonymization"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_All_Hist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_ApplStatus_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_Applicant_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_ApplStatus_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Applicant_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Applicant_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_ClientInfo_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_ApplStatus_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_ClientInfo_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Core_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_ClientInfo_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Core_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_DivSlate_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_Core_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_DivSlate_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_OtherCore_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_DivSlate_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_OtherCore_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_PerfRating_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_OtherCore_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_PerfRating_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Req_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_PerfRating_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Req_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_SilverMedalist_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_Req_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_SilverMedalist_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Speedbumps_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_SilverMedalist_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Speedbumps_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_Talent_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_Speedbumps_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_Talent_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Append_FactTbl_YearRef_Hist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_FactTbl_Talent_Hist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_FactTbl_YearRef_Hist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Hist_Client_Dt": {
+									"value": "@pipeline().parameters.P_Hist_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Hist_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load From Prior Engagement"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:29Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_Mapping_All_Hist')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1873,21 +2433,508 @@
 					}
 				},
 				"folder": {
-					"name": "Client/Client Setup Routines"
+					"name": "Client/Archive"
 				},
 				"annotations": []
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Output_Mapping_Org')]",
+			"name": "[concat(parameters('factoryName'), '/Output_Mapping_BusHierarchy')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "Creating anonymization review file (this one runs)",
 				"activities": [
 					{
-						"name": "RunPython",
+						"name": "Client_Information_Secrets",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Client_Information_Secrets",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Folder_Year": {
+									"value": "@pipeline().parameters.P_Folder_Year",
+									"type": "Expression"
+								},
+								"P_Folder_Quarter": {
+									"value": "@pipeline().parameters.P_Folder_Quarter",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "RunBusHierarchyMapping",
+						"type": "Custom",
+						"dependsOn": [
+							{
+								"activity": "Client_Information_Secrets",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 HierarchyMappingAnalysis_v16.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RunBusHierarchyLineage",
+						"type": "Custom",
+						"dependsOn": [
+							{
+								"activity": "RunBusHierarchyMapping",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 HierarchyLineageAnalysis_v1.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Create Mapping Table Files"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-11T23:59:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_Summarize')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Read DB Name",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "GET",
+							"headers": {},
+							"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-database/f8dcde178f2149989daee6b6a5c83979?api-version=7.0",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Set DB Name Variable",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Read DB Name",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "SQL_DATABASE",
+							"value": {
+								"value": "@activity('Read DB Name').output.value",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Set Blob Connect Variable",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Read Blob Connection",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "azure-blob-connection",
+							"value": {
+								"value": "@activity('Read Blob Connection').output.value",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Set DB Server Variable",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Read DB Server",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "SQL_SERVER",
+							"value": {
+								"value": "@activity('Read DB Server').output.value",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Set DB User Variable",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Read DB User",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "SQL_USERNAME",
+							"value": {
+								"value": "@activity('Read DB User').output.value",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Set DB PW Variable",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Read DB PW",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "SQL_PASSWORD",
+							"value": {
+								"value": "@activity('Read DB PW').output.value",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Read Blob Connection",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Set DB Name Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "GET",
+							"headers": {},
+							"url": "https://elloreesecurevault.vault.azure.net/secrets/azure-blob-connection/b9d4997570b84fdba6a67f8b4d4795e9?api-version=7.0",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Read DB Server",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Set Blob Connect Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "GET",
+							"headers": {},
+							"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-server/ce2878bb10db479bbd3f1a3afd91901a?api-version=7.0",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Read DB User",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Set DB Server Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "GET",
+							"headers": {},
+							"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-username/fd0c783a9a2b418ab54532229eace065?api-version=7.0",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Read DB PW",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Set DB User Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "GET",
+							"headers": {},
+							"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-password/d3abf941c6334d83aaa8e161cfac79db?api-version=7.0",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Run_Test_PY",
+						"type": "Custom",
+						"dependsOn": [
+							{
+								"activity": "Set DB PW Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 summarize_applications.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"extendedProperties": {
+								"SQL_SERVER": {
+									"value": "@variables('SQL_SERVER')",
+									"type": "Expression"
+								},
+								"SQL_DATABASE": {
+									"value": "@variables('SQL_DATABASE')",
+									"type": "Expression"
+								},
+								"SQL_USERNAME": {
+									"value": "@variables('SQL_USERNAME')",
+									"type": "Expression"
+								},
+								"SQL_PASSWORD": {
+									"value": "@variables('SQL_PASSWORD')",
+									"type": "Expression"
+								},
+								"azure-blob-connection": {
+									"value": "@variables('azure-blob-connection')",
+									"type": "Expression"
+								}
+							},
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"SQL_DATABASE": {
+						"type": "String"
+					},
+					"SQL_SERVER": {
+						"type": "String"
+					},
+					"SQL_USERNAME": {
+						"type": "String"
+					},
+					"SQL_PASSWORD": {
+						"type": "String"
+					},
+					"azure-blob-connection": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Client"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_Summarize_Test')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Custom1",
 						"type": "Custom",
 						"dependsOn": [],
 						"policy": {
@@ -1899,7 +2946,10 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python BusinessMappingTest.py",
+							"command": {
+								"value": "python3 HierarchyMappingAnalysis_v1.py",
+								"type": "Expression"
+							},
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -1920,120 +2970,9 @@
 					"elapsedTimeMetric": {}
 				},
 				"variables": {
-					"ErrorMessage": {
+					"SQL_DATABASE": {
 						"type": "String"
 					}
-				},
-				"folder": {
-					"name": "Client/Client Setup Routines"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Custom1",
-						"type": "Custom",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 Anonymization_Review_Corev2.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "Client/Client Setup Routines"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline_Summarize')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Custom1",
-						"type": "Custom",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 summarize_applications.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"extendedProperties": {
-								"SQL_DATABASE": {
-									"value": "@Microsoft.KeyVault(SecretName=\"sql-database\")",
-									"type": "Expression"
-								},
-								"SQL_USERNAME": {
-									"value": "@Microsoft.KeyVault(SecretName=\"sql-username\")",
-									"type": "Expression"
-								},
-								"SQL_PASSWORD": {
-									"value": "@Microsoft.KeyVault(SecretName=\"sql-password\")",
-									"type": "Expression"
-								},
-								"azure-blob-connection": {
-									"value": "@Microsoft.KeyVault(SecretName=\"azure-blob-conn\")",
-									"type": "Expression"
-								},
-								"OUTPUT_DIR": "/processing"
-							},
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
 				},
 				"folder": {
 					"name": "Client"
@@ -2062,49 +3001,6 @@
 						"userProperties": [],
 						"typeProperties": {
 							"command": "python3 testHelloWorld_blob1.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline_hierarchymap')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Custom1",
-						"type": "Custom",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python HierarchyMapping_v1.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -3822,437 +4718,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> OtherNullRecordOutput"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_PerfRatingHist')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_PerRatingHistory_File",
-								"type": "DatasetReference"
-							},
-							"name": "PerRatingHistory"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentPerfRatingHistFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendTalentMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'yyyy-MM-dd',",
-						"          {Worker ID} as string,",
-						"          {Event Year} as short,",
-						"          {Last Performance Year} as short,",
-						"          {Last Performance Rating Date} as date,",
-						"          {Last Client Performance Rating} as string,",
-						"          {Last Elloree Performance Rating} as string,",
-						"          {Last Elloree Performance Rating Sort Id} as integer,",
-						"          {Last Top Talent Ind} as string,",
-						"          {Curr Performance Year} as short,",
-						"          {Curr Performance Rating Date} as date,",
-						"          {Curr Talent Tag} as string,",
-						"          {Curr Client Performance Rating} as string,",
-						"          {Curr Elloree Performance Rating} as string,",
-						"          {Curr Elloree Performance Rating Sort Id} as integer,",
-						"          {Curr Top Talent Ind} as string,",
-						"          {P1 Performance Year} as short,",
-						"          {P1 Performance Rating Date} as date,",
-						"          {P1 Client Performance Rating} as string,",
-						"          {P1 Elloree Performance Rating} as string,",
-						"          {P1 Elloree Performance Rating Sort Id} as integer,",
-						"          {P1 Top Talent Ind} as string,",
-						"          {P2 Performance Year} as short,",
-						"          {P2 Client Performance Rating} as string,",
-						"          {P2 Performance Rating Date} as date,",
-						"          {P2 Elloree Performance Rating} as string,",
-						"          {P2 Elloree Performance Rating Sort Id} as integer,",
-						"          {P2 Top Talent Ind} as string,",
-						"          {P3 Performance Year} as short,",
-						"          {P3 Client Performance Rating} as string,",
-						"          {P3 Performance Rating Date} as date,",
-						"          {P3 Elloree Performance Rating} as string,",
-						"          {P3 Elloree Performance Rating Sort Id} as integer,",
-						"          {P3 Top Talent Ind} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> PerRatingHistory",
-						"PerRatingHistory alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Worker ID})),",
-						"     deleteIf(isNull({Event Year}))) ~> alterRow1",
-						"derivedColumn1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          EventYear = {Event Year},",
-						"          WorkerId = {Worker ID},",
-						"          LastPerfYear = {Last Performance Year},",
-						"          LastPerfRatingDt = {Last Performance Rating Date},",
-						"          LastClientPerfRating = {Last Client Performance Rating},",
-						"          LastElloreePerfRating = {Last Elloree Performance Rating},",
-						"          LastElloreePerfRatingSortId = {Last Elloree Performance Rating Sort Id},",
-						"          LastTopTalentInd = {Last Top Talent Ind},",
-						"          CurrPerfYear = {Curr Performance Year},",
-						"          CurrPerfRatingDt = {Curr Performance Rating Date},",
-						"          CurrTalentTag = {Curr Talent Tag},",
-						"          CurrClientPerfRating = {Curr Client Performance Rating},",
-						"          CurrElloreePerfRating = {Curr Elloree Performance Rating},",
-						"          CurrElloreePerfRatingSortId = {Curr Elloree Performance Rating Sort Id},",
-						"          CurrTopTalentInd = {Curr Top Talent Ind},",
-						"          P1PerfYear = {P1 Performance Year},",
-						"          P1PerfRatingDt = {P1 Performance Rating Date},",
-						"          P1ClientPerfRating = {P1 Client Performance Rating},",
-						"          P1ElloreePerfRating = {P1 Elloree Performance Rating},",
-						"          P1ElloreePerfRatingSortId = {P1 Elloree Performance Rating Sort Id},",
-						"          P1TopTalentInd = {P1 Top Talent Ind},",
-						"          P2PerfYear = {P2 Performance Year},",
-						"          P2PerfRatingDt = {P2 Performance Rating Date},",
-						"          P2ClientPerfRating = {P2 Client Performance Rating},",
-						"          P2ElloreePerfRating = {P2 Elloree Performance Rating},",
-						"          P2ElloreePerfRatingSortId = {P2 Elloree Performance Rating Sort Id},",
-						"          P2TopTalentInd = {P2 Top Talent Ind},",
-						"          P3PerfYear = {P3 Performance Year},",
-						"          P3PerfRatingDt = {P3 Performance Rating Date},",
-						"          P3ClientPerfRating = {P3 Client Performance Rating},",
-						"          P3ElloreePerfRating = {P3 Elloree Performance Rating},",
-						"          P3ElloreePerfRatingSortId = {P3 Elloree Performance Rating Sort Id},",
-						"          P3TopTalentInd = {P3 Top Talent Ind},",
-						"          LoadDt",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"alterRow1 derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"AlterColumnNamesforMap sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          EventYear as integer,",
-						"          WorkerId as string,",
-						"          LastPerfYear as integer,",
-						"          LastPerfRatingDt as date,",
-						"          LastClientPerfRating as string,",
-						"          LastElloreePerfRating as string,",
-						"          LastElloreePerfRatingSortId as integer,",
-						"          LastTopTalentInd as string,",
-						"          CurrPerfYear as integer,",
-						"          CurrPerfRatingDt as date,",
-						"          CurrTalentTag as string,",
-						"          CurrClientPerfRating as string,",
-						"          CurrElloreePerfRating as string,",
-						"          CurrElloreePerfRatingSortId as integer,",
-						"          CurrTopTalentInd as string,",
-						"          P1PerfYear as integer,",
-						"          P1PerfRatingDt as date,",
-						"          P1ClientPerfRating as string,",
-						"          P1ElloreePerfRating as string,",
-						"          P1ElloreePerfRatingSortId as integer,",
-						"          P1TopTalentInd as string,",
-						"          P2PerfYear as integer,",
-						"          P2PerfRatingDt as date,",
-						"          P2ClientPerfRating as string,",
-						"          P2ElloreePerfRating as string,",
-						"          P2ElloreePerfRatingSortId as integer,",
-						"          P2TopTalentInd as string,",
-						"          P3PerfYear as integer,",
-						"          P3PerfRatingDt as date,",
-						"          P3ClientPerfRating as string,",
-						"          P3ElloreePerfRating as string,",
-						"          P3ElloreePerfRatingSortId as integer,",
-						"          P3TopTalentInd as string,",
-						"          LastTalentTagYear as integer,",
-						"          LastTalentTag as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','WorkerId','EventYear'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt,",
-						"          EventYear,",
-						"          WorkerId,",
-						"          LastPerfYear,",
-						"          LastPerfRatingDt,",
-						"          LastClientPerfRating,",
-						"          LastElloreePerfRating,",
-						"          LastElloreePerfRatingSortId,",
-						"          LastTopTalentInd,",
-						"          CurrPerfYear,",
-						"          CurrPerfRatingDt,",
-						"          CurrTalentTag,",
-						"          CurrClientPerfRating,",
-						"          CurrElloreePerfRating,",
-						"          CurrElloreePerfRatingSortId,",
-						"          CurrTopTalentInd,",
-						"          P1PerfYear,",
-						"          P1PerfRatingDt,",
-						"          P1ClientPerfRating,",
-						"          P1ElloreePerfRating,",
-						"          P1ElloreePerfRatingSortId,",
-						"          P1TopTalentInd,",
-						"          P2PerfYear,",
-						"          P2PerfRatingDt,",
-						"          P2ClientPerfRating,",
-						"          P2ElloreePerfRating,",
-						"          P2ElloreePerfRatingSortId,",
-						"          P2TopTalentInd,",
-						"          P3PerfYear,",
-						"          P3PerfRatingDt,",
-						"          P3ClientPerfRating,",
-						"          P3ElloreePerfRating,",
-						"          P3ElloreePerfRatingSortId,",
-						"          P3TopTalentInd,",
-						"          LoadDt",
-						"     )) ~> AppendTalentMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Req')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_JobReq_File",
-								"type": "DatasetReference"
-							},
-							"name": "Requisitions"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentReqFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendReqFact"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "addLoadDt"
-						},
-						{
-							"name": "RestrictFieldColumnLength"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Engagement Type} as string,",
-						"          {Event Date} as date 'yyyy-MM-dd',",
-						"          EventMonth as integer,",
-						"          {Event Quarter} as integer,",
-						"          {Event Year} as short,",
-						"          EventId as string,",
-						"          Event as string,",
-						"          {Requisition ID} as string,",
-						"          {Requisition Type} as string,",
-						"          {Posting Date} as date 'yyyy-MM-dd',",
-						"          {Requisition Status} as string,",
-						"          {Number of Openings} as integer,",
-						"          {Job Title} as string,",
-						"          {Job Function} as string,",
-						"          {Corporate Title} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work Office City} as string,",
-						"          {Work Office State} as string,",
-						"          {Work Office Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          {Hiring Manager Worker ID} as string,",
-						"          {Primary Recruiter Worker ID} as string,",
-						"          {Requisition Other (1)} as string,",
-						"          {Requisition Other (2)} as string,",
-						"          {Requisition Other (3)} as string,",
-						"          {Requisition Other (4)} as string,",
-						"          {Requisition Other (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Requisitions",
-						"Requisitions alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull(Event)),",
-						"     deleteIf(isNull({Requisition ID}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          EventDt = {Event Date},",
-						"          EventQuarter = {Event Quarter},",
-						"          EventMonth,",
-						"          EventYear = {Event Year},",
-						"          Event,",
-						"          EventId,",
-						"          ReqId = {Requisition ID},",
-						"          ReqType = {Requisition Type},",
-						"          PostingDt = {Posting Date},",
-						"          ReqStatus = {Requisition Status},",
-						"          NumberofOpenings = {Number of Openings},",
-						"          JobTitle = {Job Title},",
-						"          JobFunction = {Job Function},",
-						"          CorpTitle = {Corporate Title},",
-						"          WorkOfficeLoc = {Work Office Location},",
-						"          WorkOfficeCity = {Work Office City},",
-						"          WorkOfficeState = {Work Office State},",
-						"          WorkOfficeCountry = {Work Office Country},",
-						"          WorkStrategicLocInd = {Strategic Work Location Ind},",
-						"          BusinessGrpLvl1 = {Business Group Level 1},",
-						"          BusinessGrpLvl2 = {Business Group Level 2},",
-						"          BusinessGrpLvl3 = {Business Group Level 3},",
-						"          BusinessGrpLvl4 = {Business Group Level 4},",
-						"          HiringMgrWorkerId = {Hiring Manager Worker ID},",
-						"          PrimaryRecruiterWorkerId = {Primary Recruiter Worker ID},",
-						"          ReqOther1 = {Requisition Other (1)},",
-						"          ReqOther2 = {Requisition Other (2)},",
-						"          ReqOther3 = {Requisition Other (3)},",
-						"          ReqOther4 = {Requisition Other (4)},",
-						"          ReqOther5 = {Requisition Other (5)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> addLoadDt",
-						"addLoadDt derive(JobTitle = left(JobTitle,100)) ~> RestrictFieldColumnLength",
-						"RestrictFieldColumnLength sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Event as string,",
-						"          EventId as string,",
-						"          ReqId as string,",
-						"          ReqType as string,",
-						"          PostingDt as date,",
-						"          ReqStatus as string,",
-						"          NumberofOpenings as integer,",
-						"          JobTitle as string,",
-						"          JobFunction as string,",
-						"          CorpTitle as string,",
-						"          WorkOfficeLoc as string,",
-						"          WorkOfficeCity as string,",
-						"          WorkOfficeState as string,",
-						"          WorkOfficeCountry as string,",
-						"          WorkStrategicLocInd as string,",
-						"          BusinessGrpLvl1 as string,",
-						"          BusinessGrpLvl2 as string,",
-						"          BusinessGrpLvl3 as string,",
-						"          BusinessGrpLvl4 as string,",
-						"          HiringMgrWorkerId as string,",
-						"          PrimaryRecruiterWorkerId as string,",
-						"          ReqOther1 as string,",
-						"          ReqOther2 as string,",
-						"          ReqOther3 as string,",
-						"          ReqOther4 as string,",
-						"          ReqOther5 as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','EventDt','EventId','ReqId'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt,",
-						"          EventDt,",
-						"          EventMonth,",
-						"          EventQuarter,",
-						"          EventYear,",
-						"          Event,",
-						"          EventId,",
-						"          ReqId,",
-						"          ReqType,",
-						"          PostingDt,",
-						"          ReqStatus,",
-						"          NumberofOpenings,",
-						"          JobTitle,",
-						"          JobFunction,",
-						"          CorpTitle,",
-						"          WorkOfficeLoc,",
-						"          WorkOfficeCity,",
-						"          WorkOfficeState,",
-						"          WorkOfficeCountry,",
-						"          WorkStrategicLocInd,",
-						"          BusinessGrpLvl1,",
-						"          BusinessGrpLvl2,",
-						"          BusinessGrpLvl3,",
-						"          BusinessGrpLvl4,",
-						"          HiringMgrWorkerId,",
-						"          PrimaryRecruiterWorkerId,",
-						"          ReqOther1,",
-						"          ReqOther2,",
-						"          ReqOther3,",
-						"          ReqOther4,",
-						"          ReqOther5,",
-						"          LoadDt",
-						"     )) ~> AppendReqFact"
 					]
 				}
 			},

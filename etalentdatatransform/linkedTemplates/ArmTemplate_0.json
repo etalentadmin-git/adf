@@ -49,6 +49,1229 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Client_Information_Secrets')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "SetNewClientValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForClient",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Client_Id"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_Client_Secret",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_Client_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_Client_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/Client?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForClient",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_Client_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "Delete_EngagementDt_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewClientValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementDate?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_EngagementDt_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_EngagementDt_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/EngagementDate?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForEngagementDt",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_EngagementDt_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "SetNewEngagementDtValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForEngagementDt",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementDate?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Client_Dt"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_EngagementQuarter_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewEngagementDtValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementQuarter?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_EngagementQuarter_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_EngagementQuarter_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/EngagementQuarter?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForEngagementQuarter",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_EngagementQuarter_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "SetNewEngagementQuarterValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForEngagementQuarter",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementQuarter?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Folder_Quarter"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_EngagementYear_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewEngagementQuarterValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementYear?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_EngagementYear_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_EngagementYear_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/EngagementYear?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForEngagementYear",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_EngagementYear_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "SetNewEngagementYearValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForEngagementYear",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementYear?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Folder_Year"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Python Support"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Survey_Secrets')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "SetNewClientValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForClient",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Client_Id"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_Client_Secret",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_Client_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_Client_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/Client?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForClient",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_Client_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "Delete_EngagementDt_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewClientValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementDate?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_EngagementDt_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_EngagementDt_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/EngagementDate?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForEngagementDt",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_EngagementDt_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "SetNewEngagementDtValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForEngagementDt",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementDate?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Client_Dt"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_Survey_Metric",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewEngagementDtValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/survey-metric?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_Survey_Metrics_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_Survey_Metric",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/survey-metric?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForSurveyMetric",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_Survey_Metrics_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "SetNewSurveyMetricValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForSurveyMetric",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/survey-metric?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Metric_Group"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_EngagementYear_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewSurveyMetricValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementYear?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_EngagementYear_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_EngagementYear_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/EngagementYear?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForEngagementYear",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_EngagementYear_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "SetNewEngagementYearValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForEngagementYear",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementYear?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Year"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_Survey_Title_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewEngagementYearValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/survey-title?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_Survey_Title_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_Survey_Title_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/survey-title?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForSurveyTitleYear",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_Survey_Title_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "SetNewSurveyTitleValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForSurveyTitleYear",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/survey-title?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Survey_Title"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_Survey_Desc_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewSurveyTitleValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/survey-desc?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_Survey_Desc_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_Survey_Desc_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/survey-desc?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForSurveyDesc",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_Survey_Desc_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "SetNewSurveyDescValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForSurveyDesc",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/survey-desc?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Survey_Desc"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_Survey_Event_Codes_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewSurveyDescValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/survey-event-codes?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_Survey_Event_Codes_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_Survey_Event_Codes_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/survey-event-codes?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait5ForSurveyEventCodes",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_Survey_Event_Codes_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "SetNewSurveyEventCodesValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait5ForSurveyEventCodes",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/survey-event-codes?api-version=7.3",
+							"body": {
+								"value": "@{string(split(replace(pipeline().parameters.P_Event_Type_Codes,' ',''),','))}"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Year": {
+						"type": "string"
+					},
+					"P_Metric_Group": {
+						"type": "string"
+					},
+					"P_Survey_Title": {
+						"type": "string"
+					},
+					"P_Survey_Desc": {
+						"type": "string"
+					},
+					"P_Event_Type_Codes": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Python Support"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/RestService1')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -1144,951 +2367,6 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "DisabilityMapTbl"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentDivSlateFactTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "connection to Core Fact table",
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Database"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ClientId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEngagementDt",
-						"type": "date"
-					},
-					{
-						"name": "EventYear",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ReqId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "CandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "WhiteCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntWhiteCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtWhiteCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "WhiteCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntWhiteCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtWhiteCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "BlackCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntBlackCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtBlackCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "BlackCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntBlackCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtBlackCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "LatinxCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntLatinxCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtLatinxCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "LatinxCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntLatinxCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtLatinxCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "AsianCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntAsianCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtAsianCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "AsianCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntAsianCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtAsianCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "TwoPlusRacesCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntTwoPlusRacesCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtTwoPlusRacesCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "TwoPlusRacesCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntTwoPlusRacesCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtTwoPlusRacesCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "OtherCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntOtherCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtOtherCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "OtherCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntOtherCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtOtherCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "MaleCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntMaleCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtMaleCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "MaleCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntMaleCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtMaleCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "FemaleCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntFemaleCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtFemaleCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "FemaleCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntFemaleCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtFemaleCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "OtherGenderCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntOtherGenderCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtOtherGenderCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "OtherGenderCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntOtherGenderCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtOtherGenderCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "PoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntPoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtPoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "PoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntPoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtPoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "DiverseCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntDiverseCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtDiverseCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "DiverseCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntDiverseCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtDiverseCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "FemalePoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntFemalePoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtFemalePoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "FemalePoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntFemalePoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtFemalePoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "FemaleNotPoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntFemaleNotPoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtFemaleNotPoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "FemaleNotPoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntFemaleNotPoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtFemaleNotPoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "NotFemalePoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntNotFemalePoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtNotFemalePoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "NotFemalePoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntNotFemalePoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtNotFemalePoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "NotFemaleNotPoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntNotFemaleNotPoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtNotFemaleNotPoCCandStM",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "NotFemaleNotPoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IntNotFemaleNotPoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ExtNotFemaleNotPoCCandHired",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "DiverseSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntDiverseSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtDiverseSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NoDiverseSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntNoDiverseSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtNoDiverseSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "DiverseHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntDiverseHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtDiverseHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "PoCSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntPoCSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtPoCSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NoPoCSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntNoPoCSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtNoPoCSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "PoCHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntPoCHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtPoCHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "WhiteSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntWhiteSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtWhiteSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NoWhiteSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntNoWhiteSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtNoWhiteSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "WhiteHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntWhiteHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtWhiteHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "BlackSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntBlackSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtBlackSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NoBlackSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntNoBlackSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtNoBlackSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "BlackHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntBlackHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtBlackHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LatinxSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntLatinxSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtLatinxSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NoLatinxSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntNoLatinxSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtNoLatinxSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LatinxHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntLatinxHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtLatinxHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "AsianSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntAsianSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtAsianSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NoAsianSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntNoAsianSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtNoAsianSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "AsianHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntAsianHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtAsianHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "TwoPlusRacesSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntTwoPlusRacesSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtTwoPlusRacesSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NoTwoPlusRacesSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntNoTwoPlusRacesSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtNoTwoPlusRacesSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "TwoPlusRacesHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntTwoPlusRacesHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtTwoPlusRacesHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "OtherRaceSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntOtherRaceSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtOtherRaceSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NoOtherRaceSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntNoOtherRaceSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtNoOtherRaceSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "OtherRaceHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntOtherRaceHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtOtherRaceHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "FemaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntFemaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtFemaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NoFemaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntNoFemaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtNoFemaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "FemaleHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntFemaleHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtFemaleHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "MaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntMaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtMaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NoMaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntNoMaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtNoMaleSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "MaleHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IntMaleHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ExtMaleHiredSlate",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDt",
-						"type": "date"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "TASlateFactTbl"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentEthnicityMapTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "connection to gender mapping table",
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Database"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ClientId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEngagementDt",
-						"type": "date"
-					},
-					{
-						"name": "ClientRace",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientHispanicLatinoOrigin",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeRace",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeHispanicLatinoOrigin",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeEthnicGroup",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDt",
-						"type": "date"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "EthnicityMapTbl"
 				}
 			},
 			"dependsOn": [

@@ -13,6 +13,324 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_SilverMedalist_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentSilverMedalistFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "SilverMedalist"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentSilverMedalistFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendSilverMedalistFAct"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventYear as integer,",
+						"          ReqId as string,",
+						"          ApplId as string,",
+						"          IntWorkerId as string,",
+						"          SilverMedalistInd as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TASilverMedalistFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> SilverMedalist",
+						"SilverMedalist alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventYear as integer,",
+						"          ReqId as string,",
+						"          ApplId as string,",
+						"          IntWorkerId as string,",
+						"          SilverMedalistInd as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventYear','ReqId','ApplId'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendSilverMedalistFAct"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Speedbumps_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentSpeedbumpsFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "Speedbumps"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentSpeedbumpsFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          WorkerId as string,",
+						"          SpeedbumpPopulationInd as string,",
+						"          Speedbump1Name as string,",
+						"          Speedbump1Desc as string,",
+						"          Speedbump1Flag as string,",
+						"          Speedbump2Name as string,",
+						"          Speedbump2Desc as string,",
+						"          Speedbump2Flag as string,",
+						"          Speedbump3Name as string,",
+						"          Speedbump3Desc as string,",
+						"          Speedbump3Flag as string,",
+						"          Speedbump4Name as string,",
+						"          Speedbump4Desc as string,",
+						"          Speedbump4Flag as string,",
+						"          Speedbump5Name as string,",
+						"          Speedbump5Desc as string,",
+						"          Speedbump5Flag as string,",
+						"          Speedbump6Name as string,",
+						"          Speedbump6Desc as string,",
+						"          Speedbump6Flag as string,",
+						"          Speedbump7Name as string,",
+						"          Speedbump7Desc as string,",
+						"          Speedbump7Flag as string,",
+						"          Speedbump8Name as string,",
+						"          Speedbump8Desc as string,",
+						"          Speedbump8Flag as string,",
+						"          Speedbump9Name as string,",
+						"          Speedbump9Desc as string,",
+						"          Speedbump9Flag as string,",
+						"          Speedbump10Name as string,",
+						"          Speedbump10Desc as string,",
+						"          Speedbump10Flag as string,",
+						"          Speedbump11Name as string,",
+						"          Speedbump11Desc as string,",
+						"          Speedbump11Flag as string,",
+						"          Speedbump12Name as string,",
+						"          Speedbump12Desc as string,",
+						"          Speedbump12Flag as string,",
+						"          Speedbump13Name as string,",
+						"          Speedbump13Desc as string,",
+						"          Speedbump13Flag as string,",
+						"          Speedbump14Name as string,",
+						"          Speedbump14Desc as string,",
+						"          Speedbump14Flag as string,",
+						"          Speedbump15Name as string,",
+						"          Speedbump15Desc as string,",
+						"          Speedbump15Flag as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[SpeedbumpsFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> Speedbumps",
+						"Speedbumps alterRow(upsertIf(true())) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate(),",
+						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          CoreEventId as string,",
+						"          CoreEventQuarter as integer,",
+						"          CoreEventDate as date,",
+						"          WorkerId as string,",
+						"          SpeedbumnpWorkerStatus as string,",
+						"          SpeedbumpPopulationInd as string,",
+						"          Speedbump1Name as string,",
+						"          Speedbump1Desc as string,",
+						"          Speedbump1Flag as string,",
+						"          Speedbump2Name as string,",
+						"          Speedbump2Desc as string,",
+						"          Speedbump2Flag as string,",
+						"          Speedbump3Name as string,",
+						"          Speedbump3Desc as string,",
+						"          Speedbump3Flag as string,",
+						"          Speedbump4Name as string,",
+						"          Speedbump4Desc as string,",
+						"          Speedbump4Flag as string,",
+						"          Speedbump5Name as string,",
+						"          Speedbump5Desc as string,",
+						"          Speedbump5Flag as string,",
+						"          Speedbump6Name as string,",
+						"          Speedbump6Desc as string,",
+						"          Speedbump6Flag as string,",
+						"          Speedbump7Name as string,",
+						"          Speedbump7Desc as string,",
+						"          Speedbump7Flag as string,",
+						"          Speedbump8Name as string,",
+						"          Speedbump8Desc as string,",
+						"          Speedbump8Flag as string,",
+						"          Speedbump9Name as string,",
+						"          Speedbump9Desc as string,",
+						"          Speedbump9Flag as string,",
+						"          Speedbump10Name as string,",
+						"          Speedbump10Desc as string,",
+						"          Speedbump10Flag as string,",
+						"          Speedbump11Name as string,",
+						"          Speedbump11Desc as string,",
+						"          Speedbump11Flag as string,",
+						"          Speedbump12Name as string,",
+						"          Speedbump12Desc as string,",
+						"          Speedbump12Flag as string,",
+						"          Speedbump13Name as string,",
+						"          Speedbump13Desc as string,",
+						"          Speedbump13Flag as string,",
+						"          Speedbump14Name as string,",
+						"          Speedbump14Desc as string,",
+						"          Speedbump14Flag as string,",
+						"          Speedbump15Name as string,",
+						"          Speedbump15Desc as string,",
+						"          Speedbump15Flag as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','WorkerId','EventYear'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          EventQuarter,",
+						"          EventYear,",
+						"          WorkerId,",
+						"          SpeedbumpPopulationInd,",
+						"          Speedbump1Name,",
+						"          Speedbump1Desc,",
+						"          Speedbump1Flag,",
+						"          Speedbump2Name,",
+						"          Speedbump2Desc,",
+						"          Speedbump2Flag,",
+						"          Speedbump3Name,",
+						"          Speedbump3Desc,",
+						"          Speedbump3Flag,",
+						"          Speedbump4Name,",
+						"          Speedbump4Desc,",
+						"          Speedbump4Flag,",
+						"          Speedbump5Name,",
+						"          Speedbump5Desc,",
+						"          Speedbump5Flag,",
+						"          Speedbump6Name,",
+						"          Speedbump6Desc,",
+						"          Speedbump6Flag,",
+						"          Speedbump7Name,",
+						"          Speedbump7Desc,",
+						"          Speedbump7Flag,",
+						"          Speedbump8Name,",
+						"          Speedbump8Desc,",
+						"          Speedbump8Flag,",
+						"          Speedbump9Name,",
+						"          Speedbump9Desc,",
+						"          Speedbump9Flag,",
+						"          Speedbump10Name,",
+						"          Speedbump10Desc,",
+						"          Speedbump10Flag,",
+						"          Speedbump11Name,",
+						"          Speedbump11Desc,",
+						"          Speedbump11Flag,",
+						"          Speedbump12Name,",
+						"          Speedbump12Desc,",
+						"          Speedbump12Flag,",
+						"          Speedbump13Name,",
+						"          Speedbump13Desc,",
+						"          Speedbump13Flag,",
+						"          Speedbump14Name,",
+						"          Speedbump14Desc,",
+						"          Speedbump14Flag,",
+						"          Speedbump15Name,",
+						"          Speedbump15Desc,",
+						"          Speedbump15Flag,",
+						"          LoadDt",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent_Hist')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1688,210 +2006,6 @@
 						"          ApplicantCountry as string,",
 						"          ApplDt as date,",
 						"          ApplFinalDispDt as date",
-						"     ),",
-						"     deletable:true,",
-						"     insertable:false,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     keys:['ClientId','ClientEngagementDt'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_All_Rec_FactTbl_ApplicantStatus')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Delete Records/Fact Tables/All Records"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentApplStatusFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "ApplicantStatus"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentApplStatusFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "DeleteRecords"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ApplId as string,",
-						"          ReqId as string,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Applicants as integer,",
-						"          WhiteAppl as integer,",
-						"          BlackAppl as integer,",
-						"          LatinxAppl as integer,",
-						"          AsianAppl as integer,",
-						"          TwoorMoreAppl as integer,",
-						"          OtherAppl as integer,",
-						"          DNSIDAppl as integer,",
-						"          PoCAppl as integer,",
-						"          FemaleAppl as integer,",
-						"          MaleAppl as integer,",
-						"          OtherGenderAppl as integer,",
-						"          DNSIDGenderAppl as integer,",
-						"          DiverseAppl as integer,",
-						"          ApplRejected as integer,",
-						"          ApplWithdrew as integer,",
-						"          Candidates as integer,",
-						"          CandRejectedHR as integer,",
-						"          CandStM as integer,",
-						"          CandRejectedHM as integer,",
-						"          CandInterviewed as integer,",
-						"          CandHired as integer,",
-						"          CandWithdrew as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[TAApplStatusFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-						"     format: 'query') ~> ApplicantStatus",
-						"ApplicantStatus alterRow(deleteIf(true())) ~> alterRow1",
-						"alterRow1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ApplId as string,",
-						"          ReqId as string,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Applicants as integer,",
-						"          WhiteAppl as integer,",
-						"          BlackAppl as integer,",
-						"          LatinxAppl as integer,",
-						"          AsianAppl as integer,",
-						"          TwoorMoreAppl as integer,",
-						"          OtherAppl as integer,",
-						"          DNSIDAppl as integer,",
-						"          PoCAppl as integer,",
-						"          FemaleAppl as integer,",
-						"          MaleAppl as integer,",
-						"          OtherGenderAppl as integer,",
-						"          DNSIDGenderAppl as integer,",
-						"          DiverseAppl as integer,",
-						"          ApplRejected as integer,",
-						"          ApplWithdrew as integer,",
-						"          Candidates as integer,",
-						"          CandRejectedHR as integer,",
-						"          CandStM as integer,",
-						"          CandRejectedHM as integer,",
-						"          CandInterviewed as integer,",
-						"          CandHired as integer,",
-						"          CandWithdrew as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:true,",
-						"     insertable:false,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     keys:['ClientId','ClientEngagementDt'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_All_Rec_FactTbl_Client')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Delete Records/Fact Tables/All Records"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentClientTbl",
-								"type": "DatasetReference"
-							},
-							"name": "ClientTbl"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentClientTbl",
-								"type": "DatasetReference"
-							},
-							"name": "DeleteRecords"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
-						"          ClientSector as string,",
-						"          ClientDesc as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[ClientTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-						"     format: 'query') ~> ClientTbl",
-						"ClientTbl alterRow(deleteIf(true())) ~> alterRow1",
-						"alterRow1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
-						"          ClientSector as string,",
-						"          ClientDesc as string,",
-						"          LoadDt as date",
 						"     ),",
 						"     deletable:true,",
 						"     insertable:false,",
