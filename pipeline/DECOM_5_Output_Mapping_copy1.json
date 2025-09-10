@@ -1,16 +1,162 @@
 {
-	"name": "2_Processing_Post_Mapping",
+	"name": "DECOM_5_Output_Mapping_copy1",
 	"properties": {
-		"description": "Load Working Mapping Files to the database.  Output the Diverse Slate Fact tables, Perf Rating History Fact Table, Silver Medalist Fact Table and Speedbumps.   Output audit reports.",
+		"description": "Copy templates from processing to designated year/qrt folders.  Run fact tables for Core, Talent, Req, OtherCore, Applicant and ",
 		"activities": [
 			{
-				"name": "Append_Mapping_All",
+				"name": "Output_FactTbl_File_Applicant",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Output_FactTbl_File_OtherCore",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_FactTbl_File_Applicant",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						},
+						"P_Qtr_Start_Mnth": {
+							"value": "@pipeline().parameters.P_Qtr_Start_Mnth",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Output_FactTbl_File_OtherCore",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Output_FactTbl_YearRef",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_FactTbl_File_OtherCore",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						},
+						"P_Qtr_Start_Mnth": {
+							"value": "@pipeline().parameters.P_Qtr_Start_Mnth",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Append_FactTbl_ClientInfo",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "Append_Mapping_All",
+						"referenceName": "Append_FactTbl_ClientInfo",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						},
+						"P_Client_Engagement_Type": {
+							"value": "@pipeline().parameters.P_Client_Engagement_Type",
+							"type": "Expression"
+						},
+						"P_Client_Desc": {
+							"value": "@pipeline().parameters.P_Client_Desc",
+							"type": "Expression"
+						},
+						"P_Client_Sector": {
+							"value": "@pipeline().parameters.P_Client_Sector",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Output_All_Mapping_Files",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Output_FactTbl_File_Applicant",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Output_All_Mapping_Files",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
@@ -35,20 +181,23 @@
 				}
 			},
 			{
-				"name": "Output_FactTbl_File_ApplStatus",
+				"name": "Output_FactTbl_YearRef",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Append_Mapping_All",
+						"activity": "Append_FactTbl_ClientInfo",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					}
 				],
+				"policy": {
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "Output_FactTbl_File_ApplStatus",
+						"referenceName": "Output_FactTbl_YearRef",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
@@ -73,138 +222,23 @@
 				}
 			},
 			{
-				"name": "Output_FactTbl_File_DivSlate",
+				"name": "Output_Review_Anonymization",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Output_FactTbl_File_ApplStatus",
+						"activity": "Output_All_Mapping_Files",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
+				"policy": {
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "Output_FactTbl_File_DivSlate",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"P_Client_Id": {
-							"value": "@pipeline().parameters.P_Client_Id",
-							"type": "Expression"
-						},
-						"P_Client_Dt": {
-							"value": "@pipeline().parameters.P_Client_Dt",
-							"type": "Expression"
-						},
-						"P_Folder_Year": {
-							"value": "@pipeline().parameters.P_Folder_Year",
-							"type": "Expression"
-						},
-						"P_Folder_Quarter": {
-							"value": "@pipeline().parameters.P_Folder_Quarter",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			{
-				"name": "Output_FactTbl_File_SilverMedalist",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "Output_FactTbl_File_PerfRatingHist",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "Output_FactTbl_File_SilverMedalist",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"P_Client_Id": {
-							"value": "@pipeline().parameters.P_Client_Id",
-							"type": "Expression"
-						},
-						"P_Client_Dt": {
-							"value": "@pipeline().parameters.P_Client_Dt",
-							"type": "Expression"
-						},
-						"P_Folder_Year": {
-							"value": "@pipeline().parameters.P_Folder_Year",
-							"type": "Expression"
-						},
-						"P_Folder_Quarter": {
-							"value": "@pipeline().parameters.P_Folder_Quarter",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			{
-				"name": "Output_FactTbl_File_PerfRatingHist",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "Output_FactTbl_File_DivSlate",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "Output_FactTbl_File_PerfRatingHist",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"P_Client_Id": {
-							"value": "@pipeline().parameters.P_Client_Id",
-							"type": "Expression"
-						},
-						"P_Client_Dt": {
-							"value": "@pipeline().parameters.P_Client_Dt",
-							"type": "Expression"
-						},
-						"P_Folder_Year": {
-							"value": "@pipeline().parameters.P_Folder_Year",
-							"type": "Expression"
-						},
-						"P_Folder_Quarter": {
-							"value": "@pipeline().parameters.P_Folder_Quarter",
-							"type": "Expression"
-						},
-						"P_Replace_Curr_With_P1_Y_N": {
-							"value": "@pipeline().parameters.P_Replace_Curr_PerfHist_Y_N",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			{
-				"name": "Output_Review_All",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "Output_FactTbl_File_SilverMedalist",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "Output_Review_All",
+						"referenceName": "Output_Review_Anonymization",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
@@ -242,12 +276,21 @@
 			"P_Folder_Quarter": {
 				"type": "string"
 			},
-			"P_Replace_Curr_PerfHist_Y_N": {
+			"P_Client_Engagement_Type": {
+				"type": "string"
+			},
+			"P_Client_Desc": {
+				"type": "string"
+			},
+			"P_Client_Sector": {
+				"type": "string"
+			},
+			"P_Qtr_Start_Mnth": {
 				"type": "string"
 			}
 		},
 		"folder": {
-			"name": "Client/Client Setup Routines"
+			"name": "Client/Client Setup Routines/Decommissioned"
 		},
 		"annotations": [],
 		"lastPublishTime": "2023-01-12T15:58:24Z"

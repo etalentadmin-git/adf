@@ -1,0 +1,119 @@
+{
+	"name": "4_Processing_Load_Applicant_Req",
+	"properties": {
+		"description": "Load Applicant and Requisition Output files to the database.",
+		"activities": [
+			{
+				"name": "Append_FactTbl_Applicant",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Append_FactTbl_Applicant",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						},
+						"P_Delete_History_No_All": {
+							"value": "@pipeline().parameters.P_Delete_Hist_Applicant_No_All",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Append_FactTbl_Req",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Append_FactTbl_Applicant",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Append_FactTbl_Req",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						},
+						"P_Delete_History_No_All": {
+							"value": "@pipeline().parameters.P_Delete_Hist_Requisitions_No_All",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"P_Client_Id": {
+				"type": "string"
+			},
+			"P_Client_Dt": {
+				"type": "string"
+			},
+			"P_Folder_Year": {
+				"type": "string"
+			},
+			"P_Folder_Quarter": {
+				"type": "string"
+			},
+			"P_Delete_Hist_Applicant_No_All": {
+				"type": "string",
+				"defaultValue": "No"
+			},
+			"P_Delete_Hist_Requisitions_No_All": {
+				"type": "string",
+				"defaultValue": "No"
+			}
+		},
+		"folder": {
+			"name": "Client/Client Setup Routines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-12T20:31:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

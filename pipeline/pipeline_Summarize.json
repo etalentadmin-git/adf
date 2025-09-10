@@ -3,9 +3,269 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Custom1",
-				"type": "Custom",
+				"name": "Read DB Name",
+				"type": "WebActivity",
 				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-database/f8dcde178f2149989daee6b6a5c83979?api-version=7.0",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Set DB Name Variable",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Read DB Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "SQL_DATABASE",
+					"value": {
+						"value": "@activity('Read DB Name').output.value",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Blob Connect Variable",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Read Blob Connection",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "azure-blob-connection",
+					"value": {
+						"value": "@activity('Read Blob Connection').output.value",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set DB Server Variable",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Read DB Server",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "SQL_SERVER",
+					"value": {
+						"value": "@activity('Read DB Server').output.value",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set DB User Variable",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Read DB User",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "SQL_USERNAME",
+					"value": {
+						"value": "@activity('Read DB User').output.value",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set DB PW Variable",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Read DB PW",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "SQL_PASSWORD",
+					"value": {
+						"value": "@activity('Read DB PW').output.value",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Read Blob Connection",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Set DB Name Variable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://elloreesecurevault.vault.azure.net/secrets/azure-blob-connection/b9d4997570b84fdba6a67f8b4d4795e9?api-version=7.0",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Read DB Server",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Set Blob Connect Variable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-server/ce2878bb10db479bbd3f1a3afd91901a?api-version=7.0",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Read DB User",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Set DB Server Variable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-username/fd0c783a9a2b418ab54532229eace065?api-version=7.0",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Read DB PW",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Set DB User Variable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-password/d3abf941c6334d83aaa8e161cfac79db?api-version=7.0",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Run_Test_PY",
+				"type": "Custom",
+				"dependsOn": [
+					{
+						"activity": "Set DB PW Variable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -22,23 +282,26 @@
 					},
 					"folderPath": "processing/Python",
 					"extendedProperties": {
+						"SQL_SERVER": {
+							"value": "@variables('SQL_SERVER')",
+							"type": "Expression"
+						},
 						"SQL_DATABASE": {
-							"value": "@Microsoft.KeyVault(SecretName=\"sql-database\")",
+							"value": "@variables('SQL_DATABASE')",
 							"type": "Expression"
 						},
 						"SQL_USERNAME": {
-							"value": "@Microsoft.KeyVault(SecretName=\"sql-username\")",
+							"value": "@variables('SQL_USERNAME')",
 							"type": "Expression"
 						},
 						"SQL_PASSWORD": {
-							"value": "@Microsoft.KeyVault(SecretName=\"sql-password\")",
+							"value": "@variables('SQL_PASSWORD')",
 							"type": "Expression"
 						},
 						"azure-blob-connection": {
-							"value": "@Microsoft.KeyVault(SecretName=\"azure-blob-conn\")",
+							"value": "@variables('azure-blob-connection')",
 							"type": "Expression"
-						},
-						"OUTPUT_DIR": "/processing"
+						}
 					},
 					"referenceObjects": {
 						"linkedServices": [],
@@ -51,6 +314,23 @@
 				}
 			}
 		],
+		"variables": {
+			"SQL_DATABASE": {
+				"type": "String"
+			},
+			"SQL_SERVER": {
+				"type": "String"
+			},
+			"SQL_USERNAME": {
+				"type": "String"
+			},
+			"SQL_PASSWORD": {
+				"type": "String"
+			},
+			"azure-blob-connection": {
+				"type": "String"
+			}
+		},
 		"folder": {
 			"name": "Client"
 		},
