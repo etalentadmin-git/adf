@@ -1,0 +1,74 @@
+{
+	"name": "10_Load_Manager_Hrchy",
+	"properties": {
+		"description": "Optional Pipeline to load Client Survey Data grouped by Managers and cohort groups for aggregated score analysis.  One Survey Metric (Group) can be loaded for each run.",
+		"activities": [
+			{
+				"name": "LoadMgrHrchyTable",
+				"type": "Custom",
+				"dependsOn": [
+					{
+						"activity": "Client_Information_Secrets",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"command": "python3 ManagerHierarchyPop_v1.py",
+					"resourceLinkedService": {
+						"referenceName": "AzureBlob_Etalent1Storage",
+						"type": "LinkedServiceReference"
+					},
+					"folderPath": "processing/Python",
+					"referenceObjects": {
+						"linkedServices": [],
+						"datasets": []
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureBatch_etalent1storage",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Client_Information_Secrets",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Client_Information_Secrets",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"parameters": {
+			"P_Client_Id": {
+				"type": "string"
+			},
+			"P_Client_Dt": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Client/Client Setup Routines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-12T15:58:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
