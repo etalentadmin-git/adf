@@ -13,6 +13,284 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Location')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_Location",
+								"type": "DatasetReference"
+							},
+							"name": "Location"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentLocationMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendLocationMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Work Office Location} as string,",
+						"          {Client Work City} as string,",
+						"          {Client Work State} as string,",
+						"          {Client Work Country} as string,",
+						"          {Client Strategic Work Location Ind} as string,",
+						"          {Elloree Work Ofiice} as string,",
+						"          {Elloree Work City} as string,",
+						"          {Elloree Work State} as string,",
+						"          {Elloree Work Country} as string,",
+						"          {Elloree Work Region} as string,",
+						"          {Elloree Strategic Location} as string,",
+						"          {Elloree Location Sort Id} as string,",
+						"          {Suggested Elloree Work Office} as string,",
+						"          {Suggested Elloree Work City} as string,",
+						"          {Suggested Elloree Work State} as string,",
+						"          {Suggested Elloree Work Country} as string,",
+						"          {Suggested Elloree Work Region} as string,",
+						"          {Suggested Elloree Strategic Location} as string,",
+						"          {Suggested Elloree Location Sort Id} as string,",
+						"          {Suggested Source} as string,",
+						"          {Location Identifier 1} as string,",
+						"          {Location Identifier 2} as string,",
+						"          {Location Identifier 3} as string,",
+						"          {Location Identifier 4} as string,",
+						"          {Location Identifier 5} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promotion} as string,",
+						"          {2020 Termination} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promotion} as string,",
+						"          {2021 Requisition} as string,",
+						"          {2021 Termination} as string,",
+						"          {2022 Headcount} as string,",
+						"          {2022 Hire} as string,",
+						"          {2022 Promotion} as string,",
+						"          {2022 Requisition} as string,",
+						"          {2022 Termination} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Location",
+						"Location alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Elloree Work Region})),",
+						"     deleteIf(isNull({Elloree Work Country})),",
+						"     deleteIf(isNull({Elloree Work State})),",
+						"     deleteIf(isNull({Elloree Work City})),",
+						"     deleteIf(isNull({Elloree Work Ofiice})),",
+						"     deleteIf(isNull({Elloree Location Sort Id}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date},",
+						"          ClientWorkOffice = {Client Work Office Location},",
+						"          ClientWorkCity = {Client Work City},",
+						"          ClientWorkState = {Client Work State},",
+						"          ClientWorkCountry = {Client Work Country},",
+						"          ClientStrategicLoc = {Client Strategic Work Location Ind},",
+						"          ElloreeWorkOfiice = {Elloree Work Ofiice},",
+						"          ElloreeWorkCity = {Elloree Work City},",
+						"          ElloreeWorkState = {Elloree Work State},",
+						"          ElloreeWorkCountry = {Elloree Work Country},",
+						"          ElloreeWorkRegion = {Elloree Work Region},",
+						"          ElloreeStrategicLoc = {Elloree Strategic Location},",
+						"          ElloreeLocSortId = {Elloree Location Sort Id},",
+						"          LocationIdentifier1 = {Location Identifier 1},",
+						"          LocationIdentifier2 = {Location Identifier 2},",
+						"          LocationIdentifier3 = {Location Identifier 3},",
+						"          LocationIdentifier4 = {Location Identifier 4},",
+						"          LocationIdentifier5 = {Location Identifier 5}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientWorkOffice as string,",
+						"          ClientWorkCity as string,",
+						"          ClientWorkState as string,",
+						"          ClientWorkCountry as string,",
+						"          ClientStrategicLoc as string,",
+						"          ElloreeWorkOffice as string,",
+						"          ElloreeWorkCity as string,",
+						"          ElloreeWorkState as string,",
+						"          ElloreeWorkCountry as string,",
+						"          ElloreeWorkRegion as string,",
+						"          ElloreeStrategicLoc as string,",
+						"          ElloreeLocSortId as integer,",
+						"          LocationIdentifier1 as string,",
+						"          LocationIdentifier2 as string,",
+						"          LocationIdentifier3 as string,",
+						"          LocationIdentifier4 as string,",
+						"          LocationIdentifier5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientWorkOffice','ClientWorkCountry','ClientWorkState','ClientWorkCity','ClientStrategicLoc'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          ClientWorkOffice,",
+						"          ClientWorkCity,",
+						"          ClientWorkState,",
+						"          ClientWorkCountry,",
+						"          ClientStrategicLoc,",
+						"          ElloreeWorkOffice = ElloreeWorkOfiice,",
+						"          ElloreeWorkCity,",
+						"          ElloreeWorkState,",
+						"          ElloreeWorkCountry,",
+						"          ElloreeWorkRegion,",
+						"          ElloreeStrategicLoc,",
+						"          ElloreeLocSortId,",
+						"          LocationIdentifier1,",
+						"          LocationIdentifier2,",
+						"          LocationIdentifier3,",
+						"          LocationIdentifier4,",
+						"          LocationIdentifier5,",
+						"          LoadDt",
+						"     )) ~> AppendLocationMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_PerformanceRating')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_PerformanceRating",
+								"type": "DatasetReference"
+							},
+							"name": "Performance"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentPerfRatingMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendPerformanceMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Performance Rating} as string,",
+						"          {Elloree Performance Rating} as string,",
+						"          {Elloree Performance Rating Sort} as string,",
+						"          {Suggested Elloree Performance Rating} as string,",
+						"          {Suggested Elloree Performane Rating Sort Id} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Talent Assessment} as string,",
+						"          {2018 Talent Assessment} as string,",
+						"          {2019 Talent Assessment} as string,",
+						"          {2020 Talent Assessment} as string,",
+						"          {2021 Talent Assessment} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Performance",
+						"Performance alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Client Performance Rating})),",
+						"     deleteIf(isNull({Elloree Performance Rating})),",
+						"     deleteIf(isNull({Elloree Performance Rating Sort}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientPerfRating = {Client Performance Rating},",
+						"          ElloreePerfRating = {Elloree Performance Rating},",
+						"          ElloreePerfRatingSortId = {Elloree Performance Rating Sort},",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientPerfRating as string,",
+						"          ElloreePerfRating as string,",
+						"          ElloreePerfRatingSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientPerfRating'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendPerformanceMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ReqStatus')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -7696,216 +7974,6 @@
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['BLS_Asian_Male_Hisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Asian_Male_NonHisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Asian_Male_NonHisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Asian',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Non-Hispanic or Latino',",
-						"          Gender = 'Male',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Asian, Non-Hispanic, men',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Asian_Male_NonHisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Asian_Total')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Asian_Total",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Asian',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'All',",
-						"          Gender = 'All',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force Level - Asian',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Asian_Total.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink1"
