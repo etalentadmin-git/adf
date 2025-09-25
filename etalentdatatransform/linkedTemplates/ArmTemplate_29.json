@@ -13,6 +13,276 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/BLS_Other_Female_Hisp')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_BLS_Site",
+								"type": "DatasetReference",
+								"parameters": {
+									"SeriesId": "https://api.bls.gov/publicAPI/v2/timeseries/data/LNU01083443"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json_BLS_Other_Female_Hisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "BLS_Other_Female_Hisp",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "BLS_Other_Female_Hisp",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"BLSJsonSource": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "BLS_Other_Female_Hisp",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Json_BLS_Other_Female_Hisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-14T00:01:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLS_Other_Male_Hisp')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_BLS_Site",
+								"type": "DatasetReference",
+								"parameters": {
+									"SeriesId": "https://api.bls.gov/publicAPI/v2/timeseries/data/LNU01083442"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json_BLS_Other_Male_Hisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "BLS_Other_Male_Hisp",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "BLS_Other_Male_Hisp",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"BLSJsonSource": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "BLS_Other_Male_Hisp",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Json_BLS_Other_Male_Hisp",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-14T00:01:06Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/BLS_Other_Total_Hisp')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -2365,201 +2635,6 @@
 				},
 				"folder": {
 					"name": "Client"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Load_BLSTbl')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "FullLoad_BLSTbl",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "FullLoad_BLSTbl",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"AmerIndAlaskNatFemale": {},
-									"AmerIndAlaskNatMale": {},
-									"AmerIndAlaskNatTotal": {},
-									"AsianFemale": {},
-									"AsianMale": {},
-									"AsianTotal": {},
-									"BlackFemale": {},
-									"BlackMale": {},
-									"BlackTotal": {},
-									"Female": {},
-									"LatinxFemale": {},
-									"LatinxMale": {},
-									"LatinxTotal": {},
-									"Male": {},
-									"NatHawPacIslFemale": {},
-									"NatHawPacIslMale": {},
-									"NatHawPacIslTotal": {},
-									"Total": {},
-									"TwoOrMoreFemale": {},
-									"TwoOrMoreMale": {},
-									"TwoOrMoreTotal": {},
-									"WhiteFemale": {},
-									"WhiteMale": {},
-									"WhiteTotal": {},
-									"AsianFemaleHisp": {},
-									"AsianFemaleNonHisp": {},
-									"AsianMaleHisp": {},
-									"AsianMaleNonHisp": {},
-									"AsianTotalHisp": {},
-									"AsianTotalNonHisp": {},
-									"BlackFemaleHisp": {},
-									"BlackFemaleNonHisp": {},
-									"BlackMaleHisp": {},
-									"BlackMaleNonHisp": {},
-									"BlackTotalHisp": {},
-									"BlackTotalNonHisp": {},
-									"OtherFemaleHisp": {},
-									"OtherMaleHisp": {},
-									"OtherTotalHisp": {},
-									"WhiteFemaleHisp": {},
-									"WhiteFemaleNonHisp": {},
-									"WhiteMaleHisp": {},
-									"WhiteMaleNonHisp": {},
-									"WhiteTotalHisp": {},
-									"WhiteTotalNonHisp": {},
-									"FullLoadBLSTable": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"annotations": [],
-				"lastPublishTime": "2022-12-14T00:01:06Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Load_USCensusSummaryTbl')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Tbl_USCensusSummary",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DeleteAllHistory",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Tbl_USCensusSummary",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"USCensusSource": {},
-									"LoadUSCensusSummaryTable": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DeleteAllHistory",
-						"type": "IfCondition",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Delete_All_CensusSummaryTbl",
-									"type": "ExecuteDataFlow",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataflow": {
-											"referenceName": "Delete_All_CensusSummaryTbl",
-											"type": "DataFlowReference",
-											"parameters": {},
-											"datasetParameters": {
-												"USCensusSummary": {},
-												"DeleteRecords": {}
-											}
-										},
-										"staging": {},
-										"compute": {
-											"coreCount": 8,
-											"computeType": "General"
-										},
-										"traceLevel": "Fine"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Delete_History_No_All": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "External Data/US Census"
 				},
 				"annotations": []
 			},

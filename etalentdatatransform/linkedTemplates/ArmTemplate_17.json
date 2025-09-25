@@ -13,6 +13,110 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Anonymization_Output_Core')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Creating anonymization review file (this one runs)",
+				"activities": [
+					{
+						"name": "RunPython",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 Anonymization_Output_Corev2.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"ErrorMessage": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Anonymization"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Anonymization_Output_Other')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Creating anonymization review file (this one runs)",
+				"activities": [
+					{
+						"name": "CustomOther1",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 Anonymization_Output_Otherv2.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"ErrorMessage": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Anonymization"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Anonymization_Output_TA')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -3334,474 +3438,6 @@
 						"          CandWithdrew,",
 						"          LoadDt",
 						"     )) ~> AppendApplStatusFact"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Applicant')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_Applicant_File",
-								"type": "DatasetReference"
-							},
-							"name": "Applicant2"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentApplicantFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "sink2"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "RemoveNullRows"
-						},
-						{
-							"name": "derivedColumn2"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Event Date} as date,",
-						"          EventMonth as integer,",
-						"          {Event Quarter} as integer,",
-						"          {Event Year} as short,",
-						"          Event as string,",
-						"          {Requisition ID} as string,",
-						"          {Application Date} as date,",
-						"          {Applicant ID} as string,",
-						"          {Applicant City} as string,",
-						"          {Applicant State} as string,",
-						"          {Applicant Country} as string,",
-						"          Source as string,",
-						"          {Applicant Type} as string,",
-						"          {Internal Worker ID} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGBTQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Applicant Final Disposition Date} as date 'MM/dd/yyyy',",
-						"          {Applicant Final Disposition} as string,",
-						"          {Applicant Step Before Final Disposition} as string,",
-						"          {Applicant Rejected Reason} as string,",
-						"          {Applicant Other (1)} as string,",
-						"          {Applicant Other (2)} as string,",
-						"          {Applicant Other (3)} as string,",
-						"          {Applicant Other (4)} as string,",
-						"          {Applicant Other (5)} as string,",
-						"          RowCount as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Applicant2",
-						"RemoveNullRows alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Event Date})),",
-						"     deleteIf(isNull(Event)),",
-						"     deleteIf(isNull({Requisition ID})),",
-						"     deleteIf(isNull({Applicant ID}))) ~> alterRow1",
-						"derivedColumn2 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          EventDt = {Event Date},",
-						"          EventMonth,",
-						"          EventQuarter = {Event Quarter},",
-						"          EventYear = {Event Year},",
-						"          Event,",
-						"          ReqId = {Requisition ID},",
-						"          ApplDt = {Application Date},",
-						"          ApplicantId = {Applicant ID},",
-						"          ApplicantCity = {Applicant City},",
-						"          ApplicantState = {Applicant State},",
-						"          ApplicantCountry = {Applicant Country},",
-						"          Source,",
-						"          ApplType = {Applicant Type},",
-						"          InternalWorkerId = {Internal Worker ID},",
-						"          Race,",
-						"          HispanicLatinoOrigin = {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          Veteran = {Veteran Ind},",
-						"          LGBTQ,",
-						"          DisabilityInd = {Disability Ind},",
-						"          ApplFinalDispDt = {Applicant Final Disposition Date},",
-						"          ApplFinalDisp = {Applicant Final Disposition},",
-						"          ApplStepBeforeFinalDisp = {Applicant Step Before Final Disposition},",
-						"          ApplRejectedReason = {Applicant Rejected Reason},",
-						"          ApplOther1 = {Applicant Other (1)},",
-						"          ApplOther2 = {Applicant Other (2)},",
-						"          ApplOther3 = {Applicant Other (3)},",
-						"          ApplOther4 = {Applicant Other (4)},",
-						"          ApplOther5 = {Applicant Other (5)},",
-						"          EventId,",
-						"          LoadDt",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"Applicant2 filter(!(isNull({Event Date}))||!(isNull({Applicant ID}))) ~> RemoveNullRows",
-						"alterRow1 derive(EventId = 'APP',",
-						"          LoadDt = currentDate()) ~> derivedColumn2",
-						"AlterColumnNamesforMap sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Event as string,",
-						"          EventId as string,",
-						"          ReqId as string,",
-						"          ApplicantId as string,",
-						"          Source as string,",
-						"          ApplType as string,",
-						"          InternalWorkerId as string,",
-						"          Race as string,",
-						"          HispanicLatinoOrigin as string,",
-						"          Gender as string,",
-						"          Veteran as string,",
-						"          LGBTQ as string,",
-						"          DisabilityInd as string,",
-						"          ApplFinalDisp as string,",
-						"          ApplStepBeforeFinalDisp as string,",
-						"          ApplRejectedReason as string,",
-						"          ApplOther1 as string,",
-						"          ApplOther2 as string,",
-						"          ApplOther3 as string,",
-						"          ApplOther4 as string,",
-						"          ApplOther5 as string,",
-						"          LoadDt as date,",
-						"          ApplicantCity as string,",
-						"          ApplicantState as string,",
-						"          ApplicantCountry as string,",
-						"          ApplDt as date,",
-						"          ApplFinalDispDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','EventDt','EventId','ReqId','ApplicantId'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt,",
-						"          EventDt,",
-						"          EventMonth,",
-						"          EventQuarter,",
-						"          EventYear,",
-						"          Event,",
-						"          EventId,",
-						"          ReqId,",
-						"          ApplicantId,",
-						"          Source,",
-						"          ApplType,",
-						"          InternalWorkerId,",
-						"          Race,",
-						"          HispanicLatinoOrigin,",
-						"          Gender,",
-						"          Veteran,",
-						"          LGBTQ,",
-						"          DisabilityInd,",
-						"          ApplFinalDisp,",
-						"          ApplStepBeforeFinalDisp,",
-						"          ApplRejectedReason,",
-						"          ApplOther1,",
-						"          ApplOther2,",
-						"          ApplOther3,",
-						"          ApplOther4,",
-						"          ApplOther5,",
-						"          LoadDt,",
-						"          ApplicantCity,",
-						"          ApplicantState,",
-						"          ApplicantCountry,",
-						"          ApplDt,",
-						"          ApplFinalDispDt",
-						"     )) ~> sink2"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Core')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_AllCoreData_File",
-								"type": "DatasetReference"
-							},
-							"name": "Core"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentCoreFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendCoreFact"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "RemoveNullRows"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          EventMonth as string,",
-						"          {Event Quarter} as string,",
-						"          {Event Year} as string,",
-						"          {Worker ID} as string,",
-						"          {Event Date} as string,",
-						"          {Event Code} as string,",
-						"          {Event Type} as string,",
-						"          Event as string,",
-						"          {Event Reason} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Function} as string,",
-						"          {Years in Job} as string,",
-						"          {Previous Job Title} as string,",
-						"          {Previous Job Function} as string,",
-						"          {Original Hire Date} as string,",
-						"          {Current Hire Date} as string,",
-						"          {Years of Service} as string,",
-						"          {Years of Service Band} as string,",
-						"          {Years of Service Sort ID} as string,",
-						"          {Last Promo Date} as string,",
-						"          {Corporate Title} as string,",
-						"          {Previous Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Legacy Organization} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGBTQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as string,",
-						"          {Generation Desc} as string,",
-						"          {Generation Sort ID} as string,",
-						"          EmpCount as string,",
-						"          RowCount as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Core",
-						"RemoveNullRows alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Worker ID})),",
-						"     deleteIf(isNull({Event Date})),",
-						"     deleteIf(isNull({Event Year})),",
-						"     deleteIf(isNull({Event Code})),",
-						"     deleteIf(isNull({Event Type})),",
-						"     deleteIf(isNull(Event)),",
-						"     deleteIf(isNull({Event Reason})),",
-						"     deleteIf(isNull({Worker Type})),",
-						"     deleteIf(isNull({Job Title})),",
-						"     deleteIf(isNull({Job Function})),",
-						"     deleteIf(isNull({Years in Job})),",
-						"     deleteIf(isNull({Previous Job Title})),",
-						"     deleteIf(isNull({Previous Job Function})),",
-						"     deleteIf(isNull({Original Hire Date})),",
-						"     deleteIf(isNull({Current Hire Date})),",
-						"     deleteIf(isNull({Years of Service})),",
-						"     deleteIf(isNull({Years of Service Band})),",
-						"     deleteIf(isNull({Years of Service Sort ID})),",
-						"     deleteIf(isNull({Corporate Title})),",
-						"     deleteIf(isNull({Previous Corporate Title})),",
-						"     deleteIf(isNull({Manager Indicator})),",
-						"     deleteIf(isNull({Direct Manager Worker ID})),",
-						"     deleteIf(isNull({Work Office Location})),",
-						"     deleteIf(isNull({Work City})),",
-						"     deleteIf(isNull({Work State})),",
-						"     deleteIf(isNull({Work Country})),",
-						"     deleteIf(isNull({Strategic Work Location Ind})),",
-						"     deleteIf(isNull({Legacy Organization})),",
-						"     deleteIf(isNull({Business Group Level 1})),",
-						"     deleteIf(isNull({Business Group Level 2})),",
-						"     deleteIf(isNull({Business Group Level 3})),",
-						"     deleteIf(isNull({Business Group Level 4})),",
-						"     deleteIf(isNull(Race)),",
-						"     deleteIf(isNull({Hispanic or Latino Origin})),",
-						"     deleteIf(isNull(Gender)),",
-						"     deleteIf(isNull({Veteran Ind})),",
-						"     deleteIf(isNull(LGBTQ)),",
-						"     deleteIf(isNull({Disability Ind})),",
-						"     deleteIf(isNull({Generation Desc})),",
-						"     deleteIf(isNull({Generation Sort ID})),",
-						"     deleteIf(isNull(EmpCount))) ~> alterRow1",
-						"Core filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullRows",
-						"alterRow1 derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          WorkerId as string,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Event as string,",
-						"          EventId as string,",
-						"          EventType as string,",
-						"          EventReason as string,",
-						"          WorkerType as string,",
-						"          JobTitle as string,",
-						"          JobFunction as string,",
-						"          YearsinJob as double,",
-						"          PrevJobTitle as string,",
-						"          PrevJobFunction as string,",
-						"          LastPromoDt as date,",
-						"          OrigHireDt as date,",
-						"          CurrHireDt as date,",
-						"          YearsofSrvc as double,",
-						"          YearsofSrvcBand as string,",
-						"          YearsofSrvcBandSortId as integer,",
-						"          CorpTitle as string,",
-						"          PrevCorpTitle as string,",
-						"          ManagerInd as string,",
-						"          DirectMgrWorkerId as string,",
-						"          WorkOfficeLoc as string,",
-						"          WorkOfficeCity as string,",
-						"          WorkOfficeState as string,",
-						"          WorkOfficeCountry as string,",
-						"          WorkStrategicLocInd as string,",
-						"          LegacyOrg as string,",
-						"          BusinessGrpLvl1 as string,",
-						"          BusinessGrpLvl2 as string,",
-						"          BusinessGrpLvl3 as string,",
-						"          BusinessGrpLvl4 as string,",
-						"          Race as string,",
-						"          HispanicLatinoOrigin as string,",
-						"          Gender as string,",
-						"          Veteran as string,",
-						"          LGBTQ as string,",
-						"          DisabilityInd as string,",
-						"          BirthYear as integer,",
-						"          Generation as string,",
-						"          GenerationSortId as integer,",
-						"          EmpCount as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','EventDt','EventId','WorkerId'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          WorkerId = {Worker ID},",
-						"          EventDt = {Event Date},",
-						"          EventMonth,",
-						"          EventQuarter = {Event Quarter},",
-						"          EventYear = {Event Year},",
-						"          Event,",
-						"          EventId = {Event Code},",
-						"          EventType = {Event Type},",
-						"          EventReason = {Event Reason},",
-						"          WorkerType = {Worker Type},",
-						"          JobTitle = {Job Title},",
-						"          JobFunction = {Job Function},",
-						"          YearsinJob = {Years in Job},",
-						"          PrevJobTitle = {Previous Job Title},",
-						"          PrevJobFunction = {Previous Job Function},",
-						"          LastPromoDt = {Last Promo Date},",
-						"          OrigHireDt = {Original Hire Date},",
-						"          CurrHireDt = {Current Hire Date},",
-						"          YearsofSrvc = {Years of Service},",
-						"          YearsofSrvcBand = {Years of Service Band},",
-						"          YearsofSrvcBandSortId = {Years of Service Sort ID},",
-						"          CorpTitle = {Corporate Title},",
-						"          PrevCorpTitle = {Previous Corporate Title},",
-						"          ManagerInd = {Manager Indicator},",
-						"          DirectMgrWorkerId = {Direct Manager Worker ID},",
-						"          WorkOfficeLoc = {Work Office Location},",
-						"          WorkOfficeCity = {Work City},",
-						"          WorkOfficeState = {Work State},",
-						"          WorkOfficeCountry = {Work Country},",
-						"          WorkStrategicLocInd = {Strategic Work Location Ind},",
-						"          LegacyOrg = {Legacy Organization},",
-						"          BusinessGrpLvl1 = {Business Group Level 1},",
-						"          BusinessGrpLvl2 = {Business Group Level 2},",
-						"          BusinessGrpLvl3 = {Business Group Level 3},",
-						"          BusinessGrpLvl4 = {Business Group Level 4},",
-						"          Race,",
-						"          HispanicLatinoOrigin = {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          Veteran = {Veteran Ind},",
-						"          LGBTQ,",
-						"          DisabilityInd = {Disability Ind},",
-						"          BirthYear = {Birth Year},",
-						"          Generation = {Generation Desc},",
-						"          GenerationSortId = {Generation Sort ID},",
-						"          EmpCount,",
-						"          LoadDt",
-						"     )) ~> AppendCoreFact"
 					]
 				}
 			},

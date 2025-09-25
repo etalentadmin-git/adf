@@ -49,6 +49,49 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/etalentReqTypeMapTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Database"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "ClientReqType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeReqType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "TAReqTypeMapTbl"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/etalentSilverMedalistFactTbl')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2235,150 +2278,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError') ~> AppendOtherFactTbl"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_PerfRatingHist_Hist')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentPerfRatingHistFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "PerRatingHistory"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentPerfRatingHistFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendTalentMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_Hist_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          EventYear as integer,",
-						"          WorkerId as string,",
-						"          LastPerfYear as integer,",
-						"          LastPerfRatingDt as date,",
-						"          LastClientPerfRating as string,",
-						"          LastElloreePerfRating as string,",
-						"          LastElloreePerfRatingSortId as integer,",
-						"          LastTopTalentInd as string,",
-						"          CurrPerfYear as integer,",
-						"          CurrPerfRatingDt as date,",
-						"          CurrTalentTag as string,",
-						"          CurrClientPerfRating as string,",
-						"          CurrElloreePerfRating as string,",
-						"          CurrElloreePerfRatingSortId as integer,",
-						"          CurrTopTalentInd as string,",
-						"          P1PerfYear as integer,",
-						"          P1PerfRatingDt as date,",
-						"          P1ClientPerfRating as string,",
-						"          P1ElloreePerfRating as string,",
-						"          P1ElloreePerfRatingSortId as integer,",
-						"          P1TopTalentInd as string,",
-						"          P2PerfYear as integer,",
-						"          P2PerfRatingDt as date,",
-						"          P2ClientPerfRating as string,",
-						"          P2ElloreePerfRating as string,",
-						"          P2ElloreePerfRatingSortId as integer,",
-						"          P2TopTalentInd as string,",
-						"          P3PerfYear as integer,",
-						"          P3PerfRatingDt as date,",
-						"          P3ClientPerfRating as string,",
-						"          P3ElloreePerfRating as string,",
-						"          P3ElloreePerfRatingSortId as integer,",
-						"          P3TopTalentInd as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[PerfRatingHistTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
-						"     format: 'query') ~> PerRatingHistory",
-						"PerRatingHistory alterRow(upsertIf(true())) ~> alterRow1",
-						"alterRow1 derive(LoadDt = currentDate(),",
-						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy')) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          EventYear as integer,",
-						"          WorkerId as string,",
-						"          LastPerfYear as integer,",
-						"          LastPerfRatingDt as date,",
-						"          LastClientPerfRating as string,",
-						"          LastElloreePerfRating as string,",
-						"          LastElloreePerfRatingSortId as integer,",
-						"          LastTopTalentInd as string,",
-						"          CurrPerfYear as integer,",
-						"          CurrPerfRatingDt as date,",
-						"          CurrTalentTag as string,",
-						"          CurrClientPerfRating as string,",
-						"          CurrElloreePerfRating as string,",
-						"          CurrElloreePerfRatingSortId as integer,",
-						"          CurrTopTalentInd as string,",
-						"          P1PerfYear as integer,",
-						"          P1PerfRatingDt as date,",
-						"          P1ClientPerfRating as string,",
-						"          P1ElloreePerfRating as string,",
-						"          P1ElloreePerfRatingSortId as integer,",
-						"          P1TopTalentInd as string,",
-						"          P2PerfYear as integer,",
-						"          P2PerfRatingDt as date,",
-						"          P2ClientPerfRating as string,",
-						"          P2ElloreePerfRating as string,",
-						"          P2ElloreePerfRatingSortId as integer,",
-						"          P2TopTalentInd as string,",
-						"          P3PerfYear as integer,",
-						"          P3PerfRatingDt as date,",
-						"          P3ClientPerfRating as string,",
-						"          P3ElloreePerfRating as string,",
-						"          P3ElloreePerfRatingSortId as integer,",
-						"          P3TopTalentInd as string,",
-						"          LastTalentTagYear as integer,",
-						"          LastTalentTag as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','WorkerId','EventYear'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
 					]
 				}
 			},

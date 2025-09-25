@@ -59,7 +59,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForClient",
+								"activity": "Wait10ForClient",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -138,7 +138,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForClient",
+						"name": "Wait10ForClient",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -150,7 +150,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -212,7 +212,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForEngagementDt",
+						"name": "Wait10ForEngagementDt",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -224,7 +224,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -232,7 +232,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForEngagementDt",
+								"activity": "Wait10ForEngagementDt",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -318,7 +318,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForEngagementQuarter",
+						"name": "Wait10ForEngagementQuarter",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -330,7 +330,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -338,7 +338,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForEngagementQuarter",
+								"activity": "Wait10ForEngagementQuarter",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -424,7 +424,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForEngagementYear",
+						"name": "Wait10ForEngagementYear",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -436,7 +436,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -444,7 +444,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForEngagementYear",
+								"activity": "Wait10ForEngagementYear",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -497,7 +497,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Client_Information_Secrets_noYr_NoQtr')]",
+			"name": "[concat(parameters('factoryName'), '/Client_Information_Secrets_NoQtr')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -507,7 +507,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForClient",
+								"activity": "Wait10ForClient",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -586,7 +586,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForClient",
+						"name": "Wait10ForClient",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -598,7 +598,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -660,7 +660,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForEngagementDt",
+						"name": "Wait10ForEngagementDt",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -672,7 +672,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -680,7 +680,346 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForEngagementDt",
+								"activity": "Wait10ForEngagementDt",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementDate?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Client_Dt"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_EngagementYear_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewEngagementDtValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementYear?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_EngagementYear_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_EngagementYear_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/EngagementYear?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait10ForEngagementYear",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_EngagementYear_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 10
+						}
+					},
+					{
+						"name": "SetNewEngagementYearValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait10ForEngagementYear",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementYear?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Folder_Year"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Python Support"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Client_Information_Secrets_noYr_NoQtr')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "SetNewClientValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait10ForClient",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Client_Id"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Delete_Client_Secret",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_Client_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_Client_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/Client?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait10ForClient",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_Client_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 10
+						}
+					},
+					{
+						"name": "Delete_EngagementDt_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewClientValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementDate?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Purge_EngagementDt_Secret",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Delete_EngagementDt_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "DELETE",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/deletedsecrets/EngagementDate?api-version=7.3",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Wait10ForEngagementDt",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Purge_EngagementDt_Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 10
+						}
+					},
+					{
+						"name": "SetNewEngagementDtValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Wait10ForEngagementDt",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -737,7 +1076,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForClient",
+								"activity": "Wait10ForClient",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -816,7 +1155,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForClient",
+						"name": "Wait10ForClient",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -828,7 +1167,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -890,7 +1229,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForEngagementDt",
+						"name": "Wait10ForEngagementDt",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -902,7 +1241,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -910,7 +1249,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForEngagementDt",
+								"activity": "Wait10ForEngagementDt",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -996,7 +1335,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForSurveyMetric",
+						"name": "Wait10ForSurveyMetric",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -1008,7 +1347,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -1016,7 +1355,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForSurveyMetric",
+								"activity": "Wait10ForSurveyMetric",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1102,7 +1441,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForEngagementYear",
+						"name": "Wait10ForEngagementYear",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -1114,7 +1453,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -1122,7 +1461,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForEngagementYear",
+								"activity": "Wait10ForEngagementYear",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1208,7 +1547,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForSurveyTitleYear",
+						"name": "Wait10ForSurveyTitleYear",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -1220,7 +1559,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -1228,7 +1567,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForSurveyTitleYear",
+								"activity": "Wait10ForSurveyTitleYear",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1314,7 +1653,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForSurveyDesc",
+						"name": "Wait10ForSurveyDesc",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -1326,7 +1665,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -1334,7 +1673,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForSurveyDesc",
+								"activity": "Wait10ForSurveyDesc",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1420,7 +1759,7 @@
 						}
 					},
 					{
-						"name": "Wait5ForSurveyEventCodes",
+						"name": "Wait10ForSurveyEventCodes",
 						"type": "Wait",
 						"dependsOn": [
 							{
@@ -1432,7 +1771,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 5
+							"waitTimeInSeconds": 10
 						}
 					},
 					{
@@ -1440,7 +1779,7 @@
 						"type": "WebActivity",
 						"dependsOn": [
 							{
-								"activity": "Wait5ForSurveyEventCodes",
+								"activity": "Wait10ForSurveyEventCodes",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -2496,61 +2835,6 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "CoreFactTbl"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentCorpTitleMapTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "connection to gender mapping table",
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Database"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ClientId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEngagementDt",
-						"type": "date"
-					},
-					{
-						"name": "ClientCorpTitle",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientElloreeCorpTitle",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeCorpTitle",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeCorpTitleSortId",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "LoadDt",
-						"type": "date"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "CorpTitleMapTbl"
 				}
 			},
 			"dependsOn": [
