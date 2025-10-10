@@ -13,6 +13,413 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Job_Review_Temp_DELETE')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_Job_Temp_DELETE",
+								"type": "DatasetReference"
+							},
+							"name": "JobFunctionMappingFile"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentCorpTitleMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "CorpTitleMappingTable"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "CoreDB"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentReqFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "ReqDB"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentBusHierarchyMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "BusLvlMapping"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_MappingWorkingFldr",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AddLoadDt"
+						},
+						{
+							"name": "SelectCorpTitleMapping"
+						},
+						{
+							"name": "JoinCorpTitle"
+						},
+						{
+							"name": "CollapseForUniqueRows"
+						},
+						{
+							"name": "CollapseForUniqueReqRows"
+						},
+						{
+							"name": "FInalJobReqSelect"
+						},
+						{
+							"name": "UnionJobReqTbl"
+						},
+						{
+							"name": "selectCoreTableFields"
+						},
+						{
+							"name": "FinalClientTableSelections"
+						},
+						{
+							"name": "SelectOnlyValidCorpTitleJobLOBCombinations"
+						},
+						{
+							"name": "SelectFinalFields"
+						},
+						{
+							"name": "CollapseRows"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "SelectBusLvlMapping"
+						},
+						{
+							"name": "JoinBusTitle"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Elloree Bus Grp Lvl1} as string,",
+						"          {Elloree Corporate Title} as string,",
+						"          {Client Job Function} as string,",
+						"          {Client Job Title} as string,",
+						"          {Elloree Job Function} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> JobFunctionMappingFile",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientCorpTitle as string,",
+						"          ClientElloreeCorpTitle as string,",
+						"          ElloreeCorpTitle as string,",
+						"          ElloreeCorpTitleSortId as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> CorpTitleMappingTable",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          EventType as string,",
+						"          EventReason as string,",
+						"          WorkerType as string,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          YearsinJob as double,",
+						"          PrevJobTitle as string,",
+						"          PrevJobFunction as string,",
+						"          LastPromoDt as date,",
+						"          OrigHireDt as date,",
+						"          CurrHireDt as date,",
+						"          YearsofSrvc as double,",
+						"          YearsofSrvcBand as string,",
+						"          YearsofSrvcBandSortId as integer,",
+						"          CorpTitle as string,",
+						"          PrevCorpTitle as string,",
+						"          ManagerInd as string,",
+						"          DirectMgrWorkerId as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          LegacyOrg as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          Race as string,",
+						"          HispanicLatinoOrigin as string,",
+						"          Gender as string,",
+						"          Veteran as string,",
+						"          LGBTQ as string,",
+						"          DisabilityInd as string,",
+						"          BirthYear as integer,",
+						"          Generation as string,",
+						"          GenerationSortId as integer,",
+						"          EmpCount as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> CoreDB",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          ReqId as string,",
+						"          ReqType as string,",
+						"          PostingDt as date,",
+						"          ReqStatus as string,",
+						"          NumberofOpenings as integer,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          CorpTitle as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          HiringMgrWorkerId as string,",
+						"          PrimaryRecruiterWorkerId as string,",
+						"          ReqOther1 as string,",
+						"          ReqOther2 as string,",
+						"          ReqOther3 as string,",
+						"          ReqOther4 as string,",
+						"          ReqOther5 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> ReqDB",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientBusGrpLvl1 as string,",
+						"          ClientBusGrpLvl2 as string,",
+						"          ClientBusGrpLvl3 as string,",
+						"          ClientBusGrpLvl4 as string,",
+						"          ElloreeBusGrpLvl1 as string,",
+						"          ElloreeBusGrpLvl2 as string,",
+						"          ElloreeBusGrpLvl3 as string,",
+						"          ElloreeBusGrpLvl4 as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> BusLvlMapping",
+						"SelectFinalFields alterRow(upsertIf(true()),",
+						"     deleteIf(isNull(ClientId)),",
+						"     deleteIf(isNull(ClientEngagementDt)),",
+						"     deleteIf(isNull(ClientBusGrpLvl1)),",
+						"     deleteIf(isNull(ClientCorpTitle)),",
+						"     deleteIf(isNull(ClientJobFunction)),",
+						"     deleteIf(isNull(ClientJobTitle)),",
+						"     deleteIf(isNull(ElloreeJobFunction))) ~> alterRow1",
+						"alterRow1 derive(LoadDt = currentDate()) ~> AddLoadDt",
+						"CorpTitleMappingTable select(mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          ClientCorpTitle,",
+						"          ElloreeCorpTitle",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectCorpTitleMapping",
+						"JobFunctionMappingFile, SelectCorpTitleMapping join({Client ID} == ClientId",
+						"     && {Client Engagement Date} == ClientEngagementDt",
+						"     && {Elloree Corporate Title} == ElloreeCorpTitle,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinCorpTitle",
+						"UnionJobReqTbl aggregate(groupBy(ClientId,",
+						"          ClientEngagementDt,",
+						"          BusinessGrpLvl1,",
+						"          CorpTitle,",
+						"          JobTitle,",
+						"          JobFunction),",
+						"     ClientIdForQuery = max(ClientId)) ~> CollapseForUniqueRows",
+						"ReqDB aggregate(groupBy(ClientId,",
+						"          ClientEngagementDt,",
+						"          BusinessGrpLvl1,",
+						"          CorpTitle,",
+						"          JobTitle,",
+						"          JobFunction),",
+						"     ClientIdForQuery = max(ClientId)) ~> CollapseForUniqueReqRows",
+						"CollapseForUniqueReqRows select(mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          CorpTitle,",
+						"          JobTitle,",
+						"          JobFunction",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FInalJobReqSelect",
+						"selectCoreTableFields, FInalJobReqSelect union(byName: true)~> UnionJobReqTbl",
+						"CoreDB select(mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          BusinessGrpLvl1,",
+						"          CorpTitle,",
+						"          JobTitle,",
+						"          JobFunction",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectCoreTableFields",
+						"CollapseForUniqueRows select(mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          BusinessGrpLvl1,",
+						"          CorpTitle,",
+						"          JobTitle,",
+						"          JobFunction,",
+						"          ClientIdForQuery",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalClientTableSelections",
+						"JoinBusTitle, FinalClientTableSelections join({Client ID} == FinalClientTableSelections@ClientId",
+						"     && {Client Engagement Date} == FinalClientTableSelections@ClientEngagementDt",
+						"     && ClientBusGrpLvl1 == BusinessGrpLvl1",
+						"     && ClientCorpTitle == CorpTitle",
+						"     && {Client Job Title} == JobTitle",
+						"     && {Client Job Function} == JobFunction,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> SelectOnlyValidCorpTitleJobLOBCombinations",
+						"CollapseRows select(mapColumn(",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date},",
+						"          ClientBusGrpLvl1,",
+						"          ClientCorpTitle,",
+						"          ClientJobFunction = {Client Job Function},",
+						"          ClientJobTitle = {Client Job Title},",
+						"          ElloreeJobFunction = {Elloree Job Function}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectFinalFields",
+						"derivedColumn2 aggregate(groupBy({Client Engagement Date},",
+						"          ClientBusGrpLvl1,",
+						"          ClientCorpTitle,",
+						"          {Client Job Function},",
+						"          {Client Job Title},",
+						"          {Elloree Job Function}),",
+						"     {Client ID} = max({Client ID})) ~> CollapseRows",
+						"SelectOnlyValidCorpTitleJobLOBCombinations derive({Client Job Title} = trim({Client Job Title}),",
+						"          {Client Job Function} = trim({Client Job Function}),",
+						"          ClientCorpTitle = trim(ClientCorpTitle)) ~> derivedColumn2",
+						"BusLvlMapping select(mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          ClientBusGrpLvl1,",
+						"          ElloreeBusGrpLvl1",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectBusLvlMapping",
+						"JoinCorpTitle, SelectBusLvlMapping join({Client ID} == SelectBusLvlMapping@ClientId",
+						"     && {Elloree Bus Grp Lvl1} == ElloreeBusGrpLvl1",
+						"     && {Client Engagement Date} == SelectBusLvlMapping@ClientEngagementDt,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinBusTitle",
+						"AddLoadDt filter(ClientJobTitle == 'Casa Sauza Financial Analyst') ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
+						"     ),",
+						"     partitionFileNames:['test_mapping_ouptut.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1),",
+						"     format: 'table') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Job_Review_Temp_copy1_DELETE')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -8161,111 +8568,6 @@
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['BLS_Asian_Female_Hisp.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BLS_Asian_Female_NonHisp')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json_BLS_Asian_Female_NonHisp",
-								"type": "DatasetReference"
-							},
-							"name": "BLSJsonSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_BLS_Output",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten3"
-						},
-						{
-							"name": "flatten4"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          status as string,",
-						"          responseTime as integer,",
-						"          message as string[],",
-						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
-						"BLSJsonSource foldDown(unroll(Results.series),",
-						"     mapColumn(",
-						"          status,",
-						"          responseTime,",
-						"          message,",
-						"          seriesID = Results.series.seriesID,",
-						"          data = Results.series.data",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten3",
-						"flatten3 foldDown(unroll(data),",
-						"     mapColumn(",
-						"          seriesID,",
-						"          year = data.year,",
-						"          period = data.period,",
-						"          latest = data.latest,",
-						"          value = data.value",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten4",
-						"flatten4 derive(Race = 'Asian',",
-						"          Source = 'BLS',",
-						"          EthnicOrigin = 'Non-Hispanic or Latino',",
-						"          Gender = 'Female',",
-						"          SeriesDesc = '(unadj) Civilian Labor Force - Asian, Non-Hispanic, women',",
-						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
-						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          Source,",
-						"          SourceId = seriesID,",
-						"          Desc = SeriesDesc,",
-						"          Year = year,",
-						"          Quarter,",
-						"          Latest = latest,",
-						"          EthnicOrigin,",
-						"          Race,",
-						"          Gender,",
-						"          Headcount",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['BLS_Asian_Female_NonHisp.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink1"

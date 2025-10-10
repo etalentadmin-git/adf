@@ -13,6 +13,211 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_Gender')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "This workflow outputs 1 file for review of ethnicity values across events and time periods.",
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "AllCoreData"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_Gender",
+								"type": "DatasetReference"
+							},
+							"name": "GenderMapping"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputEthnicityReview"
+						}
+					],
+					"transformations": [
+						{
+							"name": "CreatePivotEthnicityAndEventTime"
+						},
+						{
+							"name": "SortOnEvent"
+						},
+						{
+							"name": "AddGenderMapping"
+						},
+						{
+							"name": "SortOnGender"
+						},
+						{
+							"name": "SelectColumns"
+						},
+						{
+							"name": "AddDerivedEventYearColumn"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as string,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Years in Job} as string,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Function} as string,",
+						"          {Original Hire Date} as string,",
+						"          {Current Hire Date} as string,",
+						"          {Years of Service} as string,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as string,",
+						"          {Last Promo Date} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGBTQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as string,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as string,",
+						"          EmpCount as string,",
+						"          RowCount as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AllCoreData",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Client Gender} as string,",
+						"          {Elloree Gender} as string,",
+						"          {Suggested Elloree Gender} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount} as string,",
+						"          {2018 Headcount} as string,",
+						"          {2018 Hire} as string,",
+						"          {2018 Promo} as string,",
+						"          {2018 Term} as string,",
+						"          {2019 Headcount} as string,",
+						"          {2019 Hire} as string,",
+						"          {2019 Promo} as string,",
+						"          {2019 Term} as string,",
+						"          {2020 Headcount} as string,",
+						"          {2020 Hire} as string,",
+						"          {2020 Promo} as string,",
+						"          {2020 Term} as string,",
+						"          {2021 Headcount} as string,",
+						"          {2021 Hire} as string,",
+						"          {2021 Promo} as string,",
+						"          {2021 Term} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> GenderMapping",
+						"SortOnEvent pivot(groupBy(Gender,",
+						"          {Elloree Gender},",
+						"          {Client Id},",
+						"          {Client Engagement Date}),",
+						"     pivotBy({Event Quarter and Year}),",
+						"     {} = count({Worker ID}),",
+						"     columnNaming: '$N$V',",
+						"     lateral: false,",
+						"     partitionBy('hash', 1)) ~> CreatePivotEthnicityAndEventTime",
+						"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
+						"AllCoreData, GenderMapping join(Gender == {Client Gender},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> AddGenderMapping",
+						"CreatePivotEthnicityAndEventTime sort(asc(Gender, true),",
+						"     asc({Elloree Gender}, true)) ~> SortOnGender",
+						"AddGenderMapping select(mapColumn(",
+						"          {Event Year},",
+						"          {Event Quarter},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Event Type},",
+						"          {Worker ID},",
+						"          {Worker Type},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Corporate Title},",
+						"          {Manager Indicator},",
+						"          {Direct Manager Worker ID},",
+						"          {Legacy Organization},",
+						"          {Work Office Location},",
+						"          {Work City},",
+						"          {Work State},",
+						"          {Original Hire Date},",
+						"          {Current Hire Date},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          Race,",
+						"          {Hispanic or Latino Origin},",
+						"          Gender,",
+						"          {Birth Year},",
+						"          {Previous Job Title},",
+						"          {Previous Job Function},",
+						"          {Previous Corporate Title},",
+						"          {Years of Service},",
+						"          {Years in Job},",
+						"          {Event Reason},",
+						"          EmpCount,",
+						"          {Elloree Gender},",
+						"          {Client Id} = GenderMapping@{Client ID},",
+						"          {Client Engagement Date} = GenderMapping@{Client Engagement Date}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectColumns",
+						"SelectColumns derive({Event Quarter and Year} = concat(concat(toString(Event),concat(' Q',toString({Event Quarter}))),concat(' ',toString({Event Year})))) ~> AddDerivedEventYearColumn",
+						"SortOnGender sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Dimension Review - Gender.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputEthnicityReview"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_Location')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -7256,148 +7461,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-12T15:58:24Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_ApplStatus')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_FactTbl_ApplStatus",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DeleteAllHistory",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_FactTbl_ApplStatus",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"ApplStatus": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"AppendApplStatusFact": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DeleteAllHistory",
-						"type": "IfCondition",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Delete_All_Rec_FactTbl_ApplicantStatus",
-									"type": "ExecuteDataFlow",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataflow": {
-											"referenceName": "Delete_All_Rec_FactTbl_ApplicantStatus",
-											"type": "DataFlowReference",
-											"parameters": {
-												"Flow_Client_Id": {
-													"value": "'@{pipeline().parameters.P_Client_Id}'",
-													"type": "Expression"
-												},
-												"Flow_Client_Dt": {
-													"value": "'@{pipeline().parameters.P_Client_Dt}'",
-													"type": "Expression"
-												}
-											},
-											"datasetParameters": {
-												"ApplicantStatus": {},
-												"DeleteRecords": {}
-											}
-										},
-										"staging": {},
-										"compute": {
-											"coreCount": 8,
-											"computeType": "General"
-										},
-										"traceLevel": "Fine"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					},
-					"P_Delete_History_No_All": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T20:14:06Z"
 			},
 			"dependsOn": []
 		}

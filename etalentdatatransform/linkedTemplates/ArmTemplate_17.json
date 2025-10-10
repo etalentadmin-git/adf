@@ -13,6 +13,95 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/9_Load_Manager_Hrchy')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Optional Pipeline to load Client Survey Data grouped by Managers and cohort groups for aggregated score analysis.  One Survey Metric (Group) can be loaded for each run.",
+				"activities": [
+					{
+						"name": "LoadMgrHrchyTable",
+						"type": "Custom",
+						"dependsOn": [
+							{
+								"activity": "Client_Information_Secrets_noYr_NoQtr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 ManagerHierarchyPop_v2.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Client_Information_Secrets_noYr_NoQtr",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Client_Information_Secrets_noYr_NoQtr",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:58:24Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Anonymization_Output_Core')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -3224,222 +3313,6 @@
 					"elapsedTimeMetric": {}
 				},
 				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_ApplStatus')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_ApplStatus_File",
-								"type": "DatasetReference"
-							},
-							"name": "ApplStatus"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentApplStatusFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendApplStatusFact"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'yyyy-MM-dd',",
-						"          {Applicant ID} as string,",
-						"          {Requisition ID} as string,",
-						"          {Event Date} as date 'yyyy-MM-dd',",
-						"          EventMonth as integer,",
-						"          {Event Quarter} as integer,",
-						"          {Event Year} as short,",
-						"          {Applicant Type} as string,",
-						"          {Elloree Applicant Final Disposition} as string,",
-						"          {Elloree Applicant Category} as string,",
-						"          {Elloree Submitted to Mgr Fl} as string,",
-						"          {Elloree Race} as string,",
-						"          {Elloree Hispanic or Latino Origin} as string,",
-						"          {Elloree Gender} as string,",
-						"          Applicant as integer,",
-						"          {White Appl} as integer,",
-						"          {Black Appl} as integer,",
-						"          {Latinx Appl} as integer,",
-						"          {Asian Appl} as integer,",
-						"          {Two or More Appl} as integer,",
-						"          {Other Appl} as integer,",
-						"          {DNSID Appl} as integer,",
-						"          {Female Appl} as integer,",
-						"          {PoC Appl} as integer,",
-						"          {Male Appl} as integer,",
-						"          {Other Gender Appl} as integer,",
-						"          {DNSID Gender Appl} as integer,",
-						"          {Diverse Applicant} as integer,",
-						"          {Applicant Rejected by HR} as integer,",
-						"          {Applicant Withdrew} as integer,",
-						"          Candidate as integer,",
-						"          {Candidate Rejected by HR} as integer,",
-						"          {Candidate StM} as integer,",
-						"          {Candidate Rejected by HM} as integer,",
-						"          {Candidate Interviewed} as integer,",
-						"          {Candidate Hired} as integer,",
-						"          {Candidate Withdrew} as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> ApplStatus",
-						"ApplStatus alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Event Date})),",
-						"     deleteIf(isNull({Requisition ID})),",
-						"     deleteIf(isNull({Applicant ID}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          EventMonth,",
-						"          EventQuarter = {Event Quarter},",
-						"          EventYear = {Event Year},",
-						"          EventDt = {Event Date},",
-						"          ReqId = {Requisition ID},",
-						"          ApplId = {Applicant ID},",
-						"          {Applicant Type},",
-						"          {Elloree Applicant Final Disposition},",
-						"          {Elloree Applicant Category},",
-						"          {Elloree Submitted to Mgr Fl},",
-						"          {Elloree Race},",
-						"          {Elloree Hispanic or Latino Origin},",
-						"          {Elloree Gender},",
-						"          Applicants = Applicant,",
-						"          WhiteAppl = {White Appl},",
-						"          BlackAppl = {Black Appl},",
-						"          LatinxAppl = {Latinx Appl},",
-						"          AsianAppl = {Asian Appl},",
-						"          TwoorMoreAppl = {Two or More Appl},",
-						"          OtherAppl = {Other Appl},",
-						"          PoCAppl = {PoC Appl},",
-						"          DNSIDAppl = {DNSID Appl},",
-						"          FemaleAppl = {Female Appl},",
-						"          MaleAppl = {Male Appl},",
-						"          OtherGenderAppl = {Other Gender Appl},",
-						"          DNSIDGenderAppl = {DNSID Gender Appl},",
-						"          DiverseAppl = {Diverse Applicant},",
-						"          ApplRejected = {Applicant Rejected by HR},",
-						"          ApplWithdrew = {Applicant Withdrew},",
-						"          Candidates = Candidate,",
-						"          CandRejectedHR = {Candidate Rejected by HR},",
-						"          CandStM = {Candidate StM},",
-						"          CandRejectedHM = {Candidate Rejected by HM},",
-						"          CandInterviewed = {Candidate Interviewed},",
-						"          CandHired = {Candidate Hired},",
-						"          CandWithdrew = {Candidate Withdrew}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ApplId as string,",
-						"          ReqId as string,",
-						"          EventDt as date,",
-						"          EventMonth as integer,",
-						"          EventQuarter as integer,",
-						"          EventYear as integer,",
-						"          Applicants as integer,",
-						"          WhiteAppl as integer,",
-						"          BlackAppl as integer,",
-						"          LatinxAppl as integer,",
-						"          AsianAppl as integer,",
-						"          TwoorMoreAppl as integer,",
-						"          OtherAppl as integer,",
-						"          DNSIDAppl as integer,",
-						"          PoCAppl as integer,",
-						"          FemaleAppl as integer,",
-						"          MaleAppl as integer,",
-						"          OtherGenderAppl as integer,",
-						"          DNSIDGenderAppl as integer,",
-						"          DiverseAppl as integer,",
-						"          ApplRejected as integer,",
-						"          ApplWithdrew as integer,",
-						"          Candidates as integer,",
-						"          CandRejectedHR as integer,",
-						"          CandStM as integer,",
-						"          CandRejectedHM as integer,",
-						"          CandInterviewed as integer,",
-						"          CandHired as integer,",
-						"          CandWithdrew as integer,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','EventDt','ReqId','ApplId'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt,",
-						"          ApplId,",
-						"          ReqId,",
-						"          EventDt,",
-						"          EventMonth,",
-						"          EventQuarter,",
-						"          EventYear,",
-						"          Applicants,",
-						"          WhiteAppl,",
-						"          BlackAppl,",
-						"          LatinxAppl,",
-						"          AsianAppl,",
-						"          TwoorMoreAppl,",
-						"          OtherAppl,",
-						"          DNSIDAppl,",
-						"          PoCAppl,",
-						"          FemaleAppl,",
-						"          MaleAppl,",
-						"          OtherGenderAppl,",
-						"          DNSIDGenderAppl,",
-						"          DiverseAppl,",
-						"          ApplRejected,",
-						"          ApplWithdrew,",
-						"          Candidates,",
-						"          CandRejectedHR,",
-						"          CandStM,",
-						"          CandRejectedHM,",
-						"          CandInterviewed,",
-						"          CandHired,",
-						"          CandWithdrew,",
-						"          LoadDt",
-						"     )) ~> AppendApplStatusFact"
-					]
-				}
 			},
 			"dependsOn": []
 		}
