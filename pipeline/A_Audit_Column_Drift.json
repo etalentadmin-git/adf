@@ -16,7 +16,79 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"command": "python3 Applicant_Data_Drift_Review_v2.py",
+					"command": "python3 TA_Template_Data_Drift_Review_v3.py",
+					"resourceLinkedService": {
+						"referenceName": "AzureBlob_Etalent1Storage",
+						"type": "LinkedServiceReference"
+					},
+					"folderPath": "processing/Python",
+					"referenceObjects": {
+						"linkedServices": [],
+						"datasets": []
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureBatch_etalent1storage",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "RunApplicantColumnAudit_copy1",
+				"type": "Custom",
+				"dependsOn": [
+					{
+						"activity": "RunApplicantColumnAudit",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"command": "python3 Core_Template_Data_Drift_Review_v1.py",
+					"resourceLinkedService": {
+						"referenceName": "AzureBlob_Etalent1Storage",
+						"type": "LinkedServiceReference"
+					},
+					"folderPath": "processing/Python",
+					"referenceObjects": {
+						"linkedServices": [],
+						"datasets": []
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureBatch_etalent1storage",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "RunApplicantColumnAudit_copy2",
+				"type": "Custom",
+				"dependsOn": [
+					{
+						"activity": "RunApplicantColumnAudit_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"command": "python3 Other_Template_Data_Drift_Review_v1.py",
 					"resourceLinkedService": {
 						"referenceName": "AzureBlob_Etalent1Storage",
 						"type": "LinkedServiceReference"
