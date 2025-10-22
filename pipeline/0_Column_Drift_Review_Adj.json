@@ -6,7 +6,14 @@
 			{
 				"name": "RunApplicantColumnDriftAudit_TA",
 				"type": "Custom",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -103,8 +110,56 @@
 					"referenceName": "AzureBatch_etalent1storage",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
 			}
 		],
+		"parameters": {
+			"P_Client_Id": {
+				"type": "string"
+			},
+			"P_Client_Dt": {
+				"type": "string"
+			},
+			"P_Folder_Year": {
+				"type": "string"
+			},
+			"P_Folder_Quarter": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "Client/Client Setup Routines"
 		},
