@@ -71,6 +71,75 @@
 					"referenceName": "AzureBatch_etalent1storage",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "Core_Template_Drift_Review_Adj_Audit",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "MoveTermplateScript",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Core_Template_Drift_Review_Adj_Audit",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Other_Template_Drift_Review_Adj_Audit",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Core_Template_Drift_Review_Adj_Audit",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Other_Template_Drift_Review_Adj_Audit",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "TA_Template_Drift_Review_Adj_Audit_copy1",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Other_Template_Drift_Review_Adj_Audit",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "TA_Template_Drift_Review_Adj_Audit_copy1",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
 			}
 		],
 		"parameters": {
