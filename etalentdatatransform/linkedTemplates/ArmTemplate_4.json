@@ -13,6 +13,89 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_Tbl_Client_Hist')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables/Load Prior Engagement"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentClientTbl",
+								"type": "DatasetReference"
+							},
+							"name": "SourceCore"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentClientTbl",
+								"type": "DatasetReference"
+							},
+							"name": "LoadClientInfo"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AssignDerivedColumns"
+						},
+						{
+							"name": "alterRow2"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Hist_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientEngagementType as string,",
+						"          ClientSector as string,",
+						"          ClientDesc as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[ClientTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Hist_Client_Dt}'\"),",
+						"     format: 'query') ~> SourceCore",
+						"SourceCore derive(ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
+						"          LoadDt = currentDate()) ~> AssignDerivedColumns",
+						"AssignDerivedColumns alterRow(upsertIf(true())) ~> alterRow2",
+						"alterRow2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientEngagementType as string,",
+						"          ClientSector as string,",
+						"          ClientDesc as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientEngagementType'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     partitionBy('hash', 1)) ~> LoadClientInfo"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Delete_All_CensusSummaryTbl')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -5659,88 +5742,6 @@
 						"     updateable:false,",
 						"     upsertable:false,",
 						"     keys:['ClientId','ClientEngagementDt','EventQuarter','EventYear'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_ApplFlow')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Delete Records/Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "etalentApplFlowMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "ApplicantFlowMap"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentApplFlowMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "DeleteRecords"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string",
-						"}",
-						"source(output(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientApplFinalDisp as string,",
-						"          ClientApplStepBeforeFinalDisp as string,",
-						"          ClientApplRejectedReason as string,",
-						"          ElloreeApplFinalDisp as string,",
-						"          ElloreeApplCategory as string,",
-						"          ElloreeSubmittedtoMgrFl as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     query: (\"select * from [dbo].[TAApplMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
-						"     format: 'query') ~> ApplicantFlowMap",
-						"ApplicantFlowMap alterRow(deleteIf(true())) ~> alterRow1",
-						"alterRow1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientApplFinalDisp as string,",
-						"          ClientApplStepBeforeFinalDisp as string,",
-						"          ClientApplRejectedReason as string,",
-						"          ElloreeApplFinalDisp as string,",
-						"          ElloreeApplCategory as string,",
-						"          ElloreeSubmittedtoMgrFl as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:true,",
-						"     insertable:false,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     keys:['ClientId','ClientEngagementDt'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",

@@ -37,6 +37,72 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Analysis_OtherTbl_2P')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlob_Etalent1Storage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Analysis"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "OtherCoreTableAnalysis_Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Analysis/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))\n",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"sheetIndex": 2,
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Year",
+						"type": "String"
+					},
+					{
+						"name": "Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Notes",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Source_Template_Analysis_OtherTbl_3P')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2257,116 +2323,85 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/0_Column_Drift_Review_Adj')]",
+			"name": "[concat(parameters('factoryName'), '/10_Load_Manager_Hrchy')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "Script to determine deeper data interesctions",
+				"description": "Optional Pipeline to load Client Survey Data grouped by Managers and cohort groups for aggregated score analysis.  One Survey Metric (Group) can be loaded for each run.",
 				"activities": [
 					{
-						"name": "RunApplicantColumnDriftAudit_TA",
+						"name": "LoadMgrHrchyTable",
 						"type": "Custom",
+						"dependsOn": [
+							{
+								"activity": "Client_Information_Secrets_noYr_NoQtr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 ManagerHierarchyPop_v2.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Client_Information_Secrets_noYr_NoQtr",
+						"type": "ExecutePipeline",
 						"dependsOn": [],
 						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
 							"secureInput": false
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 TA_Template_Data_Drift_Review_v5.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
+							"pipeline": {
+								"referenceName": "Client_Information_Secrets_noYr_NoQtr",
+								"type": "PipelineReference"
 							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
 							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "RunApplicantColumnDriftAudit_Core",
-						"type": "Custom",
-						"dependsOn": [
-							{
-								"activity": "RunApplicantColumnDriftAudit_TA",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 Core_Template_Data_Drift_Review_v3.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "RunApplicantColumnDriftAudit_Other",
-						"type": "Custom",
-						"dependsOn": [
-							{
-								"activity": "RunApplicantColumnDriftAudit_Core",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 Other_Template_Data_Drift_Review_v2.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
 						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
 				},
 				"folder": {
 					"name": "Client/Client Setup Routines"
@@ -2379,7 +2414,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/10_Load_Survey_Summary_Individual')]",
+			"name": "[concat(parameters('factoryName'), '/11_Load_Survey_Summary_Individual')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -2491,104 +2526,6 @@
 						"type": "string"
 					},
 					"P_Event_Type_Codes": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Client Setup Routines"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:58:24Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/10_Load_Survey_Summary_Template')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Optional Pipeline to load Client Survey Data grouped by Managers and cohort groups for aggregated score analysis.  One Survey Metric (Group) can be loaded for each run.",
-				"activities": [
-					{
-						"name": "LoadSurveyScoreTables",
-						"type": "Custom",
-						"dependsOn": [
-							{
-								"activity": "Client_Information_Secrets_NoQtr",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 SurveyScoresMgrSummary_Template_v1.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "Client_Information_Secrets_NoQtr",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Client_Information_Secrets_NoQtr",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Year",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Year": {
 						"type": "string"
 					}
 				},

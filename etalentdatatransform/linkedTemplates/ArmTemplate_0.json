@@ -497,6 +497,158 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Client_Information_Secrets_Client_Dt_Yr_Qtr')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "SetNewClientValue",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/Client?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Client_Id"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "SetNewEngagementDtValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewClientValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementDate?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Client_Dt"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "SetNewEngagementYearValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewEngagementDtValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementYear?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Folder_Year"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "SetNewEngagementQtrValue",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "SetNewEngagementYearValue",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://processingkeyvault-e01.vault.azure.net/secrets/EngagementQuarter?api-version=7.3",
+							"body": {
+								"value": "@pipeline().parameters.P_Folder_Quarter"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Python Support"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Client_Information_Secrets_NoQtr')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -2386,233 +2538,6 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "ClientTbl"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentCoreFactTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "connection to Core Fact table",
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Database"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ClientId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEngagementDt",
-						"type": "date"
-					},
-					{
-						"name": "WorkerId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EventDt",
-						"type": "date"
-					},
-					{
-						"name": "EventMonth",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "EventQuarter",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "EventYear",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Event",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EventId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EventType",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EventReason",
-						"type": "nvarchar"
-					},
-					{
-						"name": "WorkerType",
-						"type": "nvarchar"
-					},
-					{
-						"name": "JobTitle",
-						"type": "nvarchar"
-					},
-					{
-						"name": "JobFunction",
-						"type": "nvarchar"
-					},
-					{
-						"name": "YearsinJob",
-						"type": "float",
-						"precision": 15
-					},
-					{
-						"name": "PrevJobTitle",
-						"type": "nvarchar"
-					},
-					{
-						"name": "PrevJobFunction",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LastPromoDt",
-						"type": "date"
-					},
-					{
-						"name": "OrigHireDt",
-						"type": "date"
-					},
-					{
-						"name": "CurrHireDt",
-						"type": "date"
-					},
-					{
-						"name": "YearsofSrvc",
-						"type": "float",
-						"precision": 15
-					},
-					{
-						"name": "YearsofSrvcBand",
-						"type": "nvarchar"
-					},
-					{
-						"name": "YearsofSrvcBandSortId",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CorpTitle",
-						"type": "nvarchar"
-					},
-					{
-						"name": "PrevCorpTitle",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ManagerInd",
-						"type": "nvarchar"
-					},
-					{
-						"name": "DirectMgrWorkerId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "WorkOfficeLoc",
-						"type": "nvarchar"
-					},
-					{
-						"name": "WorkOfficeCity",
-						"type": "nvarchar"
-					},
-					{
-						"name": "WorkOfficeState",
-						"type": "nvarchar"
-					},
-					{
-						"name": "WorkOfficeCountry",
-						"type": "nvarchar"
-					},
-					{
-						"name": "WorkStrategicLocInd",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LegacyOrg",
-						"type": "nvarchar"
-					},
-					{
-						"name": "BusinessGrpLvl1",
-						"type": "varchar"
-					},
-					{
-						"name": "BusinessGrpLvl2",
-						"type": "varchar"
-					},
-					{
-						"name": "BusinessGrpLvl3",
-						"type": "varchar"
-					},
-					{
-						"name": "BusinessGrpLvl4",
-						"type": "varchar"
-					},
-					{
-						"name": "Race",
-						"type": "varchar"
-					},
-					{
-						"name": "HispanicLatinoOrigin",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Gender",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Veteran",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LGBTQ",
-						"type": "nvarchar"
-					},
-					{
-						"name": "DisabilityInd",
-						"type": "nvarchar"
-					},
-					{
-						"name": "BirthYear",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Generation",
-						"type": "nvarchar"
-					},
-					{
-						"name": "GenerationSortId",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "EmpCount",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "LoadDt",
-						"type": "date"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "CoreFactTbl"
 				}
 			},
 			"dependsOn": [

@@ -13,7 +13,3559 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/1_Processing_Anonymization_Review')]",
+			"name": "[concat(parameters('factoryName'), '/DF_Review_WorkerId')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "This workflow takes unique IDs from each core event table and compares to unique worker IDs from all headcount to identify IDs not in headcount.  Results could highlight an issue with ID anonymization.",
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Headcount",
+								"type": "DatasetReference"
+							},
+							"name": "Headcount"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Terminations",
+								"type": "DatasetReference"
+							},
+							"name": "Terminations"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Promotions",
+								"type": "DatasetReference"
+							},
+							"name": "Promotions"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Template_TalentAssessment",
+								"type": "DatasetReference"
+							},
+							"name": "Talent"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Template_Hires",
+								"type": "DatasetReference"
+							},
+							"name": "Hires"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "HeadcountDatabase"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputTotalSummary"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputTermIDsNotInHeadcount"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputPromoIDsNotInHeadcount"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputTalentIDsNotInHeadcount"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputHireIDsNotInHeadcount"
+						}
+					],
+					"transformations": [
+						{
+							"name": "SelectUniqueWorkerIDTerminations"
+						},
+						{
+							"name": "SelectAllEmpIDsInTerminations"
+						},
+						{
+							"name": "SelectUniqueEmpIDHeadcount"
+						},
+						{
+							"name": "SelectAllEmpIDsInHeadcount"
+						},
+						{
+							"name": "SelectTermIDsNotInHeadcount"
+						},
+						{
+							"name": "AggregateTermIDsNotInHeadcount"
+						},
+						{
+							"name": "TotalIDsInHeadcount"
+						},
+						{
+							"name": "CombineHeadcountAndTermIDCounts"
+						},
+						{
+							"name": "TagEventCheckForTerms"
+						},
+						{
+							"name": "DisplayTotalTermIDsVSTotalHeadcount"
+						},
+						{
+							"name": "SelectUniqueWorkerIDPromotions"
+						},
+						{
+							"name": "SelectAllEmpIDsInPromotions"
+						},
+						{
+							"name": "SelectPromoIDsNotInHeadcount"
+						},
+						{
+							"name": "AggregatePromoIDsNotInHeadcount"
+						},
+						{
+							"name": "CombineHeadcountAndPromoIDCounts"
+						},
+						{
+							"name": "TagEventCheckForPromos"
+						},
+						{
+							"name": "DisplayTotalPromoIDsVSTotalHeadcount"
+						},
+						{
+							"name": "CombineTotalWorkerIDSummaryAllEvents"
+						},
+						{
+							"name": "SelectUniqueWorkerIDTalent"
+						},
+						{
+							"name": "SelectAllEmpIDsInTalent"
+						},
+						{
+							"name": "SelectTalentIDsNotInHeadcount"
+						},
+						{
+							"name": "AggregateTalentIDsNotInHeadcount"
+						},
+						{
+							"name": "CombineHeadcountAndTalentIDCounts"
+						},
+						{
+							"name": "TagEventCheckForTalent"
+						},
+						{
+							"name": "DisplayTotalTalentIDsVSTotalHeadcount"
+						},
+						{
+							"name": "CountTotalTerms"
+						},
+						{
+							"name": "TotalTermsIdentifier"
+						},
+						{
+							"name": "JoinTotalWorkerIDEventCountsWithSummary"
+						},
+						{
+							"name": "CountTotalPromotions"
+						},
+						{
+							"name": "TotalPromosIdentifier"
+						},
+						{
+							"name": "CountTotalTalent"
+						},
+						{
+							"name": "TotalTalentIdentifier"
+						},
+						{
+							"name": "TotalEventRecords"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "SelectUniqueWorkerIDHires"
+						},
+						{
+							"name": "SelectAllEmpIDsInHires"
+						},
+						{
+							"name": "SelectHireIDsNotInHeadcount"
+						},
+						{
+							"name": "AggregateHireIDsNotInHeadcount"
+						},
+						{
+							"name": "CombineHeadcountAndHireIDCounts"
+						},
+						{
+							"name": "TagEventCheckForHires"
+						},
+						{
+							"name": "DisplayTotalHireIDsVSTotalHeadcount"
+						},
+						{
+							"name": "CountTotalHires"
+						},
+						{
+							"name": "TotalHireIdentifier"
+						},
+						{
+							"name": "filter1"
+						},
+						{
+							"name": "filter2"
+						},
+						{
+							"name": "filter3"
+						},
+						{
+							"name": "filter4"
+						},
+						{
+							"name": "filter5"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "select3"
+						},
+						{
+							"name": "select4"
+						},
+						{
+							"name": "select5"
+						},
+						{
+							"name": "select6"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "derivedColumn3"
+						},
+						{
+							"name": "derivedColumn4"
+						},
+						{
+							"name": "derivedColumn5"
+						},
+						{
+							"name": "GroupWorkerIDs"
+						},
+						{
+							"name": "SelectHistoricalHCTWorkerIDs"
+						},
+						{
+							"name": "SelectUnionHistoricalWorderIDs"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {Event Year} as string,",
+						"          {Event Date} as string,",
+						"          {Worker ID} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Years in Job} as string,",
+						"          {Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Original Hire Date} as string,",
+						"          {Current Hire Date} as string,",
+						"          {Years of Service} as string,",
+						"          {Last Promo Date} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGBTQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as string,",
+						"          {Generation Desc} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Headcount",
+						"source(output(",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {Event Year} as string,",
+						"          {Event Date} as string,",
+						"          {Event Type} as string,",
+						"          {Event Reason} as string,",
+						"          {Worker ID} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Years in Job} as string,",
+						"          {Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Original Hire Date} as string,",
+						"          {Current Hire Date} as string,",
+						"          {Years of Service} as string,",
+						"          {Last Promo Date} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGBTQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as string,",
+						"          {Generation Desc} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Terminations",
+						"source(output(",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {Event Year} as string,",
+						"          {Event Date} as string,",
+						"          {Event Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Function} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Original Hire Date} as string,",
+						"          {Current Hire Date} as string,",
+						"          {Years of Service} as string,",
+						"          {Years in Job} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGBTQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as string,",
+						"          {Generation Desc} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Promotions",
+						"source(output(",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {Event Year} as string,",
+						"          {Event Date} as string,",
+						"          {Event Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Performance Rating} as string,",
+						"          {Performance Rating Date} as string,",
+						"          {Top Performer} as string,",
+						"          {Talent Identifier (1)} as string,",
+						"          {Talent Identifier (2)} as string,",
+						"          {Talent Identifier (3)} as string,",
+						"          {Talent Identifier (4)} as string,",
+						"          {Talent Identifier (5)} as string,",
+						"          {Salary Range} as string,",
+						"          Bonus as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Talent",
+						"source(output(",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {Event Year} as string,",
+						"          {Event Date} as string,",
+						"          {Event Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Original Hire Date} as string,",
+						"          {Current Hire Date} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGBTQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as string,",
+						"          {Generation Desc} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Hires",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          EventType as string,",
+						"          EventReason as string,",
+						"          WorkerStatus as string,",
+						"          WorkerType as string,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          YearsinJob as double,",
+						"          PrevJobTitle as string,",
+						"          PrevJobFunction as string,",
+						"          LastPromoDt as date,",
+						"          OrigHireDt as date,",
+						"          CurrHireDt as date,",
+						"          RehireInd as string,",
+						"          YearsofSrvc as double,",
+						"          YearsofSrvcBand as string,",
+						"          YearsofSrvcBandSortId as integer,",
+						"          CorpTitle as string,",
+						"          PrevCorpTitle as string,",
+						"          ManagerInd as string,",
+						"          DirectMgrWorkerId as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          LegacyOrg as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          Race as string,",
+						"          HispanicLatinoOrigin as string,",
+						"          Gender as string,",
+						"          Veteran as string,",
+						"          LGTBQ as string,",
+						"          DisabilityInd as string,",
+						"          BirthYear as integer,",
+						"          Generation as string,",
+						"          GenerationSortId as integer,",
+						"          EmpCount as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT'\"),",
+						"     format: 'query') ~> HeadcountDatabase",
+						"select3 aggregate(groupBy({Worker ID}),",
+						"     each(match(name!='Worker ID'), $$ = first($$))) ~> SelectUniqueWorkerIDTerminations",
+						"SelectUniqueWorkerIDTerminations select(mapColumn(",
+						"          {Worker ID},",
+						"          Event",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectAllEmpIDsInTerminations",
+						"select2 aggregate(groupBy({Worker ID}),",
+						"     each(match(name!='Worker ID'), $$ = first($$)),",
+						"     partitionBy('hash', 1)) ~> SelectUniqueEmpIDHeadcount",
+						"SelectUniqueEmpIDHeadcount select(mapColumn(",
+						"          {Worker ID},",
+						"          Event",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectAllEmpIDsInHeadcount",
+						"SelectAllEmpIDsInTerminations, SelectUnionHistoricalWorderIDs exists(SelectAllEmpIDsInTerminations@{Worker ID} == SelectUnionHistoricalWorderIDs@{Worker ID},",
+						"     negate:true,",
+						"     broadcast: 'left')~> SelectTermIDsNotInHeadcount",
+						"SelectTermIDsNotInHeadcount aggregate(groupBy(Event),",
+						"     {Total Terminations Not in HCT} = count({Worker ID})) ~> AggregateTermIDsNotInHeadcount",
+						"SelectUnionHistoricalWorderIDs aggregate(groupBy(Event),",
+						"     {Total Count} = count({Worker ID})) ~> TotalIDsInHeadcount",
+						"AggregateTermIDsNotInHeadcount, TotalIDsInHeadcount union(byName: true)~> CombineHeadcountAndTermIDCounts",
+						"CombineHeadcountAndTermIDCounts derive({Event Check} = 'Terminations') ~> TagEventCheckForTerms",
+						"TagEventCheckForTerms aggregate(groupBy({Event Check}),",
+						"     {Total IDs Not in HCT} = sum({Total Terminations Not in HCT})) ~> DisplayTotalTermIDsVSTotalHeadcount",
+						"select4 aggregate(groupBy({Worker ID}),",
+						"     each(match(name!='Worker ID'), $$ = first($$))) ~> SelectUniqueWorkerIDPromotions",
+						"SelectUniqueWorkerIDPromotions select(mapColumn(",
+						"          {Worker ID},",
+						"          Event",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectAllEmpIDsInPromotions",
+						"SelectAllEmpIDsInPromotions, SelectUnionHistoricalWorderIDs exists(SelectAllEmpIDsInPromotions@{Worker ID} == SelectUnionHistoricalWorderIDs@{Worker ID},",
+						"     negate:true,",
+						"     broadcast: 'left')~> SelectPromoIDsNotInHeadcount",
+						"SelectPromoIDsNotInHeadcount aggregate(groupBy(Event),",
+						"     {Total Promotions Not in HCT} = count({Worker ID})) ~> AggregatePromoIDsNotInHeadcount",
+						"AggregatePromoIDsNotInHeadcount, TotalIDsInHeadcount union(byName: true)~> CombineHeadcountAndPromoIDCounts",
+						"CombineHeadcountAndPromoIDCounts derive({Event Check} = 'Promotions') ~> TagEventCheckForPromos",
+						"TagEventCheckForPromos aggregate(groupBy({Event Check}),",
+						"     {Total IDs Not in HCT} = sum({Total Promotions Not in HCT}),",
+						"          {Total Count} = sum({Total Count})) ~> DisplayTotalPromoIDsVSTotalHeadcount",
+						"DisplayTotalTermIDsVSTotalHeadcount, DisplayTotalPromoIDsVSTotalHeadcount, DisplayTotalTalentIDsVSTotalHeadcount, DisplayTotalHireIDsVSTotalHeadcount union(byName: true)~> CombineTotalWorkerIDSummaryAllEvents",
+						"select5 aggregate(groupBy({Worker ID}),",
+						"     each(match(name!='Worker ID'), $$ = first($$))) ~> SelectUniqueWorkerIDTalent",
+						"SelectUniqueWorkerIDTalent select(mapColumn(",
+						"          {Worker ID},",
+						"          Event",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectAllEmpIDsInTalent",
+						"SelectAllEmpIDsInTalent, SelectUnionHistoricalWorderIDs exists(SelectAllEmpIDsInTalent@{Worker ID} == SelectUnionHistoricalWorderIDs@{Worker ID},",
+						"     negate:true,",
+						"     broadcast: 'left')~> SelectTalentIDsNotInHeadcount",
+						"SelectTalentIDsNotInHeadcount aggregate(groupBy(Event),",
+						"     {Total Talent Not in HCT} = count({Worker ID})) ~> AggregateTalentIDsNotInHeadcount",
+						"AggregateTalentIDsNotInHeadcount, TotalIDsInHeadcount union(byName: true)~> CombineHeadcountAndTalentIDCounts",
+						"CombineHeadcountAndTalentIDCounts derive({Event Check} = 'Talent') ~> TagEventCheckForTalent",
+						"TagEventCheckForTalent aggregate(groupBy({Event Check}),",
+						"     {Total IDs Not in HCT} = sum({Total Talent Not in HCT}),",
+						"          {Total Count} = sum({Total Count})) ~> DisplayTotalTalentIDsVSTotalHeadcount",
+						"SelectAllEmpIDsInTerminations aggregate(groupBy(Event),",
+						"     {Total Event Record Count} = count({Worker ID})) ~> CountTotalTerms",
+						"CountTotalTerms derive({Event Check} = 'Terminations') ~> TotalTermsIdentifier",
+						"CombineTotalWorkerIDSummaryAllEvents, TotalEventRecords join(CombineTotalWorkerIDSummaryAllEvents@{Event Check} == TotalEventRecords@{Event Check},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinTotalWorkerIDEventCountsWithSummary",
+						"SelectAllEmpIDsInPromotions aggregate(groupBy(Event),",
+						"     {Total Event Record Count} = count({Worker ID})) ~> CountTotalPromotions",
+						"CountTotalPromotions derive({Event Check} = 'Promotions') ~> TotalPromosIdentifier",
+						"SelectAllEmpIDsInTalent aggregate(groupBy(Event),",
+						"     {Total Event Record Count} = count({Worker ID})) ~> CountTotalTalent",
+						"CountTotalTalent derive({Event Check} = 'Talent') ~> TotalTalentIdentifier",
+						"TotalTermsIdentifier, TotalPromosIdentifier, TotalTalentIdentifier, TotalHireIdentifier union(byName: true)~> TotalEventRecords",
+						"JoinTotalWorkerIDEventCountsWithSummary select(mapColumn(",
+						"          Event = CombineTotalWorkerIDSummaryAllEvents@{Event Check},",
+						"          {Total IDs Not in HCT},",
+						"          {Total Unique Worker ID's in Event} = {Total Event Record Count}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select6 aggregate(groupBy({Worker ID}),",
+						"     each(match(name!='Worker ID'), $$ = first($$))) ~> SelectUniqueWorkerIDHires",
+						"SelectUniqueWorkerIDHires select(mapColumn(",
+						"          {Worker ID},",
+						"          Event",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectAllEmpIDsInHires",
+						"SelectAllEmpIDsInHires, SelectUnionHistoricalWorderIDs exists(SelectAllEmpIDsInHires@{Worker ID} == SelectUnionHistoricalWorderIDs@{Worker ID},",
+						"     negate:true,",
+						"     broadcast: 'auto')~> SelectHireIDsNotInHeadcount",
+						"SelectHireIDsNotInHeadcount aggregate(groupBy(Event),",
+						"     {Total Hires Not in HCT} = count({Worker ID})) ~> AggregateHireIDsNotInHeadcount",
+						"AggregateHireIDsNotInHeadcount, TotalIDsInHeadcount union(byName: true)~> CombineHeadcountAndHireIDCounts",
+						"CombineHeadcountAndHireIDCounts derive({Event Check} = 'Hire') ~> TagEventCheckForHires",
+						"TagEventCheckForHires aggregate(groupBy({Event Check}),",
+						"     {Total IDs Not in HCT} = sum({Total Hires Not in HCT}),",
+						"          {Total Count} = sum({Total Count})) ~> DisplayTotalHireIDsVSTotalHeadcount",
+						"SelectAllEmpIDsInHires aggregate(groupBy(Event),",
+						"     {Total Event Record Count} = count({Worker ID})) ~> CountTotalHires",
+						"CountTotalHires derive({Event Check} = 'Hire') ~> TotalHireIdentifier",
+						"Headcount filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> filter1",
+						"Terminations filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> filter2",
+						"Promotions filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> filter3",
+						"Talent filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> filter4",
+						"Hires filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> filter5",
+						"derivedColumn1 select(mapColumn(",
+						"          {Event Year},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Worker ID},",
+						"          {Worker Type},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Years in Job},",
+						"          {Corporate Title},",
+						"          {Manager Indicator},",
+						"          {Direct Manager Worker ID},",
+						"          {Legacy Organization},",
+						"          {Work Office Location},",
+						"          {Work City},",
+						"          {Work State},",
+						"          {Work Country},",
+						"          {Strategic Work Location Ind},",
+						"          {Original Hire Date},",
+						"          {Current Hire Date},",
+						"          {Years of Service},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          Race,",
+						"          {Hispanic or Latino Origin},",
+						"          Gender,",
+						"          {Veteran Ind},",
+						"          LGBTQ,",
+						"          {Disability Ind},",
+						"          {Birth Year},",
+						"          {Generation Desc}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"derivedColumn2 select(mapColumn(",
+						"          {Event Year},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Event Type},",
+						"          {Event Reason},",
+						"          {Worker ID},",
+						"          {Worker Type},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Years in Job},",
+						"          {Corporate Title},",
+						"          {Manager Indicator},",
+						"          {Direct Manager Worker ID},",
+						"          {Work Office Location},",
+						"          {Work City},",
+						"          {Work State},",
+						"          {Work Country},",
+						"          {Strategic Work Location Ind},",
+						"          {Original Hire Date},",
+						"          {Current Hire Date},",
+						"          {Years of Service},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          Race,",
+						"          {Hispanic or Latino Origin},",
+						"          Gender,",
+						"          {Veteran Ind},",
+						"          LGBTQ,",
+						"          {Disability Ind},",
+						"          {Birth Year},",
+						"          {Generation Desc}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select3",
+						"derivedColumn3 select(mapColumn(",
+						"          {Event Year},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Event Type},",
+						"          {Worker ID},",
+						"          {Worker Type},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Corporate Title},",
+						"          {Previous Job Title},",
+						"          {Previous Job Function},",
+						"          {Previous Corporate Title},",
+						"          {Manager Indicator},",
+						"          {Direct Manager Worker ID},",
+						"          {Work Office Location},",
+						"          {Work City},",
+						"          {Work State},",
+						"          {Work Country},",
+						"          {Strategic Work Location Ind},",
+						"          {Original Hire Date},",
+						"          {Current Hire Date},",
+						"          {Years of Service},",
+						"          {Years in Job},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          Race,",
+						"          {Hispanic or Latino Origin},",
+						"          Gender,",
+						"          {Veteran Ind},",
+						"          LGBTQ,",
+						"          {Disability Ind},",
+						"          {Birth Year},",
+						"          {Generation Desc}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select4",
+						"derivedColumn4 select(mapColumn(",
+						"          {Event Year},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Event Type},",
+						"          {Worker ID},",
+						"          {Performance Rating},",
+						"          {Performance Rating Date},",
+						"          {Top Performer},",
+						"          {Talent Identifier (1)},",
+						"          {Talent Identifier (2)},",
+						"          {Talent Identifier (3)},",
+						"          {Talent Identifier (4)},",
+						"          {Talent Identifier (5)},",
+						"          Bonus,",
+						"          {Salary Range}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select5",
+						"derivedColumn5 select(mapColumn(",
+						"          {Event Year},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Event Type},",
+						"          {Worker ID},",
+						"          {Worker Type},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Corporate Title},",
+						"          {Manager Indicator},",
+						"          {Direct Manager Worker ID},",
+						"          {Legacy Organization},",
+						"          {Work Office Location},",
+						"          {Work City},",
+						"          {Work State},",
+						"          {Work Country},",
+						"          {Strategic Work Location Ind},",
+						"          {Original Hire Date},",
+						"          {Current Hire Date},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          {Business Group Level 3},",
+						"          {Business Group Level 4},",
+						"          Race,",
+						"          {Hispanic or Latino Origin},",
+						"          Gender,",
+						"          {Veteran Ind},",
+						"          LGBTQ,",
+						"          {Disability Ind},",
+						"          {Birth Year},",
+						"          {Generation Desc}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select6",
+						"filter1 derive(Event = 'Headcount') ~> derivedColumn1",
+						"filter2 derive(Event = 'Terminations') ~> derivedColumn2",
+						"filter3 derive(Event = 'Promotions') ~> derivedColumn3",
+						"filter4 derive(Event = 'Talent') ~> derivedColumn4",
+						"filter5 derive(Event = 'Hires') ~> derivedColumn5",
+						"HeadcountDatabase aggregate(groupBy(WorkerId,",
+						"          Event),",
+						"     Count = count(ClientId)) ~> GroupWorkerIDs",
+						"GroupWorkerIDs select(mapColumn(",
+						"          {Worker ID} = WorkerId,",
+						"          Event",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectHistoricalHCTWorkerIDs",
+						"SelectAllEmpIDsInHeadcount, SelectHistoricalHCTWorkerIDs union(byName: true)~> SelectUnionHistoricalWorderIDs",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Worker ID Review Summary.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputTotalSummary",
+						"SelectTermIDsNotInHeadcount sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Worker IDs in Terms Not in HCT.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputTermIDsNotInHeadcount",
+						"SelectPromoIDsNotInHeadcount sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Worker IDs in Promos Not in HCT.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputPromoIDsNotInHeadcount",
+						"SelectTalentIDsNotInHeadcount sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Worker IDs in Talent Not in HCT.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputTalentIDsNotInHeadcount",
+						"SelectHireIDsNotInHeadcount sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Worker IDs in Hires Not in HCT.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputHireIDsNotInHeadcount"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_WorkerId_HCT_Compare')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "Core"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "CoreDB"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "filter1"
+						},
+						{
+							"name": "HCTFilter"
+						},
+						{
+							"name": "MaxYear"
+						},
+						{
+							"name": "JoinMax"
+						},
+						{
+							"name": "MaxYearMinus1"
+						},
+						{
+							"name": "MaxYearMinus2"
+						},
+						{
+							"name": "MaxYearMinus3"
+						},
+						{
+							"name": "MaxYearMinus4"
+						},
+						{
+							"name": "SelectWorkerAndYear"
+						},
+						{
+							"name": "TotalWorkersMaxYear"
+						},
+						{
+							"name": "JoinMaxMinus1"
+						},
+						{
+							"name": "TotalWorkersMaxYearMinus1"
+						},
+						{
+							"name": "JoinMaxMinus2"
+						},
+						{
+							"name": "TotalWorkersMaxYearMinus2"
+						},
+						{
+							"name": "JoinMaxMinus3"
+						},
+						{
+							"name": "TotalWorkersMaxYearMinus3"
+						},
+						{
+							"name": "JoinMaxMinus4"
+						},
+						{
+							"name": "TotalWorkersMaxYearMinus4"
+						},
+						{
+							"name": "JoinMaxMinus1forCompare"
+						},
+						{
+							"name": "selectMax"
+						},
+						{
+							"name": "selectMaxMinus1"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "JoinMaxMinus2forCompare"
+						},
+						{
+							"name": "aggregate2"
+						},
+						{
+							"name": "selectMaxMinus2"
+						},
+						{
+							"name": "JoinMaxMinus3forCompare"
+						},
+						{
+							"name": "aggregate3"
+						},
+						{
+							"name": "selectMaxMinus3"
+						},
+						{
+							"name": "JoinMaxMinus4forCompare"
+						},
+						{
+							"name": "selectMaxMinus4"
+						},
+						{
+							"name": "aggregate4"
+						},
+						{
+							"name": "JoinTotalMax"
+						},
+						{
+							"name": "FinalSelectMaxCompare"
+						},
+						{
+							"name": "JoinTotal1P"
+						},
+						{
+							"name": "FinalSelect1PCompare"
+						},
+						{
+							"name": "JoinTotal2P"
+						},
+						{
+							"name": "FinalSelect2PCompare"
+						},
+						{
+							"name": "JoinTotal3P"
+						},
+						{
+							"name": "FinalSelect3PCompare"
+						},
+						{
+							"name": "MaxYearMinus5"
+						},
+						{
+							"name": "JoinMaxMinus5"
+						},
+						{
+							"name": "selectMaxMinus5"
+						},
+						{
+							"name": "TotalWorkersMaxYearMinus5"
+						},
+						{
+							"name": "JoinMaxMinus5forCompare"
+						},
+						{
+							"name": "aggregate5"
+						},
+						{
+							"name": "JoinTotal4P"
+						},
+						{
+							"name": "FinalSelect4PCompare"
+						},
+						{
+							"name": "CalcMaxPercent"
+						},
+						{
+							"name": "Calc1PPercent"
+						},
+						{
+							"name": "Calc2PPercent"
+						},
+						{
+							"name": "Calc3PPercent"
+						},
+						{
+							"name": "Calc4PPercent"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "TERFilter"
+						},
+						{
+							"name": "JoinFilterMaxTER"
+						},
+						{
+							"name": "JoinFilter1PTER"
+						},
+						{
+							"name": "JoinFilter2PTER"
+						},
+						{
+							"name": "JoinFilter3PTER"
+						},
+						{
+							"name": "JoinFilter4PTER"
+						},
+						{
+							"name": "SelectTERColumns"
+						},
+						{
+							"name": "MaxTERExist5PHC"
+						},
+						{
+							"name": "Terminations4PCount"
+						},
+						{
+							"name": "MaxTERExist4PHC"
+						},
+						{
+							"name": "Terminations3PCount"
+						},
+						{
+							"name": "MaxTERExist3PHC"
+						},
+						{
+							"name": "Terminations2PCount"
+						},
+						{
+							"name": "MaxTERExist2PHC"
+						},
+						{
+							"name": "Terminations1PCount"
+						},
+						{
+							"name": "MaxTERExist1PHC"
+						},
+						{
+							"name": "TerminationsMaxCount"
+						},
+						{
+							"name": "JoinMaxTERCount"
+						},
+						{
+							"name": "FinalSelect1P"
+						},
+						{
+							"name": "Join1PTERCount"
+						},
+						{
+							"name": "FinalSelect2P"
+						},
+						{
+							"name": "Join2PTERCount"
+						},
+						{
+							"name": "FinalSelect3P"
+						},
+						{
+							"name": "Join3PTERCount"
+						},
+						{
+							"name": "FinalSelect4P"
+						},
+						{
+							"name": "Join4PTERCount"
+						},
+						{
+							"name": "FinalSelect5P"
+						},
+						{
+							"name": "HIRFilter"
+						},
+						{
+							"name": "SelectHIRColumns"
+						},
+						{
+							"name": "JoinFilterMaxHIR"
+						},
+						{
+							"name": "HireMaxCount"
+						},
+						{
+							"name": "MaxHIRExistMaxHC"
+						},
+						{
+							"name": "JoinFilter1PHIR"
+						},
+						{
+							"name": "HIR1PExist1PHC"
+						},
+						{
+							"name": "Hire1PCount"
+						},
+						{
+							"name": "JoinFilter2PHIR"
+						},
+						{
+							"name": "HIR2PExist2PHC"
+						},
+						{
+							"name": "Hire2PCount"
+						},
+						{
+							"name": "JoinFilter3PHIR"
+						},
+						{
+							"name": "HIR3PExist3PHC"
+						},
+						{
+							"name": "Hire3PCount"
+						},
+						{
+							"name": "JoinFilter4PHIR"
+						},
+						{
+							"name": "HIR4PExist4PHC"
+						},
+						{
+							"name": "Hire4PCount"
+						},
+						{
+							"name": "Join4PHIRCount"
+						},
+						{
+							"name": "Join3PHIRCount"
+						},
+						{
+							"name": "Join2PHIRCount"
+						},
+						{
+							"name": "Join1PHIRCount"
+						},
+						{
+							"name": "JoinMaxHIRCount"
+						},
+						{
+							"name": "SelectCoreDBFields"
+						},
+						{
+							"name": "UnionWithCoreDB"
+						},
+						{
+							"name": "RemoveDupsCore"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          EventMonth as integer,",
+						"          {Event Quarter} as integer,",
+						"          {Event Year} as short,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as date,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Years in Job} as double,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Function} as string,",
+						"          {Original Hire Date} as date,",
+						"          {Current Hire Date} as date,",
+						"          {Years of Service} as double,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as string,",
+						"          {Last Promo Date} as string,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGBTQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as short,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as string,",
+						"          EmpCount as integer,",
+						"          RowCount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Core",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          EventType as string,",
+						"          EventReason as string,",
+						"          WorkerType as string,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          YearsinJob as double,",
+						"          PrevJobTitle as string,",
+						"          PrevJobFunction as string,",
+						"          LastPromoDt as date,",
+						"          OrigHireDt as date,",
+						"          CurrHireDt as date,",
+						"          RehireInd as string,",
+						"          YearsofSrvc as double,",
+						"          YearsofSrvcBand as string,",
+						"          YearsofSrvcBandSortId as integer,",
+						"          CorpTitle as string,",
+						"          PrevCorpTitle as string,",
+						"          ManagerInd as string,",
+						"          DirectMgrWorkerId as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          LegacyOrg as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          Race as string,",
+						"          HispanicLatinoOrigin as string,",
+						"          Gender as string,",
+						"          Veteran as string,",
+						"          LGBTQ as string,",
+						"          DisabilityInd as string,",
+						"          BirthYear as integer,",
+						"          Generation as string,",
+						"          GenerationSortId as integer,",
+						"          EmpCount as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> CoreDB",
+						"RemoveDupsCore filter({Event Code}=='HCT') ~> filter1",
+						"RemoveDupsCore filter({Event Code}=='HCT') ~> HCTFilter",
+						"filter1 aggregate({Event Year Last} = max({Event Year})) ~> MaxYear",
+						"SelectWorkerAndYear, MaxYear join({Event Year} == {Event Year Last},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMax",
+						"filter1 aggregate({Event Year -1} = max({Event Year})-1) ~> MaxYearMinus1",
+						"filter1 aggregate({Event Year -2} = max({Event Year})-2) ~> MaxYearMinus2",
+						"filter1 aggregate({Event Year -3} = max({Event Year})-3) ~> MaxYearMinus3",
+						"filter1 aggregate({Event Year -4} = max({Event Year})-4) ~> MaxYearMinus4",
+						"HCTFilter select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Worker ID},",
+						"          {Event Year}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectWorkerAndYear",
+						"JoinMax aggregate(groupBy({Event Year Last}),",
+						"     {Total Max} = count({Worker ID})) ~> TotalWorkersMaxYear",
+						"SelectWorkerAndYear, MaxYearMinus1 join({Event Year} == {Event Year -1},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMaxMinus1",
+						"JoinMaxMinus1 aggregate(groupBy({Event Year -1}),",
+						"     {Total Max -1} = count({Worker ID})) ~> TotalWorkersMaxYearMinus1",
+						"SelectWorkerAndYear, MaxYearMinus2 join({Event Year} == {Event Year -2},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMaxMinus2",
+						"JoinMaxMinus2 aggregate(groupBy({Event Year -2}),",
+						"     TotalWorkersMaxYearMinus2 = count({Worker ID})) ~> TotalWorkersMaxYearMinus2",
+						"SelectWorkerAndYear, MaxYearMinus3 join({Event Year} == {Event Year -3},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMaxMinus3",
+						"JoinMaxMinus3 aggregate(groupBy({Event Year -3}),",
+						"     TotalWorkersMaxYearMinus3 = count({Worker ID})) ~> TotalWorkersMaxYearMinus3",
+						"SelectWorkerAndYear, MaxYearMinus4 join({Event Year} == {Event Year -4},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMaxMinus4",
+						"JoinMaxMinus4 aggregate(groupBy({Event Year -4}),",
+						"     TotalWorkersMaxYearMinus4 = count({Worker ID})) ~> TotalWorkersMaxYearMinus4",
+						"selectMax, selectMaxMinus1 join({Max Worker ID} == {1P Worker ID},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMaxMinus1forCompare",
+						"JoinMax select(mapColumn(",
+						"          {Max Client ID} = {Client ID},",
+						"          {Max Client Engagement Date} = {Client Engagement Date},",
+						"          {Max Worker ID} = {Worker ID},",
+						"          {Max Event Year} = {Event Year},",
+						"          {Event Year Last}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectMax",
+						"JoinMaxMinus1 select(mapColumn(",
+						"          {1P Client ID} = {Client ID},",
+						"          {1P Client Engagement Date} = {Client Engagement Date},",
+						"          {1P Worker ID} = {Worker ID},",
+						"          {1P Event Year} = {Event Year},",
+						"          {Event Year -1}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectMaxMinus1",
+						"JoinMaxMinus1forCompare aggregate(groupBy({Client ID} = {Max Client ID},",
+						"          {Client Engagement Date} = {Max Client Engagement Date},",
+						"          {1P Event Year},",
+						"          {Max Event Year}),",
+						"     {Total 1P HCT in Latest HCT} = count({1P Worker ID})) ~> aggregate1",
+						"selectMaxMinus1, selectMaxMinus2 join({1P Worker ID} == {2P Worker ID},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMaxMinus2forCompare",
+						"JoinMaxMinus2forCompare aggregate(groupBy({Client ID} = {1P Client ID},",
+						"          {Client Engagement Date} = {1P Client Engagement Date},",
+						"          {2P Event Year},",
+						"          {1P Event Year}),",
+						"     {Total Max -2 in Max -1} = count({2P Worker ID})) ~> aggregate2",
+						"JoinMaxMinus2 select(mapColumn(",
+						"          {2P Client ID} = {Client ID},",
+						"          {2P Client Engagement Date} = {Client Engagement Date},",
+						"          {2P Worker ID} = {Worker ID},",
+						"          {2P Event Year} = {Event Year},",
+						"          {Event Year -2}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectMaxMinus2",
+						"selectMaxMinus2, selectMaxMinus3 join({2P Worker ID} == {3P Worker ID},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMaxMinus3forCompare",
+						"JoinMaxMinus3forCompare aggregate(groupBy({Client ID} = {2P Client ID},",
+						"          {Client Engagement Date} = {2P Client Engagement Date},",
+						"          {3P Event Year},",
+						"          {2P Event Year}),",
+						"     {Total Max -3 in Max -2} = count({3P Worker ID})) ~> aggregate3",
+						"JoinMaxMinus3 select(mapColumn(",
+						"          {3P Client ID} = {Client ID},",
+						"          {3P Client Engagement Date} = {Client Engagement Date},",
+						"          {3P Worker ID} = {Worker ID},",
+						"          {3P Event Year} = {Event Year},",
+						"          {Event Year -3}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectMaxMinus3",
+						"selectMaxMinus3, selectMaxMinus4 join({3P Worker ID} == {4P Worker ID},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMaxMinus4forCompare",
+						"JoinMaxMinus4 select(mapColumn(",
+						"          {4P Client ID} = {Client ID},",
+						"          {4P Client Engagement Date} = {Client Engagement Date},",
+						"          {4P Worker ID} = {Worker ID},",
+						"          {4P Event Year} = {Event Year},",
+						"          {Event Year -4}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectMaxMinus4",
+						"JoinMaxMinus4forCompare aggregate(groupBy({Client ID} = {3P Client ID},",
+						"          {Client Engagement Date} = {3P Client Engagement Date},",
+						"          {4P Event Year},",
+						"          {3P Event Year}),",
+						"     {Total Max -4 in Max -3} = count({4P Worker ID})) ~> aggregate4",
+						"aggregate1, TotalWorkersMaxYear join({Max Event Year} == {Event Year Last},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> JoinTotalMax",
+						"JoinTotalMax select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Prior Yr} = {1P Event Year},",
+						"          {Prior Yr HCT in Compare YR HCT} = {Total 1P HCT in Latest HCT},",
+						"          {Compare Yr} = {Event Year Last},",
+						"          {Compare Yr HCT} = {Total Max}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelectMaxCompare",
+						"aggregate2, TotalWorkersMaxYearMinus1 join({1P Event Year} == {Event Year -1},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinTotal1P",
+						"JoinTotal1P select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Prior Yr} = {2P Event Year},",
+						"          {Prior Yr HCT in Compare YR HCT} = {Total Max -2 in Max -1},",
+						"          {Compare Yr} = {Event Year -1},",
+						"          {Compare Yr HCT} = {Total Max -1}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelect1PCompare",
+						"aggregate3, TotalWorkersMaxYearMinus2 join({2P Event Year} == {Event Year -2},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinTotal2P",
+						"JoinTotal2P select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Prior Yr} = {3P Event Year},",
+						"          {Prior Yr HCT in Compare YR HCT} = {Total Max -3 in Max -2},",
+						"          {Compare Yr} = {Event Year -2},",
+						"          {Compare Yr HCT} = TotalWorkersMaxYearMinus2",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelect2PCompare",
+						"aggregate4, TotalWorkersMaxYearMinus3 join({3P Event Year} == {Event Year -3},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinTotal3P",
+						"JoinTotal3P select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Prior Yr} = {4P Event Year},",
+						"          {Prior Yr HCT in Compare YR HCT} = {Total Max -4 in Max -3},",
+						"          {Compare Yr} = {Event Year -3},",
+						"          {Compare Yr HCT} = TotalWorkersMaxYearMinus3",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelect3PCompare",
+						"filter1 aggregate({Event Year -5} = max({Event Year})-5) ~> MaxYearMinus5",
+						"SelectWorkerAndYear, MaxYearMinus5 join({Event Year} == {Event Year -5},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMaxMinus5",
+						"JoinMaxMinus5 select(mapColumn(",
+						"          {5P Client ID} = {Client ID},",
+						"          {5P Client Engagement Date} = {Client Engagement Date},",
+						"          {5P Worker ID} = {Worker ID},",
+						"          {5P Event Year} = {Event Year},",
+						"          {Event Year -5}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectMaxMinus5",
+						"JoinMaxMinus5 aggregate(TotalWorkersMaxYearMinus5 = count({Worker ID})) ~> TotalWorkersMaxYearMinus5",
+						"selectMaxMinus4, selectMaxMinus5 join({4P Worker ID} == {5P Worker ID},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinMaxMinus5forCompare",
+						"JoinMaxMinus5forCompare aggregate(groupBy({Client ID} = {4P Client ID},",
+						"          {Client Engagement Date} = {4P Client Engagement Date},",
+						"          {5P Event Year},",
+						"          {4P Event Year}),",
+						"     {Total Max -5 in Max -4} = count({4P Worker ID})) ~> aggregate5",
+						"aggregate5, TotalWorkersMaxYearMinus4 join({4P Event Year} == {Event Year -4},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinTotal4P",
+						"JoinTotal4P select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Prior Yr} = {5P Event Year},",
+						"          {Prior Yr HCT in Compare YR HCT} = {Total Max -5 in Max -4},",
+						"          {Compare Yr} = {Event Year -4},",
+						"          {Compare Yr HCT} = TotalWorkersMaxYearMinus4",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelect4PCompare",
+						"FinalSelect1P derive({Match %} = round((({Prior Yr HCT in Compare Yr HCT}/{Compare Yr HCT})*100),1)) ~> CalcMaxPercent",
+						"FinalSelect2P derive({Match %} = round((({Prior Yr HCT in Compare Yr HCT}/{Compare Yr HCT})*100),1)) ~> Calc1PPercent",
+						"FinalSelect3P derive({Match %} = round((({Prior Yr HCT in Compare Yr HCT}/{Compare Yr HCT})*100),1)) ~> Calc2PPercent",
+						"FinalSelect4P derive({Match %} = round((({Prior Yr HCT in Compare Yr HCT}/{Compare Yr HCT})*100),1)) ~> Calc3PPercent",
+						"FinalSelect5P derive({Match %} = round((({Prior Yr HCT in Compare Yr HCT}/{Compare Yr HCT})*100),1)) ~> Calc4PPercent",
+						"Calc4PPercent, Calc3PPercent, Calc2PPercent, Calc1PPercent, CalcMaxPercent union(byName: true)~> union1",
+						"SelectTERColumns filter({Event Code}=='TER') ~> TERFilter",
+						"TERFilter, MaxYear join({Event Year} == {Event Year Last},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinFilterMaxTER",
+						"TERFilter, MaxYearMinus1 join({Event Year} == {Event Year -1},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinFilter1PTER",
+						"TERFilter, MaxYearMinus2 join({Event Year} == {Event Year -2},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinFilter2PTER",
+						"TERFilter, MaxYearMinus3 join({Event Year} == {Event Year -3},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinFilter3PTER",
+						"TERFilter, MaxYearMinus4 join({Event Year} == {Event Year -4},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinFilter4PTER",
+						"RemoveDupsCore select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Worker ID},",
+						"          {Event Year},",
+						"          {Event Code}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectTERColumns",
+						"JoinFilter4PTER, selectMaxMinus5 exists({Worker ID} == {5P Worker ID},",
+						"     negate:false,",
+						"     broadcast: 'both')~> MaxTERExist5PHC",
+						"MaxTERExist5PHC aggregate(groupBy({Termination Year} = {Event Year}),",
+						"     {Terms Not In Compare Yr HCT} = count({Worker ID})) ~> Terminations4PCount",
+						"JoinFilter3PTER, selectMaxMinus4 exists({Worker ID} == {4P Worker ID},",
+						"     negate:false,",
+						"     broadcast: 'both')~> MaxTERExist4PHC",
+						"MaxTERExist4PHC aggregate(groupBy({Termination Year} = {Event Year}),",
+						"     {Terms Not In Compare Yr HCT} = count({Worker ID})) ~> Terminations3PCount",
+						"JoinFilter2PTER, selectMaxMinus3 exists({Worker ID} == {3P Worker ID},",
+						"     negate:false,",
+						"     broadcast: 'both')~> MaxTERExist3PHC",
+						"MaxTERExist3PHC aggregate(groupBy({Termination Year} = {Event Year}),",
+						"     {Terms Not In Compare Yr HCT} = count({Worker ID})) ~> Terminations2PCount",
+						"JoinFilter1PTER, selectMaxMinus2 exists({Worker ID} == {2P Worker ID},",
+						"     negate:false,",
+						"     broadcast: 'both')~> MaxTERExist2PHC",
+						"MaxTERExist2PHC aggregate(groupBy({Termination Year} = {Event Year}),",
+						"     {Terms Not In Compare Yr HCT} = count({Worker ID})) ~> Terminations1PCount",
+						"JoinFilterMaxTER, selectMaxMinus1 exists({Worker ID} == {1P Worker ID},",
+						"     negate:false,",
+						"     broadcast: 'both')~> MaxTERExist1PHC",
+						"MaxTERExist1PHC aggregate(groupBy({Termination Year} = {Event Year}),",
+						"     {Terms Not In Compare Yr HCT} = count({Worker ID})) ~> TerminationsMaxCount",
+						"FinalSelectMaxCompare, TerminationsMaxCount join({Compare Yr} == {Termination Year},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> JoinMaxTERCount",
+						"JoinMaxHIRCount select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Prior Yr},",
+						"          {Prior Yr HCT in Compare Yr HCT} = {Prior Yr HCT in Compare YR HCT},",
+						"          {Termination Year},",
+						"          {Prior Yr HCT Terms Not In Compare Yr HCT} = {Terms Not In Compare Yr HCT},",
+						"          {Hire Year},",
+						"          {Hires in Compare HCT},",
+						"          {Compare Yr},",
+						"          {Compare Yr HCT}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelect1P",
+						"FinalSelect1PCompare, Terminations1PCount join({Compare Yr} == {Termination Year},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> Join1PTERCount",
+						"Join1PHIRCount select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Prior Yr},",
+						"          {Prior Yr HCT in Compare Yr HCT} = {Prior Yr HCT in Compare YR HCT},",
+						"          {Termination Year},",
+						"          {Prior Yr HCT Terms Not In Compare Yr HCT} = {Terms Not In Compare Yr HCT},",
+						"          {Hire Year},",
+						"          {Hires in Compare HCT},",
+						"          {Compare Yr},",
+						"          {Compare Yr HCT}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelect2P",
+						"FinalSelect2PCompare, Terminations2PCount join({Compare Yr} == {Termination Year},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> Join2PTERCount",
+						"Join2PHIRCount select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Prior Yr},",
+						"          {Prior Yr HCT in Compare Yr HCT} = {Prior Yr HCT in Compare YR HCT},",
+						"          {Termination Year},",
+						"          {Prior Yr HCT Terms Not In Compare Yr HCT} = {Terms Not In Compare Yr HCT},",
+						"          {Hire Year},",
+						"          {Hires in Compare HCT},",
+						"          {Compare Yr},",
+						"          {Compare Yr HCT}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelect3P",
+						"FinalSelect3PCompare, Terminations3PCount join({Compare Yr} == {Termination Year},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> Join3PTERCount",
+						"Join3PHIRCount select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Prior Yr},",
+						"          {Prior Yr HCT in Compare Yr HCT} = {Prior Yr HCT in Compare YR HCT},",
+						"          {Termination Year},",
+						"          {Prior Yr HCT Terms Not In Compare Yr HCT} = {Terms Not In Compare Yr HCT},",
+						"          {Hire Year},",
+						"          {Hires in Compare HCT},",
+						"          {Compare Yr},",
+						"          {Compare Yr HCT}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelect4P",
+						"FinalSelect4PCompare, Terminations4PCount join({Compare Yr} == {Termination Year},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> Join4PTERCount",
+						"Join4PHIRCount select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Prior Yr},",
+						"          {Prior Yr HCT in Compare Yr HCT} = {Prior Yr HCT in Compare YR HCT},",
+						"          {Termination Year},",
+						"          {Prior Yr HCT Terms Not In Compare Yr HCT} = {Terms Not In Compare Yr HCT},",
+						"          {Hire Year},",
+						"          {Hires in Compare HCT},",
+						"          {Compare Yr},",
+						"          {Compare Yr HCT}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> FinalSelect5P",
+						"SelectHIRColumns filter({Event Code}=='HIR') ~> HIRFilter",
+						"RemoveDupsCore select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Worker ID},",
+						"          {Event Year},",
+						"          {Event Code}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectHIRColumns",
+						"HIRFilter, MaxYear join({Event Year} == {Event Year Last},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> JoinFilterMaxHIR",
+						"MaxHIRExistMaxHC aggregate(groupBy({Hire Year} = {Event Year}),",
+						"     {Hires in Compare HCT} = count({Worker ID})) ~> HireMaxCount",
+						"JoinFilterMaxHIR, selectMax exists({Worker ID} == {Max Worker ID},",
+						"     negate:false,",
+						"     broadcast: 'auto')~> MaxHIRExistMaxHC",
+						"HIRFilter, MaxYearMinus1 join({Event Year} == {Event Year -1},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> JoinFilter1PHIR",
+						"JoinFilter1PHIR, selectMaxMinus1 exists({Worker ID} == {1P Worker ID},",
+						"     negate:false,",
+						"     broadcast: 'auto')~> HIR1PExist1PHC",
+						"HIR1PExist1PHC aggregate(groupBy({Hire Year} = {Event Year}),",
+						"     {Hires in Compare HCT} = count({Worker ID})) ~> Hire1PCount",
+						"HIRFilter, MaxYearMinus2 join({Event Year} == {Event Year -2},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> JoinFilter2PHIR",
+						"JoinFilter2PHIR, selectMaxMinus2 exists({Worker ID} == {2P Worker ID},",
+						"     negate:false,",
+						"     broadcast: 'auto')~> HIR2PExist2PHC",
+						"HIR2PExist2PHC aggregate(groupBy({Hire Year} = {Event Year}),",
+						"     {Hires in Compare HCT} = count({Worker ID})) ~> Hire2PCount",
+						"HIRFilter, MaxYearMinus3 join({Event Year} == {Event Year -3},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinFilter3PHIR",
+						"JoinFilter3PHIR, selectMaxMinus3 exists({Worker ID} == {3P Worker ID},",
+						"     negate:false,",
+						"     broadcast: 'auto')~> HIR3PExist3PHC",
+						"HIR3PExist3PHC aggregate(groupBy({Hire Year} = {Event Year}),",
+						"     {Hires in Compare HCT} = count({Worker ID})) ~> Hire3PCount",
+						"HIRFilter, MaxYearMinus4 join({Event Year} == {Event Year -4},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinFilter4PHIR",
+						"JoinFilter4PHIR, selectMaxMinus4 exists({Worker ID} == {4P Worker ID},",
+						"     negate:false,",
+						"     broadcast: 'auto')~> HIR4PExist4PHC",
+						"HIR4PExist4PHC aggregate(groupBy({Hire Year} = {Event Year}),",
+						"     {Hires in Compare HCT} = count({Worker ID})) ~> Hire4PCount",
+						"Join4PTERCount, Hire4PCount join({Compare Yr} == {Hire Year},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> Join4PHIRCount",
+						"Join3PTERCount, Hire3PCount join({Compare Yr} == {Hire Year},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> Join3PHIRCount",
+						"Join2PTERCount, Hire2PCount join({Compare Yr} == {Hire Year},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> Join2PHIRCount",
+						"Join1PTERCount, Hire1PCount join({Compare Yr} == {Hire Year},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> Join1PHIRCount",
+						"JoinMaxTERCount, HireMaxCount join({Compare Yr} == {Hire Year},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'both')~> JoinMaxHIRCount",
+						"CoreDB select(mapColumn(",
+						"          {Client ID} = ClientId,",
+						"          {Client Engagement Date} = ClientEngagementDt,",
+						"          {Worker ID} = WorkerId,",
+						"          {Event Year} = EventYear,",
+						"          {Event Code} = EventId",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectCoreDBFields",
+						"Core, SelectCoreDBFields union(byName: true)~> UnionWithCoreDB",
+						"UnionWithCoreDB aggregate(groupBy({Client Engagement Date},",
+						"          {Event Year},",
+						"          {Event Code},",
+						"          {Worker ID}),",
+						"     {Client ID} = max({Client ID})) ~> RemoveDupsCore",
+						"union1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Worker IDs HCT Compare Over Time.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_TemplateTbl_PrepOtherAnalysis_File')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Analysis"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "OtherCoreTable"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "EventYearCurr"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "EventYearP1"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "EventYearP2"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentOtherCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "EventYearP3"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AnalysisTblFldr",
+								"type": "DatasetReference"
+							},
+							"name": "OutputCurrTemplatePrep"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AnalysisTblFldr",
+								"type": "DatasetReference"
+							},
+							"name": "OutputP1TemplatePrep"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AnalysisTblFldr",
+								"type": "DatasetReference"
+							},
+							"name": "OutputP2TemplatePrep"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_AnalysisTblFldr",
+								"type": "DatasetReference"
+							},
+							"name": "OutputP3TemplatePrep"
+						}
+					],
+					"transformations": [
+						{
+							"name": "joinCurr"
+						},
+						{
+							"name": "selectCurrColumns"
+						},
+						{
+							"name": "joinP1"
+						},
+						{
+							"name": "selectP1Columns"
+						},
+						{
+							"name": "joinP2"
+						},
+						{
+							"name": "selectP2Columns"
+						},
+						{
+							"name": "joinP3"
+						},
+						{
+							"name": "selectP3Columns"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string,",
+						"     Flow_Folder_Year as string,",
+						"     Flow_Folder_Quarter as string",
+						"}",
+						"source(output(",
+						"          Type as string,",
+						"          Year as integer,",
+						"          Quarter as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select EventType as Type, EventYear as Year, EventQuarter as Quarter from [dbo].[OtherCoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' Group By EventType, EventYear, EventQuarter\"),",
+						"     format: 'query') ~> OtherCoreTable",
+						"source(output(",
+						"          Year as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"Select MAX(EventYear) as Year from [dbo].[OtherCoreFactTbl] Where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> EventYearCurr",
+						"source(output(",
+						"          Year as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"Select MAX(EventYear)-1 as Year from [dbo].[OtherCoreFactTbl] Where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> EventYearP1",
+						"source(output(",
+						"          Year as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"Select MAX(EventYear)-2 as Year from [dbo].[OtherCoreFactTbl] Where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> EventYearP2",
+						"source(output(",
+						"          Year as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"Select MAX(EventYear)-3 as Year from [dbo].[OtherCoreFactTbl] Where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> EventYearP3",
+						"OtherCoreTable, EventYearCurr join(OtherCoreTable@Year == EventYearCurr@Year,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinCurr",
+						"joinCurr select(mapColumn(",
+						"          Type,",
+						"          Year = OtherCoreTable@Year,",
+						"          Quarter",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectCurrColumns",
+						"OtherCoreTable, EventYearP1 join(OtherCoreTable@Year == EventYearP1@Year,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinP1",
+						"joinP1 select(mapColumn(",
+						"          Type,",
+						"          Year = OtherCoreTable@Year,",
+						"          Quarter",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectP1Columns",
+						"OtherCoreTable, EventYearP2 join(OtherCoreTable@Year == EventYearP2@Year,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinP2",
+						"joinP2 select(mapColumn(",
+						"          Type,",
+						"          Year = OtherCoreTable@Year,",
+						"          Quarter",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectP2Columns",
+						"OtherCoreTable, EventYearP3 join(OtherCoreTable@Year == EventYearP3@Year,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinP3",
+						"joinP3 select(mapColumn(",
+						"          Type,",
+						"          Year = OtherCoreTable@Year,",
+						"          Quarter,",
+						"          Year = EventYearP3@Year",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectP3Columns",
+						"selectCurrColumns sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
+						"     ),",
+						"     partitionFileNames:['OtherCoreTableAnalysis_TemplatePrep_Curr.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputCurrTemplatePrep",
+						"selectP1Columns sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
+						"     ),",
+						"     partitionFileNames:['OtherCoreTableAnalysis_TemplatePrep_P1.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputP1TemplatePrep",
+						"selectP2Columns sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
+						"     ),",
+						"     partitionFileNames:['OtherCoreTableAnalysis_TemplatePrep_P2.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputP2TemplatePrep",
+						"selectP3Columns sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
+						"     ),",
+						"     partitionFileNames:['OtherCoreTableAnalysis_TemplatePrep_P3.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputP3TemplatePrep"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FullLoad_BLSTbl')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "BLS_AmerIndAlaskNat_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AmerIndAlaskNatFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_AmerIndAlaskNat_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AmerIndAlaskNatMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_AmerIndAlaskNat_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AmerIndAlaskNatTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "Female"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Latinx_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "LatinxFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Latinx_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "LatinxMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Latinx_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "LatinxTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "Male"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_NatHawPacIsl_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "NatHawPacIslFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_NatHawPacIsl_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "NatHawPacIslMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_NatHawPacIsl_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "NatHawPacIslTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "Total"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_TwoOrMore_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "TwoOrMoreFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_TwoOrMore_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "TwoOrMoreMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_TwoOrMore_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "TwoOrMoreTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Female_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteFemale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Male_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteMale"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Total_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteTotal"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Female_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianFemaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Female_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianFemaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Male_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianMaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Male_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianMaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Total_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianTotalHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Asian_Total_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "AsianTotalNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Female_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackFemaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Female_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackFemaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Male_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackMaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Male_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackMaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Total_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackTotalHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Black_Total_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "BlackTotalNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Other_Female_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "OtherFemaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Other_Male_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "OtherMaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_Other_Total_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "OtherTotalHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Female_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteFemaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Female_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteFemaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Male_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteMaleHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Male_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteMaleNonHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Total_Hisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteTotalHisp"
+						},
+						{
+							"dataset": {
+								"referenceName": "BLS_White_Total_NonHisp_Tbl",
+								"type": "DatasetReference"
+							},
+							"name": "WhiteTotalNonHisp"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentBLSTbl",
+								"type": "DatasetReference"
+							},
+							"name": "FullLoadBLSTable"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "RemoveDuplicates"
+						},
+						{
+							"name": "OtherTotalHispFinal"
+						},
+						{
+							"name": "GetMaxID"
+						},
+						{
+							"name": "JoinInMaxTimeID"
+						},
+						{
+							"name": "CalculateLatestTimeValue"
+						},
+						{
+							"name": "GetMaxIDMaleHisp"
+						},
+						{
+							"name": "JoinInMaxTimeIDMaleHisp"
+						},
+						{
+							"name": "CalculateLatestTimeValueOtherMaleHisp"
+						},
+						{
+							"name": "OtherMaleHispFinal"
+						},
+						{
+							"name": "GetMaxIDFemaleHisp"
+						},
+						{
+							"name": "JoinInMaxTimeIDFemaleHisp"
+						},
+						{
+							"name": "CalculateLatestTimeValueOtherFemaleHisp"
+						},
+						{
+							"name": "OtherFemaleHispFinal"
+						},
+						{
+							"name": "RemoveNullRows"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AmerIndAlaskNatFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AmerIndAlaskNatMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AmerIndAlaskNatTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Female",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> LatinxFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> LatinxMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> LatinxTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Male",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> NatHawPacIslFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> NatHawPacIslMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> NatHawPacIslTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Total",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TwoOrMoreFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TwoOrMoreMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> TwoOrMoreTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteFemale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteMale",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteTotal",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianFemaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianFemaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianMaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianMaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianTotalHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AsianTotalNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackFemaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackFemaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackMaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackMaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackTotalHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BlackTotalNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> OtherFemaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> OtherMaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> OtherTotalHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteFemaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteFemaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteMaleHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteMaleNonHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteTotalHisp",
+						"source(output(",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          Desc as string,",
+						"          Year as short,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> WhiteTotalNonHisp",
+						"union1 derive(LastRefreshDt = currentTimestamp()) ~> derivedColumn1",
+						"RemoveNullRows select(mapColumn(",
+						"          LastRefreshDt,",
+						"          Source,",
+						"          SourceId,",
+						"          SourceDesc = Desc,",
+						"          Year,",
+						"          Quarter,",
+						"          Latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"AmerIndAlaskNatFemale, AmerIndAlaskNatMale, AmerIndAlaskNatTotal, AsianFemale, AsianMale, AsianTotal, BlackFemale, BlackMale, BlackTotal, Female, LatinxFemale, LatinxMale, LatinxTotal, Male, NatHawPacIslFemale, NatHawPacIslMale, NatHawPacIslTotal, Total, TwoOrMoreFemale, TwoOrMoreMale, TwoOrMoreTotal, WhiteFemale, WhiteMale, WhiteTotal, AsianFemaleHisp, AsianFemaleNonHisp, AsianMaleHisp, AsianMaleNonHisp, AsianTotalHisp, AsianTotalNonHisp, BlackFemaleHisp, BlackFemaleNonHisp, BlackMaleHisp, BlackMaleNonHisp, BlackTotalHisp, BlackTotalNonHisp, OtherFemaleHispFinal, OtherMaleHispFinal, OtherTotalHispFinal, WhiteFemaleHisp, WhiteFemaleNonHisp, WhiteMaleHisp, WhiteMaleNonHisp, WhiteTotalHisp, WhiteTotalNonHisp union(byName: true)~> union1",
+						"derivedColumn1 aggregate(groupBy(Source,",
+						"          SourceId,",
+						"          Desc,",
+						"          Year,",
+						"          Quarter,",
+						"          Latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount,",
+						"          LastRefreshDt),",
+						"     RowCount = count(SourceId)) ~> RemoveDuplicates",
+						"CalculateLatestTimeValue select(mapColumn(",
+						"          Source,",
+						"          SourceId,",
+						"          Desc,",
+						"          Year,",
+						"          Quarter,",
+						"          Latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> OtherTotalHispFinal",
+						"OtherTotalHisp aggregate(groupBy(MAXSourceId = SourceId),",
+						"     MaxTimePeriod = max(Year+Quarter)) ~> GetMaxID",
+						"OtherTotalHisp, GetMaxID join(SourceId == MAXSourceId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinInMaxTimeID",
+						"JoinInMaxTimeID derive(Latest = iif(MaxTimePeriod==(Year+Quarter),'TRUE','')) ~> CalculateLatestTimeValue",
+						"OtherMaleHisp aggregate(groupBy(MAXSourceId = SourceId),",
+						"     MaxTimePeriod = max(Year+Quarter)) ~> GetMaxIDMaleHisp",
+						"OtherMaleHisp, GetMaxIDMaleHisp join(SourceId == MAXSourceId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinInMaxTimeIDMaleHisp",
+						"JoinInMaxTimeIDMaleHisp derive(Latest = iif(MaxTimePeriod==(Year+Quarter),'TRUE','')) ~> CalculateLatestTimeValueOtherMaleHisp",
+						"CalculateLatestTimeValueOtherMaleHisp select(mapColumn(",
+						"          Source,",
+						"          SourceId,",
+						"          Desc,",
+						"          Year,",
+						"          Quarter,",
+						"          Latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> OtherMaleHispFinal",
+						"OtherFemaleHisp aggregate(groupBy(MAXSourceId = SourceId),",
+						"     MaxTimePeriod = max(Year+Quarter)) ~> GetMaxIDFemaleHisp",
+						"OtherFemaleHisp, GetMaxIDFemaleHisp join(SourceId == MAXSourceId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinInMaxTimeIDFemaleHisp",
+						"JoinInMaxTimeIDFemaleHisp derive(Latest = iif(MaxTimePeriod==(Year+Quarter),'TRUE','')) ~> CalculateLatestTimeValueOtherFemaleHisp",
+						"CalculateLatestTimeValueOtherFemaleHisp select(mapColumn(",
+						"          Source,",
+						"          SourceId,",
+						"          Desc,",
+						"          Year,",
+						"          Quarter,",
+						"          Latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> OtherFemaleHispFinal",
+						"RemoveDuplicates filter(!isNull(SourceId)) ~> RemoveNullRows",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          LastRefreshDt as date,",
+						"          Source as string,",
+						"          SourceId as string,",
+						"          SourceDesc as string,",
+						"          Year as integer,",
+						"          Quarter as integer,",
+						"          Latest as string,",
+						"          EthnicOrigin as string,",
+						"          Race as string,",
+						"          Gender as string,",
+						"          Headcount as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     truncate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> FullLoadBLSTable"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1_Initial_Template_Processing')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Folder_Year": {
+									"value": "@pipeline().parameters.P_Folder_Year",
+									"type": "Expression"
+								},
+								"P_Folder_Quarter": {
+									"value": "@pipeline().parameters.P_Folder_Quarter",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "MoveTermplateScript",
+						"type": "Custom",
+						"dependsOn": [
+							{
+								"activity": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 Client_Template_Copy_v2.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Core_Template_Drift_Review_Adj_Audit",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "MoveTermplateScript",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Core_Template_Drift_Review_Adj_Audit",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Other_Template_Drift_Review_Adj_Audit",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Core_Template_Drift_Review_Adj_Audit",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Other_Template_Drift_Review_Adj_Audit",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Column_Length_Adj_Audit",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "TA_Template_Drift_Review_Adj_Audit",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Column_Length_Adj_Audit",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "TA_Template_Drift_Review_Adj_Audit",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Other_Template_Drift_Review_Adj_Audit",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "TA_Template_Drift_Review_Adj_Audit",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/2A_Processing_Anonymization_Review')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -99,6 +3651,107 @@
 						"type": "string"
 					},
 					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:58:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/2B_Post_Anonymization_Review')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Copy templates from processing to designated year/qrt folders.  Run fact tables for Core, Talent, Req, OtherCore, Applicant and ",
+				"activities": [
+					{
+						"name": "Anonymization_Output_Core",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Anonymization_Output_Core",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Anonymization_Output_Other",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Anonymization_Output_Core",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Anonymization_Output_Other",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Anonymization_Output_TA",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Anonymization_Output_Other",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Anonymization_Output_TA",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Qtr_Start_Mnth": {
 						"type": "string"
 					}
 				},
@@ -1978,678 +5631,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-12T20:31:36Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ApplicantFlow')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_ApplicantFlow",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_ApplFlow1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_ApplicantFlow",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"ApplicantFlowMapping": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"AppendApplicantFlowMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_ApplFlow1",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_ApplFlow",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:19:43Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_BusHierarchy')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_BusHierarchy",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_BusHierarchy",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_BusHierarchy",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"BusHierarchy": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"AppendBusHierarchyMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_BusHierarchy",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_BusHierarchy",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:19:43Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_CorpTitle')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_CorpTitle",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_CorpTitle",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_CorpTitle",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"CorpTitle": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"AppendCorpTitleMappingToDB": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_CorpTitle",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_CorpTitle",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:19:43Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Disability')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_Disability",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_Disability",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_Disability",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"Disability": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_Disability",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_Disability",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:19:43Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Ethnicity')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_Ethnicity",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_Ethnicity",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_Ethnicity",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"Ethnicity": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"AppendEthnicityMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_Ethnicity",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_Ethnicity",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:19:43Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Event')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Mapping_Event",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "Delete_Rec_Mapping_Event",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Mapping_Event",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"Event": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"AppendEventMapping": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "Delete_Rec_Mapping_Event",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Delete_Rec_Mapping_Event",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:19:43Z"
 			},
 			"dependsOn": []
 		}

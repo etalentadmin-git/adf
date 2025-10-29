@@ -13,7 +13,103 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/11_Load_MetricsIntersectionAnalysis')]",
+			"name": "[concat(parameters('factoryName'), '/11_Load_Survey_Summary_Template')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Optional Pipeline to load Client Survey Data grouped by Managers and cohort groups for aggregated score analysis.  One Survey Metric (Group) can be loaded for each run.",
+				"activities": [
+					{
+						"name": "LoadSurveyScoreTables",
+						"type": "Custom",
+						"dependsOn": [
+							{
+								"activity": "Client_Information_Secrets_NoQtr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 SurveyScoresMgrSummary_Template_v1.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Client_Information_Secrets_NoQtr",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Client_Information_Secrets_NoQtr",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Folder_Year": {
+									"value": "@pipeline().parameters.P_Year",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Year": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:58:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/12_Load_MetricsIntersectionAnalysis')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -102,95 +198,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/9_Load_Manager_Hrchy')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Optional Pipeline to load Client Survey Data grouped by Managers and cohort groups for aggregated score analysis.  One Survey Metric (Group) can be loaded for each run.",
-				"activities": [
-					{
-						"name": "LoadMgrHrchyTable",
-						"type": "Custom",
-						"dependsOn": [
-							{
-								"activity": "Client_Information_Secrets_noYr_NoQtr",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 ManagerHierarchyPop_v2.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "Client_Information_Secrets_noYr_NoQtr",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Client_Information_Secrets_noYr_NoQtr",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Client Setup Routines"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:58:24Z"
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Anonymization_Output_Core')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -210,7 +217,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 Anonymization_Output_Corev2.py",
+							"command": "python3 Anonymization_Output_Corev5.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -262,7 +269,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 Anonymization_Output_Otherv2.py",
+							"command": "python3 Anonymization_Output_Otherv3.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -314,7 +321,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 Anonymization_Output_TAv2.py",
+							"command": "python3 Anonymization_Output_TAv3.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -354,7 +361,7 @@
 				"description": "Creating anonymization review file (this one runs)",
 				"activities": [
 					{
-						"name": "Custom1",
+						"name": "AnonymizationCoreAudit",
 						"type": "Custom",
 						"dependsOn": [],
 						"policy": {
@@ -366,7 +373,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 Anonymization_Review_Corev5.py",
+							"command": "python3 Anonymization_Review_Corev8.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -413,7 +420,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 Anonymization_Review_Otherv4.py",
+							"command": "python3 Anonymization_Review_Otherv7.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -460,7 +467,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 Anonymization_Review_TAv4.py",
+							"command": "python3 Anonymization_Review_TAv6.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -1588,6 +1595,102 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Column_Length_Adj_Audit')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Script to determine deeper data interesctions",
+				"activities": [
+					{
+						"name": "RunApplicantColumnLengthAudit",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 Column_Audit_v8.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Audit"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:58:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Core_Template_Drift_Review_Adj_Audit')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Script to determine deeper data interesctions",
+				"activities": [
+					{
+						"name": "RunApplicantColumnDriftAudit_Other",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 Core_Template_Data_Drift_Review_v6.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Audit"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:58:24Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_All')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -2453,6 +2556,107 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Manager_Id_Audit')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Folder_Year": {
+									"value": "@pipeline().parameters.P_Folder_Year",
+									"type": "Expression"
+								},
+								"P_Folder_Quarter": {
+									"value": "@pipeline().parameters.P_Folder_Quarter",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "RunMgrIdScript",
+						"type": "Custom",
+						"dependsOn": [
+							{
+								"activity": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 Manager_Id_Audit_v8.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Audit"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Move_Template_Into_AnalysisFldr')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -2769,65 +2973,13 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Output_Archive')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Creating anonymization review file (this one runs)",
-				"activities": [
-					{
-						"name": "RunPython",
-						"type": "Custom",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python Summary_Archive_Core1.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"ErrorMessage": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "Client/Archive"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_Mapping_BusHierarchy')]",
+			"name": "[concat(parameters('factoryName'), '/NoShow_Audit')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Client_Information_Secrets",
+						"name": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
 						"type": "ExecutePipeline",
 						"dependsOn": [],
 						"policy": {
@@ -2836,7 +2988,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "Client_Information_Secrets",
+								"referenceName": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
@@ -2861,11 +3013,11 @@
 						}
 					},
 					{
-						"name": "RunBusHierarchyMapping",
+						"name": "RunNoShowScript",
 						"type": "Custom",
 						"dependsOn": [
 							{
-								"activity": "Client_Information_Secrets",
+								"activity": "Client_Information_Secrets_Client_Dt_Yr_Qtr",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -2880,43 +3032,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 HierarchyMappingAnalysis_v16.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "RunBusHierarchyLineage",
-						"type": "Custom",
-						"dependsOn": [
-							{
-								"activity": "RunBusHierarchyMapping",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 HierarchyLineageAnalysis_v1.py",
+							"command": "python3 NoShow_Audit_v2.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -2951,412 +3067,7 @@
 					}
 				},
 				"folder": {
-					"name": "Client/Create Mapping Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:38Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline_Summarize')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Read DB Name",
-						"type": "WebActivity",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {},
-							"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-database/f8dcde178f2149989daee6b6a5c83979?api-version=7.0",
-							"authentication": {
-								"type": "MSI",
-								"resource": "https://vault.azure.net"
-							}
-						}
-					},
-					{
-						"name": "Set DB Name Variable",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Read DB Name",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "SQL_DATABASE",
-							"value": {
-								"value": "@activity('Read DB Name').output.value",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Set Blob Connect Variable",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Read Blob Connection",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "azure-blob-connection",
-							"value": {
-								"value": "@activity('Read Blob Connection').output.value",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Set DB Server Variable",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Read DB Server",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "SQL_SERVER",
-							"value": {
-								"value": "@activity('Read DB Server').output.value",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Set DB User Variable",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Read DB User",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "SQL_USERNAME",
-							"value": {
-								"value": "@activity('Read DB User').output.value",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Set DB PW Variable",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Read DB PW",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "SQL_PASSWORD",
-							"value": {
-								"value": "@activity('Read DB PW').output.value",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Read Blob Connection",
-						"type": "WebActivity",
-						"dependsOn": [
-							{
-								"activity": "Set DB Name Variable",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {},
-							"url": "https://elloreesecurevault.vault.azure.net/secrets/azure-blob-connection/b9d4997570b84fdba6a67f8b4d4795e9?api-version=7.0",
-							"authentication": {
-								"type": "MSI",
-								"resource": "https://vault.azure.net"
-							}
-						}
-					},
-					{
-						"name": "Read DB Server",
-						"type": "WebActivity",
-						"dependsOn": [
-							{
-								"activity": "Set Blob Connect Variable",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {},
-							"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-server/ce2878bb10db479bbd3f1a3afd91901a?api-version=7.0",
-							"authentication": {
-								"type": "MSI",
-								"resource": "https://vault.azure.net"
-							}
-						}
-					},
-					{
-						"name": "Read DB User",
-						"type": "WebActivity",
-						"dependsOn": [
-							{
-								"activity": "Set DB Server Variable",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {},
-							"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-username/fd0c783a9a2b418ab54532229eace065?api-version=7.0",
-							"authentication": {
-								"type": "MSI",
-								"resource": "https://vault.azure.net"
-							}
-						}
-					},
-					{
-						"name": "Read DB PW",
-						"type": "WebActivity",
-						"dependsOn": [
-							{
-								"activity": "Set DB User Variable",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {},
-							"url": "https://elloreesecurevault.vault.azure.net/secrets/sql-password/d3abf941c6334d83aaa8e161cfac79db?api-version=7.0",
-							"authentication": {
-								"type": "MSI",
-								"resource": "https://vault.azure.net"
-							}
-						}
-					},
-					{
-						"name": "Run_Test_PY",
-						"type": "Custom",
-						"dependsOn": [
-							{
-								"activity": "Set DB PW Variable",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 summarize_applications.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"extendedProperties": {
-								"SQL_SERVER": {
-									"value": "@variables('SQL_SERVER')",
-									"type": "Expression"
-								},
-								"SQL_DATABASE": {
-									"value": "@variables('SQL_DATABASE')",
-									"type": "Expression"
-								},
-								"SQL_USERNAME": {
-									"value": "@variables('SQL_USERNAME')",
-									"type": "Expression"
-								},
-								"SQL_PASSWORD": {
-									"value": "@variables('SQL_PASSWORD')",
-									"type": "Expression"
-								},
-								"azure-blob-connection": {
-									"value": "@variables('azure-blob-connection')",
-									"type": "Expression"
-								}
-							},
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"SQL_DATABASE": {
-						"type": "String"
-					},
-					"SQL_SERVER": {
-						"type": "String"
-					},
-					"SQL_USERNAME": {
-						"type": "String"
-					},
-					"SQL_PASSWORD": {
-						"type": "String"
-					},
-					"azure-blob-connection": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "Client"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline_Summarize_Test')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Custom1",
-						"type": "Custom",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": {
-								"value": "python3 HierarchyMappingAnalysis_v1.py",
-								"type": "Expression"
-							},
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"SQL_DATABASE": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "Client"
+					"name": "Client/Client Setup Routines/Audit"
 				},
 				"annotations": []
 			},
