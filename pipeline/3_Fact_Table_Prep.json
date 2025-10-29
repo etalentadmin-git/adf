@@ -1,19 +1,12 @@
 {
-	"name": "2_Post_Anonymization_Review",
+	"name": "3_Fact_Table_Prep",
 	"properties": {
 		"description": "Copy templates from processing to designated year/qrt folders.  Run fact tables for Core, Talent, Req, OtherCore, Applicant and ",
 		"activities": [
 			{
 				"name": "Move_Templates_Into_ClientFldr",
 				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "Anonymization_Output_TA",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"secureInput": false
 				},
@@ -229,7 +222,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Output_FactTbl_File_Core",
+						"activity": "NoShow_Audit",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -307,27 +300,11 @@
 				}
 			},
 			{
-				"name": "Anonymization_Output_Core",
-				"type": "ExecutePipeline",
-				"dependsOn": [],
-				"policy": {
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "Anonymization_Output_Core",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true
-				}
-			},
-			{
-				"name": "Anonymization_Output_Other",
+				"name": "Manager_Id_Audit",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Anonymization_Output_Core",
+						"activity": "Output_FactTbl_File_Core",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -339,18 +316,18 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "Anonymization_Output_Other",
+						"referenceName": "Manager_Id_Audit",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true
 				}
 			},
 			{
-				"name": "Anonymization_Output_TA",
+				"name": "NoShow_Audit",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Anonymization_Output_Other",
+						"activity": "Manager_Id_Audit",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -362,7 +339,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "Anonymization_Output_TA",
+						"referenceName": "NoShow_Audit",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true

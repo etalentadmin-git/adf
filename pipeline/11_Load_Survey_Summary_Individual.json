@@ -1,0 +1,119 @@
+{
+	"name": "11_Load_Survey_Summary_Individual",
+	"properties": {
+		"description": "Optional Pipeline to load Client Survey Data grouped by Managers and cohort groups for aggregated score analysis.  One Survey Metric (Group) can be loaded for each run.",
+		"activities": [
+			{
+				"name": "Survey_Secrets",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Survey_Secrets",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Year": {
+							"value": "@pipeline().parameters.P_Year",
+							"type": "Expression"
+						},
+						"P_Metric_Group": {
+							"value": "@pipeline().parameters.P_Metric_Group",
+							"type": "Expression"
+						},
+						"P_Survey_Title": {
+							"value": "@pipeline().parameters.P_Survey_Title",
+							"type": "Expression"
+						},
+						"P_Survey_Desc": {
+							"value": "@pipeline().parameters.P_Survey_Desc",
+							"type": "Expression"
+						},
+						"P_Event_Type_Codes": {
+							"value": "@pipeline().parameters.P_Event_Type_Codes",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "LoadSurveyScoreTables",
+				"type": "Custom",
+				"dependsOn": [
+					{
+						"activity": "Survey_Secrets",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"command": "python3 SurveyScoresMgrSummary_v4.py",
+					"resourceLinkedService": {
+						"referenceName": "AzureBlob_Etalent1Storage",
+						"type": "LinkedServiceReference"
+					},
+					"folderPath": "processing/Python",
+					"referenceObjects": {
+						"linkedServices": [],
+						"datasets": []
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureBatch_etalent1storage",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"P_Client_Id": {
+				"type": "string"
+			},
+			"P_Client_Dt": {
+				"type": "string"
+			},
+			"P_Year": {
+				"type": "string"
+			},
+			"P_Metric_Group": {
+				"type": "string"
+			},
+			"P_Survey_Title": {
+				"type": "string"
+			},
+			"P_Survey_Desc": {
+				"type": "string"
+			},
+			"P_Event_Type_Codes": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Client/Client Setup Routines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-12T15:58:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
