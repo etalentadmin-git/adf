@@ -13,6 +13,158 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_FactTbl_Talent_File_copy1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Fact Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Template_TalentAssessment",
+								"type": "DatasetReference"
+							},
+							"name": "Talent"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTblFldr",
+								"type": "DatasetReference"
+							},
+							"name": "sinkOutputTalentFactTbl"
+						}
+					],
+					"transformations": [
+						{
+							"name": "FilterOutClientHeaderRowAndColumn"
+						},
+						{
+							"name": "SelectFinal"
+						},
+						{
+							"name": "AddParameters"
+						},
+						{
+							"name": "RemoveDuplicates"
+						},
+						{
+							"name": "RemoveNullWorkerIDRows"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {Event Year} as short,",
+						"          {Event Date} as date,",
+						"          {Event Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Performance Rating} as string,",
+						"          {Performance Rating Date} as date,",
+						"          {Top Performer} as string,",
+						"          {Talent Identifier (1)} as string,",
+						"          {Talent Identifier (2)} as string,",
+						"          {Talent Identifier (3)} as string,",
+						"          {Talent Identifier (4)} as string,",
+						"          {Talent Identifier (5)} as string,",
+						"          {Salary Range} as string,",
+						"          Bonus as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Talent",
+						"Talent filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+						"RemoveNullWorkerIDRows select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Event Year},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Event Type},",
+						"          {Worker ID},",
+						"          {Performance Rating},",
+						"          {Performance Rating Date},",
+						"          {Talent Identifier (1)},",
+						"          {Talent Identifier (2)},",
+						"          {Talent Identifier (3)},",
+						"          {Talent Identifier (4)},",
+						"          {Talent Identifier (5)},",
+						"          {Salary Range},",
+						"          Bonus",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectFinal",
+						"FilterOutClientHeaderRowAndColumn derive({Client ID} = $Flow_Client_Id,",
+						"          {Client Engagement Date} = $Flow_Client_Dt,",
+						"          Event = 'PER',",
+						"          {Performance Rating} = iif(isNull({Performance Rating}), 'N/A',{Performance Rating})) ~> AddParameters",
+						"AddParameters aggregate(groupBy({Event Year},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Event Type},",
+						"          {Worker ID},",
+						"          {Performance Rating},",
+						"          {Performance Rating Date},",
+						"          {Talent Identifier (1)},",
+						"          {Talent Identifier (2)},",
+						"          {Talent Identifier (3)},",
+						"          {Talent Identifier (4)},",
+						"          {Talent Identifier (5)},",
+						"          {Client ID},",
+						"          {Salary Range},",
+						"          Bonus),",
+						"     {Client Engagement Date} = max({Client Engagement Date})) ~> RemoveDuplicates",
+						"RemoveDuplicates filter(not(isNull({Worker ID}))) ~> RemoveNullWorkerIDRows",
+						"SelectFinal sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string,",
+						"          Column_4 as string,",
+						"          Column_5 as string,",
+						"          Column_6 as string,",
+						"          Column_7 as string,",
+						"          Column_8 as string,",
+						"          Column_9 as string,",
+						"          Column_10 as string,",
+						"          Column_11 as string,",
+						"          Column_12 as string,",
+						"          Column_13 as string,",
+						"          Column_14 as string,",
+						"          Column_15 as string,",
+						"          Column_16 as string,",
+						"          Column_17 as string,",
+						"          Column_18 as string,",
+						"          Column_19 as string,",
+						"          Column_20 as string,",
+						"          Column_21 as string,",
+						"          Column_22 as string,",
+						"          Column_23 as string,",
+						"          Column_24 as string,",
+						"          Column_25 as string,",
+						"          Column_26 as string,",
+						"          Column_27 as string,",
+						"          Column_28 as string",
+						"     ),",
+						"     partitionFileNames:['TalentFactTbl1.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkOutputTalentFactTbl"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_FactTbl_YearRefTable')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -9827,378 +9979,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> BSOutputLOBlvl1Hierarchy"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_Review_BusHierarchyCheck')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Audit Reports"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_AllCoreData_File",
-								"type": "DatasetReference"
-							},
-							"name": "AllCoreData1",
-							"description": "Import all Core data.  Workflow will output orphan hierarchy based on records that do not match the current headcount hierarchy."
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_AllCoreData_File",
-								"type": "DatasetReference"
-							},
-							"name": "AllCoreData2",
-							"description": "Import all core data.  Workflow will output orphan and current hierarchy along with record counts"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_AllCoreData_File",
-								"type": "DatasetReference"
-							},
-							"name": "CoreForHCT"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_AuditFolder",
-								"type": "DatasetReference"
-							},
-							"name": "OutputOrphanHierarchy"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_AuditFolder",
-								"type": "DatasetReference"
-							},
-							"name": "OuputOrphanAndCurrHrchyCounts"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_AuditFolder",
-								"type": "DatasetReference"
-							},
-							"name": "OutputWorkerHierarchyDetail"
-						}
-					],
-					"transformations": [
-						{
-							"name": "MaxEventDt"
-						},
-						{
-							"name": "CurrentHCTEvent",
-							"description": "Join on max HCT event date in order to pull only the Current headcount records"
-						},
-						{
-							"name": "UniqueHierarchyRecords",
-							"description": "Select unique hierarchy for current headcount records."
-						},
-						{
-							"name": "SelectUniqueHierarchyCurrHCT",
-							"description": "Select key and hierarchy fields."
-						},
-						{
-							"name": "UniqueHierarchyAllEvents"
-						},
-						{
-							"name": "SelectUniqueHierarchyFields"
-						},
-						{
-							"name": "SelectCoreWithNoCurrentHierarchy"
-						},
-						{
-							"name": "PullRecordsWithOrphans",
-							"description": "Pull only records that do not have a hierarchy that matches a current hierarchy "
-						},
-						{
-							"name": "UniqueWorkerWithOrphanHrchy",
-							"description": "Pull unique worker ID and LOB lvl1 and LOB lvl 2 records."
-						},
-						{
-							"name": "SelectUniqueWorkerIDsWithOrphanHierarchy"
-						},
-						{
-							"name": "PullCurrentHierarchyIfExists",
-							"description": "Join orphan workers ID's with current HCT worker ID's to pull in Current hierarchy if present."
-						},
-						{
-							"name": "SelectWorkerIDandHierarcy",
-							"description": "Select worker ID and hierarchy fields"
-						},
-						{
-							"name": "CreateWorkerCountsbyHierarchy",
-							"description": "Create counts for unique orphan and current hierarchy records"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "derivedColumn2"
-						},
-						{
-							"name": "derivedColumn3"
-						},
-						{
-							"name": "HCTFilter"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          EventMonth as integer,",
-						"          {Event Quarter} as integer,",
-						"          {Event Year} as short,",
-						"          {Worker ID} as string,",
-						"          {Event Date} as date,",
-						"          {Event Code} as string,",
-						"          {Event Type} as string,",
-						"          Event as string,",
-						"          {Event Reason} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Function} as string,",
-						"          {Years in Job} as double,",
-						"          {Previous Job Title} as string,",
-						"          {Previous Job Function} as string,",
-						"          {Original Hire Date} as date,",
-						"          {Current Hire Date} as date,",
-						"          {Years of Service} as double,",
-						"          {Years of Service Band} as string,",
-						"          {Years of Service Sort ID} as string,",
-						"          {Last Promo Date} as string,",
-						"          {Corporate Title} as string,",
-						"          {Previous Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Legacy Organization} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGBTQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as short,",
-						"          {Generation Desc} as string,",
-						"          {Generation Sort ID} as string,",
-						"          EmpCount as integer,",
-						"          RowCount as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> AllCoreData1",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          EventMonth as integer,",
-						"          {Event Quarter} as integer,",
-						"          {Event Year} as short,",
-						"          {Worker ID} as string,",
-						"          {Event Date} as date,",
-						"          {Event Code} as string,",
-						"          {Event Type} as string,",
-						"          Event as string,",
-						"          {Event Reason} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Family/Function} as string,",
-						"          {Years in Job} as double,",
-						"          {Previous Job Title} as string,",
-						"          {Previous Job Family/Function} as string,",
-						"          {Original Hire Date} as date,",
-						"          {Current Hire Date} as date,",
-						"          {Years of Service} as double,",
-						"          {Years of Service Band} as string,",
-						"          {Years of Service Sort ID} as string,",
-						"          {Last Promo Date} as date,",
-						"          {Rehire Indicator} as string,",
-						"          {Corporate Title} as string,",
-						"          {Previous Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Legacy Organization} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGBTQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as short,",
-						"          {Generation Desc} as string,",
-						"          {Generation Sort ID} as string,",
-						"          EmpCount as integer,",
-						"          RowCount as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> AllCoreData2",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          EventMonth as integer,",
-						"          {Event Quarter} as integer,",
-						"          {Event Year} as short,",
-						"          {Worker ID} as string,",
-						"          {Event Date} as date,",
-						"          {Event Code} as string,",
-						"          {Event Type} as string,",
-						"          Event as string,",
-						"          {Event Reason} as string,",
-						"          {Worker Type} as string,",
-						"          {Job Title} as string,",
-						"          {Job Family/Function} as string,",
-						"          {Years in Job} as double,",
-						"          {Previous Job Title} as string,",
-						"          {Previous Job Family/Function} as string,",
-						"          {Original Hire Date} as date,",
-						"          {Current Hire Date} as date,",
-						"          {Years of Service} as double,",
-						"          {Years of Service Band} as string,",
-						"          {Years of Service Sort ID} as string,",
-						"          {Last Promo Date} as date,",
-						"          {Rehire Indicator} as string,",
-						"          {Corporate Title} as string,",
-						"          {Previous Corporate Title} as string,",
-						"          {Manager Indicator} as string,",
-						"          {Direct Manager Worker ID} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Legacy Organization} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGBTQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Birth Year} as short,",
-						"          {Generation Desc} as string,",
-						"          {Generation Sort ID} as string,",
-						"          EmpCount as integer,",
-						"          RowCount as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> CoreForHCT",
-						"HCTFilter aggregate(groupBy(EventUnique = Event),",
-						"     MaxEventDate = max({Event Date})) ~> MaxEventDt",
-						"derivedColumn3, MaxEventDt join({Event Date} == MaxEventDate,",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> CurrentHCTEvent",
-						"CurrentHCTEvent aggregate(groupBy({HierarchyKey Unique} = HierarchyKey),",
-						"     each(match(name!='HierarchyKey'), $$ = first($$))) ~> UniqueHierarchyRecords",
-						"UniqueHierarchyRecords select(mapColumn(",
-						"          {HierarchyKey Unique HCT} = {HierarchyKey Unique},",
-						"          {Business Group Level 1 HCT} = {Business Group Level 1},",
-						"          {Business Group Level 2 HCT} = {Business Group Level 2}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectUniqueHierarchyCurrHCT",
-						"derivedColumn1 aggregate(groupBy({HierarchyKey Unique} = HierarchyKey),",
-						"     each(match(name!='HierarchyKey'), $$ = first($$))) ~> UniqueHierarchyAllEvents",
-						"UniqueHierarchyAllEvents select(mapColumn(",
-						"          {HierarchyKey Unique ALL} = {HierarchyKey Unique},",
-						"          {Business Group Level 1 ALL} = {Business Group Level 1},",
-						"          {Business Group Level 2 ALL} = {Business Group Level 2}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectUniqueHierarchyFields",
-						"SelectUniqueHierarchyFields, SelectUniqueHierarchyCurrHCT exists({HierarchyKey Unique ALL} == {HierarchyKey Unique HCT},",
-						"     negate:true,",
-						"     broadcast: 'auto')~> SelectCoreWithNoCurrentHierarchy",
-						"derivedColumn2, SelectCoreWithNoCurrentHierarchy join(HierarchyKey == {HierarchyKey Unique ALL},",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> PullRecordsWithOrphans",
-						"PullRecordsWithOrphans aggregate(groupBy({Worker ID unique} = {Worker ID},",
-						"          {Business Group Level 1 Unique} = {Business Group Level 1},",
-						"          {Business Group Level 2 Unique} = {Business Group Level 2}),",
-						"     each(match(name!='Worker ID'), $$ = first($$)),",
-						"     partitionBy('hash', 1)) ~> UniqueWorkerWithOrphanHrchy",
-						"UniqueWorkerWithOrphanHrchy select(mapColumn(",
-						"          {Worker ID unique},",
-						"          {Business Group Level 1 Unique},",
-						"          {Business Group Level 2 Unique}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectUniqueWorkerIDsWithOrphanHierarchy",
-						"SelectUniqueWorkerIDsWithOrphanHierarchy, CurrentHCTEvent join({Worker ID unique} == {Worker ID},",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> PullCurrentHierarchyIfExists",
-						"PullCurrentHierarchyIfExists select(mapColumn(",
-						"          {Worker ID unique},",
-						"          {Business Group Level 1 Orphan} = {Business Group Level 1 Unique},",
-						"          {Business Group Level 2 Orphan} = {Business Group Level 2 Unique},",
-						"          {Business Group Level 1 Current HCT} = {Business Group Level 1},",
-						"          {Business Group Level 2 Current HCT} = {Business Group Level 2}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectWorkerIDandHierarcy",
-						"SelectWorkerIDandHierarcy aggregate(groupBy({Business Group Level 1 Orph} = {Business Group Level 1 Orphan},",
-						"          {Business Group Level 2 Orph} = {Business Group Level 2 Orphan},",
-						"          {Business Group Level 1 Curr HCT} = {Business Group Level 1 Current HCT},",
-						"          {Business Group Level 2 Curr HCT} = {Business Group Level 2 Current HCT}),",
-						"     WorkerCount = count({Worker ID unique})) ~> CreateWorkerCountsbyHierarchy",
-						"AllCoreData1 derive(HierarchyKey = concat({Business Group Level 1},{Business Group Level 2})) ~> derivedColumn1",
-						"AllCoreData2 derive(HierarchyKey = concat({Business Group Level 1}, {Business Group Level 2})) ~> derivedColumn2",
-						"HCTFilter derive(HierarchyKey = concat({Business Group Level 1},{Business Group Level 2})) ~> derivedColumn3",
-						"CoreForHCT filter({Event Code}=='HCT') ~> HCTFilter",
-						"SelectCoreWithNoCurrentHierarchy sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Dimension Review - Hierarchy Orphans.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> OutputOrphanHierarchy",
-						"CreateWorkerCountsbyHierarchy sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Dimension Review - Hierarchy Orphans All Levels.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> OuputOrphanAndCurrHrchyCounts",
-						"SelectWorkerIDandHierarcy sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Dimension Review - Hierarchy Orphan Worker Detail.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> OutputWorkerHierarchyDetail"
 					]
 				}
 			},

@@ -13,6 +13,52 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/NoShow_Audit')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RunNoShowScript",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 NoShow_Audit_v2.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Audit"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Other_Template_Drift_Review_Adj_Audit')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -32,7 +78,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 Other_Template_Data_Drift_Review_v12.py",
+							"command": "python3 Other_Template_Data_Drift_Review_v13.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -270,7 +316,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 TA_Template_Data_Drift_Review_v8.py",
+							"command": "python3 TA_Template_Data_Drift_Review_v10.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -3445,111 +3491,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError') ~> AppendCorpTitleMappingToDB"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Disability')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_Disability",
-								"type": "DatasetReference"
-							},
-							"name": "Disability"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentDisabilityMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Disability Ind} as string,",
-						"          {Elloree Disability Ind} as string,",
-						"          {Suggested Elloree Disability Ind} as string,",
-						"          {Suggested Source} as string,",
-						"          {2017 Headcount} as string,",
-						"          {2018 Headcount} as string,",
-						"          {2018 Hire} as string,",
-						"          {2018 Promo} as string,",
-						"          {2018 Term} as string,",
-						"          {2019 Headcount} as string,",
-						"          {2019 Hire} as string,",
-						"          {2019 Promo} as string,",
-						"          {2019 Term} as string,",
-						"          {2020 Headcount} as string,",
-						"          {2020 Hire} as string,",
-						"          {2020 Promo} as string,",
-						"          {2020 Term} as string,",
-						"          {2021 Headcount} as string,",
-						"          {2021 Hire} as string,",
-						"          {2021 Promo} as string,",
-						"          {2021 Term} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Disability",
-						"Disability alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Client Disability Ind})),",
-						"     deleteIf(isNull({Elloree Disability Ind}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientDisabilityInd = {Client Disability Ind},",
-						"          ElloreeDisabilityInd = {Elloree Disability Ind},",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientDisabilityInd as string,",
-						"          ElloreeDisabilityInd as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientDisabilityInd'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 					]
 				}
 			},
