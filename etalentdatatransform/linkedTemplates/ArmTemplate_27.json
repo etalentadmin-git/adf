@@ -13,6 +13,511 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Req')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_Req",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DeleteAllHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_Req",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Requisitions": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendReqFact": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DeleteAllHistory",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_All_Rec_FactTbl_Req",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_All_Rec_FactTbl_Req",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"Requisition": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Delete_History_No_All": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T20:26:48Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_SilverMedalist')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_SilverMedalist",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DeleteAllHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_SilverMedalist",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SilverMedalist": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendSilverMedalistFAct": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DeleteAllHistory",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_All_Rec_FactTbl_SilverMedalist",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_All_Rec_FactTbl_SilverMedalist",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"SilverMedalistFactTbl": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Delete_History_No_All": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T17:55:31Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Speedbumps')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_Speedbumps",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_Speedbumps",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Speedbumps": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:44:11Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_Talent",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DeleteAllHistory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_Talent",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Talent": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendTalentMapping": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DeleteAllHistory",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete_All_Rec_FactTbl_Talent",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "Delete_All_Rec_FactTbl_Talent",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Flow_Client_Id": {
+													"value": "'@{pipeline().parameters.P_Client_Id}'",
+													"type": "Expression"
+												},
+												"Flow_Client_Dt": {
+													"value": "'@{pipeline().parameters.P_Client_Dt}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"TalentFactTbl": {},
+												"DeleteRecords": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Delete_History_No_All": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T20:31:36Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1828,390 +2333,6 @@
 										}
 									},
 									"AppendOtherCoreAnalysisTmp": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Analysis Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T20:31:36Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Tbl_OtherCoreAnalysis_Curr')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Tbl_OthCoreAnalysis_Curr",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Tbl_OthCoreAnalysis_Curr",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Collection_Year": {
-										"value": "'@{pipeline().parameters.P_Folder_Year}'",
-										"type": "Expression"
-									},
-									"Flow_Collection_Quarter": {
-										"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"SourceAnalysisRefOtherCoreCurr": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"LoadOtherCoreAnalysisCurr": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Analysis Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T20:31:36Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Tbl_OtherCoreAnalysis_P1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Tbl_OthCoreAnalysis_P1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Tbl_OthCoreAnalysis_P1",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Collection_Year": {
-										"value": "'@{pipeline().parameters.P_Folder_Year}'",
-										"type": "Expression"
-									},
-									"Flow_Collection_Quarter": {
-										"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"SourceAnalysisOtherCoreP1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"LoadOtherCoreAnalysisP1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Analysis Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T20:31:36Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Tbl_OtherCoreAnalysis_P2')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Tbl_OthCoreAnalysis_P2",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Tbl_OthCoreAnalysis_P2",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Collection_Year": {
-										"value": "'@{pipeline().parameters.P_Folder_Year}'",
-										"type": "Expression"
-									},
-									"Flow_Collection_Quarter": {
-										"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"SourceAnalysisOtherCoreP1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"LoadOtherCoreAnalysisP2": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Analysis Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T20:31:36Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Tbl_OtherCoreAnalysis_P3')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_Tbl_OthCoreAnalysis_P3",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_Tbl_OthCoreAnalysis_P3",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Flow_Client_Id": {
-										"value": "'@{pipeline().parameters.P_Client_Id}'",
-										"type": "Expression"
-									},
-									"Flow_Client_Dt": {
-										"value": "'@{pipeline().parameters.P_Client_Dt}'",
-										"type": "Expression"
-									},
-									"Flow_Collection_Year": {
-										"value": "'@{pipeline().parameters.P_Folder_Year}'",
-										"type": "Expression"
-									},
-									"Flow_Collection_Quarter": {
-										"value": "'@{pipeline().parameters.P_Folder_Quarter}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"SourceAnalysisOtherCoreP1": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"LoadOtherCoreAnalysisP3": {}
 								}
 							},
 							"staging": {},
