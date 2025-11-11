@@ -13,6 +13,128 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_TalentData_File",
+								"type": "DatasetReference"
+							},
+							"name": "Talent"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentTalentFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendTalentMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Event Year} as string,",
+						"          {Event Date} as string,",
+						"          Event as string,",
+						"          {Event Type} as string,",
+						"          {Worker ID} as string,",
+						"          {Performance Rating} as string,",
+						"          {Performance Rating Date} as date,",
+						"          {Talent Identifier (1)} as string,",
+						"          {Talent Identifier (2)} as string,",
+						"          {Talent Identifier (3)} as string,",
+						"          {Talent Identifier (4)} as string,",
+						"          {Talent Identifier (5)} as string,",
+						"          {Salary Range} as string,",
+						"          Bonus as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Talent",
+						"Talent alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Performance Rating}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date},",
+						"          EventYear = {Event Year},",
+						"          EventDt = {Event Date},",
+						"          Event,",
+						"          EventType = {Event Type},",
+						"          WorkerId = {Worker ID},",
+						"          PerfRating = {Performance Rating},",
+						"          PerfRatingDt = {Performance Rating Date},",
+						"          TalentIdentifier1 = {Talent Identifier (1)},",
+						"          TalentIdentifier2 = {Talent Identifier (2)},",
+						"          TalentIdentifier3 = {Talent Identifier (3)},",
+						"          TalentIdentifier4 = {Talent Identifier (4)},",
+						"          TalentIdentifier5 = {Talent Identifier (5)},",
+						"          {Salary Range},",
+						"          Bonus",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(Event = 'PER',",
+						"          LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventYear as integer,",
+						"          EventDt as date,",
+						"          Event as string,",
+						"          EventType as string,",
+						"          PerfRating as string,",
+						"          PerfRatingDt as date,",
+						"          TalentIdentifier1 as string,",
+						"          TalentIdentifier2 as string,",
+						"          TalentIdentifier3 as string,",
+						"          TalentIdentifier4 as string,",
+						"          TalentIdentifier5 as string,",
+						"          LoadDt as date,",
+						"          SalaryRange as string,",
+						"          Bonus as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','EventDt','PerfRating'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_YearRef')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -2947,173 +3069,6 @@
 						"          LoadDt",
 						"     ),",
 						"     partitionBy('hash', 1)) ~> LoadClientInfo"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Tbl_OthCoreAnalysisRef')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Analysis Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Template_Analysis_OtherTbl_Curr",
-								"type": "DatasetReference"
-							},
-							"name": "SourceAnalysisRefOtherCoreCurr"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_Analysis_OtherTbl_1P",
-								"type": "DatasetReference"
-							},
-							"name": "SourceAnalysisRefOtherCore1P"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_Analysis_OtherTbl_2P",
-								"type": "DatasetReference"
-							},
-							"name": "SourceAnalysisRefOtherCore2P"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_Analysis_OtherTbl_3P",
-								"type": "DatasetReference"
-							},
-							"name": "SourceAnalysisRefOtherCore3P"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentOtherCoreAnalysisRefTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendOtherCoreAnalysisTmp"
-						}
-					],
-					"transformations": [
-						{
-							"name": "AssignDerivedColumns"
-						},
-						{
-							"name": "alterRow2"
-						},
-						{
-							"name": "unionAllTimePeriods"
-						},
-						{
-							"name": "RemoveNullTypes"
-						},
-						{
-							"name": "SelectFinalOutput"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_Collection_Year as string,",
-						"     Flow_Collection_Quarter as string",
-						"}",
-						"source(output(",
-						"          Id as integer,",
-						"          Type as string,",
-						"          Year as integer,",
-						"          Quarter as integer,",
-						"          Notes as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCoreCurr",
-						"source(output(",
-						"          Id as integer,",
-						"          Type as string,",
-						"          Year as integer,",
-						"          Quarter as integer,",
-						"          Notes as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCore1P",
-						"source(output(",
-						"          Id as integer,",
-						"          Type as string,",
-						"          Year as integer,",
-						"          Quarter as integer,",
-						"          Notes as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCore2P",
-						"source(output(",
-						"          Id as integer,",
-						"          Type as string,",
-						"          Year as integer,",
-						"          Quarter as integer,",
-						"          Notes as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> SourceAnalysisRefOtherCore3P",
-						"RemoveNullTypes derive(ClientId = $Flow_Client_Id,",
-						"          ClientEngagementDt = toDate($Flow_Client_Dt,'MM/dd/yyyy'),",
-						"          DataCollectionYear = toInteger($Flow_Collection_Year),",
-						"          DataCollectionQuarter = toInteger($Flow_Collection_Quarter),",
-						"          Type = concat(concat(concat(concat(concat(toString(Year),'-'),'Q'),toString(Quarter)),' '),Type),",
-						"          LoadDt = currentDate()) ~> AssignDerivedColumns",
-						"SelectFinalOutput alterRow(upsertIf(true())) ~> alterRow2",
-						"SourceAnalysisRefOtherCoreCurr, SourceAnalysisRefOtherCore1P, SourceAnalysisRefOtherCore2P, SourceAnalysisRefOtherCore3P union(byName: true)~> unionAllTimePeriods",
-						"unionAllTimePeriods filter(Type!='N/A') ~> RemoveNullTypes",
-						"AssignDerivedColumns select(mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt,",
-						"          DataCollectionYear,",
-						"          DataCollectionQuarter,",
-						"          Type,",
-						"          Notes,",
-						"          LoadDt",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectFinalOutput",
-						"alterRow2 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          Type as string,",
-						"          DataCollectionYear as integer,",
-						"          DataCollectionQuarter as integer,",
-						"          Notes as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','DataCollectionYear','DataCollectionQuarter','Type'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ClientId,",
-						"          ClientEngagementDt,",
-						"          Type,",
-						"          DataCollectionYear,",
-						"          DataCollectionQuarter,",
-						"          Notes,",
-						"          LoadDt",
-						"     )) ~> AppendOtherCoreAnalysisTmp"
 					]
 				}
 			},

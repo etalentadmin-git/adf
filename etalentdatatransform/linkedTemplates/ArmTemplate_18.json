@@ -13,6 +13,422 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_FactTbl_All')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_FactTbl_Speedbumps",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_All_Rec_FactTbl_Speedbumps",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_Applicant",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_Speedbumps",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_Applicant",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_ApplicantStatus",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_Applicant",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_ApplicantStatus",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_Client",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_ApplicantStatus",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_Client",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_Core",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_Client",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_Core",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_DivSlate",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_Core",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_DivSlate",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_OtherCore",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_DivSlate",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_OtherCore",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_PerfRatingHist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_OtherCore",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_PerfRatingHist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_Req",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_PerfRatingHist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_Req",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_SilverMedalist",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_Req",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_SilverMedalist",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_Talent",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_SilverMedalist",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_Talent",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Delete_Rec_FactTbl_YearRef",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_FactTbl_Talent",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_FactTbl_YearRef",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:29Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_All')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -3717,128 +4133,6 @@
 						"          Speedbump15Flag,",
 						"          LoadDt",
 						"     )) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_Talent')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_TalentData_File",
-								"type": "DatasetReference"
-							},
-							"name": "Talent"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentTalentFactTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendTalentMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Event Year} as string,",
-						"          {Event Date} as string,",
-						"          Event as string,",
-						"          {Event Type} as string,",
-						"          {Worker ID} as string,",
-						"          {Performance Rating} as string,",
-						"          {Performance Rating Date} as date,",
-						"          {Talent Identifier (1)} as string,",
-						"          {Talent Identifier (2)} as string,",
-						"          {Talent Identifier (3)} as string,",
-						"          {Talent Identifier (4)} as string,",
-						"          {Talent Identifier (5)} as string,",
-						"          {Salary Range} as string,",
-						"          Bonus as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Talent",
-						"Talent alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Performance Rating}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          EventYear = {Event Year},",
-						"          EventDt = {Event Date},",
-						"          Event,",
-						"          EventType = {Event Type},",
-						"          WorkerId = {Worker ID},",
-						"          PerfRating = {Performance Rating},",
-						"          PerfRatingDt = {Performance Rating Date},",
-						"          TalentIdentifier1 = {Talent Identifier (1)},",
-						"          TalentIdentifier2 = {Talent Identifier (2)},",
-						"          TalentIdentifier3 = {Talent Identifier (3)},",
-						"          TalentIdentifier4 = {Talent Identifier (4)},",
-						"          TalentIdentifier5 = {Talent Identifier (5)},",
-						"          {Salary Range},",
-						"          Bonus",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(Event = 'PER',",
-						"          LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          WorkerId as string,",
-						"          EventYear as integer,",
-						"          EventDt as date,",
-						"          Event as string,",
-						"          EventType as string,",
-						"          PerfRating as string,",
-						"          PerfRatingDt as date,",
-						"          TalentIdentifier1 as string,",
-						"          TalentIdentifier2 as string,",
-						"          TalentIdentifier3 as string,",
-						"          TalentIdentifier4 as string,",
-						"          TalentIdentifier5 as string,",
-						"          LoadDt as date,",
-						"          SalaryRange as string,",
-						"          Bonus as string",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','EventDt','PerfRating'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendTalentMapping"
 					]
 				}
 			},
