@@ -13,6 +13,163 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_Nulls_Other')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_OtherCore_File",
+								"type": "DatasetReference"
+							},
+							"name": "Applicants"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputNullReview"
+						}
+					],
+					"transformations": [
+						{
+							"name": "IdentifyNulls",
+							"description": "Calculate whether a null value exists and assign 1 for count."
+						},
+						{
+							"name": "AggregateNullsByColumn",
+							"description": "Count nulls for each column and group by event."
+						},
+						{
+							"name": "unpivotColumnNames",
+							"description": "Unpivot as part of formatting to establish Column Name as the primary dimension column."
+						},
+						{
+							"name": "pivotEvents",
+							"description": "Pivot row to show counts by column names grouped by events."
+						},
+						{
+							"name": "derivedColumn1",
+							"description": "Pivot to show null counts by column name and grouped by events."
+						},
+						{
+							"name": "ChangeColumnNames",
+							"description": "Rename columns to remove 'Null' name tagging."
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as string,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as string,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
+						"          {Event ID} as string,",
+						"          Event as string,",
+						"          {Event (Type)} as string,",
+						"          {Event (Desc)} as string,",
+						"          {Other (Char Value 1)} as string,",
+						"          {Other (Char Value 2)} as string,",
+						"          {Other (Num Value 1)} as string,",
+						"          {Other (Num Value 2)} as string,",
+						"          {Other (Date Value 1)} as string,",
+						"          {Other (Date Value 2)} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Applicants",
+						"Applicants derive({Event Year - Null} = iif(isNull({Event Year}),1,iif({Event Year}=='N/A',1,0)),",
+						"          {Event Date  - Null} = iif(isNull({Event Date}),1,iif({Event Date}=='N/A',1,0)),",
+						"          {Event (Type) - Null} = iif(isNull({Event (Type)}),1,iif({Event (Type)}=='N/A',1,0)),",
+						"          {Event (Desc) - Null} = iif(isNull({Event (Desc)}),1,iif({Event (Desc)}=='N/A',1,0)),",
+						"          {Other (Char Value 1) - Null} = iif(isNull({Other (Char Value 1)}),1,iif({Other (Char Value 1)}=='N/A',1,0)),",
+						"          {Other (Char Value 2) - Null} = iif(isNull({Other (Char Value 2)}),1,iif({Other (Char Value 2)}=='N/A',1,0)),",
+						"          {Other (Num Value 1) - Null} = iif(isNull({Other (Num Value 1)}),1,iif({Other (Num Value 2)}=='N/A',1,0)),",
+						"          {Other (Num Value 2) - Null} = iif(isNull({Other (Num Value 2)}),1,iif({Other (Num Value 2)}=='N/A',1,0)),",
+						"          {Other (Date Value 1) - Null} = iif(isNull({Other (Date Value 1)}),1,iif({Other (Date Value 1)}=='N/A',1,0)),",
+						"          {Other (Date Value 2) - Null} = iif(isNull({Other (Date Value 2)}),1,iif({Other (Date Value 2)}=='N/A',1,0)),",
+						"          EmpCount = 1,",
+						"          {Event Code} = 'OTH') ~> IdentifyNulls",
+						"IdentifyNulls aggregate(groupBy({Event Review} = {Event Code},",
+						"          {Client ID},",
+						"          {Client Engagement Date}),",
+						"     {Event Year - Null} = sum({Event Year - Null}),",
+						"          {Event Date  - Null} = sum({Event Date  - Null}),",
+						"          {Event (Type) - Null} = sum({Event (Type) - Null}),",
+						"          {Event (Desc) - Null} = sum({Event (Desc) - Null}),",
+						"          {Other (Char Value 1) - Null} = sum({Other (Char Value 1) - Null}),",
+						"          {Other (Char Value 2) - Null} = sum({Other (Char Value 2) - Null}),",
+						"          {Other (Num Value 1) - Null} = sum({Other (Num Value 1) - Null}),",
+						"          {Other (Num Value 2) - Null} = sum({Other (Num Value 2) - Null}),",
+						"          {Other (Date Value 1) - Null} = sum({Other (Date Value 1) - Null}),",
+						"          {Other (Date Value 2) - Null} = sum({Other (Date Value 2) - Null}),",
+						"          {Total Records} = sum(EmpCount)) ~> AggregateNullsByColumn",
+						"ChangeColumnNames unpivot(output(",
+						"          {Table Columns} as string,",
+						"          Total as long",
+						"     ),",
+						"     ungroupBy({Event Review},",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Total Records}),",
+						"     lateral: true,",
+						"     ignoreNullPivots: false) ~> unpivotColumnNames",
+						"derivedColumn1 pivot(groupBy({Event Review},",
+						"          {Table Columns},",
+						"          {Client ID},",
+						"          {Client Engagement Date}),",
+						"     pivotBy({Event Review}),",
+						"     { Null Total} = sum(Total),",
+						"          { Null % of Total} = sum({%}),",
+						"     columnNaming: '$V$N',",
+						"     lateral: false,",
+						"     partitionBy('hash', 1)) ~> pivotEvents",
+						"unpivotColumnNames derive({%} = round(Total/{Total Records}*100,0)) ~> derivedColumn1",
+						"AggregateNullsByColumn select(mapColumn(",
+						"          {Event Review},",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          {Event Year} = {Event Year - Null},",
+						"          {Event Date} = {Event Date  - Null},",
+						"          {Event (Type)} = {Event (Type) - Null},",
+						"          {Event (Desc)} = {Event (Desc) - Null},",
+						"          {Other (Char Value 1)} = {Other (Char Value 1) - Null},",
+						"          {Other (Char Value 2)} = {Other (Char Value 2) - Null},",
+						"          {Other (Num Value 1)} = {Other (Num Value 1) - Null},",
+						"          {Other (Num Value 2)} = {Other (Num Value 2) - Null},",
+						"          {Other (Date Value 1)} = {Other (Date Value 1) - Null},",
+						"          {Other (Date Value 2)} = {Other (Date Value 2) - Null},",
+						"          {Total Records}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> ChangeColumnNames",
+						"pivotEvents sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Template - Null Review Other.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputNullReview"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_Nulls_Promotions')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -6606,148 +6763,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2023-01-12T19:52:52Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_DivSlate')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Append_FactTbl_DivSlate",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DeleteAllHistory",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "Append_FactTbl_DivSlate",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"DivSlate": {
-										"Source_Client_Fldr": {
-											"value": "@pipeline().parameters.P_Client_Id",
-											"type": "Expression"
-										},
-										"Source_Client_Date": {
-											"value": "@pipeline().parameters.P_Client_Dt",
-											"type": "Expression"
-										},
-										"Source_Client_Year": {
-											"value": "@pipeline().parameters.P_Folder_Year",
-											"type": "Expression"
-										},
-										"Source_Client_Quarter": {
-											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
-											"type": "Expression"
-										}
-									},
-									"AppendDivSlateFact": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "DeleteAllHistory",
-						"type": "IfCondition",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@contains(pipeline().parameters.P_Delete_History_No_All, 'All')",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Delete_All_Rec_FactTbl_DivSlate",
-									"type": "ExecuteDataFlow",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataflow": {
-											"referenceName": "Delete_All_Rec_FactTbl_DivSlate",
-											"type": "DataFlowReference",
-											"parameters": {
-												"Flow_Client_Id": {
-													"value": "'@{pipeline().parameters.P_Client_Id}'",
-													"type": "Expression"
-												},
-												"Flow_Client_Dt": {
-													"value": "'@{pipeline().parameters.P_Client_Dt}'",
-													"type": "Expression"
-												}
-											},
-											"datasetParameters": {
-												"DivSlateFactTbl": {},
-												"DeleteRecords": {}
-											}
-										},
-										"staging": {},
-										"compute": {
-											"coreCount": 8,
-											"computeType": "General"
-										},
-										"traceLevel": "Fine"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"P_Client_Id": {
-						"type": "string"
-					},
-					"P_Client_Dt": {
-						"type": "string"
-					},
-					"P_Folder_Year": {
-						"type": "string"
-					},
-					"P_Folder_Quarter": {
-						"type": "string"
-					},
-					"P_Delete_History_No_All": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Database/Load Fact Tables"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T20:19:39Z"
 			},
 			"dependsOn": []
 		}
