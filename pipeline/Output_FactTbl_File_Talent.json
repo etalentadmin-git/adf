@@ -6,7 +6,14 @@
 			{
 				"name": "DF_FactTbl_Talent_File",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Delete_Rec_FactTbl_Talent",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -73,6 +80,33 @@
 						"computeType": "General"
 					},
 					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Delete_Rec_FactTbl_Talent",
+				"description": "Delete any prior data in the talent table before creating the latest fact table.  This eliminates duplicates from old data loaded for same engagement date.",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Delete_Rec_FactTbl_Talent",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						}
+					}
 				}
 			}
 		],
