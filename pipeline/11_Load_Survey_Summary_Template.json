@@ -4,68 +4,42 @@
 		"description": "Optional Pipeline to load Client Survey Data grouped by Managers and cohort groups for aggregated score analysis.  One Survey Metric (Group) can be loaded for each run.",
 		"activities": [
 			{
-				"name": "LoadSurveyScoreTables",
-				"type": "Custom",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"command": "python3 SurveyScoresMgrSummary_Template_v1.py",
-					"resourceLinkedService": {
-						"referenceName": "AzureBlob_Etalent1Storage",
-						"type": "LinkedServiceReference"
-					},
-					"folderPath": "processing/Python/Surveys",
-					"referenceObjects": {
-						"linkedServices": [],
-						"datasets": []
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "AzureBatch_etalent1storage",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "LoadSurveyScoreMetricsGrpTable",
-				"type": "Custom",
+				"name": "Load_Survey_EmpDetail",
+				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "LoadSurveyScoreTables",
+						"activity": "Load_Survey_MgrSummary",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					}
 				],
 				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
 					"secureInput": false
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"command": "python3 SurveyScoresMetricGrpEmpDetail_v1.py",
-					"resourceLinkedService": {
-						"referenceName": "AzureBlob_Etalent1Storage",
-						"type": "LinkedServiceReference"
+					"pipeline": {
+						"referenceName": "Load_Survey_EmpDetail",
+						"type": "PipelineReference"
 					},
-					"folderPath": "processing/Python/Surveys",
-					"referenceObjects": {
-						"linkedServices": [],
-						"datasets": []
-					}
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Load_Survey_MgrSummary",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
 				},
-				"linkedServiceName": {
-					"referenceName": "AzureBatch_etalent1storage",
-					"type": "LinkedServiceReference"
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Load_Survey_MgrSummary",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
 				}
 			}
 		],
