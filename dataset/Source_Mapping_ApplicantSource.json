@@ -1,0 +1,66 @@
+{
+	"name": "Source_Mapping_ApplicantSource",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlob_Etalent1Storage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Source_Client_Fldr": {
+				"type": "string"
+			},
+			"Source_Client_Date": {
+				"type": "string"
+			},
+			"Source_Client_Year": {
+				"type": "string"
+			},
+			"Source_Client_Quarter": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Client/Mapping"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "applsource_mapping.csv",
+				"folderPath": {
+					"value": "@concat(\n    dataset().Source_Client_Fldr, '/',\n    replace(dataset().Source_Client_Date, '/', '-'), '/Mapping/',\n    concat(dataset().Source_Client_Year, trim(dataset().Source_Client_Quarter))\n)\n",
+					"type": "Expression"
+				},
+				"container": "processing"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Client ID",
+				"type": "String"
+			},
+			{
+				"name": "Client Engagement Date",
+				"type": "String"
+			},
+			{
+				"name": "Client Source",
+				"type": "String"
+			},
+			{
+				"name": "Elloree Source",
+				"type": "String"
+			},
+			{
+				"name": "Elloree Source Category",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
