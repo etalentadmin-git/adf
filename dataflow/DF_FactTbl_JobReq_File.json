@@ -63,6 +63,9 @@
 				},
 				{
 					"name": "addEventMonth"
+				},
+				{
+					"name": "surrogateKey1"
 				}
 			],
 			"scriptLines": [
@@ -106,7 +109,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> Requisitions",
-				"Requisitions filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>})) ~> FilterOutClientHeaderRowAndColumn",
+				"surrogateKey1 filter(RowNum !=1 && !isNull({Event Year})) ~> FilterOutClientHeaderRowAndColumn",
 				"ConvertNullsForKeyFields select(mapColumn(",
 				"          {  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} = {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>},",
 				"          {Event Year},",
@@ -231,6 +234,9 @@
 				"ReplaceSpecialCharApostrophe derive({Job Title} = replace({Job Title},\"ó\",\"o\")) ~> ReplaceSpecialCharacterAccent",
 				"ReplaceSpecialCharacterAccent derive({Job Title} = replace({Job Title},\"�\",\"-\")) ~> derivedColumn1",
 				"AddClientInfo derive(EventMonth = month({Event Date})) ~> addEventMonth",
+				"Requisitions keyGenerate(output(RowNum as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
 				"RemoveDupRowsandAddRowCount sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
