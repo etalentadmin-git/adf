@@ -85,6 +85,12 @@
 				},
 				{
 					"name": "select2"
+				},
+				{
+					"name": "surrogateKey1"
+				},
+				{
+					"name": "surrogateKey2"
 				}
 			],
 			"scriptLines": [
@@ -163,7 +169,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> Requisitions",
-				"Applicants filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>})) ~> FilterOutClientHeaderRowAndColumn",
+				"surrogateKey1 filter(RowNum !=1) ~> FilterOutClientHeaderRowAndColumn",
 				"ConvertNullsForKeyFields select(mapColumn(",
 				"          {Requisition ID},",
 				"          {Application Date},",
@@ -319,7 +325,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectReqDateInfo",
-				"Requisitions filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>})) ~> FilterOutClientReqHeaderRowAndColumn",
+				"surrogateKey2 filter(RowNum !=1) ~> FilterOutClientReqHeaderRowAndColumn",
 				"FilterOutClientReqHeaderRowAndColumn filter(!(isNull({Requisition ID}))) ~> RemoveNullReqRecords",
 				"SelectFinal, selectReqDateInfo join(SelectFinal@{Requisition ID} == selectReqDateInfo@{Requisition ID},",
 				"     joinType:'inner',",
@@ -388,6 +394,12 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select2",
+				"Applicants keyGenerate(output(RowNum as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"Requisitions keyGenerate(output(RowNum as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey2",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
