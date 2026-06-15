@@ -58,6 +58,9 @@
 				},
 				{
 					"name": "derivedEventQtr"
+				},
+				{
+					"name": "surrogateKey1"
 				}
 			],
 			"scriptLines": [
@@ -105,7 +108,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> Other",
-				"OtherAppend filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+				"surrogateKey1 filter(RowNum !=1 && !isNull({Event Year})) ~> FilterOutClientHeaderRowAndColumn",
 				"ConvertNullsForKeyFields select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
@@ -181,6 +184,9 @@
 				"     skipDuplicateMapOutputs: true) ~> SelectOutput",
 				"FilterOutClientHeaderRowAndColumn filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullRows",
 				"AddDerived derive({Event Quarter} = iif(     (         (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12     ) < 3,      1,     iif(         (             (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12         ) >= 3 && (             (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12         ) < 6,          2,         iif(             (                 (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12             ) >= 6 && (                 (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12             ) < 9,              3,             4         )     ) )) ~> derivedEventQtr",
+				"OtherAppend keyGenerate(output(RowNum as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
 				"SelectOutput sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
