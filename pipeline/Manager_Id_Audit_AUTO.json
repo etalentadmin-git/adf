@@ -1,0 +1,75 @@
+{
+	"name": "Manager_Id_Audit_AUTO",
+	"properties": {
+		"activities": [
+			{
+				"name": "RunMgrIdScript",
+				"type": "Custom",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"command": "python3 Manager_Id_Audit_v9.py",
+					"resourceLinkedService": {
+						"referenceName": "AzureBlob_Etalent1Storage",
+						"type": "LinkedServiceReference"
+					},
+					"folderPath": "processing/Python",
+					"referenceObjects": {
+						"linkedServices": [],
+						"datasets": []
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureBatch_etalent1storage",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Web1",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "PUT",
+					"url": "https://management.azure.com/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalentdatabase/providers/Microsoft.Automation/automationAccounts/aa-elloree-automation/jobs/@{guid()}?api-version=2024-10-23",
+					"body": {
+						"properties": {
+							"runbook": {
+								"name": "Run-PythonBlobScript"
+							},
+							"runOn": "BOBJ-HybridWorkers",
+							"parameters": {
+								"ContainerName": "processing",
+								"ScriptFolder": "Python",
+								"ScriptName": "Manager_Id_Audit_v9.py",
+								"Arguments": ""
+							}
+						}
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://management.azure.com/"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "Client/Client Setup Routines/Audit"
+		},
+		"annotations": []
+	}
+}
