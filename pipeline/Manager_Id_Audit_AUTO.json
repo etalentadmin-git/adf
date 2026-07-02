@@ -36,6 +36,51 @@
 						"resource": "https://management.azure.com/"
 					}
 				}
+			},
+			{
+				"name": "Wait_For_Automation_Job",
+				"type": "Until",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@or(\n  equals(activity('Get_Automation_Job_Status').output.properties.status,'Completed'),\n  equals(activity('Get_Automation_Job_Status').output.properties.status,'Failed'),\n  equals(activity('Get_Automation_Job_Status').output.properties.status,'Stopped'),\n  equals(activity('Get_Automation_Job_Status').output.properties.status,'Suspended')\n)",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait_30_Seconds",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 30
+							}
+						},
+						{
+							"name": "Get_Automation_Job_Status",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "GET",
+								"url": "https://management.azure.com/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalentdatabase/providers/Microsoft.Automation/automationAccounts/aa-elloree-automation/jobs/@{activity('Start_Automation_Job').output.name}?api-version=2024-10-23",
+								"authentication": {
+									"type": "MSI",
+									"resource": "https://management.azure.com/"
+								}
+							}
+						}
+					],
+					"timeout": "0.12:00:00"
+				}
 			}
 		],
 		"folder": {
