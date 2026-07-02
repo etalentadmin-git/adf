@@ -40,7 +40,14 @@
 			{
 				"name": "Wait_For_Automation_Job",
 				"type": "Until",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Run_Manager_Id_Audit_On_BOBJ",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
@@ -87,6 +94,37 @@
 						}
 					],
 					"timeout": "0.12:00:00"
+				}
+			},
+			{
+				"name": "Check_Automation_Result",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Wait_For_Automation_Job",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('Get_Automation_Job_Status').output.properties.status,'Completed')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Fail1",
+							"type": "Fail",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"message": "@concat('Automation job failed with status: ', activity('Get_Automation_Job_Status').output.properties.status)",
+								"errorCode": "AutomationJobFailed"
+							}
+						}
+					]
 				}
 			}
 		],
