@@ -13,6 +13,117 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Source_ColumnMapping_Applicant')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlob_Etalent1Storage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Applicant",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "column_mapping.xlsx",
+						"folderPath": "Template Admin",
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Column Name",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_ColumnMapping_Headcount')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlob_Etalent1Storage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Headcount",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "column_mapping.xlsx",
+						"folderPath": "Template Admin",
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Column Name",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_ColumnMapping_Hires')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlob_Etalent1Storage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Hires",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "column_mapping.xlsx",
+						"folderPath": "Template Admin",
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Column Name",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Source_ColumnMapping_Promotions')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -322,7 +433,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "CoreFctTbl.csv",
+						"fileName": "CoreFactTbl.csv",
 						"folderPath": {
 							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
 							"type": "Expression"
@@ -877,6 +988,26 @@
 					},
 					{
 						"name": "Applicant Rejected Reason",
+						"type": "String"
+					},
+					{
+						"name": "Qualified Ind",
+						"type": "String"
+					},
+					{
+						"name": "Submitted to HM Ind",
+						"type": "String"
+					},
+					{
+						"name": "Interviewed Ind",
+						"type": "String"
+					},
+					{
+						"name": "Offer Extended Ind",
+						"type": "String"
+					},
+					{
+						"name": "Hired Ind",
 						"type": "String"
 					},
 					{
@@ -1800,6 +1931,10 @@
 						"type": "String"
 					},
 					{
+						"name": "Requisition Reason",
+						"type": "String"
+					},
+					{
 						"name": "Posting Date",
 						"type": "String"
 					},
@@ -1865,6 +2000,14 @@
 					},
 					{
 						"name": "Primary Recruiter Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Evergreen Ind",
+						"type": "String"
+					},
+					{
+						"name": "Evergreen Req Parent ID",
 						"type": "String"
 					},
 					{
@@ -2733,250 +2876,6 @@
 					},
 					{
 						"name": "Bonus",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Source_FactTbl_YearRef_File')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlob_Etalent1Storage",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"Source_Client_Fldr": {
-						"type": "string"
-					},
-					"Source_Client_Date": {
-						"type": "string"
-					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Fact Table"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "YearRefTbl.csv",
-						"folderPath": {
-							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Client ID",
-						"type": "String"
-					},
-					{
-						"name": "Client Engagement Date",
-						"type": "String"
-					},
-					{
-						"name": "CurrEventYear",
-						"type": "String"
-					},
-					{
-						"name": "P1EventYear",
-						"type": "String"
-					},
-					{
-						"name": "P2EventYear",
-						"type": "String"
-					},
-					{
-						"name": "P3EventYear",
-						"type": "String"
-					},
-					{
-						"name": "P4EventYear",
-						"type": "String"
-					},
-					{
-						"name": "P5EventYear",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Source_Identification')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlob_Etalent1Storage",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Test"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": "Identifier",
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "Identification.xlsx",
-						"folderPath": "Test Files",
-						"container": "processing"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": [
-					{
-						"name": "Identifiers",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Source_MappingFldr')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlob_Etalent1Storage",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"Source_Client_Fldr": {
-						"type": "string"
-					},
-					"Source_Client_Date": {
-						"type": "string"
-					},
-					"Source_Client_Year": {
-						"type": "string"
-					},
-					"Source_Client_Quarter": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Client/Mapping"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": {
-							"value": "@concat(\n    dataset().Source_Client_Fldr, '/',\n    replace(dataset().Source_Client_Date, '/', '-'), '/Mapping/',\n    concat(dataset().Source_Client_Year, trim(dataset().Source_Client_Quarter))\n)\n",
-							"type": "Expression"
-						},
-						"container": "processing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
 						"type": "String"
 					}
 				]

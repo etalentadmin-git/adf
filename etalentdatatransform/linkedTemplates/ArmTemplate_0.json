@@ -996,6 +996,159 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Manager_Id_Audit_AUTO')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Run_Python_On_BOBJ",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": {
+								"value": "https://management.azure.com/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalentdatabase/providers/Microsoft.Automation/automationAccounts/aa-elloree-automation/jobs/@{guid()}?api-version=2024-10-23",
+								"type": "Expression"
+							},
+							"body": {
+								"properties": {
+									"runbook": {
+										"name": "Run-PythonBlobScript"
+									},
+									"runOn": "BOBJ-HybridWorkers",
+									"parameters": {
+										"ContainerName": "processing",
+										"ScriptFolder": "Python",
+										"ScriptName": "Manager_Id_Audit_v9.py",
+										"Arguments": ""
+									}
+								}
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://management.azure.com/"
+							}
+						}
+					},
+					{
+						"name": "Wait_For_Automation_Job",
+						"type": "Until",
+						"dependsOn": [
+							{
+								"activity": "Run_Python_On_BOBJ",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@or(\n  or(\n    equals(activity('Get_Automation_Job_Status').output.properties.status,'Completed'),\n    equals(activity('Get_Automation_Job_Status').output.properties.status,'Failed')\n  ),\n  or(\n    equals(activity('Get_Automation_Job_Status').output.properties.status,'Stopped'),\n    equals(activity('Get_Automation_Job_Status').output.properties.status,'Suspended')\n  )\n)",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Wait_30_Seconds",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 30
+									}
+								},
+								{
+									"name": "Get_Automation_Job_Status",
+									"type": "WebActivity",
+									"dependsOn": [
+										{
+											"activity": "Wait_30_Seconds",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"method": "GET",
+										"headers": {},
+										"url": {
+											"value": "https://management.azure.com/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalentdatabase/providers/Microsoft.Automation/automationAccounts/aa-elloree-automation/jobs/@{activity('Run_Python_On_BOBJ').output.name}?api-version=2024-10-23",
+											"type": "Expression"
+										},
+										"authentication": {
+											"type": "MSI",
+											"resource": "https://management.azure.com/"
+										}
+									}
+								}
+							],
+							"timeout": "0.12:00:00"
+						}
+					},
+					{
+						"name": "Check_Automation_Result",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Wait_For_Automation_Job",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(activity('Get_Automation_Job_Status').output.properties.status,'Completed')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Fail1",
+									"type": "Fail",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"message": {
+											"value": "@concat('Automation job failed with status: ', activity('Get_Automation_Job_Status').output.properties.status)",
+											"type": "Expression"
+										},
+										"errorCode": "AutomationJobFailed"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Audit"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Survey_Secrets')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1882,6 +2035,16 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/SHIR-BOBJ')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/default')]",
 			"type": "Microsoft.DataFactory/factories/managedVirtualNetworks",
 			"apiVersion": "2018-06-01",
@@ -2000,11 +2163,120 @@
 					{
 						"name": "LoadDt",
 						"type": "date"
+					},
+					{
+						"name": "ClientQualifiedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientSubmittedToHMInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientInterviewedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientOfferExtendedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientHiredInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeQualified",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeSubmitted",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeInterviewed",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeOfferExtended",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeHired",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeHighestStage",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeExitStageGroup",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeExitType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeExitDriver",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeExitDriverGroup",
+						"type": "nvarchar"
 					}
 				],
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "TAApplMapTbl"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/etalentApplSourceMapTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Database"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "ClientSource",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeSource",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeSourceCategory",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "TAApplSourceMapTbl"
 				}
 			},
 			"dependsOn": [
@@ -2324,15 +2596,15 @@
 					},
 					{
 						"name": "ApplicantCity",
-						"type": "nvarchar"
+						"type": "varchar"
 					},
 					{
 						"name": "ApplicantState",
-						"type": "nvarchar"
+						"type": "varchar"
 					},
 					{
 						"name": "ApplicantCountry",
-						"type": "nvarchar"
+						"type": "varchar"
 					},
 					{
 						"name": "ApplDt",
@@ -2341,203 +2613,39 @@
 					{
 						"name": "ApplFinalDispDt",
 						"type": "date"
+					},
+					{
+						"name": "ApplicantWorkOfficeLoc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplicantWorkStrategicLocInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "QualifiedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SubmittedToHMInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "InterviewedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "OfferExtendedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "HiredInd",
+						"type": "nvarchar"
 					}
 				],
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "TAApplTbl"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentBLSTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "External Data/BLS"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "LastRefreshDt",
-						"type": "date"
-					},
-					{
-						"name": "Source",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SourceId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SourceDesc",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Year",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Quarter",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Latest",
-						"type": "nvarchar"
-					},
-					{
-						"name": "EthnicOrigin",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Race",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Gender",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Headcount",
-						"type": "int",
-						"precision": 10
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "BLSTbl"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentBusHierarchyMapTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "connection to Business Hierarchy mapping table",
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Database"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ClientId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEngagementDt",
-						"type": "date"
-					},
-					{
-						"name": "ClientBusGrpLvl1",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientBusGrpLvl2",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientBusGrpLvl3",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientBusGrpLvl4",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeBusGrpLvl1",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeBusGrpLvl2",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeBusGrpLvl3",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ElloreeBusGrpLvl4",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDt",
-						"type": "date"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "BusinessMapTbl"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/etalentClientTbl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "connection to Core Fact table",
-				"linkedServiceName": {
-					"referenceName": "etalentdb_connection",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Client/Database"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ClientId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientEngagementDt",
-						"type": "date"
-					},
-					{
-						"name": "ClientEngagementType",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientSector",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ClientDesc",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LoadDt",
-						"type": "date"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "ClientTbl"
 				}
 			},
 			"dependsOn": [

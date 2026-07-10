@@ -449,7 +449,7 @@
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
 							},
-							"folderPath": "processing/Python",
+							"folderPath": "processing/Python/Template Processing",
 							"referenceObjects": {
 								"linkedServices": [],
 								"datasets": []
@@ -2327,7 +2327,8 @@
 							{
 								"activity": "Output_FactTbl_File_OtherCore",
 								"dependencyConditions": [
-									"Succeeded"
+									"Succeeded",
+									"Failed"
 								]
 							}
 						],
@@ -2351,7 +2352,8 @@
 							{
 								"activity": "Output_FactTbl_File_Applicant",
 								"dependencyConditions": [
-									"Succeeded"
+									"Succeeded",
+									"Failed"
 								]
 							}
 						],
@@ -9070,6 +9072,108 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/Append_FactTbl_OtherCore_Hist')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_FactTbl_OtherCore_Palm')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_FactTbl_Other",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_FactTbl_OtherCore",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Other": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendOtherFactTbl": {},
+									"OtherNullRecordOutput": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Delete_History_No_All_Qtr": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Fact Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T17:55:31Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Append_FactTbl_OtherCore')]"
 			]
 		},
 		{
@@ -22680,7 +22784,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 Column_Audit_Core_v1.py",
+							"command": "python3 Column_Audit_Core_v2.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -25315,7 +25419,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 Date_Format_CoreTbl_Audit_v2.py",
+							"command": "python3 Date_Format_CoreTbl_Audit_v3.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -28955,7 +29059,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 Manager_Id_Audit_v8.py",
+							"command": "python3 Manager_Id_Audit_v9.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -28984,6 +29088,159 @@
 				"[concat(variables('factoryId'), '/linkedServices/AzureBlob_Etalent1Storage')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Manager_Id_Audit_AUTO')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Run_Python_On_BOBJ",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": {
+								"value": "https://management.azure.com/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalentdatabase/providers/Microsoft.Automation/automationAccounts/aa-elloree-automation/jobs/@{guid()}?api-version=2024-10-23",
+								"type": "Expression"
+							},
+							"body": {
+								"properties": {
+									"runbook": {
+										"name": "Run-PythonBlobScript"
+									},
+									"runOn": "BOBJ-HybridWorkers",
+									"parameters": {
+										"ContainerName": "processing",
+										"ScriptFolder": "Python",
+										"ScriptName": "Manager_Id_Audit_v9.py",
+										"Arguments": ""
+									}
+								}
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://management.azure.com/"
+							}
+						}
+					},
+					{
+						"name": "Wait_For_Automation_Job",
+						"type": "Until",
+						"dependsOn": [
+							{
+								"activity": "Run_Python_On_BOBJ",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@or(\n  or(\n    equals(activity('Get_Automation_Job_Status').output.properties.status,'Completed'),\n    equals(activity('Get_Automation_Job_Status').output.properties.status,'Failed')\n  ),\n  or(\n    equals(activity('Get_Automation_Job_Status').output.properties.status,'Stopped'),\n    equals(activity('Get_Automation_Job_Status').output.properties.status,'Suspended')\n  )\n)",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Wait_30_Seconds",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 30
+									}
+								},
+								{
+									"name": "Get_Automation_Job_Status",
+									"type": "WebActivity",
+									"dependsOn": [
+										{
+											"activity": "Wait_30_Seconds",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"method": "GET",
+										"headers": {},
+										"url": {
+											"value": "https://management.azure.com/subscriptions/a8c75286-36f4-4235-9586-3729760f19d5/resourceGroups/etalentdatabase/providers/Microsoft.Automation/automationAccounts/aa-elloree-automation/jobs/@{activity('Run_Python_On_BOBJ').output.name}?api-version=2024-10-23",
+											"type": "Expression"
+										},
+										"authentication": {
+											"type": "MSI",
+											"resource": "https://management.azure.com/"
+										}
+									}
+								}
+							],
+							"timeout": "0.12:00:00"
+						}
+					},
+					{
+						"name": "Check_Automation_Result",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Wait_For_Automation_Job",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(activity('Get_Automation_Job_Status').output.properties.status,'Completed')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Fail1",
+									"type": "Fail",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"message": {
+											"value": "@concat('Automation job failed with status: ', activity('Get_Automation_Job_Status').output.properties.status)",
+											"type": "Expression"
+										},
+										"errorCode": "AutomationJobFailed"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Client Setup Routines/Audit"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Move_Template_Into_AnalysisFldr')]",
@@ -29328,7 +29585,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"command": "python3 NoShow_Audit_v2.py",
+							"command": "python3 NoShow_Audit_v3.py",
 							"resourceLinkedService": {
 								"referenceName": "AzureBlob_Etalent1Storage",
 								"type": "LinkedServiceReference"
@@ -33336,6 +33593,310 @@
 							},
 							"traceLevel": "Fine"
 						}
+					},
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append_2",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait2",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append_3",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait3",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append_4",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait4",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append_5",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait5",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append_6",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait6",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append_7",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait7",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append8",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait8",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append9",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait9",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append10",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait10",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append11",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait11",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append12",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait12",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append13",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait13",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append14",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait14",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append15",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait15",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append16",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait16",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append17",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait17",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append18",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait18",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append19",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait19",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_Applicant_File_Append20",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
 					}
 				],
 				"policy": {
@@ -33371,6 +33932,143 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/DF_FactTbl_Applicant_File_Append')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_FactTbl_Applicant_File')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_Applicant_copy1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DF_FactTbl_Applicant_File",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_FactTbl_Applicant_File",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									},
+									"Flow_Qtr1_Start": {
+										"value": "'@{pipeline().parameters.P_Qtr_Start_Mnth}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Applicants": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"Requisitions": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"sink1": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					},
+					"P_Qtr_Start_Mnth": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"FailureSheet": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Client/Create Fact Table Files"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-11T23:59:37Z"
+			},
+			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/DF_FactTbl_Applicant_File')]"
 			]
 		},
@@ -35753,6 +36451,310 @@
 								"computeType": "General"
 							},
 							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append2",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait2",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append3",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait3",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append4",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait4",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append5",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait5",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append6",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait6",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append7",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait7",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append8",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait8",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append9",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait9",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append10",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait10",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append11",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait11",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append12",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait12",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append13",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait13",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append14",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait14",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append15",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait15",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append16",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait16",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append17",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait17",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append18",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait18",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append19",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "Wait19",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DF_FactTbl_OtherCore_File_Append20",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
 						}
 					}
 				],
@@ -39675,6 +40677,56 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Output_Mapping_Appl_Source_PY')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RunApplSourceMapping",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 ApplSourceMapping_v1.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python/Mapping",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Create Mapping Table Files"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-11T23:59:38Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlob_Etalent1Storage')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Output_Mapping_BusHierarchy')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -41074,6 +42126,56 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/DF_Mapping_ReqType')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Output_Mapping_ReqType_Reason')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RunReqTypeMapping",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 ReqTypeMapping_v1.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python/Mapping",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Create Mapping Table Files"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-11T23:59:38Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlob_Etalent1Storage')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
 			]
 		},
 		{
@@ -59836,7 +60938,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "CoreFctTbl.csv",
+						"fileName": "CoreFactTbl.csv",
 						"folderPath": {
 							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('FactTbl/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))",
 							"type": "Expression"
@@ -60395,6 +61497,26 @@
 					},
 					{
 						"name": "Applicant Rejected Reason",
+						"type": "String"
+					},
+					{
+						"name": "Qualified Ind",
+						"type": "String"
+					},
+					{
+						"name": "Submitted to HM Ind",
+						"type": "String"
+					},
+					{
+						"name": "Interviewed Ind",
+						"type": "String"
+					},
+					{
+						"name": "Offer Extended Ind",
+						"type": "String"
+					},
+					{
+						"name": "Hired Ind",
 						"type": "String"
 					},
 					{
@@ -61322,6 +62444,10 @@
 						"type": "String"
 					},
 					{
+						"name": "Requisition Reason",
+						"type": "String"
+					},
+					{
 						"name": "Posting Date",
 						"type": "String"
 					},
@@ -61387,6 +62513,14 @@
 					},
 					{
 						"name": "Primary Recruiter Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Evergreen Ind",
+						"type": "String"
+					},
+					{
+						"name": "Evergreen Req Parent ID",
 						"type": "String"
 					},
 					{
@@ -62726,6 +63860,26 @@
 						"type": "String"
 					},
 					{
+						"name": "Client Qualified Ind",
+						"type": "String"
+					},
+					{
+						"name": "Client Submitted to HM Ind",
+						"type": "String"
+					},
+					{
+						"name": "Client Interviewed Ind",
+						"type": "String"
+					},
+					{
+						"name": "Client Offer Extended Ind",
+						"type": "String"
+					},
+					{
+						"name": "Client Hired Ind",
+						"type": "String"
+					},
+					{
 						"name": "Elloree Applicant Final Disposition",
 						"type": "String"
 					},
@@ -62738,15 +63892,83 @@
 						"type": "String"
 					},
 					{
-						"name": "Suggested Elloree Applicant Final Disposition",
+						"name": "Elloree Qualified Ind",
 						"type": "String"
 					},
 					{
-						"name": "Suggested Elloree Applicant Category",
+						"name": "Elloree Submitted to HM Ind",
 						"type": "String"
 					},
 					{
-						"name": "Suggested Elloree Submitted to Mgr Fl",
+						"name": "Elloree Interviewed Ind",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Offer Extended Ind",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Hired Ind",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Highest Stage",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Exit Stage Group",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Exit Type",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Exit Driver",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Exit Driver Group",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Qualified Ind",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Submitted to HM Ind",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Interviewed Ind",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Offer Extended Ind",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Hired Ind",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Highest Stage",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Exit Stage Group",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Exit Type",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Exit Driver",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Exit Driver Group",
 						"type": "String"
 					},
 					{
@@ -62754,11 +63976,77 @@
 						"type": "String"
 					},
 					{
-						"name": "2021 Job Applicant",
+						"name": "2025 Job Applicant",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlob_Etalent1Storage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_ApplicantSource')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlob_Etalent1Storage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "applsource_mapping.csv",
+						"folderPath": {
+							"value": "@concat(\n    dataset().Source_Client_Fldr, '/',\n    replace(dataset().Source_Client_Date, '/', '-'), '/Mapping/',\n    concat(dataset().Source_Client_Year, trim(dataset().Source_Client_Quarter))\n)\n",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
 						"type": "String"
 					},
 					{
-						"name": "2022 Job Applicant",
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Source",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Source",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Source Category",
 						"type": "String"
 					}
 				]
@@ -65131,7 +66419,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -65163,7 +66451,7 @@
 						"type": "String"
 					},
 					{
-						"name": "Applicant State ",
+						"name": "Applicant State",
 						"type": "String"
 					},
 					{
@@ -65208,6 +66496,26 @@
 					},
 					{
 						"name": "Applicant Rejected Reason",
+						"type": "String"
+					},
+					{
+						"name": "Qualified Ind",
+						"type": "String"
+					},
+					{
+						"name": "Submitted to HM Ind",
+						"type": "String"
+					},
+					{
+						"name": "Interviewed Ind",
+						"type": "String"
+					},
+					{
+						"name": "Offer Extended Ind",
+						"type": "String"
+					},
+					{
+						"name": "Hired Ind",
 						"type": "String"
 					},
 					{
@@ -65412,7 +66720,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -65440,11 +66748,11 @@
 						"type": "String"
 					},
 					{
-						"name": "Years in Job",
+						"name": "Corporate Title",
 						"type": "String"
 					},
 					{
-						"name": "Corporate Title",
+						"name": "Years in Job",
 						"type": "String"
 					},
 					{
@@ -65464,15 +66772,15 @@
 						"type": "String"
 					},
 					{
-						"name": "Work City",
+						"name": "Work Office City",
 						"type": "String"
 					},
 					{
-						"name": "Work State",
+						"name": "Work Office State",
 						"type": "String"
 					},
 					{
-						"name": "Work Country",
+						"name": "Work Office Country",
 						"type": "String"
 					},
 					{
@@ -65593,7 +66901,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -65645,15 +66953,15 @@
 						"type": "String"
 					},
 					{
-						"name": "Work City",
+						"name": "Work Office City",
 						"type": "String"
 					},
 					{
-						"name": "Work State",
+						"name": "Work Office State",
 						"type": "String"
 					},
 					{
-						"name": "Work Country",
+						"name": "Work Office Country",
 						"type": "String"
 					},
 					{
@@ -65765,7 +67073,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -65842,6 +67150,26 @@
 					},
 					{
 						"name": "Applicant Rejected Reason",
+						"type": "String"
+					},
+					{
+						"name": "Qualified Ind",
+						"type": "String"
+					},
+					{
+						"name": "Submitted to HM Ind",
+						"type": "String"
+					},
+					{
+						"name": "Interviewed Ind",
+						"type": "String"
+					},
+					{
+						"name": "Offer Extended Ind",
+						"type": "String"
+					},
+					{
+						"name": "Hired Ind",
 						"type": "String"
 					},
 					{
@@ -65927,15 +67255,11 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
 						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
 						"type": "String"
 					},
 					{
@@ -65948,6 +67272,10 @@
 					},
 					{
 						"name": "Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Reason",
 						"type": "String"
 					},
 					{
@@ -66016,6 +67344,14 @@
 					},
 					{
 						"name": "Primary Recruiter Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Evergreen Ind",
+						"type": "String"
+					},
+					{
+						"name": "Evergreen Req Parent ID",
 						"type": "String"
 					},
 					{
@@ -66293,7 +67629,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -66353,15 +67689,15 @@
 						"type": "String"
 					},
 					{
-						"name": "Work City",
+						"name": "Work Office City",
 						"type": "String"
 					},
 					{
-						"name": "Work State",
+						"name": "Work Office State",
 						"type": "String"
 					},
 					{
-						"name": "Work Country",
+						"name": "Work Office Country",
 						"type": "String"
 					},
 					{
@@ -66481,7 +67817,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -66498,6 +67834,10 @@
 					},
 					{
 						"name": "Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Reason",
 						"type": "String"
 					},
 					{
@@ -66569,6 +67909,14 @@
 						"type": "String"
 					},
 					{
+						"name": "Evergreen Ind",
+						"type": "String"
+					},
+					{
+						"name": "Evergreen Req Parent ID",
+						"type": "String"
+					},
+					{
 						"name": "Requisition Other (1)",
 						"type": "String"
 					},
@@ -66637,7 +67985,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -66689,11 +68037,27 @@
 						"type": "String"
 					},
 					{
+						"name": "Compensation Band / Pay Grade",
+						"type": "String"
+					},
+					{
+						"name": "Salary Range Midpoint Ind",
+						"type": "String"
+					},
+					{
 						"name": "Salary Range",
 						"type": "String"
 					},
 					{
-						"name": "Bonus",
+						"name": "Bonus Eligible Ind",
+						"type": "String"
+					},
+					{
+						"name": "Bonus Received Ind",
+						"type": "String"
+					},
+					{
+						"name": "Bonus as % of Base",
 						"type": "String"
 					}
 				]
@@ -66745,7 +68109,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -66781,11 +68145,11 @@
 						"type": "String"
 					},
 					{
-						"name": "Years in Job",
+						"name": "Corporate Title",
 						"type": "String"
 					},
 					{
-						"name": "Corporate Title",
+						"name": "Years in Job",
 						"type": "String"
 					},
 					{
@@ -66801,15 +68165,15 @@
 						"type": "String"
 					},
 					{
-						"name": "Work City",
+						"name": "Work Office City",
 						"type": "String"
 					},
 					{
-						"name": "Work State",
+						"name": "Work Office State",
 						"type": "String"
 					},
 					{
-						"name": "Work Country",
+						"name": "Work Office Country",
 						"type": "String"
 					},
 					{
@@ -67227,11 +68591,120 @@
 					{
 						"name": "LoadDt",
 						"type": "date"
+					},
+					{
+						"name": "ClientQualifiedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientSubmittedToHMInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientInterviewedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientOfferExtendedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientHiredInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeQualified",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeSubmitted",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeInterviewed",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeOfferExtended",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeHired",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeHighestStage",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeExitStageGroup",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeExitType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeExitDriver",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeExitDriverGroup",
+						"type": "nvarchar"
 					}
 				],
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "TAApplMapTbl"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/etalentdb_connection')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/etalentApplSourceMapTbl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "etalentdb_connection",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Database"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ClientId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ClientEngagementDt",
+						"type": "date"
+					},
+					{
+						"name": "ClientSource",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeSource",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeSourceCategory",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadDt",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "TAApplSourceMapTbl"
 				}
 			},
 			"dependsOn": [
@@ -67551,15 +69024,15 @@
 					},
 					{
 						"name": "ApplicantCity",
-						"type": "nvarchar"
+						"type": "varchar"
 					},
 					{
 						"name": "ApplicantState",
-						"type": "nvarchar"
+						"type": "varchar"
 					},
 					{
 						"name": "ApplicantCountry",
-						"type": "nvarchar"
+						"type": "varchar"
 					},
 					{
 						"name": "ApplDt",
@@ -67568,6 +69041,34 @@
 					{
 						"name": "ApplFinalDispDt",
 						"type": "date"
+					},
+					{
+						"name": "ApplicantWorkOfficeLoc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ApplicantWorkStrategicLocInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "QualifiedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SubmittedToHMInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "InterviewedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "OfferExtendedInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "HiredInd",
+						"type": "nvarchar"
 					}
 				],
 				"typeProperties": {
@@ -76078,10 +77579,6 @@
 						"type": "date"
 					},
 					{
-						"name": "ClientEngagementType",
-						"type": "nvarchar"
-					},
-					{
 						"name": "EventDt",
 						"type": "date"
 					},
@@ -76163,19 +77660,19 @@
 					},
 					{
 						"name": "BusinessGrpLvl1",
-						"type": "nvarchar"
+						"type": "varchar"
 					},
 					{
 						"name": "BusinessGrpLvl2",
-						"type": "nvarchar"
+						"type": "varchar"
 					},
 					{
 						"name": "BusinessGrpLvl3",
-						"type": "nvarchar"
+						"type": "varchar"
 					},
 					{
 						"name": "BusinessGrpLvl4",
-						"type": "nvarchar"
+						"type": "varchar"
 					},
 					{
 						"name": "HiringMgrWorkerId",
@@ -76208,6 +77705,18 @@
 					{
 						"name": "LoadDt",
 						"type": "date"
+					},
+					{
+						"name": "EvergreenInd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EvergreenReqParentId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "RequisitionReason",
+						"type": "nvarchar"
 					}
 				],
 				"typeProperties": {
@@ -76298,6 +77807,14 @@
 					{
 						"name": "LoadDt",
 						"type": "date"
+					},
+					{
+						"name": "ClientRequisitionReason",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ElloreeRequisitionReason",
+						"type": "nvarchar"
 					}
 				],
 				"typeProperties": {
@@ -77387,6 +78904,16 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/SHIR-BOBJ')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/integrationRuntime1')]",
 			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
 			"apiVersion": "2018-06-01",
@@ -77463,7 +78990,7 @@
 						"          {Client Engagement Date} as date 'yyyy-MM-dd',",
 						"          {Applicant ID} as string,",
 						"          {Requisition ID} as string,",
-						"          {Event Date} as date 'MM-dd-yyyy',",
+						"          {Event Date} as date 'yyyy-MM-dd',",
 						"          EventMonth as integer,",
 						"          {Event Quarter} as integer,",
 						"          {Event Year} as short,",
@@ -77854,9 +79381,9 @@
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          {Event Date} as date 'MM-dd-yyyy',",
-						"          EventMonth as integer,",
-						"          {Event Quarter} as integer,",
-						"          {Event Year} as short,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
 						"          Event as string,",
 						"          {Requisition ID} as string,",
 						"          {Application Date} as date 'MM-dd-yyyy',",
@@ -77877,6 +79404,11 @@
 						"          {Applicant Final Disposition} as string,",
 						"          {Applicant Step Before Final Disposition} as string,",
 						"          {Applicant Rejected Reason} as string,",
+						"          {Qualified Ind} as string,",
+						"          {Submitted to HM Ind} as string,",
+						"          {Interviewed Ind} as string,",
+						"          {Offer Extended Ind} as string,",
+						"          {Hired Ind} as string,",
 						"          {Applicant Other (1)} as string,",
 						"          {Applicant Other (2)} as string,",
 						"          {Applicant Other (3)} as string,",
@@ -77921,6 +79453,11 @@
 						"          ApplFinalDisp = {Applicant Final Disposition},",
 						"          ApplStepBeforeFinalDisp = {Applicant Step Before Final Disposition},",
 						"          ApplRejectedReason = {Applicant Rejected Reason},",
+						"          QualifiedInd = {Qualified Ind},",
+						"          SubmittedToHMInd = {Submitted to HM Ind},",
+						"          InterviewedInd = {Interviewed Ind},",
+						"          OfferExtendedInd = {Offer Extended Ind},",
+						"          HiredInd = {Hired Ind},",
 						"          ApplOther1 = {Applicant Other (1)},",
 						"          ApplOther2 = {Applicant Other (2)},",
 						"          ApplOther3 = {Applicant Other (3)},",
@@ -77969,7 +79506,14 @@
 						"          ApplicantState as string,",
 						"          ApplicantCountry as string,",
 						"          ApplDt as date,",
-						"          ApplFinalDispDt as date",
+						"          ApplFinalDispDt as date,",
+						"          ApplicantWorkOfficeLoc as string,",
+						"          ApplicantWorkStrategicLocInd as string,",
+						"          QualifiedInd as string,",
+						"          SubmittedToHMInd as string,",
+						"          InterviewedInd as string,",
+						"          OfferExtendedInd as string,",
+						"          HiredInd as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -78013,7 +79557,12 @@
 						"          ApplicantState,",
 						"          ApplicantCountry,",
 						"          ApplDt,",
-						"          ApplFinalDispDt",
+						"          ApplFinalDispDt,",
+						"          QualifiedInd,",
+						"          SubmittedToHMInd,",
+						"          InterviewedInd,",
+						"          OfferExtendedInd,",
+						"          HiredInd",
 						"     )) ~> sink2"
 					]
 				}
@@ -78141,7 +79690,14 @@
 						"          ApplicantState as string,",
 						"          ApplicantCountry as string,",
 						"          ApplDt as date,",
-						"          ApplFinalDispDt as date",
+						"          ApplFinalDispDt as date,",
+						"          ApplicantWorkOfficeLoc as string,",
+						"          ApplicantWorkStrategicLocInd as string,",
+						"          QualifiedInd as string,",
+						"          SubmittedToHMInd as string,",
+						"          InterviewedInd as string,",
+						"          OfferExtendedInd as string,",
+						"          HiredInd as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -80780,15 +82336,15 @@
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
-						"          {Client Engagement Type} as string,",
 						"          {Event Date} as date 'MM-dd-yyyy',",
-						"          EventMonth as integer,",
-						"          {Event Quarter} as integer,",
-						"          {Event Year} as short,",
+						"          EventMonth as string,",
+						"          {Event Quarter} as string,",
+						"          {Event Year} as string,",
 						"          EventId as string,",
 						"          Event as string,",
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
+						"          {Requisition Reason} as string,",
 						"          {Posting Date} as date 'MM-dd-yyyy',",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as string,",
@@ -80806,6 +82362,8 @@
 						"          {Business Group Level 4} as string,",
 						"          {Hiring Manager Worker ID} as string,",
 						"          {Primary Recruiter Worker ID} as string,",
+						"          {Evergreen Ind} as string,",
+						"          {Evergreen Req Parent ID} as string,",
 						"          {Requisition Other (1)} as string,",
 						"          {Requisition Other (2)} as string,",
 						"          {Requisition Other (3)} as string,",
@@ -80825,11 +82383,11 @@
 						"          ClientId = {Client ID},",
 						"          ClientEngagementDt = {Client Engagement Date},",
 						"          EventDt = {Event Date},",
-						"          EventQuarter = {Event Quarter},",
 						"          EventMonth,",
+						"          EventQuarter = {Event Quarter},",
 						"          EventYear = {Event Year},",
-						"          Event,",
 						"          EventId,",
+						"          Event,",
 						"          ReqId = {Requisition ID},",
 						"          ReqType = {Requisition Type},",
 						"          PostingDt = {Posting Date},",
@@ -80853,7 +82411,11 @@
 						"          ReqOther2 = {Requisition Other (2)},",
 						"          ReqOther3 = {Requisition Other (3)},",
 						"          ReqOther4 = {Requisition Other (4)},",
-						"          ReqOther5 = {Requisition Other (5)}",
+						"          ReqOther5 = {Requisition Other (5)},",
+						"          RowCount,",
+						"          EvergreenInd = {Evergreen Ind},",
+						"          EvergreenReqParentId = {Evergreen Req Parent ID},",
+						"          RequisitionReason = {Requisition Reason}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
@@ -80864,7 +82426,6 @@
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
 						"          EventDt as date,",
 						"          EventMonth as integer,",
 						"          EventQuarter as integer,",
@@ -80895,7 +82456,10 @@
 						"          ReqOther3 as string,",
 						"          ReqOther4 as string,",
 						"          ReqOther5 as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          EvergreenInd as string,",
+						"          EvergreenReqParentId as string,",
+						"          RequisitionReason as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -80939,7 +82503,10 @@
 						"          ReqOther3,",
 						"          ReqOther4,",
 						"          ReqOther5,",
-						"          LoadDt",
+						"          LoadDt,",
+						"          EvergreenInd,",
+						"          EvergreenReqParentId,",
+						"          RequisitionReason",
 						"     )) ~> AppendReqFact"
 					]
 				}
@@ -81039,7 +82606,6 @@
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
 						"          EventDt as date,",
 						"          EventMonth as integer,",
 						"          EventQuarter as integer,",
@@ -81070,7 +82636,10 @@
 						"          ReqOther3 as string,",
 						"          ReqOther4 as string,",
 						"          ReqOther5 as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          EvergreenInd as string,",
+						"          EvergreenReqParentId as string,",
+						"          RequisitionReason as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -82290,19 +83859,40 @@
 					"scriptLines": [
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'yyyy-MM-dd',",
 						"          {Client Applicant Final Disposition} as string,",
 						"          {Client Applicant Step Before Final Disposition} as string,",
 						"          {Client Applicant Rejected Reason} as string,",
+						"          {Client Qualified Ind} as string,",
+						"          {Client Submitted to HM Ind} as string,",
+						"          {Client Interviewed Ind} as string,",
+						"          {Client Offer Extended Ind} as string,",
+						"          {Client Hired Ind} as string,",
 						"          {Elloree Applicant Final Disposition} as string,",
 						"          {Elloree Applicant Category} as string,",
 						"          {Elloree Submitted to Mgr Fl} as string,",
-						"          {Suggested Elloree Applicant Final Disposition} as string,",
-						"          {Suggested Elloree Applicant Category} as string,",
-						"          {Suggested Elloree Submitted to Mgr Fl} as string,",
+						"          {Elloree Qualified Ind} as string,",
+						"          {Elloree Submitted to HM Ind} as string,",
+						"          {Elloree Interviewed Ind} as string,",
+						"          {Elloree Offer Extended Ind} as string,",
+						"          {Elloree Hired Ind} as string,",
+						"          {Elloree Highest Stage} as string,",
+						"          {Elloree Exit Stage Group} as string,",
+						"          {Elloree Exit Type} as string,",
+						"          {Elloree Exit Driver} as string,",
+						"          {Elloree Exit Driver Group} as string,",
+						"          {Suggested Elloree Qualified Ind} as string,",
+						"          {Suggested Elloree Submitted to HM Ind} as string,",
+						"          {Suggested Elloree Interviewed Ind} as string,",
+						"          {Suggested Elloree Offer Extended Ind} as string,",
+						"          {Suggested Elloree Hired Ind} as string,",
+						"          {Suggested Elloree Highest Stage} as string,",
+						"          {Suggested Elloree Exit Stage Group} as string,",
+						"          {Suggested Elloree Exit Type} as string,",
+						"          {Suggested Elloree Exit Driver} as string,",
+						"          {Suggested Elloree Exit Driver Group} as string,",
 						"          {Suggested Source} as string,",
-						"          {2021 Job Applicant} as string,",
-						"          {2022 Job Applicant} as string",
+						"          {2025 Job Applicant} as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -82315,16 +83905,47 @@
 						"     deleteIf(isNull({Client Applicant Rejected Reason})),",
 						"     deleteIf(isNull({Elloree Applicant Final Disposition})),",
 						"     deleteIf(isNull({Elloree Applicant Category})),",
-						"     deleteIf(isNull({Elloree Submitted to Mgr Fl}))) ~> alterRow1",
+						"     deleteIf(isNull({Elloree Submitted to Mgr Fl})),",
+						"     deleteIf(isNull({Elloree Submitted to Mgr Fl})),",
+						"     deleteIf(isNull({Client Qualified Ind})),",
+						"     deleteIf(isNull({Client Submitted to HM Ind})),",
+						"     deleteIf(isNull({Client Interviewed Ind})),",
+						"     deleteIf(isNull({Client Offer Extended Ind})),",
+						"     deleteIf(isNull({Client Hired Ind})),",
+						"     deleteIf(isNull({Elloree Qualified Ind})),",
+						"     deleteIf(isNull({Elloree Submitted to HM Ind})),",
+						"     deleteIf(isNull({Elloree Interviewed Ind})),",
+						"     deleteIf(isNull({Elloree Offer Extended Ind})),",
+						"     deleteIf(isNull({Elloree Hired Ind})),",
+						"     deleteIf(isNull({Elloree Highest Stage})),",
+						"     deleteIf(isNull({Elloree Exit Stage Group})),",
+						"     deleteIf(isNull({Elloree Exit Type})),",
+						"     deleteIf(isNull({Elloree Exit Driver})),",
+						"     deleteIf(isNull({Elloree Exit Driver Group}))) ~> alterRow1",
 						"alterRow1 select(mapColumn(",
 						"          ClientId = {Client ID},",
 						"          ClientEngagementDt = {Client Engagement Date},",
 						"          ClientApplFinalDisp = {Client Applicant Final Disposition},",
 						"          ClientApplStepBeforeFinalDisp = {Client Applicant Step Before Final Disposition},",
 						"          ClientApplRejectedReason = {Client Applicant Rejected Reason},",
+						"          ClientQualifiedInd = {Client Qualified Ind},",
+						"          ClientSubmittedToHMInd = {Client Submitted to HM Ind},",
+						"          ClientInterviewedInd = {Client Interviewed Ind},",
+						"          ClientOfferExtendedInd = {Client Offer Extended Ind},",
+						"          ClientHiredInd = {Client Hired Ind},",
 						"          ElloreeApplFinalDisp = {Elloree Applicant Final Disposition},",
 						"          ElloreeApplCategory = {Elloree Applicant Category},",
-						"          ElloreeSubmittedtoMgrFl = {Elloree Submitted to Mgr Fl}",
+						"          ElloreeSubmittedtoMgrFl = {Elloree Submitted to Mgr Fl},",
+						"          ElloreeQualified = {Elloree Qualified Ind},",
+						"          ElloreeSubmitted = {Elloree Submitted to HM Ind},",
+						"          ElloreeInterviewed = {Elloree Interviewed Ind},",
+						"          ElloreeOfferExtended = {Elloree Offer Extended Ind},",
+						"          ElloreeHired = {Elloree Hired Ind},",
+						"          ElloreeHighestStage = {Elloree Highest Stage},",
+						"          ElloreeExitStageGroup = {Elloree Exit Stage Group},",
+						"          ElloreeExitType = {Elloree Exit Type},",
+						"          ElloreeExitDriver = {Elloree Exit Driver},",
+						"          ElloreeExitDriverGroup = {Elloree Exit Driver Group}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
@@ -82340,7 +83961,22 @@
 						"          ElloreeApplFinalDisp as string,",
 						"          ElloreeApplCategory as string,",
 						"          ElloreeSubmittedtoMgrFl as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          ClientQualifiedInd as string,",
+						"          ClientSubmittedToHMInd as string,",
+						"          ClientInterviewedInd as string,",
+						"          ClientOfferExtendedInd as string,",
+						"          ClientHiredInd as string,",
+						"          ElloreeQualified as string,",
+						"          ElloreeSubmitted as string,",
+						"          ElloreeInterviewed as string,",
+						"          ElloreeOfferExtended as string,",
+						"          ElloreeHired as string,",
+						"          ElloreeHighestStage as string,",
+						"          ElloreeExitStageGroup as string,",
+						"          ElloreeExitType as string,",
+						"          ElloreeExitDriver as string,",
+						"          ElloreeExitDriverGroup as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -82431,7 +84067,22 @@
 						"          ElloreeApplFinalDisp as string,",
 						"          ElloreeApplCategory as string,",
 						"          ElloreeSubmittedtoMgrFl as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          ClientQualifiedInd as string,",
+						"          ClientSubmittedToHMInd as string,",
+						"          ClientInterviewedInd as string,",
+						"          ClientOfferExtendedInd as string,",
+						"          ClientHiredInd as string,",
+						"          ElloreeQualified as string,",
+						"          ElloreeSubmitted as string,",
+						"          ElloreeInterviewed as string,",
+						"          ElloreeOfferExtended as string,",
+						"          ElloreeHired as string,",
+						"          ElloreeHighestStage as string,",
+						"          ElloreeExitStageGroup as string,",
+						"          ElloreeExitType as string,",
+						"          ElloreeExitDriver as string,",
+						"          ElloreeExitDriverGroup as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -85847,7 +87498,9 @@
 						"          ClientEngagementDt as date,",
 						"          ClientReqType as string,",
 						"          ElloreeReqType as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          ClientRequisitionReason as string,",
+						"          ElloreeRequisitionReason as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -85913,7 +87566,9 @@
 						"          ClientEngagementDt as date,",
 						"          ClientReqType as string,",
 						"          ElloreeReqType as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          ClientRequisitionReason as string,",
+						"          ElloreeRequisitionReason as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -85930,7 +87585,9 @@
 						"          ClientEngagementDt as date,",
 						"          ClientReqType as string,",
 						"          ElloreeReqType as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          ClientRequisitionReason as string,",
+						"          ElloreeRequisitionReason as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -98037,7 +99694,7 @@
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          {Client Engagement Type} as string,",
-						"          {Event Date} as date 'MM-dd-yyyy',",
+						"          {Event Date} as date 'yyyy-MM-dd',",
 						"          EventMonth as integer,",
 						"          {Event Quarter} as integer,",
 						"          {Event Year} as short,",
@@ -101232,7 +102889,7 @@
 					"scriptLines": [
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as string,",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
@@ -101604,6 +103261,12 @@
 						},
 						{
 							"name": "select2"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "surrogateKey2"
 						}
 					],
 					"scriptLines": [
@@ -101613,7 +103276,7 @@
 						"     Flow_Qtr1_Start as string",
 						"}",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Requisition ID} as string,",
 						"          {Application Date} as date,",
 						"          {Applicant ID} as string,",
@@ -101633,6 +103296,11 @@
 						"          {Applicant Final Disposition} as string,",
 						"          {Applicant Step Before Final Disposition} as string,",
 						"          {Applicant Rejected Reason} as string,",
+						"          {Qualified Ind} as string,",
+						"          {Submitted to HM Ind} as string,",
+						"          {Interviewed Ind} as string,",
+						"          {Offer Extended Ind} as string,",
+						"          {Hired Ind} as string,",
 						"          {Applicant Other (1)} as string,",
 						"          {Applicant Other (2)} as string,",
 						"          {Applicant Other (3)} as string,",
@@ -101643,11 +103311,12 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Applicants",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Event Year} as string,",
 						"          {Event Date} as date,",
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
+						"          {Requisition Reason} as string,",
 						"          {Posting Date} as string,",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as string,",
@@ -101665,6 +103334,8 @@
 						"          {Business Group Level 4} as string,",
 						"          {Hiring Manager Worker ID} as string,",
 						"          {Primary Recruiter Worker ID} as string,",
+						"          {Evergreen Ind} as string,",
+						"          {Evergreen Req Parent ID} as string,",
 						"          {Requisition Other (1)} as string,",
 						"          {Requisition Other (2)} as string,",
 						"          {Requisition Other (3)} as string,",
@@ -101674,11 +103345,8 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Requisitions",
-						"Applicants filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+						"surrogateKey1 filter(RowNum !=1) ~> FilterOutClientHeaderRowAndColumn",
 						"ConvertNullsForKeyFields select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          Event,",
 						"          {Requisition ID},",
 						"          {Application Date},",
 						"          {Applicant ID},",
@@ -101698,11 +103366,19 @@
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
 						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind},",
 						"          {Applicant Other (1)},",
 						"          {Applicant Other (2)},",
 						"          {Applicant Other (3)},",
 						"          {Applicant Other (4)},",
-						"          {Applicant Other (5)}",
+						"          {Applicant Other (5)},",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          Event",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectFinal",
@@ -101722,7 +103398,12 @@
 						"          LGBTQ = iif(isNull(LGBTQ),'N/A',LGBTQ),",
 						"          {Disability Ind} = iif(isNull({Disability Ind}),'N/A',{Disability Ind}),",
 						"          {Applicant Step Before Final Disposition} = iif(isNull({Applicant Step Before Final Disposition}),'N/A',{Applicant Step Before Final Disposition}),",
-						"          {Applicant Rejected Reason} = iif(isNull({Applicant Rejected Reason}),'N/A',{Applicant Rejected Reason})) ~> ConvertNullsForKeyFields",
+						"          {Applicant Rejected Reason} = iif(isNull({Applicant Rejected Reason}),'N/A',{Applicant Rejected Reason}),",
+						"          {Qualified Ind} = iif(isNull({Qualified Ind}),'N/A',{Qualified Ind}),",
+						"          {Submitted to HM Ind} = iif(isNull({Submitted to HM Ind}),'N/A',{Submitted to HM Ind}),",
+						"          {Interviewed Ind} = iif(isNull({Interviewed Ind}),'N/A',{Interviewed Ind}),",
+						"          {Offer Extended Ind} = iif(isNull({Offer Extended Ind}),'N/A',{Offer Extended Ind}),",
+						"          {Hired Ind} = iif(isNull({Hired Ind}),'N/A',{Hired Ind})) ~> ConvertNullsForKeyFields",
 						"FilterOutClientHeaderRowAndColumn filter(!(isNull({Applicant ID}))) ~> RemoveNullRecords",
 						"SetEventQuarter aggregate(groupBy({Client ID},",
 						"          {Client Engagement Date},",
@@ -101750,6 +103431,11 @@
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
 						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind},",
 						"          {Applicant Other (1)},",
 						"          {Applicant Other (2)},",
 						"          {Applicant Other (3)},",
@@ -101794,6 +103480,11 @@
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
 						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind},",
 						"          {Applicant Other (1)},",
 						"          {Applicant Other (2)},",
 						"          {Applicant Other (3)},",
@@ -101810,7 +103501,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectReqDateInfo",
-						"Requisitions filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientReqHeaderRowAndColumn",
+						"surrogateKey2 filter(RowNum !=1) ~> FilterOutClientReqHeaderRowAndColumn",
 						"FilterOutClientReqHeaderRowAndColumn filter(!(isNull({Requisition ID}))) ~> RemoveNullReqRecords",
 						"SelectFinal, selectReqDateInfo join(SelectFinal@{Requisition ID} == selectReqDateInfo@{Requisition ID},",
 						"     joinType:'inner',",
@@ -101856,9 +103547,6 @@
 						"          Source,",
 						"          {Applicant Type},",
 						"          {Internal Worker ID},",
-						"          {Applicant City},",
-						"          {Applicant State},",
-						"          {Applicant Country},",
 						"          Race,",
 						"          {Hispanic or Latino Origin},",
 						"          Gender,",
@@ -101869,6 +103557,11 @@
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
 						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind},",
 						"          {Applicant Other (1)},",
 						"          {Applicant Other (2)},",
 						"          {Applicant Other (3)},",
@@ -101877,6 +103570,12 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select2",
+						"Applicants keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"Requisitions keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey2",
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -102046,33 +103745,39 @@
 						"          {Requisition ID} as string,",
 						"          {Application Date} as string,",
 						"          {Applicant ID} as string,",
-						"          Source as string,",
-						"          {Applicant Type} as string,",
 						"          {Applicant City} as string,",
 						"          {Applicant State} as string,",
 						"          {Applicant Country} as string,",
+						"          Source as string,",
+						"          {Applicant Type} as string,",
 						"          {Internal Worker ID} as string,",
 						"          Race as string,",
 						"          {Hispanic or Latino Origin} as string,",
 						"          Gender as string,",
 						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
+						"          LGBTQ as string,",
 						"          {Disability Ind} as string,",
 						"          {Applicant Final Disposition Date} as string,",
 						"          {Applicant Final Disposition} as string,",
 						"          {Applicant Step Before Final Disposition} as string,",
 						"          {Applicant Rejected Reason} as string,",
+						"          {Qualified Ind} as string,",
+						"          {Submitted to HM Ind} as string,",
+						"          {Interviewed Ind} as string,",
+						"          {Offer Extended Ind} as string,",
+						"          {Hired Ind} as string,",
 						"          {Applicant Other (1)} as string,",
 						"          {Applicant Other (2)} as string,",
 						"          {Applicant Other (3)} as string,",
 						"          {Applicant Other (4)} as string,",
-						"          {Applicant Other (5)} as string",
+						"          {Applicant Other (5)} as string,",
+						"          RowCount as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Applicants",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Requisition ID} as string,",
 						"          {Application Date} as string,",
 						"          {Applicant ID} as string,",
@@ -102080,7 +103785,7 @@
 						"          {Applicant Type} as string,",
 						"          {Internal Worker ID} as string,",
 						"          {Applicant City} as string,",
-						"          {Applicant State } as string,",
+						"          {Applicant State} as string,",
 						"          {Applicant Country} as string,",
 						"          Race as string,",
 						"          {Hispanic or Latino Origin} as string,",
@@ -102092,6 +103797,11 @@
 						"          {Applicant Final Disposition} as string,",
 						"          {Applicant Step Before Final Disposition} as string,",
 						"          {Applicant Rejected Reason} as string,",
+						"          {Qualified Ind} as string,",
+						"          {Submitted to HM Ind} as string,",
+						"          {Interviewed Ind} as string,",
+						"          {Offer Extended Ind} as string,",
+						"          {Hired Ind} as string,",
 						"          {Applicant Other (1)} as string,",
 						"          {Applicant Other (2)} as string,",
 						"          {Applicant Other (3)} as string,",
@@ -102102,12 +103812,12 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> ApplicantAppendFile",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Event Year} as string,",
-						"          {Event Quarter} as integer,",
 						"          {Event Date} as date,",
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
+						"          {Requisition Reason} as string,",
 						"          {Posting Date} as string,",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as string,",
@@ -102125,6 +103835,8 @@
 						"          {Business Group Level 4} as string,",
 						"          {Hiring Manager Worker ID} as string,",
 						"          {Primary Recruiter Worker ID} as string,",
+						"          {Evergreen Ind} as string,",
+						"          {Evergreen Req Parent ID} as string,",
 						"          {Requisition Other (1)} as string,",
 						"          {Requisition Other (2)} as string,",
 						"          {Requisition Other (3)} as string,",
@@ -102134,7 +103846,7 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Reqisitions",
-						"ApplicantAppendFile filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+						"ApplicantAppendFile filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>})) ~> FilterOutClientHeaderRowAndColumn",
 						"AddDerived select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
@@ -102146,7 +103858,7 @@
 						"          {Applicant Type},",
 						"          {Internal Worker ID},",
 						"          {Applicant City},",
-						"          {Applicant State} = {Applicant State },",
+						"          {Applicant State},",
 						"          {Applicant Country},",
 						"          Race,",
 						"          {Hispanic or Latino Origin},",
@@ -102158,6 +103870,11 @@
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
 						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind},",
 						"          {Applicant Other (1)},",
 						"          {Applicant Other (2)},",
 						"          {Applicant Other (3)},",
@@ -102195,6 +103912,11 @@
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
 						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind},",
 						"          {Applicant Other (1)},",
 						"          {Applicant Other (2)},",
 						"          {Applicant Other (3)},",
@@ -102228,6 +103950,11 @@
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
 						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind},",
 						"          {Applicant Other (1)},",
 						"          {Applicant Other (2)},",
 						"          {Applicant Other (3)},",
@@ -102262,6 +103989,11 @@
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
 						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind},",
 						"          {Applicant Other (1)},",
 						"          {Applicant Other (2)},",
 						"          {Applicant Other (3)},",
@@ -102306,6 +104038,11 @@
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
 						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind},",
 						"          {Applicant Other (1)},",
 						"          {Applicant Other (2)},",
 						"          {Applicant Other (3)},",
@@ -102315,7 +104052,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select1",
-						"Reqisitions filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientReqHeaderRowAndColumn",
+						"Reqisitions filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>})) ~> FilterOutClientReqHeaderRowAndColumn",
 						"FilterOutClientReqHeaderRowAndColumn filter(!(isNull({Requisition ID}))) ~> RemoveNullReqRecords",
 						"RemoveNullReqRecords select(mapColumn(",
 						"          {Event Year},",
@@ -102354,6 +104091,11 @@
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
 						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind},",
 						"          {Applicant Other (1)},",
 						"          {Applicant Other (2)},",
 						"          {Applicant Other (3)},",
@@ -102586,6 +104328,18 @@
 						},
 						{
 							"name": "SetEventQuarter"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "surrogateKey2"
+						},
+						{
+							"name": "surrogateKey3"
+						},
+						{
+							"name": "surrogateKey4"
 						}
 					],
 					"scriptLines": [
@@ -102595,22 +104349,22 @@
 						"     Flow_Qtr1_Start as string",
 						"}",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Event Year} as short,",
 						"          {Event Date} as date,",
 						"          {Worker ID} as string,",
 						"          {Worker Type} as string,",
 						"          {Job Title} as string,",
 						"          {Job Function} as string,",
-						"          {Years in Job} as double,",
 						"          {Corporate Title} as string,",
+						"          {Years in Job} as double,",
 						"          {Manager Indicator} as string,",
 						"          {Direct Manager Worker ID} as string,",
 						"          {Legacy Organization} as string,",
 						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
 						"          {Strategic Work Location Ind} as string,",
 						"          {Original Hire Date} as date,",
 						"          {Current Hire Date} as date,",
@@ -102633,28 +104387,28 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Headcount",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Event Year} as short,",
-						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          {Event Date} as date,",
 						"          {Event Type} as string,",
 						"          {Event Reason} as string,",
 						"          {Worker ID} as string,",
 						"          {Worker Type} as string,",
 						"          {Job Title} as string,",
 						"          {Job Function} as string,",
-						"          {Years in Job} as double,",
 						"          {Corporate Title} as string,",
+						"          {Years in Job} as double,",
 						"          {Manager Indicator} as string,",
 						"          {Direct Manager Worker ID} as string,",
 						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
 						"          {Strategic Work Location Ind} as string,",
-						"          {Original Hire Date} as date 'yyyy-MM-dd',",
-						"          {Current Hire Date} as date 'yyyy-MM-dd',",
+						"          {Original Hire Date} as date,",
+						"          {Current Hire Date} as date,",
 						"          {Years of Service} as double,",
-						"          {Last Promo Date} as date 'yyyy-MM-dd',",
+						"          {Last Promo Date} as date,",
 						"          {Business Group Level 1} as string,",
 						"          {Business Group Level 2} as string,",
 						"          {Business Group Level 3} as string,",
@@ -102672,9 +104426,9 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Terminations",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Event Year} as short,",
-						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          {Event Date} as date,",
 						"          {Event Type} as string,",
 						"          {Worker ID} as string,",
 						"          {Worker Type} as string,",
@@ -102685,9 +104439,9 @@
 						"          {Direct Manager Worker ID} as string,",
 						"          {Legacy Organization} as string,",
 						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
 						"          {Strategic Work Location Ind} as string,",
 						"          {Original Hire Date} as date,",
 						"          {Current Hire Date} as date,",
@@ -102708,9 +104462,9 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Hires",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Event Year} as short,",
-						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          {Event Date} as date,",
 						"          {Event Type} as string,",
 						"          {Worker ID} as string,",
 						"          {Worker Type} as string,",
@@ -102723,9 +104477,9 @@
 						"          {Manager Indicator} as string,",
 						"          {Direct Manager Worker ID} as string,",
 						"          {Work Office Location} as string,",
-						"          {Work City} as string,",
-						"          {Work State} as string,",
-						"          {Work Country} as string,",
+						"          {Work Office City} as string,",
+						"          {Work Office State} as string,",
+						"          {Work Office Country} as string,",
 						"          {Strategic Work Location Ind} as string,",
 						"          {Original Hire Date} as date,",
 						"          {Current Hire Date} as date,",
@@ -102860,7 +104614,7 @@
 						"          {Disability Ind} = iif(isNull({Disability Ind}),'N/A',{Disability Ind}),",
 						"          {Generation Desc} = iif(isNull({Generation Desc}),'N/A',{Generation Desc}),",
 						"          {Manager Indicator} = iif(isNull({Manager Indicator}),'N/A',{Manager Indicator})) ~> ConvertNullsForKeyFields",
-						"Headcount filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> filter1",
+						"surrogateKey1 filter(RowNum !=1 && !isNull({Event Year})) ~> filter1",
 						"RemoveNullWorkerIdRowsHCT select(mapColumn(",
 						"          {Event Year},",
 						"          {Event Date},",
@@ -102874,9 +104628,9 @@
 						"          {Direct Manager Worker ID},",
 						"          {Legacy Organization},",
 						"          {Work Office Location},",
-						"          {Work City},",
-						"          {Work State},",
-						"          {Work Country},",
+						"          {Work City} = {Work Office City},",
+						"          {Work State} = {Work Office State},",
+						"          {Work Country} = {Work Office Country},",
 						"          {Strategic Work Location Ind},",
 						"          {Original Hire Date},",
 						"          {Current Hire Date},",
@@ -102897,7 +104651,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select2",
-						"Terminations filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> filter2",
+						"surrogateKey2 filter(RowNum !=1 && !isNull({Event Year})) ~> filter2",
 						"RemoveNullWorkerIdRowsTER select(mapColumn(",
 						"          {Event Year},",
 						"          {Event Date},",
@@ -102912,9 +104666,9 @@
 						"          {Manager Indicator},",
 						"          {Direct Manager Worker ID},",
 						"          {Work Office Location},",
-						"          {Work City},",
-						"          {Work State},",
-						"          {Work Country},",
+						"          {Work City} = {Work Office City},",
+						"          {Work State} = {Work Office State},",
+						"          {Work Country} = {Work Office Country},",
 						"          {Strategic Work Location Ind},",
 						"          {Original Hire Date},",
 						"          {Current Hire Date},",
@@ -102935,7 +104689,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select3",
-						"Hires filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> filter3",
+						"surrogateKey3 filter(RowNum !=1 && !isNull({Event Year})) ~> filter3",
 						"RemoveNullWorkerIdRowsHIR select(mapColumn(",
 						"          {Event Year},",
 						"          {Event Date},",
@@ -102949,9 +104703,9 @@
 						"          {Direct Manager Worker ID},",
 						"          {Legacy Organization},",
 						"          {Work Office Location},",
-						"          {Work City},",
-						"          {Work State},",
-						"          {Work Country},",
+						"          {Work City} = {Work Office City},",
+						"          {Work State} = {Work Office State},",
+						"          {Work Country} = {Work Office Country},",
 						"          {Strategic Work Location Ind},",
 						"          {Original Hire Date},",
 						"          {Current Hire Date},",
@@ -102970,7 +104724,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select4",
-						"Promotions filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> filter4",
+						"surrogateKey4 filter(RowNum !=1 && !isNull({Event Year})) ~> filter4",
 						"RemoveNullWorkerIdRowsPRO select(mapColumn(",
 						"          {Event Year},",
 						"          {Event Date},",
@@ -102986,9 +104740,9 @@
 						"          {Manager Indicator},",
 						"          {Direct Manager Worker ID},",
 						"          {Work Office Location},",
-						"          {Work City},",
-						"          {Work State},",
-						"          {Work Country},",
+						"          {Work City} = {Work Office City},",
+						"          {Work State} = {Work Office State},",
+						"          {Work Country} = {Work Office Country},",
 						"          {Strategic Work Location Ind},",
 						"          {Original Hire Date},",
 						"          {Current Hire Date},",
@@ -103092,6 +104846,18 @@
 						"        )\r",
 						"    )\r",
 						")) ~> SetEventQuarter",
+						"Headcount keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"Terminations keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey2",
+						"Hires keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey3",
+						"Promotions keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey4",
 						"RemoveDuplicates sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -103124,7 +104890,7 @@
 						"          Column_27 as string,",
 						"          Column_28 as string",
 						"     ),",
-						"     partitionFileNames:['CoreFctTbl.csv'],",
+						"     partitionFileNames:['CoreFactTbl.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink1"
@@ -104117,6 +105883,9 @@
 						},
 						{
 							"name": "addEventMonth"
+						},
+						{
+							"name": "surrogateKey1"
 						}
 					],
 					"scriptLines": [
@@ -104126,11 +105895,12 @@
 						"     Flow_Qtr1_Start as string",
 						"}",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Event Year} as string,",
 						"          {Event Date} as date,",
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
+						"          {Requisition Reason} as string,",
 						"          {Posting Date} as date,",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as integer,",
@@ -104148,6 +105918,8 @@
 						"          {Business Group Level 4} as string,",
 						"          {Hiring Manager Worker ID} as string,",
 						"          {Primary Recruiter Worker ID} as string,",
+						"          {Evergreen Ind} as string,",
+						"          {Evergreen Req Parent ID} as string,",
 						"          {Requisition Other (1)} as string,",
 						"          {Requisition Other (2)} as string,",
 						"          {Requisition Other (3)} as string,",
@@ -104157,18 +105929,14 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Requisitions",
-						"Requisitions filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+						"surrogateKey1 filter(RowNum !=1 && !isNull({Event Year})) ~> FilterOutClientHeaderRowAndColumn",
 						"ConvertNullsForKeyFields select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Event Date},",
-						"          EventMonth,",
-						"          {Event Quarter},",
+						"          {  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} = {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>},",
 						"          {Event Year},",
-						"          EventId,",
-						"          Event,",
+						"          {Event Date},",
 						"          {Requisition ID},",
 						"          {Requisition Type},",
+						"          {Requisition Reason},",
 						"          {Posting Date},",
 						"          {Requisition Status},",
 						"          {Number of Openings},",
@@ -104186,11 +105954,19 @@
 						"          {Business Group Level 4},",
 						"          {Hiring Manager Worker ID},",
 						"          {Primary Recruiter Worker ID},",
+						"          {Evergreen Ind},",
+						"          {Evergreen Req Parent ID},",
 						"          {Requisition Other (1)},",
 						"          {Requisition Other (2)},",
 						"          {Requisition Other (3)},",
 						"          {Requisition Other (4)},",
-						"          {Requisition Other (5)}",
+						"          {Requisition Other (5)},",
+						"          Event,",
+						"          EventId,",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
+						"          EventMonth,",
+						"          {Event Quarter}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectFinal",
@@ -104198,7 +105974,9 @@
 						"          {Client Engagement Date} = $Flow_Client_Dt) ~> AddClientInfo",
 						"AddEventQuarter derive(Event = iif(isNull(Event),'N/A',Event),",
 						"          {Requisition Type} = iif(isNull({Requisition Type}),'N/A',{Requisition Type}),",
+						"          {Requisition Reason} = iif(isNull({Requisition Reason}),'N/A',{Requisition Reason}),",
 						"          {Requisition Status} = iif(isNull({Requisition Status}),'N/A',{Requisition Status}),",
+						"          {Evergreen Ind} = iif(isNull({Evergreen Ind}),'N/A',{Evergreen Ind}),",
 						"          {Corporate Title} = iif(isNull({Corporate Title}),'N/A',{Corporate Title}),",
 						"          {Work Office Location} = iif(isNull({Work Office Location}),'N/A',{Work Office Location}),",
 						"          {Work Office City} = iif(isNull({Work Office City}),'N/A',{Work Office City}),",
@@ -104245,6 +106023,7 @@
 						"          Event,",
 						"          {Requisition ID},",
 						"          {Requisition Type},",
+						"          {Requisition Reason},",
 						"          {Posting Date},",
 						"          {Requisition Status},",
 						"          {Number of Openings},",
@@ -104262,6 +106041,8 @@
 						"          {Business Group Level 4},",
 						"          {Hiring Manager Worker ID},",
 						"          {Primary Recruiter Worker ID},",
+						"          {Evergreen Ind},",
+						"          {Evergreen Req Parent ID},",
 						"          {Requisition Other (1)},",
 						"          {Requisition Other (2)},",
 						"          {Requisition Other (3)},",
@@ -104273,6 +106054,9 @@
 						"ReplaceSpecialCharApostrophe derive({Job Title} = replace({Job Title},\"ó\",\"o\")) ~> ReplaceSpecialCharacterAccent",
 						"ReplaceSpecialCharacterAccent derive({Job Title} = replace({Job Title},\"�\",\"-\")) ~> derivedColumn1",
 						"AddClientInfo derive(EventMonth = month({Event Date})) ~> addEventMonth",
+						"Requisitions keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
 						"RemoveDupRowsandAddRowCount sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -104394,6 +106178,9 @@
 						},
 						{
 							"name": "ReplaceCharacterUnknown"
+						},
+						{
+							"name": "surrogateKey1"
 						}
 					],
 					"scriptLines": [
@@ -104404,8 +106191,7 @@
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as string,",
-						"          {Client Engagement Type} as string,",
-						"          {Event Date} as date,",
+						"          {Event Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as integer,",
 						"          {Event Quarter} as integer,",
 						"          {Event Year} as short,",
@@ -104413,7 +106199,8 @@
 						"          Event as string,",
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
-						"          {Posting Date} as date,",
+						"          {Requisition Reason} as string,",
+						"          {Posting Date} as date 'MM-dd-yyyy',",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as integer,",
 						"          {Job Title} as string,",
@@ -104430,22 +106217,25 @@
 						"          {Business Group Level 4} as string,",
 						"          {Hiring Manager Worker ID} as string,",
 						"          {Primary Recruiter Worker ID} as string,",
+						"          {Evergreen Ind} as string,",
+						"          {Evergreen Req Parent ID} as string,",
 						"          {Requisition Other (1)} as string,",
 						"          {Requisition Other (2)} as string,",
 						"          {Requisition Other (3)} as string,",
 						"          {Requisition Other (4)} as string,",
-						"          {Requisition Other (5)} as string",
+						"          {Requisition Other (5)} as string,",
+						"          RowCount as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> JobRegFactTableFile",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Event Year} as short,",
-						"          {Event Quarter} as integer,",
 						"          {Event Date} as date,",
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
+						"          {Requisition Reason} as string,",
 						"          {Posting Date} as date,",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as integer,",
@@ -104463,6 +106253,8 @@
 						"          {Business Group Level 4} as string,",
 						"          {Hiring Manager Worker ID} as string,",
 						"          {Primary Recruiter Worker ID} as string,",
+						"          {Evergreen Ind} as string,",
+						"          {Evergreen Req Parent ID} as string,",
 						"          {Requisition Other (1)} as string,",
 						"          {Requisition Other (2)} as string,",
 						"          {Requisition Other (3)} as string,",
@@ -104472,7 +106264,7 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> JobReqAppendFile",
-						"JobReqAppendFile filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+						"surrogateKey1 filter(RowNum !=1 && !isNull({Event Year})) ~> FilterOutClientHeaderRowAndColumn",
 						"AddEventMonth select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
@@ -104504,7 +106296,10 @@
 						"          {Requisition Other (2)},",
 						"          {Requisition Other (3)},",
 						"          {Requisition Other (4)},",
-						"          {Requisition Other (5)}",
+						"          {Requisition Other (5)},",
+						"          {Requisition Reason},",
+						"          {Evergreen Ind},",
+						"          {Evergreen Req Parent ID}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectFinal",
@@ -104598,6 +106393,9 @@
 						"ReplaceSpecCharHyphen derive({Job Title} = replace({Job Title},\"’\",\"'\")) ~> ReplaceSpecialCharApostrophe",
 						"ReplaceSpecialCharApostrophe derive({Job Title} = replace({Job Title},\"ó\",\"o\")) ~> ReplaceSpecialCharacterAccent",
 						"ReplaceSpecialCharacterAccent derive({Job Title} = replace({Job Title},\"�\",\"-\")) ~> ReplaceCharacterUnknown",
+						"JobReqAppendFile keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
 						"SelectOutput sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -115865,6 +117663,9 @@
 						},
 						{
 							"name": "derivedEventQtr"
+						},
+						{
+							"name": "surrogateKey1"
 						}
 					],
 					"scriptLines": [
@@ -115890,7 +117691,7 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Other",
-						"Other filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+						"surrogateKey1 filter(RowNum !=1 && !isNull({Event Year})) ~> FilterOutClientHeaderRowAndColumn",
 						"ConvertNullsForKeyFields select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
@@ -115928,27 +117729,30 @@
 						"FilterOutClientHeaderRowAndColumn filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullRows",
 						"AddDerivedColumns derive({Event Quarter} = iif(\r",
 						"    (\r",
-						"        (toInteger({EventMonth}) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
+						"        (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
 						"    ) < 3, \r",
 						"    1,\r",
 						"    iif(\r",
 						"        (\r",
-						"            (toInteger({EventMonth}) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
+						"            (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
 						"        ) >= 3 && (\r",
-						"            (toInteger({EventMonth}) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
+						"            (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
 						"        ) < 6, \r",
 						"        2,\r",
 						"        iif(\r",
 						"            (\r",
-						"                (toInteger({EventMonth}) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
+						"                (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
 						"            ) >= 6 && (\r",
-						"                (toInteger({EventMonth}) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
+						"                (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12\r",
 						"            ) < 9, \r",
 						"            3,\r",
 						"            4\r",
 						"        )\r",
 						"    )\r",
 						")) ~> derivedEventQtr",
+						"Other keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
 						"SelectFinal sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -116055,6 +117859,9 @@
 						},
 						{
 							"name": "derivedEventQtr"
+						},
+						{
+							"name": "surrogateKey1"
 						}
 					],
 					"scriptLines": [
@@ -116102,7 +117909,7 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Other",
-						"OtherAppend filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+						"surrogateKey1 filter(RowNum !=1 && !isNull({Event Year})) ~> FilterOutClientHeaderRowAndColumn",
 						"ConvertNullsForKeyFields select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
@@ -116178,6 +117985,9 @@
 						"     skipDuplicateMapOutputs: true) ~> SelectOutput",
 						"FilterOutClientHeaderRowAndColumn filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullRows",
 						"AddDerived derive({Event Quarter} = iif(     (         (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12     ) < 3,      1,     iif(         (             (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12         ) >= 3 && (             (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12         ) < 6,          2,         iif(             (                 (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12             ) >= 6 && (                 (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12             ) < 9,              3,             4         )     ) )) ~> derivedEventQtr",
+						"OtherAppend keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
 						"SelectOutput sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -132688,6 +134498,9 @@
 						},
 						{
 							"name": "RemoveNullWorkerIDRows"
+						},
+						{
+							"name": "surrogateKey1"
 						}
 					],
 					"scriptLines": [
@@ -132696,7 +134509,7 @@
 						"     Flow_Client_Dt as string",
 						"}",
 						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
+						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>} as string,",
 						"          {Event Year} as short,",
 						"          {Event Date} as date,",
 						"          {Event Type} as string,",
@@ -132709,16 +134522,18 @@
 						"          {Talent Identifier (3)} as string,",
 						"          {Talent Identifier (4)} as string,",
 						"          {Talent Identifier (5)} as string,",
+						"          {Compensation Band / Pay Grade} as string,",
+						"          {Salary Range Midpoint Ind} as string,",
 						"          {Salary Range} as string,",
-						"          Bonus as string",
+						"          {Bonus Eligible Ind} as string,",
+						"          {Bonus Received Ind} as string,",
+						"          {Bonus as % of Base} as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> Talent",
-						"Talent filter(isNull({DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>})) ~> FilterOutClientHeaderRowAndColumn",
+						"surrogateKey1 filter(RowNum !=1 && !isNull({Event Year})) ~> FilterOutClientHeaderRowAndColumn",
 						"RemoveNullWorkerIDRows select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
 						"          {Event Year},",
 						"          {Event Date},",
 						"          Event,",
@@ -132731,8 +134546,14 @@
 						"          {Talent Identifier (3)},",
 						"          {Talent Identifier (4)},",
 						"          {Talent Identifier (5)},",
+						"          {Client ID},",
 						"          {Salary Range},",
-						"          Bonus",
+						"          {Bonus Eligible Ind},",
+						"          {Bonus Received Ind},",
+						"          {Bonus as % of Base},",
+						"          {Compensation Band / Pay Grade},",
+						"          {Salary Range Midpoint Ind},",
+						"          {Client Engagement Date}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectFinal",
@@ -132754,9 +134575,16 @@
 						"          {Talent Identifier (5)},",
 						"          {Client ID},",
 						"          {Salary Range},",
-						"          Bonus),",
+						"          {Bonus Eligible Ind},",
+						"          {Bonus Received Ind},",
+						"          {Bonus as % of Base},",
+						"          {Compensation Band / Pay Grade},",
+						"          {Salary Range Midpoint Ind}),",
 						"     {Client Engagement Date} = max({Client Engagement Date})) ~> RemoveDuplicates",
 						"RemoveDuplicates filter(not(isNull({Worker ID}))) ~> RemoveNullWorkerIDRows",
+						"Talent keyGenerate(output(RowNum as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
 						"SelectFinal sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -133678,6 +135506,9 @@
 						"          {Requisition ID} as string,",
 						"          {Application Date} as string,",
 						"          {Applicant ID} as string,",
+						"          {Applicant City} as string,",
+						"          {Applicant State} as string,",
+						"          {Applicant Country} as string,",
 						"          Source as string,",
 						"          {Applicant Type} as string,",
 						"          {Internal Worker ID} as string,",
@@ -133685,17 +135516,23 @@
 						"          {Hispanic or Latino Origin} as string,",
 						"          Gender as string,",
 						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
+						"          LGBTQ as string,",
 						"          {Disability Ind} as string,",
-						"          {Applicant Final Disposition Date} as date 'MM/dd/yyyy',",
+						"          {Applicant Final Disposition Date} as date 'MM-dd-yyyy',",
 						"          {Applicant Final Disposition} as string,",
 						"          {Applicant Step Before Final Disposition} as string,",
 						"          {Applicant Rejected Reason} as string,",
+						"          {Qualified Ind} as string,",
+						"          {Submitted to HM Ind} as string,",
+						"          {Interviewed Ind} as string,",
+						"          {Offer Extended Ind} as string,",
+						"          {Hired Ind} as string,",
 						"          {Applicant Other (1)} as string,",
 						"          {Applicant Other (2)} as string,",
 						"          {Applicant Other (3)} as string,",
 						"          {Applicant Other (4)} as string,",
-						"          {Applicant Other (5)} as string",
+						"          {Applicant Other (5)} as string,",
+						"          RowCount as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -133708,7 +135545,23 @@
 						"          ClientApplRejectedReason as string,",
 						"          ElloreeApplFinalDisp as string,",
 						"          ElloreeApplCategory as string,",
-						"          ElloreeSubmittedtoMgrFl as string",
+						"          ElloreeSubmittedtoMgrFl as string,",
+						"          LoadDt as date,",
+						"          ClientQualifiedInd as string,",
+						"          ClientSubmittedToHMInd as string,",
+						"          ClientInterviewedInd as string,",
+						"          ClientOfferExtendedInd as string,",
+						"          ClientHiredInd as string,",
+						"          ElloreeQualified as string,",
+						"          ElloreeSubmitted as string,",
+						"          ElloreeInterviewed as string,",
+						"          ElloreeOfferExtended as string,",
+						"          ElloreeHired as string,",
+						"          ElloreeHighestStage as string,",
+						"          ElloreeExitStageGroup as string,",
+						"          ElloreeExitType as string,",
+						"          ElloreeExitDriver as string,",
+						"          ElloreeExitDriverGroup as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -133732,7 +135585,7 @@
 						"          HispanicLatinoOrigin as string,",
 						"          Gender as string,",
 						"          Veteran as string,",
-						"          LGTBQ as string,",
+						"          LGBTQ as string,",
 						"          DisabilityInd as string,",
 						"          ApplFinalDisp as string,",
 						"          ApplStepBeforeFinalDisp as string,",
@@ -133742,7 +135595,19 @@
 						"          ApplOther3 as string,",
 						"          ApplOther4 as string,",
 						"          ApplOther5 as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          ApplicantCity as string,",
+						"          ApplicantState as string,",
+						"          ApplicantCountry as string,",
+						"          ApplDt as date,",
+						"          ApplFinalDispDt as date,",
+						"          ApplicantWorkOfficeLoc as string,",
+						"          ApplicantWorkStrategicLocInd as string,",
+						"          QualifiedInd as string,",
+						"          SubmittedToHMInd as string,",
+						"          InterviewedInd as string,",
+						"          OfferExtendedInd as string,",
+						"          HiredInd as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -133754,12 +135619,34 @@
 						"          {Client Applicant Final Disposition},",
 						"          {Client Applicant Step Before Final Disposition},",
 						"          {Client Applicant Rejected Reason},",
+						"          {Client Qualified Ind},",
+						"          {Client Submitted to HM Ind},",
+						"          {Client Interviewed Ind},",
+						"          {Client Offer Extended Ind},",
+						"          {Client Hired Ind},",
 						"          {Elloree Applicant Final Disposition},",
 						"          {Elloree Applicant Category},",
 						"          {Elloree Submitted to Mgr Fl},",
-						"          {Suggested Elloree Applicant Final Disposition},",
-						"          {Suggested Elloree Applicant Category},",
-						"          {Suggested Elloree Submitted to Mgr Fl},",
+						"          {Elloree Qualified Ind},",
+						"          {Elloree Submitted to HM Ind},",
+						"          {Elloree Interviewed Ind},",
+						"          {Elloree Offer Extended Ind},",
+						"          {Elloree Hired Ind},",
+						"          {Elloree Highest Stage},",
+						"          {Elloree Exit Stage Group},",
+						"          {Elloree Exit Type},",
+						"          {Elloree Exit Driver},",
+						"          {Elloree Exit Driver Group},",
+						"          {Suggested Elloree Qualified Ind},",
+						"          {Suggested Elloree Submitted to HM Ind},",
+						"          {Suggested Elloree Interviewed Ind},",
+						"          {Suggested Elloree Offer Extended Ind},",
+						"          {Suggested Elloree Hired Ind},",
+						"          {Suggested Elloree Highest Stage},",
+						"          {Suggested Elloree Exit Stage Group},",
+						"          {Suggested Elloree Exit Type},",
+						"          {Suggested Elloree Exit Driver},",
+						"          {Suggested Elloree Exit Driver Group},",
 						"          {Suggested Source}),",
 						"     pivotBy({Event and Year}),",
 						"     {} = count({Applicant ID}),",
@@ -133776,7 +135663,17 @@
 						"          {Unique ClientApplRejectedReason} = ClientApplRejectedReason,",
 						"          {Unique ElloreeApplFinalDisp} = ElloreeApplFinalDisp,",
 						"          {Unique ElloreeApplCategory} = ElloreeApplCategory,",
-						"          {Unique ElloreeSubmittedtoMgrFl} = ElloreeSubmittedtoMgrFl),",
+						"          {Unique ElloreeSubmittedtoMgrFl} = ElloreeSubmittedtoMgrFl,",
+						"          {Unique ElloreeQualified} = ElloreeQualified,",
+						"          {Unique ElloreeSubmitted} = ElloreeSubmitted,",
+						"          {Unique ElloreeInterviewed} = ElloreeInterviewed,",
+						"          {Unique ElloreeOfferExtended} = ElloreeOfferExtended,",
+						"          {Unique ElloreeHired} = ElloreeHired,",
+						"          {Unique ElloreeHighestStage} = ElloreeHighestStage,",
+						"          {Unique ElloreeExitStageGroup} = ElloreeExitStageGroup,",
+						"          {Unique ElloreeExitType} = ElloreeExitType,",
+						"          {Unique ElloreeExitDriver} = ElloreeExitDriver,",
+						"          {Unique ElloreeExitDriverGroup} = ElloreeExitDriverGroup),",
 						"     CountClientId = count(ClientId)) ~> SelectUniqueOtherClientValues",
 						"TakeLastClientValForRemainingDups select(mapColumn(",
 						"          {Unique ClientId},",
@@ -133785,7 +135682,17 @@
 						"          {Unique ClientApplRejectedReason},",
 						"          {Unique ElloreeApplFinalDisp},",
 						"          {Unique ElloreeApplCategory},",
-						"          {Unique ElloreeSubmittedtoMgrFl}",
+						"          {Unique ElloreeSubmittedtoMgrFl},",
+						"          {Unique ElloreeQualified},",
+						"          {Unique ElloreeSubmitted},",
+						"          {Unique ElloreeInterviewed},",
+						"          {Unique ElloreeOfferExtended},",
+						"          {Unique ElloreeHired},",
+						"          {Unique ElloreeHighestStage},",
+						"          {Unique ElloreeExitStageGroup},",
+						"          {Unique ElloreeExitType},",
+						"          {Unique ElloreeExitDriver},",
+						"          {Unique ElloreeExitDriverGroup}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectExistingApplFlowMapping",
@@ -133801,9 +135708,24 @@
 						"          {Client Applicant Final Disposition} = {Applicant Final Disposition},",
 						"          {Client Applicant Step Before Final Disposition} = {Applicant Step Before Final Disposition},",
 						"          {Client Applicant Rejected Reason} = {Applicant Rejected Reason},",
+						"          {Client Qualified Ind} = {Qualified Ind},",
+						"          {Client Submitted to HM Ind} = {Submitted to HM Ind},",
+						"          {Client Interviewed Ind} = {Interviewed Ind},",
+						"          {Client Offer Extended Ind} = {Offer Extended Ind},",
+						"          {Client Hired Ind} = {Hired Ind},",
 						"          {Elloree Applicant Final Disposition},",
 						"          {Elloree Applicant Category},",
 						"          {Elloree Submitted to Mgr Fl},",
+						"          {Elloree Qualified Ind},",
+						"          {Elloree Submitted to HM Ind},",
+						"          {Elloree Interviewed Ind},",
+						"          {Elloree Offer Extended Ind},",
+						"          {Elloree Hired Ind},",
+						"          {Elloree Highest Stage},",
+						"          {Elloree Exit Stage Group},",
+						"          {Elloree Exit Type},",
+						"          {Elloree Exit Driver},",
+						"          {Elloree Exit Driver Group},",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Event and Year},",
@@ -133811,6 +135733,16 @@
 						"          {Suggested Elloree Applicant Final Disposition} = {Unique ElloreeApplFinalDisp},",
 						"          {Suggested Elloree Applicant Category} = {Unique ElloreeApplCategory},",
 						"          {Suggested Elloree Submitted to Manager Fl} = {Unique ElloreeSubmittedtoMgrFl},",
+						"          {Suggested Elloree Qualified Ind} = {Unique ElloreeQualified},",
+						"          {Suggested Elloree Submitted to HM Ind} = {Unique ElloreeSubmitted},",
+						"          {Suggested Elloree Interviewed Ind} = {Unique ElloreeInterviewed},",
+						"          {Suggested Elloree Offer Extended Ind} = {Unique ElloreeOfferExtended},",
+						"          {Suggested Elloree Hired Ind} = {Unique ElloreeHired},",
+						"          {Suggested Elloree Highest Stage} = {Unique ElloreeHighestStage},",
+						"          {Suggested Elloree Exit Stage Group} = {Unique ElloreeExitStageGroup},",
+						"          {Suggested Elloree Exit Type} = {Unique ElloreeExitType},",
+						"          {Suggested Elloree Exit Driver} = {Unique ElloreeExitDriver},",
+						"          {Suggested Elloree Exit Driver Group} = {Unique ElloreeExitDriverGroup},",
 						"          {Applicant ID}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
@@ -133824,23 +135756,58 @@
 						"     ignoreSpaces: false,",
 						"     broadcast: 'both')~> join2",
 						"select3 derive({Suggested Source} = iif(isNull({Suggested Source}),{Unique ClientId},{Suggested Source}),",
-						"          {Suggested Elloree Applicant Final Disposition} = iif(isNull({Suggested Source}),{Unique ClientApplFinalDisp},{Suggested Elloree Applicant Final Disposition}),",
-						"          {Suggested Elloree Applicant Category} = iif(isNull({Suggested Source}),{Unique ElloreeApplCategory},{Suggested Elloree Applicant Category}),",
-						"          {Suggested Elloree Submitted to Mgr Fl} = iif(isNull({Suggested Source}),{Unique ElloreeSubmittedtoMgrFl},{Suggested Elloree Submitted to Mgr Fl})) ~> derivedColumn1",
+						"          {Elloree Applicant Final Disposition} = \"N/A\",",
+						"          {Elloree Applicant Category} = \"N/A\",",
+						"          {Elloree Submitted to Mgr Fl} = \"N/A\",",
+						"          {Suggested Elloree Qualified Ind} = iif(isNull({Suggested Source}),{Unique ElloreeQualified},{Suggested Elloree Qualified Ind}),",
+						"          {Suggested Elloree Submitted to HM Ind} = iif(isNull({Suggested Source}),{Unique ElloreeSubmitted},{Suggested Elloree Submitted to HM Ind}),",
+						"          {Suggested Elloree Interviewed Ind} = iif(isNull({Suggested Source}),{Unique ElloreeInterviewed},{Suggested Elloree Interviewed Ind}),",
+						"          {Suggested Elloree Offer Extended Ind} = iif(isNull({Suggested Source}),{Unique ElloreeOfferExtended},{Suggested Elloree Offer Extended Ind}),",
+						"          {Suggested Elloree Hired Ind} = iif(isNull({Suggested Source}),{Unique ElloreeHired},{Suggested Elloree Hired Ind}),",
+						"          {Suggested Elloree Highest Stage} = iif(isNull({Suggested Source}),{Unique ElloreeHighestStage},{Suggested Elloree Highest Stage}),",
+						"          {Suggested Elloree Exit Stage Group} = iif(isNull({Suggested Source}),{Unique ElloreeExitStageGroup},{Suggested Elloree Exit Stage Group}),",
+						"          {Suggested Elloree Exit Type} = iif(isNull({Suggested Source}),{Unique ElloreeExitType},{Suggested Elloree Exit Type}),",
+						"          {Suggested Elloree Exit Driver} = iif(isNull({Suggested Source}),{Unique ElloreeExitDriver},{Suggested Elloree Exit Driver}),",
+						"          {Suggested Elloree Exit Driver Group} = iif(isNull({Suggested Source}),{Unique ElloreeExitDriverGroup},{Suggested Elloree Exit Driver Group})) ~> derivedColumn1",
 						"join2 select(mapColumn(",
+						"          {Client ID},",
+						"          {Client Engagement Date},",
 						"          {Client Applicant Final Disposition},",
 						"          {Client Applicant Step Before Final Disposition},",
 						"          {Client Applicant Rejected Reason},",
+						"          {Client Qualified Ind},",
+						"          {Client Submitted to HM Ind},",
+						"          {Client Interviewed Ind},",
+						"          {Client Offer Extended Ind},",
+						"          {Client Hired Ind},",
 						"          {Elloree Applicant Final Disposition},",
 						"          {Elloree Applicant Category},",
 						"          {Elloree Submitted to Mgr Fl},",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
+						"          {Elloree Qualified Ind},",
+						"          {Elloree Submitted to HM Ind},",
+						"          {Elloree Interviewed Ind},",
+						"          {Elloree Offer Extended Ind},",
+						"          {Elloree Hired Ind},",
+						"          {Elloree Highest Stage},",
+						"          {Elloree Exit Stage Group},",
+						"          {Elloree Exit Type},",
+						"          {Elloree Exit Driver},",
+						"          {Elloree Exit Driver Group},",
 						"          {Event and Year},",
-						"          {Suggested Source},",
 						"          {Suggested Elloree Applicant Final Disposition},",
 						"          {Suggested Elloree Applicant Category},",
 						"          {Suggested Elloree Submitted to Mgr Fl} = {Suggested Elloree Submitted to Manager Fl},",
+						"          {Suggested Elloree Qualified Ind},",
+						"          {Suggested Elloree Submitted to HM Ind},",
+						"          {Suggested Elloree Interviewed Ind},",
+						"          {Suggested Elloree Offer Extended Ind},",
+						"          {Suggested Elloree Hired Ind},",
+						"          {Suggested Elloree Highest Stage},",
+						"          {Suggested Elloree Exit Stage Group},",
+						"          {Suggested Elloree Exit Type},",
+						"          {Suggested Elloree Exit Driver},",
+						"          {Suggested Elloree Exit Driver Group},",
+						"          {Suggested Source},",
 						"          {Applicant ID},",
 						"          {Unique ClientId},",
 						"          {Unique ClientApplFinalDisp},",
@@ -133848,7 +135815,17 @@
 						"          {Unique ClientApplRejectedReason},",
 						"          {Unique ElloreeApplFinalDisp},",
 						"          {Unique ElloreeApplCategory},",
-						"          {Unique ElloreeSubmittedtoMgrFl}",
+						"          {Unique ElloreeSubmittedtoMgrFl},",
+						"          {Unique ElloreeQualified},",
+						"          {Unique ElloreeSubmitted},",
+						"          {Unique ElloreeInterviewed},",
+						"          {Unique ElloreeOfferExtended},",
+						"          {Unique ElloreeHired},",
+						"          {Unique ElloreeHighestStage},",
+						"          {Unique ElloreeExitStageGroup},",
+						"          {Unique ElloreeExitType},",
+						"          {Unique ElloreeExitDriver},",
+						"          {Unique ElloreeExitDriverGroup}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select3",
@@ -133860,7 +135837,12 @@
 						"          {Applicant ID} = ApplicantId,",
 						"          {Applicant Final Disposition} = ApplFinalDisp,",
 						"          {Applicant Step Before Final Disposition} = ApplStepBeforeFinalDisp,",
-						"          {Applicant Rejected Reason} = ApplRejectedReason",
+						"          {Applicant Rejected Reason} = ApplRejectedReason,",
+						"          {Qualified Ind} = QualifiedInd,",
+						"          {Submitted to HM Ind} = SubmittedToHMInd,",
+						"          {Interviewed Ind} = InterviewedInd,",
+						"          {Offer Extended Ind} = OfferExtendedInd,",
+						"          {Hired Ind} = HiredInd",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectDBApplicantData",
@@ -133873,14 +135855,29 @@
 						"          {Applicant ID},",
 						"          {Applicant Final Disposition},",
 						"          {Applicant Step Before Final Disposition},",
-						"          {Applicant Rejected Reason}",
+						"          {Applicant Rejected Reason},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select4",
 						"CollapsePossibleDuplicates derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
 						"          {Elloree Applicant Final Disposition} = '',",
 						"          {Elloree Applicant Category} = '',",
-						"          {Elloree Submitted to Mgr Fl} = '') ~> derivedColumn2",
+						"          {Elloree Submitted to Mgr Fl} = '',",
+						"          {Elloree Qualified Ind} = '',",
+						"          {Elloree Submitted to HM Ind} = '',",
+						"          {Elloree Interviewed Ind} = '',",
+						"          {Elloree Offer Extended Ind} = '',",
+						"          {Elloree Hired Ind} = '',",
+						"          {Elloree Highest Stage} = '',",
+						"          {Elloree Exit Stage Group} = '',",
+						"          {Elloree Exit Type} = '',",
+						"          {Elloree Exit Driver} = '',",
+						"          {Elloree Exit Driver Group} = '') ~> derivedColumn2",
 						"union1 aggregate(groupBy({Client ID},",
 						"          {Client Engagement Date},",
 						"          {Event Year},",
@@ -133888,7 +135885,12 @@
 						"          {Applicant ID},",
 						"          {Applicant Final Disposition},",
 						"          {Applicant Rejected Reason},",
-						"          {Applicant Step Before Final Disposition}),",
+						"          {Applicant Step Before Final Disposition},",
+						"          {Qualified Ind},",
+						"          {Submitted to HM Ind},",
+						"          {Interviewed Ind},",
+						"          {Offer Extended Ind},",
+						"          {Hired Ind}),",
 						"     TotApplCount = count({Applicant ID})) ~> CollapsePossibleDuplicates",
 						"ApplicantDatabaseRecords aggregate(groupBy(ClientId,",
 						"          ClientEngagementDt,",
@@ -133898,14 +135900,29 @@
 						"          ApplType,",
 						"          ApplFinalDisp,",
 						"          ApplStepBeforeFinalDisp,",
-						"          ApplRejectedReason),",
+						"          ApplRejectedReason,",
+						"          QualifiedInd,",
+						"          SubmittedToHMInd,",
+						"          InterviewedInd,",
+						"          OfferExtendedInd,",
+						"          HiredInd),",
 						"     TotRecCount = count(ApplicantId)) ~> selectApplDBRecsInit",
 						"SelectUniqueOtherClientValues aggregate(groupBy({Count Unique ClientApplFinalDisp} = {Unique ClientApplFinalDisp},",
 						"          {Count Unique ClientApplStepBeforeFinalDisp} = {Unique ClientApplStepBeforeFinalDisp},",
 						"          {Count Unique ClientApplRejectedReason} = {Unique ClientApplRejectedReason},",
 						"          {Count Unique ElloreeApplFinalDisp} = {Unique ElloreeApplFinalDisp},",
 						"          {Count Unique ElloreeApplCategory} = {Unique ElloreeApplCategory},",
-						"          {Count Unique ElloreeSubmittedtoMgrFl} = {Unique ElloreeSubmittedtoMgrFl}),",
+						"          {Count Unique ElloreeSubmittedtoMgrFl} = {Unique ElloreeSubmittedtoMgrFl},",
+						"          {Count Unique ElloreeQualified} = {Unique ElloreeQualified},",
+						"          {Count Unique ElloreeSubmitted} = {Unique ElloreeSubmitted},",
+						"          {Count Unique ElloreeInterviewed} = {Unique ElloreeInterviewed},",
+						"          {Count Unique ElloreeOfferExtended} = {Unique ElloreeOfferExtended},",
+						"          {Count Unique ElloreeHired} = {Unique ElloreeHired},",
+						"          {Count Unique ElloreeHighestStage} = {Unique ElloreeHighestStage},",
+						"          {Count Unique ElloreeExitStageGroup} = {Unique ElloreeExitStageGroup},",
+						"          {Count Unique ElloreeExitType} = {Unique ElloreeExitType},",
+						"          {Count Unique ElloreeExitDriver} = {Unique ElloreeExitDriver},",
+						"          {Count Unique ElloreeExitDriverGroup} = {Unique ElloreeExitDriverGroup}),",
 						"     ClientIDCount = count({Unique ClientId})) ~> GetCountOfClientForUniqueValues",
 						"SelectUniqueOtherClientValues, GetCountOfClientForUniqueValues join({Unique ClientApplFinalDisp} == {Count Unique ClientApplFinalDisp}",
 						"     && {Unique ClientApplStepBeforeFinalDisp} == {Count Unique ClientApplStepBeforeFinalDisp}",
@@ -133925,6 +135942,16 @@
 						"          {Unique ElloreeApplFinalDisp},",
 						"          {Unique ElloreeApplCategory},",
 						"          {Unique ElloreeSubmittedtoMgrFl},",
+						"          {Unique ElloreeQualified},",
+						"          {Unique ElloreeSubmitted},",
+						"          {Unique ElloreeInterviewed},",
+						"          {Unique ElloreeOfferExtended},",
+						"          {Unique ElloreeHired},",
+						"          {Unique ElloreeHighestStage},",
+						"          {Unique ElloreeExitStageGroup},",
+						"          {Unique ElloreeExitType},",
+						"          {Unique ElloreeExitDriver},",
+						"          {Unique ElloreeExitDriverGroup},",
 						"          ClientIDCount",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
@@ -133935,7 +135962,17 @@
 						"          {Unique ClientApplRejectedReason},",
 						"          {Unique ElloreeApplFinalDisp},",
 						"          {Unique ElloreeApplCategory},",
-						"          {Unique ElloreeSubmittedtoMgrFl}),",
+						"          {Unique ElloreeSubmittedtoMgrFl},",
+						"          {Unique ElloreeQualified},",
+						"          {Unique ElloreeSubmitted},",
+						"          {Unique ElloreeInterviewed},",
+						"          {Unique ElloreeOfferExtended},",
+						"          {Unique ElloreeHired},",
+						"          {Unique ElloreeHighestStage},",
+						"          {Unique ElloreeExitStageGroup},",
+						"          {Unique ElloreeExitType},",
+						"          {Unique ElloreeExitDriver},",
+						"          {Unique ElloreeExitDriverGroup}),",
 						"     ClientIDCount = max(ClientIDCount)) ~> SelectMappingWithMostClients",
 						"SelectMappingWithMostClients aggregate(groupBy({Agg Unique ClientApplFinalDisp} = {Unique ClientApplFinalDisp},",
 						"          {Agg Unique ClientApplStepBeforeFinalDisp} = {Unique ClientApplStepBeforeFinalDisp},",
@@ -133958,7 +135995,17 @@
 						"          {Unique ClientApplRejectedReason},",
 						"          {Unique ElloreeApplFinalDisp},",
 						"          {Unique ElloreeApplCategory},",
-						"          {Unique ElloreeSubmittedtoMgrFl}),",
+						"          {Unique ElloreeSubmittedtoMgrFl},",
+						"          {Unique ElloreeQualified},",
+						"          {Unique ElloreeSubmitted},",
+						"          {Unique ElloreeInterviewed},",
+						"          {Unique ElloreeOfferExtended},",
+						"          {Unique ElloreeHired},",
+						"          {Unique ElloreeHighestStage},",
+						"          {Unique ElloreeExitStageGroup},",
+						"          {Unique ElloreeExitType},",
+						"          {Unique ElloreeExitDriver},",
+						"          {Unique ElloreeExitDriverGroup}),",
 						"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
 						"ApplFlowMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
 						"ApplFlowMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
@@ -133969,7 +136016,17 @@
 						"          {Unique ClientApplRejectedReason} = ClientApplRejectedReason,",
 						"          {Unique ElloreeApplFinalDisp} = ElloreeApplFinalDisp,",
 						"          {Unique ElloreeApplCategory} = ElloreeApplCategory,",
-						"          {Unique ElloreeSubmittedtoMgrFl} = ElloreeSubmittedtoMgrFl),",
+						"          {Unique ElloreeSubmittedtoMgrFl} = ElloreeSubmittedtoMgrFl,",
+						"          {Unique ElloreeQualified} = ElloreeQualified,",
+						"          {Unique ElloreeSubmitted} = ElloreeSubmitted,",
+						"          {Unique ElloreeInterviewed} = ElloreeInterviewed,",
+						"          {Unique ElloreeOfferExtended} = ElloreeOfferExtended,",
+						"          {Unique ElloreeHired} = ElloreeHired,",
+						"          {Unique ElloreeHighestStage} = ElloreeHighestStage,",
+						"          {Unique ElloreeExitStageGroup} = ElloreeExitStageGroup,",
+						"          {Unique ElloreeExitType} = ElloreeExitType,",
+						"          {Unique ElloreeExitDriver} = ElloreeExitDriver,",
+						"          {Unique ElloreeExitDriverGroup} = ElloreeExitDriverGroup),",
 						"     RowCount = count(ClientId)) ~> GroupUniqueValues",
 						"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
 						"          {Unique ClientId},",
@@ -133978,7 +136035,17 @@
 						"          {Unique ClientApplRejectedReason},",
 						"          {Unique ElloreeApplFinalDisp},",
 						"          {Unique ElloreeApplCategory},",
-						"          {Unique ElloreeSubmittedtoMgrFl}",
+						"          {Unique ElloreeSubmittedtoMgrFl},",
+						"          {Unique ElloreeQualified},",
+						"          {Unique ElloreeSubmitted},",
+						"          {Unique ElloreeInterviewed},",
+						"          {Unique ElloreeOfferExtended},",
+						"          {Unique ElloreeHired},",
+						"          {Unique ElloreeHighestStage},",
+						"          {Unique ElloreeExitStageGroup},",
+						"          {Unique ElloreeExitType},",
+						"          {Unique ElloreeExitDriver},",
+						"          {Unique ElloreeExitDriverGroup}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
@@ -134293,7 +136360,6 @@
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
-						"          {Client Engagement Type} as string,",
 						"          {Event Date} as string,",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
@@ -134302,6 +136368,7 @@
 						"          Event as string,",
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
+						"          {Requisition Reason} as string,",
 						"          {Posting Date} as string,",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as string,",
@@ -134319,11 +136386,14 @@
 						"          {Business Group Level 4} as string,",
 						"          {Hiring Manager Worker ID} as string,",
 						"          {Primary Recruiter Worker ID} as string,",
+						"          {Evergreen Ind} as string,",
+						"          {Evergreen Req Parent ID} as string,",
 						"          {Requisition Other (1)} as string,",
 						"          {Requisition Other (2)} as string,",
 						"          {Requisition Other (3)} as string,",
 						"          {Requisition Other (4)} as string,",
-						"          {Requisition Other (5)} as string",
+						"          {Requisition Other (5)} as string,",
+						"          RowCount as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -140143,8 +142213,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
-						"          {Client Engagement Type} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as string,",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
@@ -140153,6 +142222,7 @@
 						"          Event as string,",
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
+						"          {Requisition Reason} as string,",
 						"          {Posting Date} as string,",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as string,",
@@ -140170,11 +142240,14 @@
 						"          {Business Group Level 4} as string,",
 						"          {Hiring Manager Worker ID} as string,",
 						"          {Primary Recruiter Worker ID} as string,",
+						"          {Evergreen Ind} as string,",
+						"          {Evergreen Req Parent ID} as string,",
 						"          {Requisition Other (1)} as string,",
 						"          {Requisition Other (2)} as string,",
 						"          {Requisition Other (3)} as string,",
 						"          {Requisition Other (4)} as string,",
-						"          {Requisition Other (5)} as string",
+						"          {Requisition Other (5)} as string,",
+						"          RowCount as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -140183,7 +142256,10 @@
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
 						"          ClientReqType as string,",
-						"          ElloreeReqType as string",
+						"          ElloreeReqType as string,",
+						"          LoadDt as date,",
+						"          ClientRequisitionReason as string,",
+						"          ElloreeRequisitionReason as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -140222,7 +142298,10 @@
 						"          ReqOther3 as string,",
 						"          ReqOther4 as string,",
 						"          ReqOther5 as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          EvergreenInd as string,",
+						"          EvergreenReqParentId as string,",
+						"          RequisitionReason as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -140243,38 +142322,47 @@
 						"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
 						"CreatePivotReqTypeAndEventTime sort(asc({Client Requisition Type}, true)) ~> SortOnReqType",
 						"RemoveDupRows derive({Event and Year} = concat(toString({Event Year}),concat(' ',Event)),",
-						"          {Elloree Requisition Type} = '') ~> AddDerivedEventYearColumn",
+						"          {Elloree Requisition Type} = '',",
+						"          {Elloree Requisition Reason} = \"\") ~> AddDerivedEventYearColumn",
 						"NotEqualtoClientID aggregate(groupBy({Unique ClientId} = ClientId,",
 						"          {Unique ClientReqType} = ClientReqType,",
-						"          {Unique ElloreeReqType} = ElloreeReqType),",
+						"          {Unique ClientRequisitionReason} = ClientRequisitionReason,",
+						"          {Unique ElloreeReqType} = ElloreeReqType,",
+						"          {Unique ElloreeReqReason} = ElloreeRequisitionReason),",
 						"     ClientEngagementDt = last(ClientEngagementDt)) ~> SelectUniqueRows",
 						"TakeLastClientValForRemainingDups select(mapColumn(",
 						"          {Unique ClientId},",
 						"          {Unique ClientReqType},",
-						"          {Unique ElloreeReqType}",
+						"          {Unique ElloreeReqType},",
+						"          {Unique ElloreeReqReason}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectExistingReqTypeMapping",
 						"SortOnEvent, selectUniqueClientIDValues join({Client ID} == {Unique ClientId}",
-						"     && {Requisition Type} == {Unique ClientReqType},",
+						"     && {Requisition Type} == {Unique ClientReqType}",
+						"     && RequisitionReason == {Unique ElloreeReqReason},",
 						"     joinType:'left',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> join1",
 						"join1 select(mapColumn(",
 						"          {Client Requisition Type} = {Requisition Type},",
+						"          {Client RequisitionReason} = RequisitionReason,",
 						"          {Elloree Requisition Type},",
+						"          {Elloree Requisition Reason},",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Event and Year},",
 						"          {Suggested Source} = {Unique ClientId},",
 						"          {Suggested Elloree Requisition Type} = {Unique ElloreeReqType},",
+						"          {Suggested Unique ElloreeReqReason} = {Unique ElloreeReqReason},",
 						"          {Requisition ID}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select2",
 						"select2, SelectExistingReqTypeMapping join({Client ID} != {Unique ClientId}",
-						"     && {Client Requisition Type} == {Unique ClientReqType},",
+						"     && {Client Requisition Type} == {Unique ClientReqType}",
+						"     && {Client RequisitionReason} == {Unique ElloreeReqReason},",
 						"     joinType:'left',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
@@ -140302,7 +142390,8 @@
 						"          {Event Year} = EventYear,",
 						"          Event,",
 						"          {Requisition ID} = ReqId,",
-						"          {Requisition Type} = ReqType",
+						"          {Requisition Type} = ReqType,",
+						"          RequisitionReason",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectReqDBRecs",
@@ -140322,13 +142411,17 @@
 						"          EventYear,",
 						"          Event,",
 						"          ReqId,",
-						"          ReqType),",
+						"          ReqType,",
+						"          RequisitionReason),",
 						"     TotRecCount = count(ReqId)) ~> selectReqDBRecsInit",
 						"SelectUniqueRows aggregate(groupBy({Count Unique ClientReqType} = {Unique ClientReqType},",
-						"          {Count Unique ElloreeReqType} = {Unique ElloreeReqType}),",
+						"          {Count Unique ClientRequisitionReason} = {Unique ClientRequisitionReason},",
+						"          {Count Unique ElloreeReqType} = {Unique ElloreeReqType},",
+						"          {Count Unique ElloreeReqReason} = {Unique ElloreeReqReason}),",
 						"     ClientIDCount = count({Unique ClientId})) ~> GetCountOfClientForUniqueValues",
 						"SelectUniqueRows, GetCountOfClientForUniqueValues join({Unique ClientReqType} == {Count Unique ClientReqType}",
-						"     && {Unique ElloreeReqType} == {Count Unique ElloreeReqType},",
+						"     && {Unique ElloreeReqType} == {Count Unique ElloreeReqType}",
+						"     && {Unique ElloreeReqReason} == {Count Unique ElloreeReqReason},",
 						"     joinType:'inner',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
@@ -140336,32 +142429,40 @@
 						"JoinClientIDCountInForMaxFilter select(mapColumn(",
 						"          {Unique ClientId},",
 						"          {Unique ClientReqType},",
+						"          {Unique ClientRequisitionReason},",
 						"          {Unique ElloreeReqType},",
+						"          {Unique ElloreeReqReason},",
 						"          ClientIDCount",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> CleanupSelectFields",
 						"CleanupSelectFields aggregate(groupBy({Unique ClientId},",
 						"          {Unique ClientReqType},",
-						"          {Unique ElloreeReqType}),",
+						"          {Unique ClientRequisitionReason},",
+						"          {Unique ElloreeReqType},",
+						"          {Unique ElloreeReqReason}),",
 						"     ClientIDCount = max(ClientIDCount)) ~> SelectMappingWithMostClients",
-						"SelectMappingWithMostClients aggregate(groupBy({Agg Unique ClientReqType} = {Unique ClientReqType}),",
+						"SelectMappingWithMostClients aggregate(groupBy({Agg Unique ClientReqType} = {Unique ClientReqType},",
+						"          {Agg Unique ClientRequisitionReason} = {Unique ClientRequisitionReason}),",
 						"     {Agg Unique ElloreeReqType} = first({Unique ElloreeReqType})) ~> aggregate1",
 						"SelectMappingWithMostClients, aggregate1 join({Unique ClientReqType} == {Agg Unique ClientReqType}",
+						"     && {Unique ClientRequisitionReason} == {Agg Unique ClientRequisitionReason}",
 						"     && {Unique ElloreeReqType} == {Agg Unique ElloreeReqType},",
 						"     joinType:'inner',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> JoinBackFinalSelectMapping",
 						"JoinBackFinalSelectMapping aggregate(groupBy({Unique ClientReqType},",
-						"          {Unique ElloreeReqType}),",
+						"          {Unique ElloreeReqType},",
+						"          {Unique ElloreeReqReason}),",
 						"     {Unique ClientId} = last({Unique ClientId})) ~> TakeLastClientValForRemainingDups",
 						"ReqTypeMappingTbl filter(ClientId!=$Flow_Client_Id) ~> NotEqualtoClientID",
 						"ReqTypeMappingTbl filter(ClientId==$Flow_Client_Id) ~> EqualtoClientId",
 						"EqualtoClientId aggregate(groupBy({Unique ClientId} = ClientId,",
 						"          ClientEngagementDt,",
 						"          {Unique ClientReqType} = ClientReqType,",
-						"          {Unique ElloreeReqType} = ElloreeReqType),",
+						"          {Unique ElloreeReqType} = ElloreeReqType,",
+						"          {Unique ElloreeReqReason} = ElloreeRequisitionReason),",
 						"     RowCount = count(ClientId)) ~> GroupUniqueValues",
 						"GroupUniqueValues, SelectLastEngagementDt exists(ClientEngagementDt == LastEngagementDt,",
 						"     negate:false,",
@@ -140370,7 +142471,8 @@
 						"SelectBasedOnMostRecentClientEngagment select(mapColumn(",
 						"          {Unique ClientId},",
 						"          {Unique ClientReqType},",
-						"          {Unique ElloreeReqType}",
+						"          {Unique ElloreeReqType},",
+						"          {Unique ElloreeReqReason}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectUniqueClientIDValues",
@@ -140379,7 +142481,8 @@
 						"          {Event Year},",
 						"          Event,",
 						"          {Requisition ID},",
-						"          {Requisition Type}),",
+						"          {Requisition Type},",
+						"          RequisitionReason),",
 						"     RowCount = count({Client ID})) ~> RemoveDupRows",
 						"SortOnReqType sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -143775,7 +145878,6 @@
 						"source(output(",
 						"          {Client ID} as string,",
 						"          {Client Engagement Date} as string,",
-						"          {Client Engagement Type} as string,",
 						"          {Event Date} as string,",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
@@ -143784,6 +145886,7 @@
 						"          Event as string,",
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
+						"          {Requisition Reason} as string,",
 						"          {Posting Date} as string,",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as string,",
@@ -143801,11 +145904,14 @@
 						"          {Business Group Level 4} as string,",
 						"          {Hiring Manager Worker ID} as string,",
 						"          {Primary Recruiter Worker ID} as string,",
+						"          {Evergreen Ind} as string,",
+						"          {Evergreen Req Parent ID} as string,",
 						"          {Requisition Other (1)} as string,",
 						"          {Requisition Other (2)} as string,",
 						"          {Requisition Other (3)} as string,",
 						"          {Requisition Other (4)} as string,",
-						"          {Requisition Other (5)} as string",
+						"          {Requisition Other (5)} as string,",
+						"          RowCount as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -143819,7 +145925,11 @@
 						"          {Event Year} as string,",
 						"          Event as string,",
 						"          {Requisition ID} as string,",
+						"          {Application Date} as string,",
 						"          {Applicant ID} as string,",
+						"          {Applicant City} as string,",
+						"          {Applicant State} as string,",
+						"          {Applicant Country} as string,",
 						"          Source as string,",
 						"          {Applicant Type} as string,",
 						"          {Internal Worker ID} as string,",
@@ -143827,16 +145937,23 @@
 						"          {Hispanic or Latino Origin} as string,",
 						"          Gender as string,",
 						"          {Veteran Ind} as string,",
-						"          LGTBQ as string,",
+						"          LGBTQ as string,",
 						"          {Disability Ind} as string,",
+						"          {Applicant Final Disposition Date} as string,",
 						"          {Applicant Final Disposition} as string,",
 						"          {Applicant Step Before Final Disposition} as string,",
 						"          {Applicant Rejected Reason} as string,",
+						"          {Qualified Ind} as string,",
+						"          {Submitted to HM Ind} as string,",
+						"          {Interviewed Ind} as string,",
+						"          {Offer Extended Ind} as string,",
+						"          {Hired Ind} as string,",
 						"          {Applicant Other (1)} as string,",
 						"          {Applicant Other (2)} as string,",
 						"          {Applicant Other (3)} as string,",
 						"          {Applicant Other (4)} as string,",
-						"          {Applicant Other (5)} as string",
+						"          {Applicant Other (5)} as string,",
+						"          RowCount as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -152137,7 +154254,14 @@
 						"          ApplicantState as string,",
 						"          ApplicantCountry as string,",
 						"          ApplDt as date,",
-						"          ApplFinalDispDt as date",
+						"          ApplFinalDispDt as date,",
+						"          ApplicantWorkOfficeLoc as string,",
+						"          ApplicantWorkStrategicLocInd as string,",
+						"          QualifiedInd as string,",
+						"          SubmittedToHMInd as string,",
+						"          InterviewedInd as string,",
+						"          OfferExtendedInd as string,",
+						"          HiredInd as string",
 						"     ),",
 						"     deletable:true,",
 						"     insertable:false,",
@@ -153301,7 +155425,6 @@
 						"     input(",
 						"          ClientId as string,",
 						"          ClientEngagementDt as date,",
-						"          ClientEngagementType as string,",
 						"          EventDt as date,",
 						"          EventMonth as integer,",
 						"          EventQuarter as integer,",
@@ -153332,7 +155455,10 @@
 						"          ReqOther3 as string,",
 						"          ReqOther4 as string,",
 						"          ReqOther5 as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          EvergreenInd as string,",
+						"          EvergreenReqParentId as string,",
+						"          RequisitionReason as string",
 						"     ),",
 						"     deletable:true,",
 						"     insertable:false,",
@@ -153661,7 +155787,11 @@
 						"          TalentIdentifier5 as string,",
 						"          LoadDt as date,",
 						"          SalaryRange as string,",
-						"          Bonus as string",
+						"          BonusReceivedInd as string,",
+						"          CompensationBandPayGrade as string,",
+						"          SalaryRangeMidpointInd as string,",
+						"          BonusEligibleInd as string,",
+						"          BonusAsPctOfBase as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -157610,7 +159740,22 @@
 						"          ElloreeApplFinalDisp as string,",
 						"          ElloreeApplCategory as string,",
 						"          ElloreeSubmittedtoMgrFl as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          ClientQualifiedInd as string,",
+						"          ClientSubmittedToHMInd as string,",
+						"          ClientInterviewedInd as string,",
+						"          ClientOfferExtendedInd as string,",
+						"          ClientHiredInd as string,",
+						"          ElloreeQualified as string,",
+						"          ElloreeSubmitted as string,",
+						"          ElloreeInterviewed as string,",
+						"          ElloreeOfferExtended as string,",
+						"          ElloreeHired as string,",
+						"          ElloreeHighestStage as string,",
+						"          ElloreeExitStageGroup as string,",
+						"          ElloreeExitType as string,",
+						"          ElloreeExitDriver as string,",
+						"          ElloreeExitDriverGroup as string",
 						"     ),",
 						"     deletable:true,",
 						"     insertable:false,",
@@ -158587,7 +160732,9 @@
 						"          ClientEngagementDt as date,",
 						"          ClientReqType as string,",
 						"          ElloreeReqType as string,",
-						"          LoadDt as date",
+						"          LoadDt as date,",
+						"          ClientRequisitionReason as string,",
+						"          ElloreeRequisitionReason as string",
 						"     ),",
 						"     deletable:true,",
 						"     insertable:false,",

@@ -6,36 +6,284 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "etalentdatatransform"
-		},
-		"AzureBatch_Python_properties_typeProperties_batchUri": {
-			"type": "string",
-			"defaultValue": "https://batchacct1.centralus.batch.azure.com"
-		},
-		"AzureBatch_Python_properties_typeProperties_poolName": {
-			"type": "string",
-			"defaultValue": "python-pool-1"
-		},
-		"AzureBatch_Python_properties_typeProperties_accountName": {
-			"type": "string",
-			"defaultValue": "batchacct1"
-		},
-		"AzureBatch_etalent1storage_properties_typeProperties_batchUri": {
-			"type": "string",
-			"defaultValue": "https://batchacct1.centralus.batch.azure.com"
-		},
-		"AzureBatch_etalent1storage_properties_typeProperties_poolName": {
-			"type": "string",
-			"defaultValue": "ubuntu01"
-		},
-		"AzureBatch_etalent1storage_properties_typeProperties_accountName": {
-			"type": "string",
-			"defaultValue": "batchacct1"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Mapping_Veteran')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlob_Etalent1Storage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "veteran_mapping.csv",
+						"folderPath": {
+							"value": "@concat(\n    dataset().Source_Client_Fldr, '/',\n    replace(dataset().Source_Client_Date, '/', '-'), '/Mapping/',\n    concat(dataset().Source_Client_Year, trim(dataset().Source_Client_Quarter))\n)\n",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Client ID",
+						"type": "String"
+					},
+					{
+						"name": "Client Engagement Date",
+						"type": "String"
+					},
+					{
+						"name": "Client Veteran",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Veteran",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Veteran",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Source",
+						"type": "String"
+					},
+					{
+						"name": "2017 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2018 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2018 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2018 Term",
+						"type": "String"
+					},
+					{
+						"name": "2019 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2019 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2019 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2019 Term",
+						"type": "String"
+					},
+					{
+						"name": "2020 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2020 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2020 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2020 Term",
+						"type": "String"
+					},
+					{
+						"name": "2021 Headcount",
+						"type": "String"
+					},
+					{
+						"name": "2021 Hire",
+						"type": "String"
+					},
+					{
+						"name": "2021 Promo",
+						"type": "String"
+					},
+					{
+						"name": "2021 Term",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_TalentAssessmentColumnMapping')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlob_Etalent1Storage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "TalentAssessment",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "column_mapping.xlsx",
+						"folderPath": "Template Admin",
+						"container": "processing"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Sort Id",
+						"type": "String"
+					},
+					{
+						"name": "Column Name",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Admin')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlob_Etalent1Storage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Client/Mapping"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "Template Admin",
+						"container": "processing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Template_Analysis_OtherTbl_1P')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlob_Etalent1Storage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Source_Client_Fldr": {
+						"type": "string"
+					},
+					"Source_Client_Date": {
+						"type": "string"
+					},
+					"Source_Client_Year": {
+						"type": "string"
+					},
+					"Source_Client_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Analysis"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "OtherCoreTableAnalysis_Template.xlsx",
+						"folderPath": {
+							"value": "@concat(concat(dataset().Source_Client_Fldr,'/'),concat(replace(dataset().Source_Client_Date,'/','-'),'/',concat('Analysis/',concat(dataset().Source_Client_Year),trim(dataset().Source_Client_Quarter))))\n",
+							"type": "Expression"
+						},
+						"container": "processing"
+					},
+					"sheetIndex": 1,
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Id",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Year",
+						"type": "String"
+					},
+					{
+						"name": "Quarter",
+						"type": "String"
+					},
+					{
+						"name": "Notes",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Source_Template_Analysis_OtherTbl_2P')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
@@ -292,7 +540,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -324,7 +572,7 @@
 						"type": "String"
 					},
 					{
-						"name": "Applicant State ",
+						"name": "Applicant State",
 						"type": "String"
 					},
 					{
@@ -369,6 +617,26 @@
 					},
 					{
 						"name": "Applicant Rejected Reason",
+						"type": "String"
+					},
+					{
+						"name": "Qualified Ind",
+						"type": "String"
+					},
+					{
+						"name": "Submitted to HM Ind",
+						"type": "String"
+					},
+					{
+						"name": "Interviewed Ind",
+						"type": "String"
+					},
+					{
+						"name": "Offer Extended Ind",
+						"type": "String"
+					},
+					{
+						"name": "Hired Ind",
 						"type": "String"
 					},
 					{
@@ -569,7 +837,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -597,11 +865,11 @@
 						"type": "String"
 					},
 					{
-						"name": "Years in Job",
+						"name": "Corporate Title",
 						"type": "String"
 					},
 					{
-						"name": "Corporate Title",
+						"name": "Years in Job",
 						"type": "String"
 					},
 					{
@@ -621,15 +889,15 @@
 						"type": "String"
 					},
 					{
-						"name": "Work City",
+						"name": "Work Office City",
 						"type": "String"
 					},
 					{
-						"name": "Work State",
+						"name": "Work Office State",
 						"type": "String"
 					},
 					{
-						"name": "Work Country",
+						"name": "Work Office Country",
 						"type": "String"
 					},
 					{
@@ -748,7 +1016,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -800,15 +1068,15 @@
 						"type": "String"
 					},
 					{
-						"name": "Work City",
+						"name": "Work Office City",
 						"type": "String"
 					},
 					{
-						"name": "Work State",
+						"name": "Work Office State",
 						"type": "String"
 					},
 					{
-						"name": "Work Country",
+						"name": "Work Office Country",
 						"type": "String"
 					},
 					{
@@ -918,7 +1186,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -995,6 +1263,26 @@
 					},
 					{
 						"name": "Applicant Rejected Reason",
+						"type": "String"
+					},
+					{
+						"name": "Qualified Ind",
+						"type": "String"
+					},
+					{
+						"name": "Submitted to HM Ind",
+						"type": "String"
+					},
+					{
+						"name": "Interviewed Ind",
+						"type": "String"
+					},
+					{
+						"name": "Offer Extended Ind",
+						"type": "String"
+					},
+					{
+						"name": "Hired Ind",
 						"type": "String"
 					},
 					{
@@ -1078,15 +1366,11 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
 						"name": "Event Year",
-						"type": "String"
-					},
-					{
-						"name": "Event Quarter",
 						"type": "String"
 					},
 					{
@@ -1099,6 +1383,10 @@
 					},
 					{
 						"name": "Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Reason",
 						"type": "String"
 					},
 					{
@@ -1167,6 +1455,14 @@
 					},
 					{
 						"name": "Primary Recruiter Worker ID",
+						"type": "String"
+					},
+					{
+						"name": "Evergreen Ind",
+						"type": "String"
+					},
+					{
+						"name": "Evergreen Req Parent ID",
 						"type": "String"
 					},
 					{
@@ -1438,7 +1734,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -1498,15 +1794,15 @@
 						"type": "String"
 					},
 					{
-						"name": "Work City",
+						"name": "Work Office City",
 						"type": "String"
 					},
 					{
-						"name": "Work State",
+						"name": "Work Office State",
 						"type": "String"
 					},
 					{
-						"name": "Work Country",
+						"name": "Work Office Country",
 						"type": "String"
 					},
 					{
@@ -1624,7 +1920,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -1641,6 +1937,10 @@
 					},
 					{
 						"name": "Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Requisition Reason",
 						"type": "String"
 					},
 					{
@@ -1712,6 +2012,14 @@
 						"type": "String"
 					},
 					{
+						"name": "Evergreen Ind",
+						"type": "String"
+					},
+					{
+						"name": "Evergreen Req Parent ID",
+						"type": "String"
+					},
+					{
 						"name": "Requisition Other (1)",
 						"type": "String"
 					},
@@ -1778,7 +2086,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -1830,11 +2138,27 @@
 						"type": "String"
 					},
 					{
+						"name": "Compensation Band / Pay Grade",
+						"type": "String"
+					},
+					{
+						"name": "Salary Range Midpoint Ind",
+						"type": "String"
+					},
+					{
 						"name": "Salary Range",
 						"type": "String"
 					},
 					{
-						"name": "Bonus",
+						"name": "Bonus Eligible Ind",
+						"type": "String"
+					},
+					{
+						"name": "Bonus Received Ind",
+						"type": "String"
+					},
+					{
+						"name": "Bonus as % of Base",
 						"type": "String"
 					}
 				]
@@ -1884,7 +2208,7 @@
 				},
 				"schema": [
 					{
-						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>",
+						"name": "DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW ==>",
 						"type": "String"
 					},
 					{
@@ -1920,11 +2244,11 @@
 						"type": "String"
 					},
 					{
-						"name": "Years in Job",
+						"name": "Corporate Title",
 						"type": "String"
 					},
 					{
-						"name": "Corporate Title",
+						"name": "Years in Job",
 						"type": "String"
 					},
 					{
@@ -1940,15 +2264,15 @@
 						"type": "String"
 					},
 					{
-						"name": "Work City",
+						"name": "Work Office City",
 						"type": "String"
 					},
 					{
-						"name": "Work State",
+						"name": "Work Office State",
 						"type": "String"
 					},
 					{
-						"name": "Work Country",
+						"name": "Work Office Country",
 						"type": "String"
 					},
 					{
@@ -2283,144 +2607,6 @@
 				]
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureBatch_Python')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBatch",
-				"typeProperties": {
-					"batchUri": "[parameters('AzureBatch_Python_properties_typeProperties_batchUri')]",
-					"poolName": "[parameters('AzureBatch_Python_properties_typeProperties_poolName')]",
-					"accountName": "[parameters('AzureBatch_Python_properties_typeProperties_accountName')]",
-					"linkedServiceName": {
-						"referenceName": "AzureBlob_pythonteststorage1",
-						"type": "LinkedServiceReference"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureBatch_etalent1storage')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBatch",
-				"typeProperties": {
-					"batchUri": "[parameters('AzureBatch_etalent1storage_properties_typeProperties_batchUri')]",
-					"poolName": "[parameters('AzureBatch_etalent1storage_properties_typeProperties_poolName')]",
-					"accountName": "[parameters('AzureBatch_etalent1storage_properties_typeProperties_accountName')]",
-					"linkedServiceName": {
-						"referenceName": "AzureBlob_Etalent1Storage",
-						"type": "LinkedServiceReference"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/10_Load_Manager_Hrchy')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Optional Pipeline to load Client Survey Data grouped by Managers and cohort groups for aggregated score analysis.  One Survey Metric (Group) can be loaded for each run.",
-				"activities": [
-					{
-						"name": "LoadMgrHrchyTable",
-						"type": "Custom",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 ManagerHierarchyPop_v3.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "Client/Client Setup Routines"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:58:24Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/12_Load_MetricsIntersectionAnalysis')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Script to determine deeper data interesctions",
-				"activities": [
-					{
-						"name": "LoadMetricsAnalysisTables",
-						"type": "Custom",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 MetricsInteresectionAnalysis_v3i.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "Client/Client Setup Routines"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-12T15:58:24Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
-			]
 		}
 	]
 }
