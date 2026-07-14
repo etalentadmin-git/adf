@@ -280,16 +280,10 @@
 					"name": "SelectSpeedbump2PUntilization"
 				},
 				{
-					"name": "joinSurveySpeedbump10"
+					"name": "join1PSpeedbump8and9"
 				},
 				{
-					"name": "joinSurveySpeedbump11"
-				},
-				{
-					"name": "joinSurveySpeedbump12"
-				},
-				{
-					"name": "joinSurveySpeedbump13"
+					"name": "join2PSpeedbump8and9"
 				},
 				{
 					"name": "CleanupJoinFields"
@@ -307,10 +301,7 @@
 					"name": "CalcSpeedbump8FlightRisk"
 				},
 				{
-					"name": "join1PSpeedbump8and9"
-				},
-				{
-					"name": "joinSurveySpeedbump14"
+					"name": "joinCurrSpeedbump8and9"
 				},
 				{
 					"name": "joinBusiness"
@@ -1242,34 +1233,24 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump2PUntilization",
-				"join1PSpeedbump8and9, SelectSpeedbump1PUntilization join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"joinCurrSpeedbump8and9, SelectSpeedbump1PUntilization join({Worker ID} == WorkerId1P,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinSurveySpeedbump10",
-				"joinSurveySpeedbump10, OtherCore join({Worker ID} == SelectSpeedbump11@WorkerId,",
+				"     broadcast: 'auto')~> join1PSpeedbump8and9",
+				"join1PSpeedbump8and9, SelectSpeedbump2PUntilization join({Worker ID} == WorkerId2P,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinSurveySpeedbump11",
-				"joinSurveySpeedbump11, OtherCore join({Worker ID} == SelectSpeedbump12@WorkerId,",
-				"     joinType:'left',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinSurveySpeedbump12",
-				"joinSurveySpeedbump12, OtherCore join({Worker ID} == SelectSpeedbump13@WorkerId,",
-				"     joinType:'left',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinSurveySpeedbump13",
-				"joinSurveySpeedbump14 select(mapColumn(",
-				"          {Client ID} = SelectCoreForMgrPopulation@{Client ID},",
+				"     broadcast: 'auto')~> join2PSpeedbump8and9",
+				"join2PSpeedbump8and9 select(mapColumn(",
+				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Worker ID},",
 				"          ManagerInd,",
 				"          {Core Event Id},",
 				"          {Core Event Date},",
-				"          EventQuarter = SelectCoreForMgrPopulation@EventQuarter,",
+				"          EventQuarter,",
 				"          {Event Year},",
 				"          {Years of Service},",
 				"          {Elloree Corporate Title},",
@@ -1300,12 +1281,12 @@
 				"          {Mgr Curr Talent Tag},",
 				"          WorkerIdForMgrCount,",
 				"          ManagerCount,",
-				"          MgrEffSpeedbump9 = OverUtilized2P,",
-				"          eSatSpeedbump10,",
-				"          BelongSpeedbump11,",
-				"          SkillsDevSpeedbump12,",
-				"          GoalClaritySpeedbump13 = PurposeSpeedbump13,",
-				"          WorkSustainabilitySpeedbump14",
+				"          OverUtilizedCurr,",
+				"          OverUtilized1P,",
+				"          OverUtilized2P,",
+				"          OverUtilizedCurr,",
+				"          UnderUtilized1P,",
+				"          UnderUtilized2P",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
@@ -1350,16 +1331,11 @@
 				"iif({Speedbump 12 Flag}=='Y',1,0)+\r",
 				"iif({Speedbump 14 Flag}=='Y',1,0)+\r",
 				"iif({Curr Talent Tag}=='Declining Momentum',1,0))==6,'High','N/A')))),'N/A')) ~> CalcSpeedbump8FlightRisk",
-				"Join3YrWorkerMgrCount, SelectSpeedbump2PUntilization join({Worker ID} == ERROR_FUNCTION(''),",
+				"Join3YrWorkerMgrCount, SelectSpeedbumpCurrUntilization join({Worker ID} == WorkerIdCurr,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1PSpeedbump8and9",
-				"joinSurveySpeedbump13, derivedColumn2 join({Worker ID} == SelectSpeedbump14@WorkerId,",
-				"     joinType:'left',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinSurveySpeedbump14",
+				"     broadcast: 'auto')~> joinCurrSpeedbump8and9",
 				"JoinLevel, BusinessMapforEmp join(BusinessGrpLvl1 == ClientBusGrpLvl1",
 				"     && BusinessGrpLvl2 == ClientBusGrpLvl2",
 				"     && BusinessGrpLvl3 == ClientBusGrpLvl3",
