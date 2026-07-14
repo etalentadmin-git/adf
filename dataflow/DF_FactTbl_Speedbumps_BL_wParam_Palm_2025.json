@@ -274,61 +274,10 @@
 					"name": "JoinTalentIdentifiers"
 				},
 				{
-					"name": "FilterEngagementSurveyeSat"
+					"name": "FilterEngagementUtil2P"
 				},
 				{
-					"name": "CalceSatSurveyAvg"
-				},
-				{
-					"name": "derivedSpeedBump10eSat"
-				},
-				{
-					"name": "SelectSpeedbump10"
-				},
-				{
-					"name": "FilterEngagementBelongScore"
-				},
-				{
-					"name": "CalcBelongAvg"
-				},
-				{
-					"name": "derivedSpeedBump11Belong"
-				},
-				{
-					"name": "SelectSpeedbump11"
-				},
-				{
-					"name": "FilterEngagementSkillsDev"
-				},
-				{
-					"name": "CalcSkillsDevAvg"
-				},
-				{
-					"name": "derivedSpeedBump12SkillsDev"
-				},
-				{
-					"name": "SelectSpeedbump12"
-				},
-				{
-					"name": "FilterEngagementPurpose"
-				},
-				{
-					"name": "CalcPurposeAvg"
-				},
-				{
-					"name": "derivedSpeedBump13Purpose"
-				},
-				{
-					"name": "SelectSpeedbump13"
-				},
-				{
-					"name": "FilterEngagementSurveyPotential"
-				},
-				{
-					"name": "derivedSpeedBump9MgrEff"
-				},
-				{
-					"name": "SelectSpeedbump9"
+					"name": "SelectSpeedbump2PUntilization"
 				},
 				{
 					"name": "joinSurveySpeedbump10"
@@ -346,31 +295,19 @@
 					"name": "CleanupJoinFields"
 				},
 				{
-					"name": "FilterEngagementUtilizationCurrYr"
+					"name": "FilterEngagementUtilCurr"
 				},
 				{
-					"name": "SelectSpeedbump14"
+					"name": "FilterEngagementUtil1P"
 				},
 				{
-					"name": "FilterEngagementUtilization1pYr"
-				},
-				{
-					"name": "SelectSurveyValues"
+					"name": "SelectSpeedbump1PUntilization"
 				},
 				{
 					"name": "CalcSpeedbump8FlightRisk"
 				},
 				{
-					"name": "CalcMgrEffAvg"
-				},
-				{
-					"name": "joinSurveySpeedbump9"
-				},
-				{
-					"name": "CalcWorkSustainability"
-				},
-				{
-					"name": "derivedSpeedbump14WorkSustainability"
+					"name": "join1PSpeedbump8and9"
 				},
 				{
 					"name": "joinSurveySpeedbump14"
@@ -407,6 +344,18 @@
 				},
 				{
 					"name": "joinMappedHierarchy2P"
+				},
+				{
+					"name": "derivedCalc1PUtilization"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "SelectSpeedbumpCurrUntilization"
+				},
+				{
+					"name": "derivedColumn2"
 				}
 			],
 			"scriptLines": [
@@ -898,7 +847,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT'\"),",
 				"     format: 'query') ~> CoreEmpsAllYears",
 				"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
@@ -1285,97 +1234,42 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinTalentIdentifiers",
-				"OtherCore filter(EventType=='esat') ~> FilterEngagementSurveyeSat",
-				"FilterEngagementSurveyeSat aggregate(groupBy(WorkerId),",
-				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
-				"          SumSurveryValues = sum(OtherNumVal1),",
-				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalceSatSurveyAvg",
-				"CalceSatSurveyAvg derive(eSatSpeedbump10 = iif(SurveryAvg<=76.4, 'Y','N')) ~> derivedSpeedBump10eSat",
-				"derivedSpeedBump10eSat select(mapColumn(",
-				"          WorkerId,",
-				"          eSatSpeedbump10",
+				"joinMappedHierarchy2P filter(EventType=='Utilization') ~> FilterEngagementUtil2P",
+				"derivedCalc1PUtilization select(mapColumn(",
+				"          WorkerId2P = OtherCore@WorkerId,",
+				"          OverUtilized2P,",
+				"          UnderUtilized2P",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump10",
-				"OtherCore filter(EventType=='belong' ||",
-				"EventType=='safe' ||",
-				"EventType=='inclusion') ~> FilterEngagementBelongScore",
-				"FilterEngagementBelongScore aggregate(groupBy(WorkerId),",
-				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
-				"          SumSurveyValues = sum(OtherNumVal1),",
-				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcBelongAvg",
-				"CalcBelongAvg derive(BelongSpeedbump11 = iif(SurveryAvg<=78.7, 'Y','N')) ~> derivedSpeedBump11Belong",
-				"derivedSpeedBump11Belong select(mapColumn(",
-				"          WorkerId,",
-				"          BelongSpeedbump11",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump11",
-				"OtherCore filter(EventType=='skills_development' ||",
-				"EventType=='empowerment' ||",
-				"EventType=='recognition') ~> FilterEngagementSkillsDev",
-				"FilterEngagementSkillsDev aggregate(groupBy(WorkerId),",
-				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
-				"          SumSurveyValues = sum(OtherNumVal1),",
-				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcSkillsDevAvg",
-				"CalcSkillsDevAvg derive(SkillsDevSpeedbump12 = iif(SurveryAvg<=74.9, 'Y','N')) ~> derivedSpeedBump12SkillsDev",
-				"derivedSpeedBump12SkillsDev select(mapColumn(",
-				"          WorkerId,",
-				"          SkillsDevSpeedbump12",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump12",
-				"OtherCore filter(EventType=='goal_clarity_ind' ||",
-				"EventType=='role_clarity' ||",
-				"EventType=='strat_align') ~> FilterEngagementPurpose",
-				"FilterEngagementPurpose aggregate(groupBy(WorkerId),",
-				"     EventQuarterCount = countAll(WorkerId,EventQuarter),",
-				"          SumSurveyValues = sum(OtherNumVal1),",
-				"          SurveryAvg = sum(OtherNumVal1)/countAll(WorkerId,EventQuarter)) ~> CalcPurposeAvg",
-				"CalcPurposeAvg derive(PurposeSpeedbump13 = iif(SurveryAvg<=78.2, 'Y','N')) ~> derivedSpeedBump13Purpose",
-				"derivedSpeedBump13Purpose select(mapColumn(",
-				"          WorkerId,",
-				"          GoalClaritySpeedbump13 = PurposeSpeedbump13",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump13",
-				"joinMappedHierarchy2P filter(OtherCore@EventType=='feedback' || OtherCore@EventType=='quarter_convo' || OtherCore@EventType=='well_being_mgr' ||",
-				"OtherCore@EventType=='equal_opp') ~> FilterEngagementSurveyPotential",
-				"CalcMgrEffAvg derive(MgEffSpeedbump9 = iif(SurveryAvg<=79.3, 'Y','N')) ~> derivedSpeedBump9MgrEff",
-				"derivedSpeedBump9MgrEff select(mapColumn(",
-				"          WorkerId,",
-				"          MgrEffSpeedbump9 = MgEffSpeedbump9",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump9",
-				"joinSurveySpeedbump9, SelectSpeedbump10 join({Worker ID} == SelectSpeedbump10@WorkerId,",
+				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump2PUntilization",
+				"join1PSpeedbump8and9, SelectSpeedbump1PUntilization join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinSurveySpeedbump10",
-				"joinSurveySpeedbump10, SelectSpeedbump11 join({Worker ID} == SelectSpeedbump11@WorkerId,",
+				"joinSurveySpeedbump10, OtherCore join({Worker ID} == SelectSpeedbump11@WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinSurveySpeedbump11",
-				"joinSurveySpeedbump11, SelectSpeedbump12 join({Worker ID} == SelectSpeedbump12@WorkerId,",
+				"joinSurveySpeedbump11, OtherCore join({Worker ID} == SelectSpeedbump12@WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinSurveySpeedbump12",
-				"joinSurveySpeedbump12, SelectSpeedbump13 join({Worker ID} == SelectSpeedbump13@WorkerId,",
+				"joinSurveySpeedbump12, OtherCore join({Worker ID} == SelectSpeedbump13@WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinSurveySpeedbump13",
 				"joinSurveySpeedbump14 select(mapColumn(",
-				"          {Client ID},",
+				"          {Client ID} = SelectCoreForMgrPopulation@{Client ID},",
 				"          {Client Engagement Date},",
 				"          {Worker ID},",
 				"          ManagerInd,",
 				"          {Core Event Id},",
 				"          {Core Event Date},",
-				"          EventQuarter,",
+				"          EventQuarter = SelectCoreForMgrPopulation@EventQuarter,",
 				"          {Event Year},",
 				"          {Years of Service},",
 				"          {Elloree Corporate Title},",
@@ -1406,31 +1300,24 @@
 				"          {Mgr Curr Talent Tag},",
 				"          WorkerIdForMgrCount,",
 				"          ManagerCount,",
-				"          MgrEffSpeedbump9,",
+				"          MgrEffSpeedbump9 = OverUtilized2P,",
 				"          eSatSpeedbump10,",
 				"          BelongSpeedbump11,",
 				"          SkillsDevSpeedbump12,",
-				"          GoalClaritySpeedbump13,",
+				"          GoalClaritySpeedbump13 = PurposeSpeedbump13,",
 				"          WorkSustainabilitySpeedbump14",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
-				"joinMappedHierarchy filter(EventType=='Utilization') ~> FilterEngagementUtilizationCurrYr",
-				"derivedSpeedbump14WorkSustainability select(mapColumn(",
-				"          WorkerId,",
-				"          WorkSustainabilitySpeedbump14",
+				"joinMappedHierarchy filter(EventType=='Utilization') ~> FilterEngagementUtilCurr",
+				"joinMappedHierarchy1P filter(EventType=='Utilization') ~> FilterEngagementUtil1P",
+				"derivedColumn1 select(mapColumn(",
+				"          WorkerId1P = OtherCore@WorkerId,",
+				"          OverUtilized1P,",
+				"          UnderUtilized1P",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump14",
-				"joinMappedHierarchy1P filter(EventType=='Utilization') ~> FilterEngagementUtilization1pYr",
-				"FilterEngagementUtilization1pYr select(mapColumn(",
-				"          WorkerId = OtherCore@WorkerId,",
-				"          EventDesc,",
-				"          EventType,",
-				"          {Values Survey Val} = OtherCharVal11",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSurveyValues",
+				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump1PUntilization",
 				"CalcSpeedBumps derive({Speedbump 8 Flag} = iif($SB8_Placeholder=='Y',iif(\r",
 				"(iif({Speedbump 4 Flag}=='Y',1,0)+\r",
 				"iif({Speedbump 7 Flag}=='Y',1,0)+\r",
@@ -1463,21 +1350,12 @@
 				"iif({Speedbump 12 Flag}=='Y',1,0)+\r",
 				"iif({Speedbump 14 Flag}=='Y',1,0)+\r",
 				"iif({Curr Talent Tag}=='Declining Momentum',1,0))==6,'High','N/A')))),'N/A')) ~> CalcSpeedbump8FlightRisk",
-				"FilterEngagementSurveyPotential aggregate(groupBy(OtherCore@WorkerId),",
-				"     EventQuarterCount = countAll(OtherCore@WorkerId,OtherCore@EventQuarter),",
-				"          SumSurveyValues = sum(OtherCore@OtherNumVal1),",
-				"          SurveryAvg = sum(OtherCore@OtherNumVal1)/countAll(OtherCore@WorkerId,OtherCore@EventQuarter)) ~> CalcMgrEffAvg",
-				"Join3YrWorkerMgrCount, SelectSpeedbump9 join({Worker ID} == WorkerId,",
+				"Join3YrWorkerMgrCount, SelectSpeedbump2PUntilization join({Worker ID} == ERROR_FUNCTION(''),",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinSurveySpeedbump9",
-				"FilterEngagementUtilizationCurrYr aggregate(groupBy(OtherCore@WorkerId),",
-				"     EventQuarterCount = countAll(OtherCore@WorkerId,EventQuarter),",
-				"          SumSurveyValues = sum(OtherNumVal1),",
-				"          SurveryAvg = sum(OtherNumVal1)/countAll(OtherCore@WorkerId,EventQuarter)) ~> CalcWorkSustainability",
-				"CalcWorkSustainability derive(WorkSustainabilitySpeedbump14 = iif(SurveryAvg<=72.8, 'Y','N')) ~> derivedSpeedbump14WorkSustainability",
-				"joinSurveySpeedbump13, SelectSpeedbump14 join({Worker ID} == SelectSpeedbump14@WorkerId,",
+				"     broadcast: 'auto')~> join1PSpeedbump8and9",
+				"joinSurveySpeedbump13, derivedColumn2 join({Worker ID} == SelectSpeedbump14@WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1543,7 +1421,8 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1PriorYear",
-				"join1PriorYear, selectEmpElloreeBusHierarchybyYear join(OtherCore@WorkerId == selectEmpElloreeBusHierarchybyYear@WorkerId,",
+				"join1PriorYear, selectEmpElloreeBusHierarchybyYear join(OtherCore@WorkerId == selectEmpElloreeBusHierarchybyYear@WorkerId",
+				"     && OtherCore@EventYear == selectEmpElloreeBusHierarchybyYear@EventYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1553,11 +1432,25 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join2PriorYear",
-				"join2PriorYear, selectEmpElloreeBusHierarchybyYear join(OtherCore@WorkerId == selectEmpElloreeBusHierarchybyYear@WorkerId,",
+				"join2PriorYear, selectEmpElloreeBusHierarchybyYear join(OtherCore@WorkerId == selectEmpElloreeBusHierarchybyYear@WorkerId",
+				"     && OtherCore@EventYear == selectEmpElloreeBusHierarchybyYear@EventYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinMappedHierarchy2P",
+				"FilterEngagementUtil2P derive(OverUtilized2P = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)>=1.2,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)>=1.2,1,0),0)),",
+				"          UnderUtilized2P = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)<=0.8,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)<=0.8,1,0),0))) ~> derivedCalc1PUtilization",
+				"FilterEngagementUtil1P derive(OverUtilized1P = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)>=1.2,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)>=1.2,1,0),0)),",
+				"          UnderUtilized1P = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)<=0.8,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)<=0.8,1,0),0))) ~> derivedColumn1",
+				"derivedColumn2 select(mapColumn(",
+				"          WorkerIdCurr = OtherCore@WorkerId,",
+				"          OverUtilizedCurr,",
+				"          UnderUtilizedCurr",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbumpCurrUntilization",
+				"FilterEngagementUtilCurr derive(OverUtilizedCurr = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)>=1.2,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)>=1.2,1,0),0)),",
+				"          UnderUtilizedCurr = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)<=0.8,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)<=0.8,1,0),0))) ~> derivedColumn2",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
