@@ -66646,7 +66646,19 @@
 						"type": "String"
 					},
 					{
+						"name": "Client RequisitionReason",
+						"type": "String"
+					},
+					{
+						"name": "Elloree Requisition Reason",
+						"type": "String"
+					},
+					{
 						"name": "Suggested Elloree Requisition Type",
+						"type": "String"
+					},
+					{
+						"name": "Suggested Elloree Req Reason",
 						"type": "String"
 					},
 					{
@@ -66654,11 +66666,11 @@
 						"type": "String"
 					},
 					{
-						"name": "2021 Job Requisition",
+						"name": "2024 Requisition",
 						"type": "String"
 					},
 					{
-						"name": "2022 Job Requisition",
+						"name": "2025 Requisition",
 						"type": "String"
 					}
 				]
@@ -88315,10 +88327,13 @@
 						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Client Requisition Type} as string,",
 						"          {Elloree Requisition Type} as string,",
+						"          {Client RequisitionReason} as string,",
+						"          {Elloree Requisition Reason} as string,",
 						"          {Suggested Elloree Requisition Type} as string,",
+						"          {Suggested Elloree Req Reason} as string,",
 						"          {Suggested Source} as string,",
-						"          {2021 Job Requisition} as string,",
-						"          {2022 Job Requisition} as string",
+						"          {2024 Requisition} as string,",
+						"          {2025 Requisition} as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -88327,12 +88342,16 @@
 						"     deleteIf(isNull({Client ID})),",
 						"     deleteIf(isNull({Client Engagement Date})),",
 						"     deleteIf(isNull({Client Requisition Type})),",
-						"     deleteIf(isNull({Elloree Requisition Type}))) ~> alterRow1",
+						"     deleteIf(isNull({Elloree Requisition Type})),",
+						"     deleteIf(isNull({Client RequisitionReason})),",
+						"     deleteIf(isNull({Elloree Requisition Reason}))) ~> alterRow1",
 						"alterRow1 select(mapColumn(",
 						"          ClientId = {Client ID},",
 						"          ClientEngagementDt = {Client Engagement Date},",
 						"          ClientReqType = {Client Requisition Type},",
-						"          ElloreeReqType = {Elloree Requisition Type}",
+						"          ElloreeReqType = {Elloree Requisition Type},",
+						"          ClientRequisitionReason = {Client RequisitionReason},",
+						"          ElloreeRequisitionReason = {Elloree Requisition Reason}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
@@ -88356,7 +88375,16 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendReqStatusMapping"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          ClientReqType,",
+						"          ElloreeReqType,",
+						"          LoadDt,",
+						"          ClientRequisitionReason,",
+						"          ElloreeRequisitionReason",
+						"     )) ~> AppendReqStatusMapping"
 					]
 				}
 			},
