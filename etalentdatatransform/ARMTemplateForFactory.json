@@ -29822,28 +29822,11 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "Output_Mapping_BusHierarchy",
+								"referenceName": "Output_Mapping_BusHierarchy_PY",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
-							"parameters": {
-								"P_Client_Id": {
-									"value": "@pipeline().parameters.P_Client_Id",
-									"type": "Expression"
-								},
-								"P_Client_Dt": {
-									"value": "@pipeline().parameters.P_Client_Dt",
-									"type": "Expression"
-								},
-								"P_Folder_Year": {
-									"value": "@pipeline().parameters.P_Folder_Year",
-									"type": "Expression"
-								},
-								"P_Folder_Quarter": {
-									"value": "@pipeline().parameters.P_Folder_Quarter",
-									"type": "Expression"
-								}
-							}
+							"parameters": {}
 						}
 					},
 					{
@@ -30219,6 +30202,23 @@
 								}
 							}
 						}
+					},
+					{
+						"name": "Output_Mapping_Appl_Source_PY",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Output_Mapping_Appl_Source_PY",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
 					}
 				],
 				"policy": {
@@ -30246,7 +30246,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_ApplFlow')]",
-				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_BusHierarchy')]",
+				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_BusHierarchy_PY')]",
 				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_CorpTitle')]",
 				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_Disability')]",
 				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_Ethnicity')]",
@@ -30257,7 +30257,8 @@
 				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_Performance')]",
 				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_ReqStatus')]",
 				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_ReqType')]",
-				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_Veteran')]"
+				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_Veteran')]",
+				"[concat(variables('factoryId'), '/pipelines/Output_Mapping_Appl_Source_PY')]"
 			]
 		},
 		{
@@ -41573,7 +41574,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Output_Mapping_BusHierarchy')]",
+			"name": "[concat(parameters('factoryName'), '/Output_Mapping_BusHierarchy_PY')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -80237,14 +80238,14 @@
 					"scriptLines": [
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
-						"          {Event Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Event Date} as date 'yyyy-MM-dd',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as string,",
 						"          Event as string,",
 						"          {Requisition ID} as string,",
-						"          {Application Date} as date 'MM-dd-yyyy',",
+						"          {Application Date} as date 'yyyy-MM-dd',",
 						"          {Applicant ID} as string,",
 						"          {Applicant City} as string,",
 						"          {Applicant State} as string,",
@@ -80258,7 +80259,7 @@
 						"          {Veteran Ind} as string,",
 						"          LGBTQ as string,",
 						"          {Disability Ind} as string,",
-						"          {Applicant Final Disposition Date} as date 'MM-dd-yyyy',",
+						"          {Applicant Final Disposition Date} as date 'yyyy-MM-dd',",
 						"          {Applicant Final Disposition} as string,",
 						"          {Applicant Step Before Final Disposition} as string,",
 						"          {Applicant Rejected Reason} as string,",
@@ -80615,12 +80616,12 @@
 					"scriptLines": [
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as string,",
 						"          {Worker ID} as string,",
-						"          {Event Date} as date 'MM/dd/yyyy',",
+						"          {Event Date} as date 'MM-dd-yyyy',",
 						"          {Event Code} as string,",
 						"          {Event Type} as string,",
 						"          Event as string,",
@@ -80631,12 +80632,12 @@
 						"          {Years in Job} as string,",
 						"          {Previous Job Title} as string,",
 						"          {Previous Job Function} as string,",
-						"          {Original Hire Date} as date 'MM/dd/yyyy',",
-						"          {Current Hire Date} as date 'MM/dd/yyyy',",
+						"          {Original Hire Date} as date 'MM-dd-yyyy',",
+						"          {Current Hire Date} as date 'MM-dd-yyyy',",
 						"          {Years of Service} as string,",
 						"          {Years of Service Band} as string,",
 						"          {Years of Service Sort ID} as string,",
-						"          {Last Promo Date} as date 'MM/dd/yyyy',",
+						"          {Last Promo Date} as date 'MM-dd-yyyy',",
 						"          {Corporate Title} as string,",
 						"          {Previous Corporate Title} as string,",
 						"          {Manager Indicator} as string,",
@@ -83193,8 +83194,8 @@
 					"scriptLines": [
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
-						"          {Event Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Event Date} as date 'MM/dd/yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as string,",
@@ -83203,7 +83204,7 @@
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
 						"          {Requisition Reason} as string,",
-						"          {Posting Date} as date 'MM-dd-yyyy',",
+						"          {Posting Date} as date 'MM/dd/yyyy',",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as string,",
 						"          {Job Title} as string,",
@@ -137861,7 +137862,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as integer,",
 						"          {Event Quarter} as integer,",
@@ -138658,7 +138659,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as short,",
@@ -138723,7 +138724,7 @@
 						"     format: 'table') ~> CorpTitleMappingTableClient",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as string,",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
@@ -139374,7 +139375,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as short,",
@@ -139437,7 +139438,7 @@
 						"     format: 'table') ~> DisabilityMappingTbl",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as string,",
 						"          EventMonth as integer,",
 						"          {Event Quarter} as integer,",
@@ -139957,7 +139958,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as short,",
@@ -140023,7 +140024,7 @@
 						"     format: 'table') ~> EthnicityMappingTbl",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as string,",
 						"          EventMonth as integer,",
 						"          {Event Quarter} as integer,",
@@ -140562,7 +140563,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as short,",
@@ -141147,7 +141148,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as short,",
@@ -141210,7 +141211,7 @@
 						"     format: 'table') ~> GenderMappingTbl",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as string,",
 						"          EventMonth as integer,",
 						"          {Event Quarter} as integer,",
@@ -142260,7 +142261,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as short,",
@@ -142324,7 +142325,7 @@
 						"     format: 'table') ~> LGTBQMappingTbl",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as string,",
 						"          EventMonth as integer,",
 						"          {Event Quarter} as integer,",
@@ -142869,7 +142870,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as short,",
@@ -142948,7 +142949,7 @@
 						"     format: 'table') ~> LocationMappingTbl",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Client Engagement Type} as string,",
 						"          {Event Date} as string,",
 						"          EventMonth as string,",
@@ -143081,7 +143082,7 @@
 						"     format: 'query') ~> DatabaseReqRecords",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as string,",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
@@ -144154,7 +144155,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Client Engagement Type} as string,",
 						"          {Event Date} as string,",
 						"          EventMonth as string,",
@@ -144577,7 +144578,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as string,",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
@@ -145075,7 +145076,7 @@
 						"}",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as short,",
@@ -145138,7 +145139,7 @@
 						"     format: 'table') ~> VeteranMappingTbl",
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
 						"          {Event Date} as string,",
 						"          EventMonth as integer,",
 						"          {Event Quarter} as integer,",
