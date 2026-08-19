@@ -1,0 +1,93 @@
+{
+	"name": "Append_Mapping_ApplicantSource",
+	"properties": {
+		"folder": {
+			"name": "Client/Database/Load Mapping Tables"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_Mapping_ApplicantSource",
+						"type": "DatasetReference"
+					},
+					"name": "ApplicantSourceMapping"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "etalentApplSourceMapTbl",
+						"type": "DatasetReference"
+					},
+					"name": "AppendApplicantFlowMapping"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "AlterColumnNamesforMap"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Client ID} as string,",
+				"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+				"          {Client Source} as string,",
+				"          {Elloree Source} as string,",
+				"          {Elloree Source Category} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ApplicantSourceMapping",
+				"ApplicantSourceMapping alterRow(upsertIf(true()),",
+				"     deleteIf(isNull({Client ID})),",
+				"     deleteIf(isNull({Client Engagement Date})),",
+				"     deleteIf(isNull({Client Source}))) ~> alterRow1",
+				"alterRow1 select(mapColumn(",
+				"          ClientId = {Client ID},",
+				"          ClientEngagementDt = {Client Engagement Date},",
+				"          ClientSource = {Client Source},",
+				"          ElloreeSource = {Elloree Source},",
+				"          ElloreeSourceCategory = {Elloree Source Category}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+				"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          ClientSource as string,",
+				"          ElloreeSource as string,",
+				"          ElloreeSourceCategory as string,",
+				"          LoadDt as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ClientId','ClientEngagementDt','ClientSource'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ClientId,",
+				"          ClientEngagementDt,",
+				"          ClientSource,",
+				"          ElloreeSource,",
+				"          ElloreeSourceCategory,",
+				"          LoadDt",
+				"     )) ~> AppendApplicantFlowMapping"
+			]
+		}
+	}
+}
