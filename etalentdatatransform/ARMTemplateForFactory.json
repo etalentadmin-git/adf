@@ -10940,6 +10940,47 @@
 								}
 							}
 						}
+					},
+					{
+						"name": "Append_Mapping_ApplicantSource",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Append_Mapping_Veteran",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Append_Mapping_ApplicantSource",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								},
+								"P_Folder_Year": {
+									"value": "@pipeline().parameters.P_Folder_Year",
+									"type": "Expression"
+								},
+								"P_Folder_Quarter": {
+									"value": "@pipeline().parameters.P_Folder_Quarter",
+									"type": "Expression"
+								}
+							}
+						}
 					}
 				],
 				"policy": {
@@ -10978,7 +11019,8 @@
 				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_PerformanceRating')]",
 				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_ReqStatus')]",
 				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_ReqType')]",
-				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_Veteran')]"
+				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_Veteran')]",
+				"[concat(variables('factoryId'), '/pipelines/Append_Mapping_ApplicantSource')]"
 			]
 		},
 		{
@@ -11685,6 +11727,121 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/Append_Mapping_ApplicantFlow_Hist')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ApplicantSource')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Append_Mapping_ApplicantSource",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_Mapping_ApplSource",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Append_Mapping_ApplicantSource",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"ApplicantSourceMapping": {
+										"Source_Client_Fldr": {
+											"value": "@pipeline().parameters.P_Client_Id",
+											"type": "Expression"
+										},
+										"Source_Client_Date": {
+											"value": "@pipeline().parameters.P_Client_Dt",
+											"type": "Expression"
+										},
+										"Source_Client_Year": {
+											"value": "@pipeline().parameters.P_Folder_Year",
+											"type": "Expression"
+										},
+										"Source_Client_Quarter": {
+											"value": "@concat('Q',pipeline().parameters.P_Folder_Quarter)",
+											"type": "Expression"
+										}
+									},
+									"AppendApplicantFlowMapping": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Delete_Rec_Mapping_ApplSource",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_Mapping_ApplSource",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					},
+					"P_Folder_Year": {
+						"type": "string"
+					},
+					"P_Folder_Quarter": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T15:19:43Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Append_Mapping_ApplicantSource')]",
+				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_Mapping_ApplSource')]"
 			]
 		},
 		{
@@ -27438,6 +27595,39 @@
 								}
 							}
 						}
+					},
+					{
+						"name": "Delete_Rec_Mapping_ApplSource",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Delete_Rec_Mapping_ReqType",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Delete_Rec_Mapping_ApplSource",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"P_Client_Id": {
+									"value": "@pipeline().parameters.P_Client_Id",
+									"type": "Expression"
+								},
+								"P_Client_Dt": {
+									"value": "@pipeline().parameters.P_Client_Dt",
+									"type": "Expression"
+								}
+							}
+						}
 					}
 				],
 				"policy": {
@@ -27470,7 +27660,8 @@
 				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_Mapping_Location')]",
 				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_Mapping_PerfRating')]",
 				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_Mapping_ReqStatusMap')]",
-				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_Mapping_ReqType')]"
+				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_Mapping_ReqType')]",
+				"[concat(variables('factoryId'), '/pipelines/Delete_Rec_Mapping_ApplSource')]"
 			]
 		},
 		{
@@ -27539,6 +27730,74 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/Delete_Rec_Mapping_ApplFlow')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_ApplSource')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "WARNING - This pipeline will delete all client table records in the database (Fact Tables and Mapping) based on the parameters for Client Id and Client Engagement Dt. ",
+				"activities": [
+					{
+						"name": "Delete_Rec_Mapping_ApplFlow",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Delete_Rec_Mapping_ApplSource",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Flow_Client_Id": {
+										"value": "'@{pipeline().parameters.P_Client_Id}'",
+										"type": "Expression"
+									},
+									"Flow_Client_Dt": {
+										"value": "'@{pipeline().parameters.P_Client_Dt}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"ApplicantSourceMap": {},
+									"DeleteRecords": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"P_Client_Id": {
+						"type": "string"
+					},
+					"P_Client_Dt": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Client/Database/Delete Records/Mapping"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-12T14:43:28Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Delete_Rec_Mapping_ApplSource')]"
 			]
 		},
 		{
@@ -64863,7 +65122,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "applsource_mapping.csv",
+						"fileName": "appl_source_mapping.csv",
 						"folderPath": {
 							"value": "@concat(\n    dataset().Source_Client_Fldr, '/',\n    replace(dataset().Source_Client_Date, '/', '-'), '/Mapping/',\n    concat(dataset().Source_Client_Year, trim(dataset().Source_Client_Quarter))\n)\n",
 							"type": "Expression"
@@ -84957,6 +85216,105 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/etalentApplFlowMapTbl')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Append_Mapping_ApplicantSource')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Load Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_ApplicantSource",
+								"type": "DatasetReference"
+							},
+							"name": "ApplicantSourceMapping"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplSourceMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "AppendApplicantFlowMapping"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "AlterColumnNamesforMap"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Source} as string,",
+						"          {Elloree Source} as string,",
+						"          {Elloree Source Category} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> ApplicantSourceMapping",
+						"ApplicantSourceMapping alterRow(upsertIf(true()),",
+						"     deleteIf(isNull({Client ID})),",
+						"     deleteIf(isNull({Client Engagement Date})),",
+						"     deleteIf(isNull({Client Source}))) ~> alterRow1",
+						"alterRow1 select(mapColumn(",
+						"          ClientId = {Client ID},",
+						"          ClientEngagementDt = {Client Engagement Date},",
+						"          ClientSource = {Client Source},",
+						"          ElloreeSource = {Elloree Source},",
+						"          ElloreeSourceCategory = {Elloree Source Category}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
+						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientSource as string,",
+						"          ElloreeSource as string,",
+						"          ElloreeSourceCategory as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:true,",
+						"     keys:['ClientId','ClientEngagementDt','ClientSource'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ClientId,",
+						"          ClientEngagementDt,",
+						"          ClientSource,",
+						"          ElloreeSource,",
+						"          ElloreeSourceCategory,",
+						"          LoadDt",
+						"     )) ~> AppendApplicantFlowMapping"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Source_Mapping_ApplicantSource')]",
+				"[concat(variables('factoryId'), '/datasets/etalentApplSourceMapTbl')]"
 			]
 		},
 		{
@@ -162152,6 +162510,84 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/etalentApplFlowMapTbl')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete_Rec_Mapping_ApplSource')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Client/Database/Delete Records/Mapping Tables"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplSourceMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "ApplicantSourceMap"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "etalentApplSourceMapTbl",
+								"type": "DatasetReference"
+							},
+							"name": "DeleteRecords"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Flow_Client_Id as string,",
+						"     Flow_Client_Dt as string",
+						"}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientSource as string,",
+						"          ElloreeSource as string,",
+						"          ElloreeSourceCategory as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: (\"select * from [dbo].[TAApplSourceMapTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}'\"),",
+						"     format: 'query') ~> ApplicantSourceMap",
+						"ApplicantSourceMap alterRow(deleteIf(true())) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          ClientSource as string,",
+						"          ElloreeSource as string,",
+						"          ElloreeSourceCategory as string,",
+						"          LoadDt as date",
+						"     ),",
+						"     deletable:true,",
+						"     insertable:false,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     keys:['ClientId','ClientEngagementDt'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DeleteRecords"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/etalentApplSourceMapTbl')]"
 			]
 		},
 		{
