@@ -274,10 +274,10 @@
 					"name": "JoinTalentIdentifiers"
 				},
 				{
-					"name": "FilterEngagementUtil2P"
+					"name": "FilterEngagementUtilCurrYearTarget"
 				},
 				{
-					"name": "SelectSpeedbump2PUntilization"
+					"name": "SelectSpeedbumpUtilizationTarget"
 				},
 				{
 					"name": "join1PSpeedbump8and9"
@@ -290,12 +290,6 @@
 				},
 				{
 					"name": "FilterEngagementUtilCurr"
-				},
-				{
-					"name": "FilterEngagementUtil1P"
-				},
-				{
-					"name": "SelectSpeedbump1PUntilization"
 				},
 				{
 					"name": "CalcSpeedbump12FlightRisk"
@@ -325,28 +319,19 @@
 					"name": "joinCurrYear"
 				},
 				{
-					"name": "join1PriorYear"
+					"name": "joinCurrYearUtilTarget"
 				},
 				{
-					"name": "joinMappedHierarchy1P"
-				},
-				{
-					"name": "join2PriorYear"
-				},
-				{
-					"name": "joinMappedHierarchy2P"
-				},
-				{
-					"name": "derivedCalc1PUtilization"
-				},
-				{
-					"name": "derivedColumn1"
+					"name": "joinMappedHierarchyCurrYearTarget"
 				},
 				{
 					"name": "SelectSpeedbumpCurrUntilization"
 				},
 				{
 					"name": "derivedColumn2"
+				},
+				{
+					"name": "join3"
 				}
 			],
 			"scriptLines": [
@@ -1002,10 +987,10 @@
 				"          {Speedbump 7 Flag} = iif($SB7_Mgr3Plus=='Y',iif(ManagerCount>=3,'Y','N'),'N'),",
 				"          {Speedbump 8 Name} = 'Sustained Over-Util',",
 				"          {Speedbump 8 Desc} = 'Top talent is consistently above utilization target or peer norm.',",
-				"          {Speedbump 8 Flag} = iif($SB8_Placeholder=='Y',iif(OverUtilizedCurr+OverUtilized1P+OverUtilized2P==3,'Y','N'),'N'),",
+				"          {Speedbump 8 Flag} = iif($SB8_Placeholder=='Y',iif(OverUtilizedCurr==1,'Y','N'),'N'),",
 				"          {Speedbump 9 Name} = 'Sustained Under-Util',",
 				"          {Speedbump 9 Desc} = 'Top talent is consistently below utilization target or peer norm.',",
-				"          {Speedbump 9 Flag} = iif($SB9_Placeholder=='Y',iif(OverUtilizedCurr+UnderUtilized1P+UnderUtilized2P==3,'Y','N'),'N'),",
+				"          {Speedbump 9 Flag} = iif($SB9_Placeholder=='Y',iif(UnderUtilizedCurr==1,'Y','N'),'N'),",
 				"          {Speedbump 10 Name} = 'Below Midpoint',",
 				"          {Speedbump 10 Desc} = 'Top talent is paid below the midpoint of their salary range or below an available market/internal reference point.',",
 				"          {Speedbump 10 Flag} = iif($SB10_Placeholder=='Y',iif(toDecimal(SalaryRange)<toDecimal(TalentIdentifier2),'Y','N'),'N'),",
@@ -1225,20 +1210,19 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinTalentIdentifiers",
-				"joinMappedHierarchy2P filter(EventType=='Utilization') ~> FilterEngagementUtil2P",
-				"derivedCalc1PUtilization select(mapColumn(",
-				"          WorkerId2P = OtherCore@WorkerId,",
-				"          OverUtilized2P,",
-				"          UnderUtilized2P",
+				"joinMappedHierarchyCurrYearTarget filter(EventType=='UtilizationTarget') ~> FilterEngagementUtilCurrYearTarget",
+				"FilterEngagementUtilCurrYearTarget select(mapColumn(",
+				"          WorkerIdUtilCurrTarget = OtherCore@WorkerId,",
+				"          UtilCurrTarget = OtherNumVal1",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump2PUntilization",
-				"joinCurrSpeedbump8and9, SelectSpeedbump1PUntilization join({Worker ID} == WorkerId1P,",
+				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbumpUtilizationTarget",
+				"joinCurrSpeedbump8and9, OtherCore join({Worker ID} == WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1PSpeedbump8and9",
-				"join1PSpeedbump8and9, SelectSpeedbump2PUntilization join({Worker ID} == WorkerId2P,",
+				"join1PSpeedbump8and9, SelectSpeedbumpUtilizationTarget join({Worker ID} == WorkerIdUtilCurrTarget,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1250,7 +1234,7 @@
 				"          ManagerInd,",
 				"          {Core Event Id},",
 				"          {Core Event Date},",
-				"          EventQuarter,",
+				"          EventQuarter = SelectCoreForMgrPopulation@EventQuarter,",
 				"          {Event Year},",
 				"          {Years of Service},",
 				"          {Elloree Corporate Title},",
@@ -1282,23 +1266,11 @@
 				"          WorkerIdForMgrCount,",
 				"          ManagerCount,",
 				"          OverUtilizedCurr,",
-				"          OverUtilized1P,",
-				"          OverUtilized2P,",
-				"          OverUtilizedCurr,",
-				"          UnderUtilized1P,",
-				"          UnderUtilized2P",
+				"          UnderUtilizedCurr",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
-				"joinMappedHierarchy filter(EventType=='Utilization') ~> FilterEngagementUtilCurr",
-				"joinMappedHierarchy1P filter(EventType=='Utilization') ~> FilterEngagementUtil1P",
-				"derivedColumn1 select(mapColumn(",
-				"          WorkerId1P = OtherCore@WorkerId,",
-				"          OverUtilized1P,",
-				"          UnderUtilized1P",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbump1PUntilization",
+				"join3 filter(EventType=='Utilization') ~> FilterEngagementUtilCurr",
 				"CalcSpeedBumps derive({Speedbump 12 Flag} = iif($SB12_Placeholder=='Y',iif(\r",
 				"(iif({Speedbump 4 Flag}=='Y',1,0)+\r",
 				"iif({Speedbump 5 Flag}=='Y',1,0)+\r",
@@ -1400,32 +1372,17 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinCurrYear",
-				"OtherCore, Select1PYear join(EventYear == Max1PYear,",
+				"OtherCore, SelectCurrYear join(EventYear == MaxCurrYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1PriorYear",
-				"join1PriorYear, selectEmpElloreeBusHierarchybyYear join(OtherCore@WorkerId == selectEmpElloreeBusHierarchybyYear@WorkerId",
+				"     broadcast: 'auto')~> joinCurrYearUtilTarget",
+				"joinCurrYearUtilTarget, selectEmpElloreeBusHierarchybyYear join(OtherCore@WorkerId == selectEmpElloreeBusHierarchybyYear@WorkerId",
 				"     && OtherCore@EventYear == selectEmpElloreeBusHierarchybyYear@EventYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinMappedHierarchy1P",
-				"OtherCore, Select2PYear join(EventYear == Max2PYear,",
-				"     joinType:'inner',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join2PriorYear",
-				"join2PriorYear, selectEmpElloreeBusHierarchybyYear join(OtherCore@WorkerId == selectEmpElloreeBusHierarchybyYear@WorkerId",
-				"     && OtherCore@EventYear == selectEmpElloreeBusHierarchybyYear@EventYear,",
-				"     joinType:'inner',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinMappedHierarchy2P",
-				"FilterEngagementUtil2P derive(OverUtilized2P = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)>=1.2,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)>=1.2,1,0),0)),",
-				"          UnderUtilized2P = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)<=0.8,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)<=0.8,1,0),0))) ~> derivedCalc1PUtilization",
-				"FilterEngagementUtil1P derive(OverUtilized1P = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)>=1.2,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)>=1.2,1,0),0)),",
-				"          UnderUtilized1P = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)<=0.8,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)<=0.8,1,0),0))) ~> derivedColumn1",
+				"     broadcast: 'auto')~> joinMappedHierarchyCurrYearTarget",
 				"derivedColumn2 select(mapColumn(",
 				"          WorkerIdCurr = OtherCore@WorkerId,",
 				"          OverUtilizedCurr,",
@@ -1433,8 +1390,13 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbumpCurrUntilization",
-				"FilterEngagementUtilCurr derive(OverUtilizedCurr = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)>=1.2,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)>=1.2,1,0),0)),",
-				"          UnderUtilizedCurr = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)<=0.8,1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)<=0.8,1,0),0))) ~> derivedColumn2",
+				"FilterEngagementUtilCurr derive(OverUtilizedCurr = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)>=(UtilCurrTarget+.20),1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)>=(UtilCurrTarget+.20),1,0),0)),",
+				"          UnderUtilizedCurr = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)<=(UtilCurrTarget-.20),1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)<=(UtilCurrTarget-.20),1,0),0))) ~> derivedColumn2",
+				"joinMappedHierarchy, SelectSpeedbumpUtilizationTarget join(selectEmpElloreeBusHierarchybyYear@WorkerId == WorkerIdUtilCurrTarget,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join3",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
