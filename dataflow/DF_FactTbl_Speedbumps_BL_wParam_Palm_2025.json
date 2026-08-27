@@ -283,9 +283,6 @@
 					"name": "join1PSpeedbump8and9"
 				},
 				{
-					"name": "join2PSpeedbump8and9"
-				},
-				{
 					"name": "CleanupJoinFields"
 				},
 				{
@@ -332,6 +329,12 @@
 				},
 				{
 					"name": "join3"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "filter2"
 				}
 			],
 			"scriptLines": [
@@ -825,7 +828,7 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT'\"),",
 				"     format: 'query') ~> CoreEmpsAllYears",
-				"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
+				"filter1, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
@@ -1161,7 +1164,7 @@
 				"     RowCount = count(WorkerId)) ~> GroupWorkerAndMgr",
 				"GroupWorkerAndMgr aggregate(groupBy(WorkerIdForMgrCount = WorkerId),",
 				"     ManagerCount = count(DirectMgrWorkerId)) ~> CountMgrByWorker",
-				"AllCore, Select2PYear join(EventYear >= Max2PYear,",
+				"filter2, Select2PYear join(EventYear >= Max2PYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1222,12 +1225,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1PSpeedbump8and9",
-				"join1PSpeedbump8and9, SelectSpeedbumpUtilizationTarget join({Worker ID} == WorkerIdUtilCurrTarget,",
-				"     joinType:'left',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join2PSpeedbump8and9",
-				"join2PSpeedbump8and9 select(mapColumn(",
+				"join1PSpeedbump8and9 select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Worker ID},",
@@ -1397,6 +1395,8 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join3",
+				"CoreFact filter(WorkerId=='299737553') ~> filter1",
+				"AllCore filter(WorkerId=='299737553') ~> filter2",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
