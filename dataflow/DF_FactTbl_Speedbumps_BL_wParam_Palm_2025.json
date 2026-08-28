@@ -416,13 +416,16 @@
 					"name": "aggregateForApprentice"
 				},
 				{
-					"name": "selectDetalApprenticeship"
+					"name": "selectSpeedbump14Apprenticeship"
 				},
 				{
 					"name": "filter1"
 				},
 				{
 					"name": "derivedColumn7"
+				},
+				{
+					"name": "joinSpeedbump14Apprenticeship"
 				}
 			],
 			"scriptLines": [
@@ -1148,10 +1151,10 @@
 				"          {Speedbump 12 Flag} = iif($SB12_Placeholder=='Y',iif(Learning=='Y','Y','N'),'N'),",
 				"          {Speedbump 13 Name} = 'AI Usage',",
 				"          {Speedbump 13 Desc} = 'AI Usage',",
-				"          {Speedbump 13 Flag} = iif($SB13_Placeholder=='Y',iif(Learning=='Y','Y','N'),'N'),",
+				"          {Speedbump 13 Flag} = iif($SB13_Placeholder=='Y',iif(AIUsage=='Y','Y','N'),'N'),",
 				"          {Speedbump 14 Name} = 'Apprenticeship',",
 				"          {Speedbump 14 Desc} = 'Apprenticeship',",
-				"          {Speedbump 14 Flag} = 'N/A',",
+				"          {Speedbump 14 Flag} = iif($SB14_Placeholder=='Y',iif(Apprenticeship=='Y','Y','N'),'N'),",
 				"          {Speedbump 15 Name} = 'Speedbump 15',",
 				"          {Speedbump 15 Flag} = 'N/A',",
 				"          {Speedbump 15 Desc} = 'N/A') ~> CalcSpeedBumps",
@@ -1363,7 +1366,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbumpUtilizationTarget",
-				"joinSpeedbump13AIUsage select(mapColumn(",
+				"joinSpeedbump14Apprenticeship select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Worker ID},",
@@ -1406,7 +1409,8 @@
 				"          ThriveIndex,",
 				"          FormerIntern,",
 				"          Learning,",
-				"          AIUsage",
+				"          AIUsage,",
+				"          Apprenticeship",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
@@ -1633,7 +1637,8 @@
 				"join6 select(mapColumn(",
 				"          WorkerId = OtherCore@WorkerId,",
 				"          OtherNumVal1,",
-				"          BusLvlKey",
+				"          BusLvlKey,",
+				"          ElloreeBusGrpLvl1",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectEmpWithKeyAndHours",
@@ -1647,15 +1652,17 @@
 				"          TotalHours = sum(OtherNumVal1)) ~> aggregateForApprentice",
 				"derivedColumn7 select(mapColumn(",
 				"          WorkerId,",
-				"          OtherNumVal1,",
-				"          BusLvlKey = selectEmpWithKeyAndHours@BusLvlKey,",
-				"          EmpCount,",
-				"          TotalHours",
+				"          Apprenticeship",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> selectDetalApprenticeship",
+				"     skipDuplicateMapOutputs: true) ~> selectSpeedbump14Apprenticeship",
 				"CoreEmpsAllYearsForLvl filter(EventId == 'HCT') ~> filter1",
-				"joinAggForBusLvlKey derive() ~> derivedColumn7",
+				"joinAggForBusLvlKey derive(Apprenticeship = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherNumVal1<TotalHours,'Y','N'),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherNumVal1<TotalHours,'Y','N'),iif(ElloreeBusGrpLvl1=='Business Services',iif(OtherNumVal1<TotalHours,'Y','N'),'N')))) ~> derivedColumn7",
+				"joinSpeedbump13AIUsage, selectSpeedbump14Apprenticeship join({Worker ID} == selectSpeedbump14Apprenticeship@WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinSpeedbump14Apprenticeship",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
