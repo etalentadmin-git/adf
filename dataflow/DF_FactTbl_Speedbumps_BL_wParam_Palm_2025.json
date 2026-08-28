@@ -328,12 +328,6 @@
 					"name": "join3"
 				},
 				{
-					"name": "join4"
-				},
-				{
-					"name": "join5"
-				},
-				{
 					"name": "filterThriveIndex"
 				},
 				{
@@ -341,6 +335,33 @@
 				},
 				{
 					"name": "selectSpeedebump10Thrive"
+				},
+				{
+					"name": "filterFormerIntern"
+				},
+				{
+					"name": "derivedColumn4"
+				},
+				{
+					"name": "selectSpeedebump11Intern"
+				},
+				{
+					"name": "filterLearning"
+				},
+				{
+					"name": "derivedColumn5"
+				},
+				{
+					"name": "selectSpeedebump12Learning"
+				},
+				{
+					"name": "filterAIUsage"
+				},
+				{
+					"name": "derivedColumn6"
+				},
+				{
+					"name": "selectSpeedebump13AIUsage"
 				}
 			],
 			"scriptLines": [
@@ -1396,16 +1417,6 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join3",
-				"OtherCore, SelectCurrYear join(EventYear == MaxCurrYear,",
-				"     joinType:'inner',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join4",
-				"join4 join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
-				"     joinType:'inner',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join5",
 				"joinMappedHierarchy filter(EventType=='ThriveIndex') ~> filterThriveIndex",
 				"filterThriveIndex derive(ThriveIndex = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Very Low',1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='Very Low',1,0),0))) ~> derivedColumn3",
 				"derivedColumn3 select(mapColumn(",
@@ -1414,6 +1425,30 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectSpeedebump10Thrive",
+				"joinMappedHierarchy filter(EventType=='Former Intern') ~> filterFormerIntern",
+				"filterFormerIntern derive(FormerIntern = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='N',1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='N',1,0),iif(ElloreeBusGrpLvl1=='Business Services',iif(OtherCharVal11=='N',1,0),0)))) ~> derivedColumn4",
+				"derivedColumn4 select(mapColumn(",
+				"          WorkerId = OtherCore@WorkerId,",
+				"          FormerIntern",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectSpeedebump11Intern",
+				"joinMappedHierarchy filter(EventType=='Apprenticeship') ~> filterLearning",
+				"filterLearning derive(Learning = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Low',1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='Low ',1,0),iif(ElloreeBusGrpLvl1=='Business Services',iif(OtherCharVal11=='Low',1,0),0)))) ~> derivedColumn5",
+				"derivedColumn5 select(mapColumn(",
+				"          WorkerId = OtherCore@WorkerId,",
+				"          Learning",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectSpeedebump12Learning",
+				"joinMappedHierarchy filter(EventType=='AIUsage') ~> filterAIUsage",
+				"filterAIUsage derive(AIUsage = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Low',1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='Low ',1,0),iif(ElloreeBusGrpLvl1=='Business Services',iif(OtherCharVal11=='Low',1,0),0)))) ~> derivedColumn6",
+				"derivedColumn6 select(mapColumn(",
+				"          WorkerId = OtherCore@WorkerId,",
+				"          AIUsage",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectSpeedebump13AIUsage",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
