@@ -90,6 +90,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "CoreEmpsAllYears"
+				},
+				{
+					"dataset": {
+						"referenceName": "etalentCoreFactTbl",
+						"type": "DatasetReference"
+					},
+					"name": "CoreEmpsAllYearsForLvl"
 				}
 			],
 			"sinks": [
@@ -364,7 +371,7 @@
 					"name": "selectSpeedebump13AIUsage"
 				},
 				{
-					"name": "filter1"
+					"name": "filterApprenticeship"
 				},
 				{
 					"name": "joinSpeedbump10Thrive"
@@ -377,6 +384,45 @@
 				},
 				{
 					"name": "joinSpeedbump13AIUsage"
+				},
+				{
+					"name": "joinCurrYearLvl"
+				},
+				{
+					"name": "join4"
+				},
+				{
+					"name": "select12"
+				},
+				{
+					"name": "join5"
+				},
+				{
+					"name": "derivedCreateBusLvlKey"
+				},
+				{
+					"name": "selectEmpBusLvlKeyCurr"
+				},
+				{
+					"name": "join6"
+				},
+				{
+					"name": "selectEmpWithKeyAndHours"
+				},
+				{
+					"name": "joinAggForBusLvlKey"
+				},
+				{
+					"name": "aggregateForApprentice"
+				},
+				{
+					"name": "selectDetalApprenticeship"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "derivedColumn7"
 				}
 			],
 			"scriptLines": [
@@ -870,6 +916,60 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT'\"),",
 				"     format: 'query') ~> CoreEmpsAllYears",
+				"source(output(",
+				"          ClientId as string,",
+				"          ClientEngagementDt as date,",
+				"          WorkerId as string,",
+				"          EventDt as date,",
+				"          EventMonth as integer,",
+				"          EventQuarter as integer,",
+				"          EventYear as integer,",
+				"          Event as string,",
+				"          EventId as string,",
+				"          EventType as string,",
+				"          EventReason as string,",
+				"          WorkerType as string,",
+				"          JobTitle as string,",
+				"          JobFunction as string,",
+				"          YearsinJob as double,",
+				"          PrevJobTitle as string,",
+				"          PrevJobFunction as string,",
+				"          LastPromoDt as date,",
+				"          OrigHireDt as date,",
+				"          CurrHireDt as date,",
+				"          YearsofSrvc as double,",
+				"          YearsofSrvcBand as string,",
+				"          YearsofSrvcBandSortId as integer,",
+				"          CorpTitle as string,",
+				"          PrevCorpTitle as string,",
+				"          ManagerInd as string,",
+				"          DirectMgrWorkerId as string,",
+				"          WorkOfficeLoc as string,",
+				"          WorkOfficeCity as string,",
+				"          WorkOfficeState as string,",
+				"          WorkOfficeCountry as string,",
+				"          WorkStrategicLocInd as string,",
+				"          LegacyOrg as string,",
+				"          BusinessGrpLvl1 as string,",
+				"          BusinessGrpLvl2 as string,",
+				"          BusinessGrpLvl3 as string,",
+				"          BusinessGrpLvl4 as string,",
+				"          Race as string,",
+				"          HispanicLatinoOrigin as string,",
+				"          Gender as string,",
+				"          Veteran as string,",
+				"          LGBTQ as string,",
+				"          DisabilityInd as string,",
+				"          BirthYear as integer,",
+				"          Generation as string,",
+				"          GenerationSortId as integer,",
+				"          EmpCount as integer,",
+				"          LoadDt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> CoreEmpsAllYearsForLvl",
 				"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
 				"     joinType:'inner',",
@@ -916,7 +1016,8 @@
 				"LevelMapForEmp select(mapColumn(",
 				"          {Emp Lvl Map Client Corporate Title} = ClientCorpTitle,",
 				"          {Emp Lvl Map Elloree Corporate Title} = ElloreeCorpTitle,",
-				"          {Emp Lvl Map Elloree Corporate Title Sort} = ElloreeCorpTitleSortId",
+				"          {Emp Lvl Map Elloree Corporate Title Sort} = ElloreeCorpTitleSortId,",
+				"          {Emp Lvl Map ClientElloreeCorpTitle} = ClientElloreeCorpTitle",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectEmpLvlMap",
@@ -1396,7 +1497,9 @@
 				"joinMapBusHierarchy select(mapColumn(",
 				"          WorkerId,",
 				"          EventYear,",
-				"          ElloreeBusGrpLvl1",
+				"          ElloreeBusGrpLvl1,",
+				"          ElloreeBusGrpLvl2,",
+				"          ElloreeBusGrpLvl3",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectEmpElloreeBusHierarchybyYear",
@@ -1468,7 +1571,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectSpeedebump13AIUsage",
-				"joinMappedHierarchy filter(EventType=='L&D') ~> filter1",
+				"joinMappedHierarchy filter(EventType=='L&D') ~> filterApprenticeship",
 				"joinCurrSpeedbump8and9, selectSpeedebump10Thrive join(WorkerIdCurr == WorkerId,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
@@ -1489,6 +1592,70 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinSpeedbump13AIUsage",
+				"filter1, SelectCurrYear join(EventYear == MaxCurrYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinCurrYearLvl",
+				"joinCurrYearLvl, SelectEmpLvlMap join(CorpTitle == {Emp Lvl Map Client Corporate Title},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join4",
+				"join5 select(mapColumn(",
+				"          WorkerId,",
+				"          {Emp Lvl Map ClientElloreeCorpTitle},",
+				"          ElloreeBusGrpLvl1,",
+				"          ElloreeBusGrpLvl3",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select12",
+				"join4, SelectEmpBusMap join(BusinessGrpLvl1 == ClientBusGrpLvl1",
+				"     && BusinessGrpLvl2 == ClientBusGrpLvl2",
+				"     && BusinessGrpLvl3 == ClientBusGrpLvl3",
+				"     && BusinessGrpLvl4 == ClientBusGrpLvl4,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join5",
+				"select12 derive(BusLvlKey = concat(ElloreeBusGrpLvl1, '-', ElloreeBusGrpLvl3, '-', {Emp Lvl Map ClientElloreeCorpTitle})) ~> derivedCreateBusLvlKey",
+				"derivedCreateBusLvlKey select(mapColumn(",
+				"          WorkerId,",
+				"          BusLvlKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectEmpBusLvlKeyCurr",
+				"filterApprenticeship, selectEmpBusLvlKeyCurr join(OtherCore@WorkerId == selectEmpBusLvlKeyCurr@WorkerId,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join6",
+				"join6 select(mapColumn(",
+				"          WorkerId = OtherCore@WorkerId,",
+				"          OtherNumVal1,",
+				"          BusLvlKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectEmpWithKeyAndHours",
+				"selectEmpWithKeyAndHours, aggregateForApprentice join(selectEmpWithKeyAndHours@BusLvlKey == aggregateForApprentice@BusLvlKey,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinAggForBusLvlKey",
+				"selectEmpWithKeyAndHours aggregate(groupBy(BusLvlKey),",
+				"     EmpCount = count(WorkerId),",
+				"          TotalHours = sum(OtherNumVal1)) ~> aggregateForApprentice",
+				"derivedColumn7 select(mapColumn(",
+				"          WorkerId,",
+				"          OtherNumVal1,",
+				"          BusLvlKey = selectEmpWithKeyAndHours@BusLvlKey,",
+				"          EmpCount,",
+				"          TotalHours",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectDetalApprenticeship",
+				"CoreEmpsAllYearsForLvl filter(EventId == 'HCT') ~> filter1",
+				"joinAggForBusLvlKey derive() ~> derivedColumn7",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
