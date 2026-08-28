@@ -362,6 +362,21 @@
 				},
 				{
 					"name": "selectSpeedebump13AIUsage"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "joinSpeedbump10Thrive"
+				},
+				{
+					"name": "joinSpeedbump11Intern"
+				},
+				{
+					"name": "joinSpeedbump12Learning"
+				},
+				{
+					"name": "joinSpeedbump13AIUsage"
 				}
 			],
 			"scriptLines": [
@@ -1247,7 +1262,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbumpUtilizationTarget",
-				"joinCurrSpeedbump8and9 select(mapColumn(",
+				"joinSpeedbump13AIUsage select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Worker ID},",
@@ -1286,7 +1301,11 @@
 				"          WorkerIdForMgrCount,",
 				"          ManagerCount,",
 				"          OverUtilizedCurr,",
-				"          UnderUtilizedCurr",
+				"          UnderUtilizedCurr,",
+				"          ThriveIndex,",
+				"          FormerIntern,",
+				"          Learning,",
+				"          AIUsage",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
@@ -1418,7 +1437,7 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join3",
 				"joinMappedHierarchy filter(EventType=='ThriveIndex') ~> filterThriveIndex",
-				"filterThriveIndex derive(ThriveIndex = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Very Low',1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='Very Low',1,0),0))) ~> derivedColumn3",
+				"filterThriveIndex derive(ThriveIndex = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Very Low','Y','N'),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='Very Low','Y','N'),'N'))) ~> derivedColumn3",
 				"derivedColumn3 select(mapColumn(",
 				"          WorkerId = OtherCore@WorkerId,",
 				"          ThriveIndex",
@@ -1426,7 +1445,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectSpeedebump10Thrive",
 				"joinMappedHierarchy filter(EventType=='Former Intern') ~> filterFormerIntern",
-				"filterFormerIntern derive(FormerIntern = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='N',1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='N',1,0),iif(ElloreeBusGrpLvl1=='Business Services',iif(OtherCharVal11=='N',1,0),0)))) ~> derivedColumn4",
+				"filterFormerIntern derive(FormerIntern = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='N','Y','N'),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='N','Y','N'),iif(ElloreeBusGrpLvl1=='Business Services',iif(OtherCharVal11=='N','Y','N'),'N')))) ~> derivedColumn4",
 				"derivedColumn4 select(mapColumn(",
 				"          WorkerId = OtherCore@WorkerId,",
 				"          FormerIntern",
@@ -1434,7 +1453,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectSpeedebump11Intern",
 				"joinMappedHierarchy filter(EventType=='Apprenticeship') ~> filterLearning",
-				"filterLearning derive(Learning = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Low',1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='Low ',1,0),iif(ElloreeBusGrpLvl1=='Business Services',iif(OtherCharVal11=='Low',1,0),0)))) ~> derivedColumn5",
+				"filterLearning derive(Learning = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Low','Y','N'),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='Low ','Y','N'),iif(ElloreeBusGrpLvl1=='Business Services',iif(OtherCharVal11=='Low','Y','N'),'N')))) ~> derivedColumn5",
 				"derivedColumn5 select(mapColumn(",
 				"          WorkerId = OtherCore@WorkerId,",
 				"          Learning",
@@ -1442,13 +1461,34 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectSpeedebump12Learning",
 				"joinMappedHierarchy filter(EventType=='AIUsage') ~> filterAIUsage",
-				"filterAIUsage derive(AIUsage = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Low',1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='Low ',1,0),iif(ElloreeBusGrpLvl1=='Business Services',iif(OtherCharVal11=='Low',1,0),0)))) ~> derivedColumn6",
+				"filterAIUsage derive(AIUsage = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Low','Y','N'),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='Low ','Y','N'),iif(ElloreeBusGrpLvl1=='Business Services',iif(OtherCharVal11=='Low','Y','N'),'N')))) ~> derivedColumn6",
 				"derivedColumn6 select(mapColumn(",
 				"          WorkerId = OtherCore@WorkerId,",
 				"          AIUsage",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectSpeedebump13AIUsage",
+				"joinMappedHierarchy filter(EventType=='L&D') ~> filter1",
+				"joinCurrSpeedbump8and9, selectSpeedebump10Thrive join(WorkerIdCurr == WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinSpeedbump10Thrive",
+				"joinSpeedbump10Thrive, selectSpeedebump11Intern join(selectSpeedebump10Thrive@WorkerId == selectSpeedebump11Intern@WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinSpeedbump11Intern",
+				"joinSpeedbump11Intern, selectSpeedebump12Learning join({Worker ID} == selectSpeedebump12Learning@WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinSpeedbump12Learning",
+				"joinSpeedbump12Learning, selectSpeedebump13AIUsage join({Worker ID} == selectSpeedebump13AIUsage@WorkerId,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinSpeedbump13AIUsage",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
