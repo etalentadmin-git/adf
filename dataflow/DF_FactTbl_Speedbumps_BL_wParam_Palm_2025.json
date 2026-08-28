@@ -293,9 +293,6 @@
 					"name": "FilterEngagementUtilCurr"
 				},
 				{
-					"name": "CalcSpeedbump12FlightRisk"
-				},
-				{
 					"name": "joinCurrSpeedbump8and9"
 				},
 				{
@@ -426,6 +423,9 @@
 				},
 				{
 					"name": "joinSpeedbump14Apprenticeship"
+				},
+				{
+					"name": "derivedAvgHours"
 				}
 			],
 			"scriptLines": [
@@ -1180,7 +1180,7 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'both')~> Join5OrMoreApplied",
 				"AggApplicantData derive({Applicant Five or More} = iif({Count Req}>=3,'Y','N')) ~> Select5orMoreAppliedApplicant",
-				"CalcSpeedbump12FlightRisk select(mapColumn(",
+				"CalcSpeedBumps select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Event Quarter} = EventQuarter,",
@@ -1415,46 +1415,6 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
 				"join3 filter(EventType=='Utilization') ~> FilterEngagementUtilCurr",
-				"CalcSpeedBumps derive({Speedbump 12 Flag} = iif($SB12_Placeholder=='Y',iif(\r",
-				"(iif({Speedbump 4 Flag}=='Y',1,0)+\r",
-				"iif({Speedbump 5 Flag}=='Y',1,0)+\r",
-				"iif({Speedbump 6 Flag}=='Y',1,0)+\r",
-				"iif({Speedbump 7 Flag}=='Y',1,0)+\r",
-				"iif({Speedbump 8 Flag}=='Y',1,0)+\r",
-				"iif({Speedbump 9 Flag}=='Y',1,0)+\r",
-				"iif({Speedbump 10 Flag}=='Y',1,0)+\r",
-				"iif({Speedbump 11 Flag}=='Y',1,0))>=4,'Y','N'),'N'),",
-				"          {Speedbump 12 Desc} = iif(\r",
-				"    $SB12_Placeholder == 'Y',\r",
-				"    iif(\r",
-				"        (\r",
-				"            iif({Speedbump 4 Flag} == 'Y', 1, 0) +\r",
-				"            iif({Speedbump 5 Flag} == 'Y', 1, 0) +\r",
-				"            iif({Speedbump 6 Flag} == 'Y', 1, 0) +\r",
-				"            iif({Speedbump 7 Flag} == 'Y', 1, 0) +\r",
-				"            iif({Speedbump 8 Flag} == 'Y', 1, 0) +\r",
-				"            iif({Speedbump 9 Flag} == 'Y', 1, 0) +\r",
-				"            iif({Speedbump 10 Flag} == 'Y', 1, 0) +\r",
-				"            iif({Speedbump 11 Flag} == 'Y', 1, 0)\r",
-				"        ) >= 4,\r",
-				"        'High',\r",
-				"        iif(\r",
-				"            (\r",
-				"                iif({Speedbump 4 Flag} == 'Y', 1, 0) +\r",
-				"                iif({Speedbump 5 Flag} == 'Y', 1, 0) +\r",
-				"                iif({Speedbump 6 Flag} == 'Y', 1, 0) +\r",
-				"                iif({Speedbump 7 Flag} == 'Y', 1, 0) +\r",
-				"                iif({Speedbump 8 Flag} == 'Y', 1, 0) +\r",
-				"                iif({Speedbump 9 Flag} == 'Y', 1, 0) +\r",
-				"                iif({Speedbump 10 Flag} == 'Y', 1, 0) +\r",
-				"                iif({Speedbump 11 Flag} == 'Y', 1, 0)\r",
-				"            ) >= 2,\r",
-				"            'Watch',\r",
-				"            'No'\r",
-				"        )\r",
-				"    ),\r",
-				"    'N/A'\r",
-				")) ~> CalcSpeedbump12FlightRisk",
 				"Join3YrWorkerMgrCount, SelectSpeedbumpCurrUntilization join({Worker ID} == WorkerIdCurr,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
@@ -1663,6 +1623,7 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinSpeedbump14Apprenticeship",
+				"aggregateForApprentice derive(AvcgTotalHours = TotalHours/EmpCount) ~> derivedAvgHours",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
