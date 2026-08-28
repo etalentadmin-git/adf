@@ -280,9 +280,6 @@
 					"name": "SelectSpeedbumpUtilizationTarget"
 				},
 				{
-					"name": "join1PSpeedbump8and9"
-				},
-				{
 					"name": "CleanupJoinFields"
 				},
 				{
@@ -329,12 +326,6 @@
 				},
 				{
 					"name": "join3"
-				},
-				{
-					"name": "filter1"
-				},
-				{
-					"name": "filter2"
 				}
 			],
 			"scriptLines": [
@@ -828,7 +819,7 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT'\"),",
 				"     format: 'query') ~> CoreEmpsAllYears",
-				"filter1, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
+				"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 				"     && EventYear == {Emp Perf Rating Event Year},",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
@@ -1164,7 +1155,7 @@
 				"     RowCount = count(WorkerId)) ~> GroupWorkerAndMgr",
 				"GroupWorkerAndMgr aggregate(groupBy(WorkerIdForMgrCount = WorkerId),",
 				"     ManagerCount = count(DirectMgrWorkerId)) ~> CountMgrByWorker",
-				"filter2, Select2PYear join(EventYear >= Max2PYear,",
+				"AllCore, Select2PYear join(EventYear >= Max2PYear,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -1220,19 +1211,14 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SelectSpeedbumpUtilizationTarget",
-				"joinCurrSpeedbump8and9, OtherCore join({Worker ID} == WorkerId,",
-				"     joinType:'left',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1PSpeedbump8and9",
-				"join1PSpeedbump8and9 select(mapColumn(",
+				"joinCurrSpeedbump8and9 select(mapColumn(",
 				"          {Client ID},",
 				"          {Client Engagement Date},",
 				"          {Worker ID},",
 				"          ManagerInd,",
 				"          {Core Event Id},",
 				"          {Core Event Date},",
-				"          EventQuarter = SelectCoreForMgrPopulation@EventQuarter,",
+				"          EventQuarter,",
 				"          {Event Year},",
 				"          {Years of Service},",
 				"          {Elloree Corporate Title},",
@@ -1395,8 +1381,6 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join3",
-				"CoreFact filter(WorkerId=='299737553') ~> filter1",
-				"AllCore filter(WorkerId=='299737553') ~> filter2",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
