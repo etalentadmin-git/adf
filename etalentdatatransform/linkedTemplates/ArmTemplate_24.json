@@ -12064,6 +12064,13 @@
 								"type": "DatasetReference"
 							},
 							"name": "CoreEmpsAllYears"
+						},
+						{
+							"dataset": {
+								"referenceName": "etalentCoreFactTbl",
+								"type": "DatasetReference"
+							},
+							"name": "CoreEmpsAllYearsForLvl"
 						}
 					],
 					"sinks": [
@@ -12254,16 +12261,10 @@
 							"name": "SelectSpeedbumpUtilizationTarget"
 						},
 						{
-							"name": "join1PSpeedbump8and9"
-						},
-						{
 							"name": "CleanupJoinFields"
 						},
 						{
 							"name": "FilterEngagementUtilCurr"
-						},
-						{
-							"name": "CalcSpeedbump12FlightRisk"
 						},
 						{
 							"name": "joinCurrSpeedbump8and9"
@@ -12305,10 +12306,100 @@
 							"name": "join3"
 						},
 						{
+							"name": "filterThriveIndex"
+						},
+						{
+							"name": "derivedColumn3"
+						},
+						{
+							"name": "selectSpeedebump10Thrive"
+						},
+						{
+							"name": "filterFormerIntern"
+						},
+						{
+							"name": "derivedColumn4"
+						},
+						{
+							"name": "selectSpeedebump11Intern"
+						},
+						{
+							"name": "filterApprenticeship"
+						},
+						{
+							"name": "derivedColumn5"
+						},
+						{
+							"name": "selectSpeedebump12Apprenticeship"
+						},
+						{
+							"name": "filterAIUsage"
+						},
+						{
+							"name": "derivedColumn6"
+						},
+						{
+							"name": "selectSpeedebump13AIUsage"
+						},
+						{
+							"name": "filterLearning"
+						},
+						{
+							"name": "joinSpeedbump10Thrive"
+						},
+						{
+							"name": "joinSpeedbump11Intern"
+						},
+						{
+							"name": "joinSpeedbump12Apprenticeship"
+						},
+						{
+							"name": "joinSpeedbump13AIUsage"
+						},
+						{
+							"name": "joinCurrYearLvl"
+						},
+						{
+							"name": "join4"
+						},
+						{
+							"name": "select12"
+						},
+						{
+							"name": "join5"
+						},
+						{
+							"name": "derivedCreateBusLvlKey"
+						},
+						{
+							"name": "selectEmpBusLvlKeyCurr"
+						},
+						{
+							"name": "join6"
+						},
+						{
+							"name": "selectEmpWithKeyAndHours"
+						},
+						{
+							"name": "joinAggForBusLvlKey"
+						},
+						{
+							"name": "aggregateForApprentice"
+						},
+						{
+							"name": "selectSpeedbump14Learning"
+						},
+						{
 							"name": "filter1"
 						},
 						{
-							"name": "filter2"
+							"name": "derivedColumn7"
+						},
+						{
+							"name": "joinSpeedbump14Learning"
+						},
+						{
+							"name": "derivedAvgHours"
 						}
 					],
 					"scriptLines": [
@@ -12802,7 +12893,61 @@
 						"     isolationLevel: 'READ_UNCOMMITTED',",
 						"     query: (\"select * from [dbo].[CoreFactTbl] where ClientId = '{$Flow_Client_Id}' and ClientEngagementDt = '{$Flow_Client_Dt}' and EventId = 'HCT'\"),",
 						"     format: 'query') ~> CoreEmpsAllYears",
-						"filter1, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
+						"source(output(",
+						"          ClientId as string,",
+						"          ClientEngagementDt as date,",
+						"          WorkerId as string,",
+						"          EventDt as date,",
+						"          EventMonth as integer,",
+						"          EventQuarter as integer,",
+						"          EventYear as integer,",
+						"          Event as string,",
+						"          EventId as string,",
+						"          EventType as string,",
+						"          EventReason as string,",
+						"          WorkerType as string,",
+						"          JobTitle as string,",
+						"          JobFunction as string,",
+						"          YearsinJob as double,",
+						"          PrevJobTitle as string,",
+						"          PrevJobFunction as string,",
+						"          LastPromoDt as date,",
+						"          OrigHireDt as date,",
+						"          CurrHireDt as date,",
+						"          YearsofSrvc as double,",
+						"          YearsofSrvcBand as string,",
+						"          YearsofSrvcBandSortId as integer,",
+						"          CorpTitle as string,",
+						"          PrevCorpTitle as string,",
+						"          ManagerInd as string,",
+						"          DirectMgrWorkerId as string,",
+						"          WorkOfficeLoc as string,",
+						"          WorkOfficeCity as string,",
+						"          WorkOfficeState as string,",
+						"          WorkOfficeCountry as string,",
+						"          WorkStrategicLocInd as string,",
+						"          LegacyOrg as string,",
+						"          BusinessGrpLvl1 as string,",
+						"          BusinessGrpLvl2 as string,",
+						"          BusinessGrpLvl3 as string,",
+						"          BusinessGrpLvl4 as string,",
+						"          Race as string,",
+						"          HispanicLatinoOrigin as string,",
+						"          Gender as string,",
+						"          Veteran as string,",
+						"          LGBTQ as string,",
+						"          DisabilityInd as string,",
+						"          BirthYear as integer,",
+						"          Generation as string,",
+						"          GenerationSortId as integer,",
+						"          EmpCount as integer,",
+						"          LoadDt as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> CoreEmpsAllYearsForLvl",
+						"CoreFact, SelectEmpTalentTag join(WorkerId == {Emp Perf Rating Worker ID}",
 						"     && EventYear == {Emp Perf Rating Event Year},",
 						"     joinType:'inner',",
 						"     matchType:'exact',",
@@ -12848,7 +12993,8 @@
 						"LevelMapForEmp select(mapColumn(",
 						"          {Emp Lvl Map Client Corporate Title} = ClientCorpTitle,",
 						"          {Emp Lvl Map Elloree Corporate Title} = ElloreeCorpTitle,",
-						"          {Emp Lvl Map Elloree Corporate Title Sort} = ElloreeCorpTitleSortId",
+						"          {Emp Lvl Map Elloree Corporate Title Sort} = ElloreeCorpTitleSortId,",
+						"          {Emp Lvl Map ClientElloreeCorpTitle} = ClientElloreeCorpTitle",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectEmpLvlMap",
@@ -12968,21 +13114,21 @@
 						"          {Speedbump 9 Name} = 'Sustained Under-Util',",
 						"          {Speedbump 9 Desc} = 'Top talent is consistently below utilization target or peer norm.',",
 						"          {Speedbump 9 Flag} = iif($SB9_Placeholder=='Y',iif(UnderUtilizedCurr==1,'Y','N'),'N'),",
-						"          {Speedbump 10 Name} = 'Below Midpoint',",
-						"          {Speedbump 10 Desc} = 'Top talent is paid below the midpoint of their salary range or below an available market/internal reference point.',",
-						"          {Speedbump 10 Flag} = iif($SB10_Placeholder=='Y',iif(toDecimal(SalaryRange)<toDecimal(TalentIdentifier2),'Y','N'),'N'),",
-						"          {Speedbump 11 Name} = 'No Bonus',",
-						"          {Speedbump 11 Desc} = 'Top talent received no bonus.',",
-						"          {Speedbump 11 Flag} = iif($SB11_Placeholder=='Y',iif(BonusReceivedInd=='N','Y','N'),'N'),",
-						"          {Speedbump 12 Name} = 'Flight Risk',",
-						"          {Speedbump 12 Desc} = 'Employee has one or more indicators associated with increased likelihood of leaving, based on available talent, movement, engagement, performance, or workforce signals.',",
-						"          {Speedbump 12 Flag} = 'N/A',",
-						"          {Speedbump 13 Name} = 'Speedbump 13',",
-						"          {Speedbump 13 Desc} = 'N/A',",
-						"          {Speedbump 13 Flag} = 'N/A',",
-						"          {Speedbump 14 Name} = 'Speedbump 14',",
-						"          {Speedbump 14 Desc} = 'N/A',",
-						"          {Speedbump 14 Flag} = 'N/A',",
+						"          {Speedbump 10 Name} = 'Thrive Index',",
+						"          {Speedbump 10 Desc} = 'Thrive Index',",
+						"          {Speedbump 10 Flag} = iif($SB10_Placeholder=='Y',iif(ThriveIndex=='Y','Y','N'),'N'),",
+						"          {Speedbump 11 Name} = 'Former Intern',",
+						"          {Speedbump 11 Desc} = 'Former Intern',",
+						"          {Speedbump 11 Flag} = iif($SB11_Placeholder=='Y',iif(FormerIntern=='Y','Y','N'),'N'),",
+						"          {Speedbump 12 Name} = 'Apprenticeship',",
+						"          {Speedbump 12 Desc} = 'Apprenticeship',",
+						"          {Speedbump 12 Flag} = iif($SB12_Placeholder=='Y',iif(Apprenticeship=='Y','Y','N'),'N'),",
+						"          {Speedbump 13 Name} = 'AI Usage',",
+						"          {Speedbump 13 Desc} = 'AI Usage',",
+						"          {Speedbump 13 Flag} = iif($SB13_Placeholder=='Y',iif(AIUsage=='Y','Y','N'),'N'),",
+						"          {Speedbump 14 Name} = 'Learning',",
+						"          {Speedbump 14 Desc} = 'Learning',",
+						"          {Speedbump 14 Flag} = iif($SB14_Placeholder=='Y',iif(Learning=='Y','Y','N'),'N'),",
 						"          {Speedbump 15 Name} = 'Speedbump 15',",
 						"          {Speedbump 15 Flag} = 'N/A',",
 						"          {Speedbump 15 Desc} = 'N/A') ~> CalcSpeedBumps",
@@ -13008,7 +13154,7 @@
 						"     ignoreSpaces: false,",
 						"     broadcast: 'both')~> Join5OrMoreApplied",
 						"AggApplicantData derive({Applicant Five or More} = iif({Count Req}>=3,'Y','N')) ~> Select5orMoreAppliedApplicant",
-						"CalcSpeedbump12FlightRisk select(mapColumn(",
+						"CalcSpeedBumps select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Event Quarter} = EventQuarter,",
@@ -13138,7 +13284,7 @@
 						"     RowCount = count(WorkerId)) ~> GroupWorkerAndMgr",
 						"GroupWorkerAndMgr aggregate(groupBy(WorkerIdForMgrCount = WorkerId),",
 						"     ManagerCount = count(DirectMgrWorkerId)) ~> CountMgrByWorker",
-						"filter2, Select2PYear join(EventYear >= Max2PYear,",
+						"AllCore, Select2PYear join(EventYear >= Max2PYear,",
 						"     joinType:'inner',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
@@ -13194,19 +13340,14 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectSpeedbumpUtilizationTarget",
-						"joinCurrSpeedbump8and9, OtherCore join({Worker ID} == WorkerId,",
-						"     joinType:'left',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> join1PSpeedbump8and9",
-						"join1PSpeedbump8and9 select(mapColumn(",
+						"joinSpeedbump14Learning select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Worker ID},",
 						"          ManagerInd,",
 						"          {Core Event Id},",
 						"          {Core Event Date},",
-						"          EventQuarter = SelectCoreForMgrPopulation@EventQuarter,",
+						"          EventQuarter,",
 						"          {Event Year},",
 						"          {Years of Service},",
 						"          {Elloree Corporate Title},",
@@ -13238,51 +13379,16 @@
 						"          WorkerIdForMgrCount,",
 						"          ManagerCount,",
 						"          OverUtilizedCurr,",
-						"          UnderUtilizedCurr",
+						"          UnderUtilizedCurr,",
+						"          ThriveIndex,",
+						"          FormerIntern,",
+						"          Apprenticeship,",
+						"          AIUsage,",
+						"          Learning",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
 						"join3 filter(EventType=='Utilization') ~> FilterEngagementUtilCurr",
-						"CalcSpeedBumps derive({Speedbump 12 Flag} = iif($SB12_Placeholder=='Y',iif(\r",
-						"(iif({Speedbump 4 Flag}=='Y',1,0)+\r",
-						"iif({Speedbump 5 Flag}=='Y',1,0)+\r",
-						"iif({Speedbump 6 Flag}=='Y',1,0)+\r",
-						"iif({Speedbump 7 Flag}=='Y',1,0)+\r",
-						"iif({Speedbump 8 Flag}=='Y',1,0)+\r",
-						"iif({Speedbump 9 Flag}=='Y',1,0)+\r",
-						"iif({Speedbump 10 Flag}=='Y',1,0)+\r",
-						"iif({Speedbump 11 Flag}=='Y',1,0))>=4,'Y','N'),'N'),",
-						"          {Speedbump 12 Desc} = iif(\r",
-						"    $SB12_Placeholder == 'Y',\r",
-						"    iif(\r",
-						"        (\r",
-						"            iif({Speedbump 4 Flag} == 'Y', 1, 0) +\r",
-						"            iif({Speedbump 5 Flag} == 'Y', 1, 0) +\r",
-						"            iif({Speedbump 6 Flag} == 'Y', 1, 0) +\r",
-						"            iif({Speedbump 7 Flag} == 'Y', 1, 0) +\r",
-						"            iif({Speedbump 8 Flag} == 'Y', 1, 0) +\r",
-						"            iif({Speedbump 9 Flag} == 'Y', 1, 0) +\r",
-						"            iif({Speedbump 10 Flag} == 'Y', 1, 0) +\r",
-						"            iif({Speedbump 11 Flag} == 'Y', 1, 0)\r",
-						"        ) >= 4,\r",
-						"        'High',\r",
-						"        iif(\r",
-						"            (\r",
-						"                iif({Speedbump 4 Flag} == 'Y', 1, 0) +\r",
-						"                iif({Speedbump 5 Flag} == 'Y', 1, 0) +\r",
-						"                iif({Speedbump 6 Flag} == 'Y', 1, 0) +\r",
-						"                iif({Speedbump 7 Flag} == 'Y', 1, 0) +\r",
-						"                iif({Speedbump 8 Flag} == 'Y', 1, 0) +\r",
-						"                iif({Speedbump 9 Flag} == 'Y', 1, 0) +\r",
-						"                iif({Speedbump 10 Flag} == 'Y', 1, 0) +\r",
-						"                iif({Speedbump 11 Flag} == 'Y', 1, 0)\r",
-						"            ) >= 2,\r",
-						"            'Watch',\r",
-						"            'No'\r",
-						"        )\r",
-						"    ),\r",
-						"    'N/A'\r",
-						")) ~> CalcSpeedbump12FlightRisk",
 						"Join3YrWorkerMgrCount, SelectSpeedbumpCurrUntilization join({Worker ID} == WorkerIdCurr,",
 						"     joinType:'left',",
 						"     matchType:'exact',",
@@ -13329,7 +13435,9 @@
 						"joinMapBusHierarchy select(mapColumn(",
 						"          WorkerId,",
 						"          EventYear,",
-						"          ElloreeBusGrpLvl1",
+						"          ElloreeBusGrpLvl1,",
+						"          ElloreeBusGrpLvl2,",
+						"          ElloreeBusGrpLvl3",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectEmpElloreeBusHierarchybyYear",
@@ -13362,15 +13470,134 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectSpeedbumpCurrUntilization",
-						"FilterEngagementUtilCurr derive(OverUtilizedCurr = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)>=(UtilCurrTarget+.20),1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)>=(UtilCurrTarget+.20),1,0),0)),",
+						"FilterEngagementUtilCurr derive(OverUtilizedCurr = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)>=(UtilCurrTarget+.20),1,0),iif(ElloreeBusGrpLvl1=='Assurance',iif(toDecimal(OtherNumVal1)>=(UtilCurrTarget+.20),1,0),iif(ElloreeBusGrpLvl1=='Tax',iif(toDecimal(OtherNumVal1)>=(UtilCurrTarget+.20),1,0),0))),",
 						"          UnderUtilizedCurr = iif(ElloreeBusGrpLvl1=='Advisory',iif(toDecimal(OtherNumVal2)<=(UtilCurrTarget-.20),1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(toDecimal(OtherNumVal1)<=(UtilCurrTarget-.20),1,0),0))) ~> derivedColumn2",
 						"joinMappedHierarchy, SelectSpeedbumpUtilizationTarget join(selectEmpElloreeBusHierarchybyYear@WorkerId == WorkerIdUtilCurrTarget,",
 						"     joinType:'inner',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> join3",
-						"CoreFact filter(WorkerId=='299737553') ~> filter1",
-						"AllCore filter(WorkerId=='299737553') ~> filter2",
+						"joinMappedHierarchy filter(EventType=='ThriveIndex') ~> filterThriveIndex",
+						"filterThriveIndex derive(ThriveIndex = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Very Low','Y','N'),iif(ElloreeBusGrpLvl1=='Assurance',iif(OtherCharVal11=='Very Low','Y','N'),iif(ElloreeBusGrpLvl1=='Tax',iif(OtherCharVal11=='Very Low','Y','N'),'N')))) ~> derivedColumn3",
+						"derivedColumn3 select(mapColumn(",
+						"          WorkerId = OtherCore@WorkerId,",
+						"          ThriveIndex",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectSpeedebump10Thrive",
+						"joinMappedHierarchy filter(EventType=='Intern') ~> filterFormerIntern",
+						"filterFormerIntern derive(FormerIntern = iif(OtherCharVal11=='N','Y','N')) ~> derivedColumn4",
+						"derivedColumn4 select(mapColumn(",
+						"          WorkerId = OtherCore@WorkerId,",
+						"          FormerIntern",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectSpeedebump11Intern",
+						"joinMappedHierarchy filter(EventType=='Apprenticeship') ~> filterApprenticeship",
+						"filterApprenticeship derive(Apprenticeship = iif(OtherCharVal11=='Low','Y','N')) ~> derivedColumn5",
+						"derivedColumn5 select(mapColumn(",
+						"          WorkerId = OtherCore@WorkerId,",
+						"          Apprenticeship",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectSpeedebump12Apprenticeship",
+						"joinMappedHierarchy filter(EventType=='AIUsage') ~> filterAIUsage",
+						"filterAIUsage derive(AIUsage = iif(OtherCharVal11=='Low','Y','N')) ~> derivedColumn6",
+						"derivedColumn6 select(mapColumn(",
+						"          WorkerId = OtherCore@WorkerId,",
+						"          AIUsage",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectSpeedebump13AIUsage",
+						"joinMappedHierarchy filter(EventType=='L&D') ~> filterLearning",
+						"joinCurrSpeedbump8and9, selectSpeedebump10Thrive join(WorkerIdCurr == WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinSpeedbump10Thrive",
+						"joinSpeedbump10Thrive, selectSpeedebump11Intern join(selectSpeedebump10Thrive@WorkerId == selectSpeedebump11Intern@WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinSpeedbump11Intern",
+						"joinSpeedbump11Intern, selectSpeedebump12Apprenticeship join({Worker ID} == selectSpeedebump12Apprenticeship@WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinSpeedbump12Apprenticeship",
+						"joinSpeedbump12Apprenticeship, selectSpeedebump13AIUsage join({Worker ID} == selectSpeedebump13AIUsage@WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinSpeedbump13AIUsage",
+						"filter1, SelectCurrYear join(EventYear == MaxCurrYear,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinCurrYearLvl",
+						"joinCurrYearLvl, SelectEmpLvlMap join(CorpTitle == {Emp Lvl Map Client Corporate Title},",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join4",
+						"join5 select(mapColumn(",
+						"          WorkerId,",
+						"          {Emp Lvl Map ClientElloreeCorpTitle},",
+						"          ElloreeBusGrpLvl1,",
+						"          ElloreeBusGrpLvl3",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select12",
+						"join4, SelectEmpBusMap join(BusinessGrpLvl1 == ClientBusGrpLvl1",
+						"     && BusinessGrpLvl2 == ClientBusGrpLvl2",
+						"     && BusinessGrpLvl3 == ClientBusGrpLvl3",
+						"     && BusinessGrpLvl4 == ClientBusGrpLvl4,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join5",
+						"select12 derive(BusLvlKey = concat(ElloreeBusGrpLvl1, '-', ElloreeBusGrpLvl3, '-', {Emp Lvl Map ClientElloreeCorpTitle})) ~> derivedCreateBusLvlKey",
+						"derivedCreateBusLvlKey select(mapColumn(",
+						"          WorkerId,",
+						"          BusLvlKey",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectEmpBusLvlKeyCurr",
+						"filterLearning, selectEmpBusLvlKeyCurr join(OtherCore@WorkerId == selectEmpBusLvlKeyCurr@WorkerId,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join6",
+						"join6 select(mapColumn(",
+						"          WorkerId = OtherCore@WorkerId,",
+						"          OtherNumVal1,",
+						"          BusLvlKey,",
+						"          ElloreeBusGrpLvl1",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectEmpWithKeyAndHours",
+						"selectEmpWithKeyAndHours, derivedAvgHours join(selectEmpWithKeyAndHours@BusLvlKey == aggregateForApprentice@BusLvlKey,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinAggForBusLvlKey",
+						"selectEmpWithKeyAndHours aggregate(groupBy(BusLvlKey),",
+						"     EmpCount = count(WorkerId),",
+						"          TotalHours = sum(OtherNumVal1)) ~> aggregateForApprentice",
+						"derivedColumn7 select(mapColumn(",
+						"          WorkerId,",
+						"          Learning",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectSpeedbump14Learning",
+						"CoreEmpsAllYearsForLvl filter(EventId == 'HCT') ~> filter1",
+						"joinAggForBusLvlKey derive(Learning = iif(OtherNumVal1<(AvgTotalHours*.8),'Y','N')) ~> derivedColumn7",
+						"joinSpeedbump13AIUsage, selectSpeedbump14Learning join({Worker ID} == selectSpeedbump14Learning@WorkerId,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinSpeedbump14Learning",
+						"aggregateForApprentice derive(AvgTotalHours = TotalHours/EmpCount) ~> derivedAvgHours",
 						"select4 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
