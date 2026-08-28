@@ -326,6 +326,21 @@
 				},
 				{
 					"name": "join3"
+				},
+				{
+					"name": "join4"
+				},
+				{
+					"name": "join5"
+				},
+				{
+					"name": "filterThriveIndex"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "selectSpeedebump10Thrive"
 				}
 			],
 			"scriptLines": [
@@ -1381,6 +1396,24 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join3",
+				"OtherCore, SelectCurrYear join(EventYear == MaxCurrYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join4",
+				"join4 join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join5",
+				"joinMappedHierarchy filter(EventType=='ThriveIndex') ~> filterThriveIndex",
+				"filterThriveIndex derive(ThriveIndex = iif(ElloreeBusGrpLvl1=='Advisory',iif(OtherCharVal11=='Very Low',1,0),iif(ElloreeBusGrpLvl1=='Assurance and Tax',iif(OtherCharVal11=='Very Low',1,0),0))) ~> derivedColumn3",
+				"derivedColumn3 select(mapColumn(",
+				"          WorkerId = OtherCore@WorkerId,",
+				"          ThriveIndex",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectSpeedebump10Thrive",
 				"select4 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
