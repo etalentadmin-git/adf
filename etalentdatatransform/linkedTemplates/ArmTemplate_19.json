@@ -2928,7 +2928,7 @@
 								"referenceName": "etalentApplFlowMapTbl",
 								"type": "DatasetReference"
 							},
-							"name": "AppendApplicantFlowMapping"
+							"name": "sink1"
 						}
 					],
 					"transformations": [
@@ -2940,6 +2940,9 @@
 						},
 						{
 							"name": "derivedColumn1"
+						},
+						{
+							"name": "filter1"
 						}
 					],
 					"scriptLines": [
@@ -3036,7 +3039,8 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
 						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"derivedColumn1 filter(not(isNull(ClientId))) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          ClientId as string,",
@@ -3068,11 +3072,11 @@
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientApplFinalDisp','ClientApplStepBeforeFinalDisp','ClientApplRejectedReason'],",
+						"     keys:['ClientId','ClientEngagementDt','ClientApplFinalDisp','ClientApplStepBeforeFinalDisp','ClientApplRejectedReason','ClientQualifiedInd','ClientSubmittedToHMInd','ClientInterviewedInd','ClientOfferExtendedInd','ClientHiredInd'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendApplicantFlowMapping"
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 					]
 				}
 			},
