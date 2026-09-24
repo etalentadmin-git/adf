@@ -35128,6 +35128,61 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_Core_PY')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Creating Core Fact Table file (this one runs)",
+				"activities": [
+					{
+						"name": "RunPython",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 Compare_CoreFactTbl.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python/FactTable",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"ErrorMessage": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Client/Create Fact Table Files"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlob_Etalent1Storage')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBatch_etalent1storage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_DivSlate')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -80473,14 +80528,14 @@
 					"scriptLines": [
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Event Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as string,",
 						"          Event as string,",
 						"          {Requisition ID} as string,",
-						"          {Application Date} as date 'yyyy-MM-dd',",
+						"          {Application Date} as date 'MM-dd-yyyy',",
 						"          {Applicant ID} as string,",
 						"          {Applicant City} as string,",
 						"          {Applicant State} as string,",
@@ -80494,7 +80549,7 @@
 						"          {Veteran Ind} as string,",
 						"          LGBTQ as string,",
 						"          {Disability Ind} as string,",
-						"          {Applicant Final Disposition Date} as date 'yyyy-MM-dd',",
+						"          {Applicant Final Disposition Date} as date 'MM-dd-yyyy',",
 						"          {Applicant Final Disposition} as string,",
 						"          {Applicant Step Before Final Disposition} as string,",
 						"          {Applicant Rejected Reason} as string,",
@@ -83429,8 +83484,8 @@
 					"scriptLines": [
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Event Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Event Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as string,",
@@ -83439,7 +83494,7 @@
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
 						"          {Requisition Reason} as string,",
-						"          {Posting Date} as date 'MM/dd/yyyy',",
+						"          {Posting Date} as date 'MM-dd-yyyy',",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as string,",
 						"          {Job Title} as string,",
@@ -131766,6 +131821,12 @@
 						},
 						{
 							"name": "derivedAvgHours"
+						},
+						{
+							"name": "derivedCalcBSTalentTag"
+						},
+						{
+							"name": "derivedBusinessServices"
 						}
 					],
 					"scriptLines": [
@@ -132352,7 +132413,8 @@
 						"          TalentIdentifier4,",
 						"          TalentIdentifier5,",
 						"          SalaryRange,",
-						"          BonusReceivedInd",
+						"          BonusReceivedInd,",
+						"          ElloreeBusGrpLvl1",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectCoreForMgrPopulation",
@@ -132520,7 +132582,7 @@
 						"     ignoreSpaces: false,",
 						"     broadcast: 'both')~> Join5OrMoreApplied",
 						"AggApplicantData derive({Applicant Five or More} = iif({Count Req}>=3,'Y','N')) ~> Select5orMoreAppliedApplicant",
-						"CalcSpeedBumps select(mapColumn(",
+						"derivedBusinessServices select(mapColumn(",
 						"          {Client ID},",
 						"          {Client Engagement Date},",
 						"          {Event Quarter} = EventQuarter,",
@@ -132694,7 +132756,7 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectTalentColumns",
-						"joinBusiness, SelectTalentColumns join(WorkerId == {Talent WorkerId},",
+						"derivedCalcBSTalentTag, SelectTalentColumns join(WorkerId == {Talent WorkerId},",
 						"     joinType:'left',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
@@ -132750,7 +132812,8 @@
 						"          FormerIntern,",
 						"          Apprenticeship,",
 						"          AIUsage,",
-						"          Learning",
+						"          Learning,",
+						"          ElloreeBusGrpLvl1",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> CleanupJoinFields",
@@ -132964,6 +133027,67 @@
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> joinSpeedbump14Learning",
 						"aggregateForApprentice derive(AvgTotalHours = TotalHours/EmpCount) ~> derivedAvgHours",
+						"joinBusiness derive({Emp Perf Rating Curr Talent Tag} = iif(\r",
+						"    ElloreeBusGrpLvl1 == 'Business Services',\r",
+						"\r",
+						"    iif(\r",
+						"        (\r",
+						"            {Emp P1 Elloree Perf Rating} == 'N/A' ||\r",
+						"            {Emp P1 Elloree Perf Rating} == 'No Rating' ||\r",
+						"            {Emp P2 Elloree Perf Rating} == 'N/A' ||\r",
+						"            {Emp P2 Elloree Perf Rating} == 'No Rating'\r",
+						"        ),\r",
+						"\r",
+						"        'N/A',\r",
+						"\r",
+						"        iif(\r",
+						"            (\r",
+						"                {Emp Curr Elloree Perf Rating} == 'Outstanding' ||\r",
+						"                {Emp Curr Elloree Perf Rating} == 'Exceeds'\r",
+						"            ) &&\r",
+						"            (\r",
+						"                {Emp P1 Elloree Perf Rating} == 'Outstanding' ||\r",
+						"                {Emp P1 Elloree Perf Rating} == 'Exceeds'\r",
+						"            ),\r",
+						"\r",
+						"            'Sustained Excellence',\r",
+						"\r",
+						"            iif(\r",
+						"                (\r",
+						"                    {Emp Curr Elloree Perf Rating} == 'Outstanding' ||\r",
+						"                    {Emp Curr Elloree Perf Rating} == 'Exceeds'\r",
+						"                ) &&\r",
+						"                (\r",
+						"                    {Emp P1 Elloree Perf Rating} != 'Outstanding' &&\r",
+						"                    {Emp P1 Elloree Perf Rating} != 'Exceeds'\r",
+						"                ),\r",
+						"\r",
+						"                'Recent Standout',\r",
+						"\r",
+						"                iif(\r",
+						"                    (\r",
+						"                        {Emp Curr Elloree Perf Rating} != 'Outstanding' &&\r",
+						"                        {Emp Curr Elloree Perf Rating} != 'Exceeds'\r",
+						"                    ) &&\r",
+						"                    (\r",
+						"                        {Emp P1 Elloree Perf Rating} == 'Outstanding' ||\r",
+						"                        {Emp P1 Elloree Perf Rating} == 'Exceeds'\r",
+						"                    ),\r",
+						"\r",
+						"                    'Declining Momentum',\r",
+						"\r",
+						"                    'N/A'\r",
+						"                )\r",
+						"            )\r",
+						"        )\r",
+						"    ),\r",
+						"\r",
+						"    {Emp Perf Rating Curr Talent Tag}\r",
+						")) ~> derivedCalcBSTalentTag",
+						"CalcSpeedBumps derive({Speedbump 4 Flag} = iif(ElloreeBusGrpLvl1=='Business Services','N',{Speedbump 4 Flag}),",
+						"          {Speedbump 8 Flag} = iif(ElloreeBusGrpLvl1=='Business Services','N',{Speedbump 8 Flag}),",
+						"          {Speedbump 9 Flag} = iif(ElloreeBusGrpLvl1=='Business Services','N',{Speedbump 9 Flag}),",
+						"          {Speedbump 10 Flag} = iif(ElloreeBusGrpLvl1=='Business Services','N',{Speedbump 10 Flag})) ~> derivedBusinessServices",
 						"select4 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",

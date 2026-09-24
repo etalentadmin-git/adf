@@ -13,6 +13,89 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Output_Mapping_BusHierarchy_PY')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RunBusHierarchyMapping",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 HierarchyMappingAnalysis_v17c.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RunBusHierarchyLineage",
+						"type": "Custom",
+						"dependsOn": [
+							{
+								"activity": "RunBusHierarchyMapping",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 HierarchyLineageAnalysis_v1.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Client/Create Mapping Table Files"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-01-11T23:59:38Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Output_Mapping_ReqType_Reason')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -368,14 +451,14 @@
 					"scriptLines": [
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Event Date} as date 'yyyy-MM-dd',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Event Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as string,",
 						"          Event as string,",
 						"          {Requisition ID} as string,",
-						"          {Application Date} as date 'yyyy-MM-dd',",
+						"          {Application Date} as date 'MM-dd-yyyy',",
 						"          {Applicant ID} as string,",
 						"          {Applicant City} as string,",
 						"          {Applicant State} as string,",
@@ -389,7 +472,7 @@
 						"          {Veteran Ind} as string,",
 						"          LGBTQ as string,",
 						"          {Disability Ind} as string,",
-						"          {Applicant Final Disposition Date} as date 'yyyy-MM-dd',",
+						"          {Applicant Final Disposition Date} as date 'MM-dd-yyyy',",
 						"          {Applicant Final Disposition} as string,",
 						"          {Applicant Step Before Final Disposition} as string,",
 						"          {Applicant Rejected Reason} as string,",
@@ -2093,8 +2176,8 @@
 					"scriptLines": [
 						"source(output(",
 						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Event Date} as date 'MM/dd/yyyy',",
+						"          {Client Engagement Date} as date 'MM-dd-yyyy',",
+						"          {Event Date} as date 'MM-dd-yyyy',",
 						"          EventMonth as string,",
 						"          {Event Quarter} as string,",
 						"          {Event Year} as string,",
@@ -2103,7 +2186,7 @@
 						"          {Requisition ID} as string,",
 						"          {Requisition Type} as string,",
 						"          {Requisition Reason} as string,",
-						"          {Posting Date} as date 'MM/dd/yyyy',",
+						"          {Posting Date} as date 'MM-dd-yyyy',",
 						"          {Requisition Status} as string,",
 						"          {Number of Openings} as string,",
 						"          {Job Title} as string,",
@@ -3649,128 +3732,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError') ~> AppendEthnicityMapping"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Append_Mapping_Event')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Database/Load Mapping Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Mapping_Event",
-								"type": "DatasetReference"
-							},
-							"name": "Event"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "etalentEventMapTbl",
-								"type": "DatasetReference"
-							},
-							"name": "AppendEventMapping"
-						}
-					],
-					"transformations": [
-						{
-							"name": "alterRow1"
-						},
-						{
-							"name": "AlterColumnNamesforMap"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
-						"          {Client Event} as string,",
-						"          {Client Event Type} as string,",
-						"          {Client Event Reason} as string,",
-						"          {Elloree Event} as string,",
-						"          {Elloree Event Type} as string,",
-						"          {Elloree Event Reason} as string,",
-						"          {Elloree Termination Reason} as string,",
-						"          {Suggested Elloree Event} as string,",
-						"          {Suggested Elloree Event Type} as string,",
-						"          {Suggested Elloree Event Reason} as string,",
-						"          {Suggested Elloree Termination Reason} as string,",
-						"          {Suggested Source} as string,",
-						"          {2019 Headcount} as string,",
-						"          {2020 Headcount} as string,",
-						"          {2020 Hire} as string,",
-						"          {2020 Promo} as string,",
-						"          {2020 Term} as string,",
-						"          {2021 Headcount} as string,",
-						"          {2021 Hire} as string,",
-						"          {2021 Promo} as string,",
-						"          {2021 Term} as string,",
-						"          {2022 Headcount} as string,",
-						"          {2022 Hire} as string,",
-						"          {2022 Promo} as string,",
-						"          {2022 Term} as string,",
-						"          {2023 Promo} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Event",
-						"Event alterRow(upsertIf(true()),",
-						"     deleteIf(isNull({Client ID})),",
-						"     deleteIf(isNull({Client Engagement Date})),",
-						"     deleteIf(isNull({Elloree Event})),",
-						"     deleteIf(isNull({Elloree Event Type})),",
-						"     deleteIf(isNull({Elloree Event Reason})),",
-						"     deleteIf(isNull({Elloree Termination Reason}))) ~> alterRow1",
-						"alterRow1 select(mapColumn(",
-						"          ClientId = {Client ID},",
-						"          ClientEngagementDt = {Client Engagement Date},",
-						"          ClientEvent = {Client Event},",
-						"          ElloreeEvent = {Elloree Event},",
-						"          ClientEventType = {Client Event Type},",
-						"          ElloreeEventType = {Elloree Event Type},",
-						"          ClientEventReason = {Client Event Reason},",
-						"          ElloreeEventReason = {Elloree Event Reason},",
-						"          ElloreeTermReason = {Elloree Termination Reason}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AlterColumnNamesforMap",
-						"AlterColumnNamesforMap derive(LoadDt = currentDate()) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ClientId as string,",
-						"          ClientEngagementDt as date,",
-						"          ClientEvent as string,",
-						"          ClientEventType as string,",
-						"          ClientEventReason as string,",
-						"          ElloreeEvent as string,",
-						"          ElloreeEventType as string,",
-						"          ElloreeEventReason as string,",
-						"          ElloreeTermReason as string,",
-						"          LoadDt as date",
-						"     ),",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:true,",
-						"     keys:['ClientId','ClientEngagementDt','ClientEvent','ClientEventType','ClientEventReason'],",
-						"     format: 'table',",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> AppendEventMapping"
 					]
 				}
 			},

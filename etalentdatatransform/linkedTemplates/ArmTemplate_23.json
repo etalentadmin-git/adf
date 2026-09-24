@@ -13,6 +13,111 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/BLS_White_Male_Hisp')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "External Data/BLS"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Json_BLS_White_Male_Hisp",
+								"type": "DatasetReference"
+							},
+							"name": "BLSJsonSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_BLS_Output",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flatten3"
+						},
+						{
+							"name": "flatten4"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          status as string,",
+						"          responseTime as integer,",
+						"          message as string[],",
+						"          Results as (series as (seriesID as string, data as (year as string, period as string, periodName as string, latest as string, value as string, footnotes as ({} as string)[])[])[])",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'documentPerLine') ~> BLSJsonSource",
+						"BLSJsonSource foldDown(unroll(Results.series),",
+						"     mapColumn(",
+						"          status,",
+						"          responseTime,",
+						"          message,",
+						"          seriesID = Results.series.seriesID,",
+						"          data = Results.series.data",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten3",
+						"flatten3 foldDown(unroll(data),",
+						"     mapColumn(",
+						"          seriesID,",
+						"          year = data.year,",
+						"          period = data.period,",
+						"          latest = data.latest,",
+						"          value = data.value",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten4",
+						"flatten4 derive(Race = 'White',",
+						"          Source = 'BLS',",
+						"          EthnicOrigin = 'Hispanic or Latino',",
+						"          Gender = 'Male',",
+						"          SeriesDesc = '(unadj) Civilian Labor Force - White, Hispanic, men',",
+						"          Quarter = iif(period=='Q01',1,iif(period=='Q02',2,iif(period=='Q03',3,iif(period=='Q04',4,0)))),",
+						"          Headcount = toInteger(value)*1000) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          Source,",
+						"          SourceId = seriesID,",
+						"          Desc = SeriesDesc,",
+						"          Year = year,",
+						"          Quarter,",
+						"          Latest = latest,",
+						"          EthnicOrigin,",
+						"          Race,",
+						"          Gender,",
+						"          Headcount",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['BLS_White_Male_Hisp.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/BLS_White_Male_NonHisp')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -18661,238 +18766,6 @@
 						"     startAt: 1L,",
 						"     stepValue: 1L) ~> surrogateKey1",
 						"SelectFinal sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          Column_1 as string,",
-						"          Column_2 as string,",
-						"          Column_3 as string,",
-						"          Column_4 as string,",
-						"          Column_5 as string,",
-						"          Column_6 as string,",
-						"          Column_7 as string,",
-						"          Column_8 as string,",
-						"          Column_9 as string,",
-						"          Column_10 as string,",
-						"          Column_11 as string,",
-						"          Column_12 as string,",
-						"          Column_13 as string,",
-						"          Column_14 as string,",
-						"          Column_15 as string,",
-						"          Column_16 as string,",
-						"          Column_17 as string,",
-						"          Column_18 as string,",
-						"          Column_19 as string,",
-						"          Column_20 as string,",
-						"          Column_21 as string,",
-						"          Column_22 as string,",
-						"          Column_23 as string,",
-						"          Column_24 as string,",
-						"          Column_25 as string,",
-						"          Column_26 as string,",
-						"          Column_27 as string,",
-						"          Column_28 as string",
-						"     ),",
-						"     partitionFileNames:['OthrCoreFlexTbl.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_FactTbl_OtherCore_File_Append')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Fact Tables"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_Template_OtherCore_Append",
-								"type": "DatasetReference"
-							},
-							"name": "OtherAppend"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_FactTbl_OtherCore_File",
-								"type": "DatasetReference"
-							},
-							"name": "Other"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_FactTblFldr",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "FilterOutClientHeaderRowAndColumn"
-						},
-						{
-							"name": "SelectFinal"
-						},
-						{
-							"name": "AddDerived"
-						},
-						{
-							"name": "ConvertNullsForKeyFields"
-						},
-						{
-							"name": "union1"
-						},
-						{
-							"name": "RemoveDups"
-						},
-						{
-							"name": "SelectOutput"
-						},
-						{
-							"name": "RemoveNullRows"
-						},
-						{
-							"name": "derivedEventQtr"
-						},
-						{
-							"name": "surrogateKey1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Flow_Client_Id as string,",
-						"     Flow_Client_Dt as string,",
-						"     Flow_Qtr1_Start as string",
-						"}",
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Event Year} as short,",
-						"          {Event Date} as date,",
-						"          {Worker ID} as string,",
-						"          {Event (Type)} as string,",
-						"          {Event (Desc)} as string,",
-						"          {Other (Char Value 1)} as string,",
-						"          {Other (Char Value 2)} as string,",
-						"          {Other (Num Value 1)} as string,",
-						"          {Other (Num Value 2)} as string,",
-						"          {Other (Date Value 1)} as string,",
-						"          {Other (Date Value 2)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> OtherAppend",
-						"source(output(",
-						"          {Client ID} as string,",
-						"          {Client Engagement Date} as string,",
-						"          {Worker ID} as string,",
-						"          {Event Date} as date,",
-						"          EventMonth as integer,",
-						"          {Event Quarter} as integer,",
-						"          {Event Year} as short,",
-						"          {Event ID} as string,",
-						"          Event as string,",
-						"          {Event (Type)} as string,",
-						"          {Event (Desc)} as string,",
-						"          {Other (Char Value 1)} as string,",
-						"          {Other (Char Value 2)} as string,",
-						"          {Other (Num Value 1)} as string,",
-						"          {Other (Num Value 2)} as string,",
-						"          {Other (Date Value 1)} as string,",
-						"          {Other (Date Value 2)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Other",
-						"surrogateKey1 filter(RowNum !=1 && !isNull({Event Year})) ~> FilterOutClientHeaderRowAndColumn",
-						"ConvertNullsForKeyFields select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Worker ID},",
-						"          {Event Date},",
-						"          EventMonth,",
-						"          {Event Quarter},",
-						"          {Event Year},",
-						"          {Event ID},",
-						"          Event,",
-						"          {Event (Type)},",
-						"          {Event (Desc)},",
-						"          {Other (Char Value 1)},",
-						"          {Other (Char Value 2)},",
-						"          {Other (Num Value 1)},",
-						"          {Other (Num Value 2)},",
-						"          {Other (Date Value 1)},",
-						"          {Other (Date Value 2)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectFinal",
-						"RemoveNullRows derive({Client ID} = $Flow_Client_Id,",
-						"          {Client Engagement Date} = $Flow_Client_Dt,",
-						"          Event = 'Other',",
-						"          {Event ID} = 'OTH',",
-						"          EventMonth = month({Event Date})) ~> AddDerived",
-						"derivedEventQtr derive({Event (Type)} = iif(isNull({Event (Type)}),'N/A',{Event (Type)}),",
-						"          {Event (Desc)} = iif(isNull({Event (Desc)}),'N/A',{Event (Desc)}),",
-						"          {Other (Char Value 1)} = iif(isNull({Other (Char Value 1)}),'N/A',{Other (Char Value 1)}),",
-						"          {Other (Char Value 2)} = iif(isNull({Other (Char Value 2)}),'N/A',{Other (Char Value 2)}),",
-						"          {Other (Num Value 1)} = iif(isNull({Other (Num Value 1)}),'N/A',{Other (Num Value 1)}),",
-						"          {Other (Num Value 2)} = iif(isNull({Other (Num Value 2)}),'N/A',{Other (Num Value 2)}),",
-						"          {Other (Date Value 1)} = iif(isNull({Other (Date Value 1)}),'N/A',{Other (Date Value 1)}),",
-						"          {Other (Date Value 2)} = iif(isNull({Other (Date Value 2)}),'N/A',{Other (Date Value 2)})) ~> ConvertNullsForKeyFields",
-						"SelectFinal, Other union(byName: true)~> union1",
-						"union1 aggregate(groupBy({Client Engagement Date},",
-						"          {Event Quarter},",
-						"          {Worker ID},",
-						"          {Event Year},",
-						"          EventMonth,",
-						"          {Event Date},",
-						"          Event,",
-						"          {Event ID},",
-						"          {Event (Type)},",
-						"          {Event (Desc)},",
-						"          {Other (Char Value 1)},",
-						"          {Other (Char Value 2)},",
-						"          {Other (Num Value 1)},",
-						"          {Other (Num Value 2)},",
-						"          {Other (Date Value 1)},",
-						"          {Other (Date Value 2)}),",
-						"     {Client ID} = max({Client ID})) ~> RemoveDups",
-						"RemoveDups select(mapColumn(",
-						"          {Client ID},",
-						"          {Client Engagement Date},",
-						"          {Worker ID},",
-						"          {Event Date},",
-						"          EventMonth,",
-						"          {Event Quarter},",
-						"          {Event Year},",
-						"          {Event ID},",
-						"          Event,",
-						"          {Event (Type)},",
-						"          {Event (Desc)},",
-						"          {Other (Char Value 1)},",
-						"          {Other (Char Value 2)},",
-						"          {Other (Num Value 1)},",
-						"          {Other (Num Value 2)},",
-						"          {Other (Date Value 1)},",
-						"          {Other (Date Value 2)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectOutput",
-						"FilterOutClientHeaderRowAndColumn filter(!(isNull({Event Date}))||!(isNull({Worker ID}))) ~> RemoveNullRows",
-						"AddDerived derive({Event Quarter} = iif(     (         (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12     ) < 3,      1,     iif(         (             (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12         ) >= 3 && (             (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12         ) < 6,          2,         iif(             (                 (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12             ) >= 6 && (                 (toInteger(EventMonth) - toInteger($Flow_Qtr1_Start) + 12) % 12             ) < 9,              3,             4         )     ) )) ~> derivedEventQtr",
-						"OtherAppend keyGenerate(output(RowNum as long),",
-						"     startAt: 1L,",
-						"     stepValue: 1L) ~> surrogateKey1",
-						"SelectOutput sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          Column_1 as string,",

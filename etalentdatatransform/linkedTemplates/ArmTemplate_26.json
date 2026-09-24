@@ -13,6 +13,239 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_Review_CorpTitle')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "This workflow outputs 1 file for review of ethnicity values across events and time periods.",
+				"folder": {
+					"name": "Client/Audit Reports"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_FactTbl_AllCoreData_File",
+								"type": "DatasetReference"
+							},
+							"name": "AllCoreData"
+						},
+						{
+							"dataset": {
+								"referenceName": "Source_Mapping_CorpTitle",
+								"type": "DatasetReference"
+							},
+							"name": "CorpTitleMapping"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Source_AuditFolder",
+								"type": "DatasetReference"
+							},
+							"name": "OutputCorpTitleReview"
+						}
+					],
+					"transformations": [
+						{
+							"name": "CreatePivotCorpTitleEventTime"
+						},
+						{
+							"name": "SortOnEvent"
+						},
+						{
+							"name": "AddCorpTitleMapping"
+						},
+						{
+							"name": "SortOnCorpTitle"
+						},
+						{
+							"name": "SelectColumns"
+						},
+						{
+							"name": "AddDerivedEventYearColumn"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     TitleReview_ClientId as string,",
+						"     TitleReview_ClientDt as string",
+						"}",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          EventMonth as integer,",
+						"          {Event Quarter} as integer,",
+						"          {Event Year} as short,",
+						"          {Worker ID} as string,",
+						"          {Event Date} as date,",
+						"          {Event Code} as string,",
+						"          {Event Type} as string,",
+						"          Event as string,",
+						"          {Event Reason} as string,",
+						"          {Worker Type} as string,",
+						"          {Job Title} as string,",
+						"          {Job Function} as string,",
+						"          {Years in Job} as double,",
+						"          {Previous Job Title} as string,",
+						"          {Previous Job Function} as string,",
+						"          {Original Hire Date} as date,",
+						"          {Current Hire Date} as date,",
+						"          {Years of Service} as double,",
+						"          {Years of Service Band} as string,",
+						"          {Years of Service Sort ID} as string,",
+						"          {Last Promo Date} as date,",
+						"          {Corporate Title} as string,",
+						"          {Previous Corporate Title} as string,",
+						"          {Manager Indicator} as string,",
+						"          {Direct Manager Worker ID} as string,",
+						"          {Work Office Location} as string,",
+						"          {Work City} as string,",
+						"          {Work State} as string,",
+						"          {Work Country} as string,",
+						"          {Strategic Work Location Ind} as string,",
+						"          {Legacy Organization} as string,",
+						"          {Business Group Level 1} as string,",
+						"          {Business Group Level 2} as string,",
+						"          {Business Group Level 3} as string,",
+						"          {Business Group Level 4} as string,",
+						"          Race as string,",
+						"          {Hispanic or Latino Origin} as string,",
+						"          Gender as string,",
+						"          {Veteran Ind} as string,",
+						"          LGBTQ as string,",
+						"          {Disability Ind} as string,",
+						"          {Birth Year} as short,",
+						"          {Generation Desc} as string,",
+						"          {Generation Sort ID} as string,",
+						"          EmpCount as integer,",
+						"          RowCount as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AllCoreData",
+						"source(output(",
+						"          {Client ID} as string,",
+						"          {Client Engagement Date} as date 'MM/dd/yyyy',",
+						"          {Client Corporate Title} as string,",
+						"          {Elloree Corporate Title} as string,",
+						"          {Client Elloree Corporate Title} as string,",
+						"          {Elloree Corporate Title Sort} as string,",
+						"          {Suggested Elloree Corporate Title} as string,",
+						"          {Suggested Client Elloree Corporate Title} as string,",
+						"          {Suggested Elloree Corporate Title Sort} as string,",
+						"          {Suggested Source} as string,",
+						"          {2017 Headcount Curr Title} as string,",
+						"          {2017 Headcount Prev Title} as string,",
+						"          {2018 Headcount Curr Title} as string,",
+						"          {2018 Headcount Prev Title} as string,",
+						"          {2018 Hire Curr Title} as string,",
+						"          {2018 Hire Prev Title} as string,",
+						"          {2018 Promo Curr Title} as string,",
+						"          {2018 Promo Prev Title} as string,",
+						"          {2018 Term Curr Title} as string,",
+						"          {2018 Term Prev Title} as string,",
+						"          {2019 Headcount Curr Title} as string,",
+						"          {2019 Headcount Prev Title} as string,",
+						"          {2019 Hire Curr Title} as string,",
+						"          {2019 Hire Prev Title} as string,",
+						"          {2019 Promo Curr Title} as string,",
+						"          {2019 Promo Prev Title} as string,",
+						"          {2019 Term Curr Title} as string,",
+						"          {2019 Term Prev Title} as string,",
+						"          {2020 Headcount Curr Title} as string,",
+						"          {2020 Headcount Prev Title} as string,",
+						"          {2020 Hire Curr Title} as string,",
+						"          {2020 Hire Prev Title} as string,",
+						"          {2020 Promo Curr Title} as string,",
+						"          {2020 Promo Prev Title} as string,",
+						"          {2020 Term Curr Title} as string,",
+						"          {2020 Term Prev Title} as string,",
+						"          {2021 Headcount Curr Title} as string,",
+						"          {2021 Headcount Prev Title} as string,",
+						"          {2021 Hire Curr Title} as string,",
+						"          {2021 Hire Prev Title} as string,",
+						"          {2021 Promo Curr Title} as string,",
+						"          {2021 Promo Prev Title} as string,",
+						"          {2021 Term Curr Title} as string,",
+						"          {2021 Term Prev Title} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> CorpTitleMapping",
+						"SortOnEvent pivot(groupBy({Corporate Title},",
+						"          {Elloree Corporate Title},",
+						"          {Client Elloree Corporate Title},",
+						"          {Client ID},",
+						"          {Client Engagement Date}),",
+						"     pivotBy({Event Quarter and Year}),",
+						"     {} = count({Worker ID}),",
+						"     columnNaming: '$N$V',",
+						"     lateral: false,",
+						"     partitionBy('hash', 1)) ~> CreatePivotCorpTitleEventTime",
+						"AddDerivedEventYearColumn sort(asc({Event Year}, true)) ~> SortOnEvent",
+						"AllCoreData, CorpTitleMapping join({Corporate Title} == {Client Corporate Title},",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> AddCorpTitleMapping",
+						"CreatePivotCorpTitleEventTime sort(asc({Corporate Title}, true)) ~> SortOnCorpTitle",
+						"AddCorpTitleMapping select(mapColumn(",
+						"          {Client ID} = AllCoreData@{Client ID},",
+						"          {Event Year},",
+						"          {Event Quarter},",
+						"          {Event Date},",
+						"          Event,",
+						"          {Event Type},",
+						"          {Worker ID},",
+						"          {Worker Type},",
+						"          {Job Title},",
+						"          {Job Function},",
+						"          {Corporate Title},",
+						"          {Manager Indicator},",
+						"          {Direct Manager Worker ID},",
+						"          {Legacy Organization},",
+						"          {Work Office Location},",
+						"          {Work City},",
+						"          {Work State},",
+						"          {Original Hire Date},",
+						"          {Current Hire Date},",
+						"          {Business Group Level 1},",
+						"          {Business Group Level 2},",
+						"          Race,",
+						"          {Hispanic or Latino Origin},",
+						"          Gender,",
+						"          {Birth Year},",
+						"          {Previous Job Title},",
+						"          {Previous Job Function},",
+						"          {Previous Corporate Title},",
+						"          {Years of Service},",
+						"          {Years in Job},",
+						"          {Event Reason},",
+						"          EmpCount,",
+						"          {Client Corporate Title},",
+						"          {Elloree Corporate Title},",
+						"          {Elloree Corporate Title Sort},",
+						"          {Client Elloree Corporate Title},",
+						"          {Client Engagement Date} = CorpTitleMapping@{Client Engagement Date}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectColumns",
+						"SelectColumns derive({Event Quarter and Year} = concat(concat(toString(Event),concat(' Q',toString({Event Quarter}))),concat(' ',toString({Event Year})))) ~> AddDerivedEventYearColumn",
+						"SortOnCorpTitle sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['Dimension Review - Corporate Title.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> OutputCorpTitleReview"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_Review_Duplicate')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -5789,325 +6022,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> OutputColumnSummaryReview"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_Review_Template_Column_TA')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "Client/Audit Reports"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Source_ColumnMapping_Requisition",
-								"type": "DatasetReference"
-							},
-							"name": "RequisitionColumnMapping"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_Req",
-								"type": "DatasetReference"
-							},
-							"name": "Requisitions"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_ColumnMapping_Applicant",
-								"type": "DatasetReference"
-							},
-							"name": "ApplicanrColumnMapping"
-						},
-						{
-							"dataset": {
-								"referenceName": "Source_Template_JobApplicants",
-								"type": "DatasetReference"
-							},
-							"name": "Applicants"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "Source_AuditFolder",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "ReqRemoveClientRefColumn"
-						},
-						{
-							"name": "AddReqDerivedColumnForAggGrouping"
-						},
-						{
-							"name": "UnpivotToTransposeReqColumnNames"
-						},
-						{
-							"name": "SelectUniqueReqColumnRows"
-						},
-						{
-							"name": "SelectOnlyReqColumnNameField"
-						},
-						{
-							"name": "ReqColumnJoinToMapping"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "SelectReqSummary"
-						},
-						{
-							"name": "sort1"
-						},
-						{
-							"name": "AppliantRemoveClientRefColumn"
-						},
-						{
-							"name": "AddApplicantsDerivedColumnForAggGrouping"
-						},
-						{
-							"name": "UnpivotToTransposeApplColumnNames"
-						},
-						{
-							"name": "SelectUniqueApplColumnRows"
-						},
-						{
-							"name": "SelectOnlyApplColumnNameField"
-						},
-						{
-							"name": "ApplColumnJoinToMapping"
-						},
-						{
-							"name": "derivedColumn2"
-						},
-						{
-							"name": "SelectApplSummary"
-						},
-						{
-							"name": "sort2"
-						},
-						{
-							"name": "union1"
-						},
-						{
-							"name": "sort3"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Sort Id} as integer,",
-						"          {Column Name} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> RequisitionColumnMapping",
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Event Year} as string,",
-						"          {Event Date} as string,",
-						"          {Requisition ID} as string,",
-						"          {Requisition Type} as string,",
-						"          {Posting Date} as string,",
-						"          {Requisition Status} as string,",
-						"          {Number of Openings} as string,",
-						"          {Job Title} as string,",
-						"          {Job Function} as string,",
-						"          {Corporate Title} as string,",
-						"          {Work Office Location} as string,",
-						"          {Work Office City} as string,",
-						"          {Work Office State} as string,",
-						"          {Work Office Country} as string,",
-						"          {Strategic Work Location Ind} as string,",
-						"          {Business Group Level 1} as string,",
-						"          {Business Group Level 2} as string,",
-						"          {Business Group Level 3} as string,",
-						"          {Business Group Level 4} as string,",
-						"          {Hiring Manager Worker ID} as string,",
-						"          {Primary Recruiter Worker ID} as string,",
-						"          {Requisition Other (1)} as string,",
-						"          {Requisition Other (2)} as string,",
-						"          {Requisition Other (3)} as string,",
-						"          {Requisition Other (4)} as string,",
-						"          {Requisition Other (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Requisitions",
-						"source(output(",
-						"          {Sort Id} as integer,",
-						"          {Column Name} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> ApplicanrColumnMapping",
-						"source(output(",
-						"          {DO NOT USE THIS COLUMN.  DO NOT ALTER HEADER NAMES ON THIS ROW==>} as string,",
-						"          {Requisition ID} as string,",
-						"          {Application Date} as string,",
-						"          {Applicant ID} as string,",
-						"          Source as string,",
-						"          {Applicant Type} as string,",
-						"          {Internal Worker ID} as string,",
-						"          {Applicant City} as string,",
-						"          {Applicant State} as string,",
-						"          {Applicant Country} as string,",
-						"          Race as string,",
-						"          {Hispanic or Latino Origin} as string,",
-						"          Gender as string,",
-						"          {Veteran Ind} as string,",
-						"          LGBTQ as string,",
-						"          {Disability Ind} as string,",
-						"          {Applicant Final Disposition Date} as string,",
-						"          {Applicant Final Disposition} as string,",
-						"          {Applicant Step Before Final Disposition} as string,",
-						"          {Applicant Rejected Reason} as string,",
-						"          {Applicant Other (1)} as string,",
-						"          {Applicant Other (2)} as string,",
-						"          {Applicant Other (3)} as string,",
-						"          {Applicant Other (4)} as string,",
-						"          {Applicant Other (5)} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> Applicants",
-						"Requisitions select(mapColumn(",
-						"          {Event Year},",
-						"          {Event Date},",
-						"          {Requisition ID},",
-						"          {Requisition Type},",
-						"          {Posting Date},",
-						"          {Requisition Status},",
-						"          {Number of Openings},",
-						"          {Job Title},",
-						"          {Job Function},",
-						"          {Corporate Title},",
-						"          {Work Office Location},",
-						"          {Work Office City},",
-						"          {Work Office State},",
-						"          {Work Office Country},",
-						"          {Strategic Work Location Ind},",
-						"          {Business Group Level 1},",
-						"          {Business Group Level 2},",
-						"          {Business Group Level 3},",
-						"          {Business Group Level 4},",
-						"          {Hiring Manager Worker ID},",
-						"          {Primary Recruiter Worker ID},",
-						"          {Requisition Other (1)},",
-						"          {Requisition Other (2)},",
-						"          {Requisition Other (3)},",
-						"          {Requisition Other (4)},",
-						"          {Requisition Other (5)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> ReqRemoveClientRefColumn",
-						"ReqRemoveClientRefColumn derive({Event Sheet} = 'Requisitions') ~> AddReqDerivedColumnForAggGrouping",
-						"AddReqDerivedColumnForAggGrouping unpivot(output(",
-						"          Column as string,",
-						"          Value as string",
-						"     ),",
-						"     ungroupBy({Event Sheet}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> UnpivotToTransposeReqColumnNames",
-						"UnpivotToTransposeReqColumnNames aggregate(groupBy({Column Name} = Column),",
-						"     each(match(name!='Event'), $$ = first($$))) ~> SelectUniqueReqColumnRows",
-						"SelectUniqueReqColumnRows select(mapColumn(",
-						"          {Client Column} = {Column Name}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectOnlyReqColumnNameField",
-						"SelectOnlyReqColumnNameField, RequisitionColumnMapping join({Client Column} == {Column Name},",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> ReqColumnJoinToMapping",
-						"ReqColumnJoinToMapping derive({Event Template} = 'Requisitions') ~> derivedColumn1",
-						"derivedColumn1 select(mapColumn(",
-						"          {Event Template},",
-						"          {Column Name},",
-						"          {Client Column},",
-						"          {Sort Id}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectReqSummary",
-						"SelectReqSummary sort(asc({Sort Id}, true)) ~> sort1",
-						"Applicants select(mapColumn(",
-						"          {Requisition ID},",
-						"          {Application Date},",
-						"          {Applicant ID},",
-						"          Source,",
-						"          {Applicant Type},",
-						"          {Internal Worker ID},",
-						"          {Applicant City},",
-						"          {Applicant State},",
-						"          {Applicant Country},",
-						"          Race,",
-						"          {Hispanic or Latino Origin},",
-						"          Gender,",
-						"          {Veteran Ind},",
-						"          LGBTQ,",
-						"          {Disability Ind},",
-						"          {Applicant Final Disposition Date},",
-						"          {Applicant Final Disposition},",
-						"          {Applicant Step Before Final Disposition},",
-						"          {Applicant Rejected Reason},",
-						"          {Applicant Other (1)},",
-						"          {Applicant Other (2)},",
-						"          {Applicant Other (3)},",
-						"          {Applicant Other (4)},",
-						"          {Applicant Other (5)}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> AppliantRemoveClientRefColumn",
-						"AppliantRemoveClientRefColumn derive({Event Sheet} = 'Applicants') ~> AddApplicantsDerivedColumnForAggGrouping",
-						"AddApplicantsDerivedColumnForAggGrouping unpivot(output(",
-						"          Column as string,",
-						"          Value as string",
-						"     ),",
-						"     ungroupBy({Event Sheet}),",
-						"     lateral: true,",
-						"     ignoreNullPivots: false) ~> UnpivotToTransposeApplColumnNames",
-						"UnpivotToTransposeApplColumnNames aggregate(groupBy({Column Name} = Column),",
-						"     each(match(name!='Event'), $$ = first($$))) ~> SelectUniqueApplColumnRows",
-						"SelectUniqueApplColumnRows select(mapColumn(",
-						"          {Client Column} = {Column Name}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectOnlyApplColumnNameField",
-						"SelectOnlyApplColumnNameField, ApplicanrColumnMapping join({Client Column} == {Column Name},",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> ApplColumnJoinToMapping",
-						"ApplColumnJoinToMapping derive({Event Template} = 'Applicants') ~> derivedColumn2",
-						"derivedColumn2 select(mapColumn(",
-						"          {Client Column},",
-						"          {Sort Id},",
-						"          {Column Name},",
-						"          {Event Template}",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SelectApplSummary",
-						"SelectApplSummary sort(asc({Sort Id}, true)) ~> sort2",
-						"sort1, sort2 union(byName: true)~> union1",
-						"union1 sort(asc({Event Template}, true)) ~> sort3",
-						"sort3 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['Template - Column Review TA.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
 					]
 				}
 			},

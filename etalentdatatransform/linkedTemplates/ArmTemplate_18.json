@@ -1889,6 +1889,58 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Output_FactTbl_File_Core_PY')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Creating Core Fact Table file (this one runs)",
+				"activities": [
+					{
+						"name": "RunPython",
+						"type": "Custom",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"command": "python3 Compare_CoreFactTbl.py",
+							"resourceLinkedService": {
+								"referenceName": "AzureBlob_Etalent1Storage",
+								"type": "LinkedServiceReference"
+							},
+							"folderPath": "processing/Python/FactTable",
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureBatch_etalent1storage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"ErrorMessage": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Client/Create Fact Table Files"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Output_Mapping_Appl_Source_PY')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1913,89 +1965,6 @@
 								"type": "LinkedServiceReference"
 							},
 							"folderPath": "processing/Python/Mapping",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "Client/Create Mapping Table Files"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-01-11T23:59:38Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Output_Mapping_BusHierarchy_PY')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "RunBusHierarchyMapping",
-						"type": "Custom",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 HierarchyMappingAnalysis_v17c.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureBatch_etalent1storage",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "RunBusHierarchyLineage",
-						"type": "Custom",
-						"dependsOn": [
-							{
-								"activity": "RunBusHierarchyMapping",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"command": "python3 HierarchyLineageAnalysis_v1.py",
-							"resourceLinkedService": {
-								"referenceName": "AzureBlob_Etalent1Storage",
-								"type": "LinkedServiceReference"
-							},
-							"folderPath": "processing/Python",
 							"referenceObjects": {
 								"linkedServices": [],
 								"datasets": []
