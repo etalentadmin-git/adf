@@ -4,7 +4,89 @@
 		"description": "Load all fact tables to the database once audit files have been reviewed and any remediation action taken.",
 		"activities": [
 			{
-				"name": "Output_FactTbl_File_Speedbumps_Baseline",
+				"name": "Append_FactTbl_Speedbumps",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Delete_Rec_FactTbl_Speedbumps",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Append_FactTbl_Speedbumps",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_Folder_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_Folder_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Delete_Rec_FactTbl_Speedbumps",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Output_FactTbl_File_Speedbumps_BL_Hibiscus_2025",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Delete_Qtr_Rec_FactTbl_Speedbumps_NEW",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"P_Client_Id": {
+							"value": "@pipeline().parameters.P_Client_Id",
+							"type": "Expression"
+						},
+						"P_Client_Dt": {
+							"value": "@pipeline().parameters.P_Client_Dt",
+							"type": "Expression"
+						},
+						"P_SB_Year": {
+							"value": "@pipeline().parameters.P_Folder_Year",
+							"type": "Expression"
+						},
+						"P_SB_Quarter": {
+							"value": "@pipeline().parameters.P_Folder_Quarter",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Output_FactTbl_File_Speedbumps_BL_Hibiscus_2025",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"policy": {
@@ -13,7 +95,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "Output_FactTbl_File_Speedbumps_BL_Ficus",
+						"referenceName": "Output_FactTbl_File_Speedbumps_BL_Hibiscus_2025",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
@@ -100,88 +182,6 @@
 						},
 						"P_SB15_Placeholder": {
 							"value": "@pipeline().parameters.SB15_Placeholder",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			{
-				"name": "Append_FactTbl_Speedbumps",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "Delete_Rec_FactTbl_Speedbumps",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "Append_FactTbl_Speedbumps",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"P_Client_Id": {
-							"value": "@pipeline().parameters.P_Client_Id",
-							"type": "Expression"
-						},
-						"P_Client_Dt": {
-							"value": "@pipeline().parameters.P_Client_Dt",
-							"type": "Expression"
-						},
-						"P_Folder_Year": {
-							"value": "@pipeline().parameters.P_Folder_Year",
-							"type": "Expression"
-						},
-						"P_Folder_Quarter": {
-							"value": "@pipeline().parameters.P_Folder_Quarter",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			{
-				"name": "Delete_Rec_FactTbl_Speedbumps",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "Output_FactTbl_File_Speedbumps_Baseline",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "Delete_Qtr_Rec_FactTbl_Speedbumps_NEW",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"P_Client_Id": {
-							"value": "@pipeline().parameters.P_Client_Id",
-							"type": "Expression"
-						},
-						"P_Client_Dt": {
-							"value": "@pipeline().parameters.P_Client_Dt",
-							"type": "Expression"
-						},
-						"P_SB_Year": {
-							"value": "@pipeline().parameters.P_Folder_Year",
-							"type": "Expression"
-						},
-						"P_SB_Quarter": {
-							"value": "@pipeline().parameters.P_Folder_Quarter",
 							"type": "Expression"
 						}
 					}
